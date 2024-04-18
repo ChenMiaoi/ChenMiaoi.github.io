@@ -8,7 +8,7 @@ categories: [architecture]
 
 # The First instruction for ORI
 
-> 在CPU for MIPS系列的笔记中，我会详细介绍从一个最小的五级流水线开始不断的构建出一个完整的五级流水线(支持`MIPS Realse &#x2160;`，从而将`ucos &#x2161;`进行搭载)。
+> 在CPU for MIPS系列的笔记中，我会详细介绍从一个最小的五级流水线开始不断的构建出一个完整的五级流水线(支持$MIPS Release&#x2160;，从而将$ucos$&#x2161;进行搭载)。
 
 ## ORI Instruction
 
