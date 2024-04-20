@@ -2,7 +2,7 @@
 title: 'CPU for MIPS: ORI''s Five-Stage Pipeline'
 mathjax: true
 date: 2024-04-18 00:44:03
-tags: [verilog, cpu, mips, five-stage pipeline]
+tags: [verilog, cpu, mips, five-stage, pipeline]
 categories: [architecture]
 ---
 

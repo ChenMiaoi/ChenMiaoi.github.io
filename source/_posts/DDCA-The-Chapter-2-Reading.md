@@ -3,7 +3,7 @@ title: 'DDCA: The Chapter 2 Reading'
 mathjax: true
 date: 2024-04-11 23:13:29
 tags: [ysyx, digital, logic]
-categories: [ysyx, books]
+categories: [books]
 ---
 
 # Combinational Logic Design

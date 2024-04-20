@@ -3,7 +3,7 @@ title: 'DDCA: The Chapter 3 Reading'
 mathjax: true
 date: 2024-04-13 18:26:39
 tags: [ysyx, digital, logic]
-categories: [ysyx, books]
+categories: [books]
 ---
 
 # Sequential Logic Design
