@@ -196,3 +196,188 @@ $$
 $$
 
 ## Pipelined Processor
+
+流水线技术是提高数字系统吞吐量的强大方式。我们通过将单周期处理器细分为五个流水线阶段来设计流水线处理器，因此，五条指令可以同时执行，每个阶段执行一条指令。由于每个阶段只有整个逻辑的五分之一，时钟频率几乎快了五倍。因此，每条指令的延迟在理想情况下不变，但吞吐量理想情况下提高了五倍。微处理器每秒执行数百万到数十亿条指令，因此，吞吐量比延迟更重要。流水线技术引入了一些开销，因此吞吐量可能不会像我们理想地希望的那样高，但流水线技术为极少的成本提供了巨大优势，因此所有现代高性能微处理器都采用了流水线技术。
+
+读取和写入内存和`regfile`，以及使用`ALU`通常构成处理器中的最大延迟。我们选择了五个流水线阶段，以便每个阶段都包含其中一个较慢的步骤。具体来说，我们称这五个阶段为`取指(Fetch)`、`解码(Decode)`、`执行(Execute)`、`存储器(Memory)`和`写回(Writeback)`。它们类似于多周期处理器用于执行`lw`的五个步骤。在取指阶段，处理器从指令存储器中读取指令。在解码阶段，处理器从寄存器文件中读取源操作数，并解码指令以产生控制信号。在执行阶段，处理器使用`ALU`进行计算。在存储器阶段，处理器读取或写入数据存储器。最后，在写回阶段，处理器在适用时将结果写入`regfile`。
+
+下图给出了单周期和流水线处理器的时序比图。时间在横轴上，指令在纵轴上。该图假定了逻辑单元延迟，忽略了多路选择器和寄存器的延迟。在图(a)中，第一条指令在`0`时刻从存储器中读出；接下来从`regfile`中读取操作数；然后`ALU`执行必要的计算；再者，访问数据存储器，最终在$950ps$时刻时回写到`regfile`。于是该单周期的延迟为$950ps$。
+
+![time diagrams](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404210836280.png)
+
+图(b)展示了流水线处理器，其中最慢的一个阶段被设置为$250ps$，即取值或访存阶段中的读写内存操作。在`0`时刻时，第一条指令从存储器中被读出；在$250ps$时刻，第一条指令进入译码阶段，第二条指令开始被读取；在$500ps$，第一条指令被执行，第二条指令进入译码阶段，第三条指令开始被加载；以此类推，直到所有指令被完成。此时的指令延迟为$5 \times 250 = 1250ps$，吞吐量为$250ps/inst$。**由于各个阶段的逻辑量不完全平衡，流水线处理器的延迟略长于单周期处理器。同样地，对于五级流水线处理器，吞吐量并不完全是单周期处理器的五倍。然而，吞吐量的优势仍然是相当大的**。
+
+下图展示了一个运动中的流水线抽象视角，其中每个阶段都以图像的方式表示。每个流水线阶段都用其主要组成部分表示，指令存储器(`IM`)、`regfile`读(`RF`)、`ALU`执行、数据存储器(`DM`)和`regfile`写(`RW`)。读取一行展示了一条指令在每一个阶段上的时钟周期。读取一列展示了多个流水线阶段在同一个时钟周期上执行。每个阶段用阴影部分表示正在被使用。在流水线处理器中，`regfile`在一个周期的第一部分写入，第二个部分读取，通过这种方式，可以在单个周期内写入和读回数据。
+
+![abstract view of pipeline](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404210851673.png)
+
+流水线系统中的一个核心挑战是处理当一个指令的结果在前一条指令完成之前就被后续指令所需要时发生的`冲突(hazards)`。例如，如果上图中的加法指令使用的是`$s2`而不是`$t2`，那么会发生冲突，因为在加法指令读取`$s2`之前，`lw`指令尚未将数据写入`$s2`寄存器。本节探讨了`转发(forwarding)`、`停顿(stalls)`和`清空(flushes)`作为解决冲突的方法。最后，本节重新考虑了性能分析，考虑了序列化开销和冲突的影响。
+
+### Pipelined Datapath
+
+流水线的数据通路是将单周期数据通路切割成由流水线寄存器间隔的五个阶段形成的。图(a)展示了单周期数据通路的延伸，其为流水线寄存器留下了足够的空间。图(b)展示了通过插入四个流水线寄存器形成的流水线数据通路，将数据通路分为五个阶段。每个阶段及其边界用蓝色表示。信号用一个后缀(`F`、`D`、`E`、`M`和`W`)来表示它们所处的阶段。
+
+![five-stage pipeline data path](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404210910816.png)
+
+`regfile`是比较特殊的，因为它在译码阶段被读，回写阶段被写入。它是在译码阶段被绘制的，但写地址和数据来自于写回阶段，这种反馈将会导致流水线冲突。流水线处理器中的`regfile`在`CLK`的下降沿写入，此时`WD3`是稳定的。
+
+流水线中一个微妙但关键的问题在于**特定指令相关的所有信号必须一致地通过流水线推进**，但上图中的`regfile`写逻辑中，即写回阶段操作，数据值来自于写回阶段的`ResultW`信号，但是地址却来自于执行阶段的`WriteRegE`信号。比如下面的例子：
+
+``` asm
+lw $s2, 40($0)
+add $s3, $t1, $t2
+sub $s4, $s1, $5 
+```
+
+当第一条指令`lw $s2, 40($0)`处于第五个周期时，第三条指令恰好将`$s4`译码为目的寄存器，因此，当第五个周期将第一条指令的`ResultW`信号发出后，写入的实际上是`$s4`而非第一条指令的`$s2`。
+
+下图展示了正确的数据通路，`WriteReg`信号现在在`Memory`阶段和`Write Back`阶段被流水线化，因此它与指令的其余部分保持同步。`WriteRegW`和`ResultW`信号被一起反馈到`Write Back`阶段的`regfile`中。
+
+![corrected pipeline datapath](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221612944.png)
+
+一些敏锐的读者可能发现，`PC`的逻辑实际上也是有一定问题的，因为它可能会用`Fetch`或`Memory`阶段的信号(`PCPlus4F`或`PCBranchM`)，情况我们在后面再讨论。
+
+### Pipelined Control
+
+流水线处理器与单周期处理器使用着相同的信号，因此也就使用了相同的控制单元。不过，**这些控制信号必须与数据一同流水线化，以便与指令保持同步**。
+
+下图是带有控制的流水线处理器，`RegWrite`在反馈到`regfile`之前必须被流水线送入`Write Back`阶段，正如同`WriteReg`在之前那样。
+
+![pipeline processor with control](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221618134.png)
+
+### Hazards
+
+在一个流水线系统中，多条指令是被同时处理的。**当一条指令依赖于另一个尚未完成的结果时，就会产生**`冲突(hazards)`。
+
+`regfile`能够在同一个周期内进行读写操作，但**写操作发生在一个周期的前半部分，读操作发生在一个周期的后半部分，因此寄存器可以在同一个周期内写入和读回而不引入冲突**。
+
+![abstract pipeline diagram](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221622059.png)
+
+上图图解了一个冲突发生在一条指令写入寄存器`$s0`而随后一条指令将要读取寄存器`$s0`的时候。这被称为`读后写入冲突(read after write, RAW hazard)`。`add`指令会在第五个周期的前半个周期将结果写入`$s0`，然而，`and`指令在第三个周期读取`$s0`，因而得到了错误的值。`or`指令在第四个周期读取`$s0`，同样会得到错误的值。`sub`指令在第五个周期的后半个周期读取`$s0`，因此得到了在第五个周期的前半个周期写入的正确的值。从这以后，后面的指令都能读取到正确的`$s0`的值。上图显示，**当一条指令写入一个寄存器，并且后面的两条指令中的任何一条读到该寄存器时，该流水线就会发生冲突。如果不做任何特殊处理，流水线将会计算出错**。
+
+然而，仔细观察可以得出，`add`指令的计算结果总是在第三周期的`ALU`计算得出，而直到在第四周期`ALU`使用它时，才会在`and`指令中严格要求。**原则上，我们能够将结果从一条指令转发给下一条指令来解决**`RAW`**冲突**。在后续将要讨论的冲突中，可能还需要暂停流水线以为得出结果留出足够的时间。
+
+冲突通常被分为两类：`数据冲突(data hazard)`和`信号冲突(control hazard)`。**数据冲突通常发生在一条指令尝试去读取一个上一条指令还未写回的寄存器时；而信号冲突则发生在取值后还未决定下一步取值的指令是什么时**。在后续的章节，我会介绍使用冲突单元来对流水线处理器进行增强，以检测冲突并进行适当的处理，使处理器正确地执行程序。
+
+#### Solving Data Hazards with Forwarding
+
+一些数据冲突能够被`转发(forwarding or bypassing)`解决，也就是**通过转发从`Memory`或`Write Back`阶段转发得到的结果到`Execute`阶段所依赖的指令上**。这就需要在`ALU`前添加多路选择器，以便从`regfile`、`Memory`或`Write Back`阶段选择操作数。下图解释了这一原理。在周期四中，`$s0`从`add`指令的`Memory`阶段转发到需要依赖结果的`and`的`Execute`阶段。而周期五中，`$s0`从`add`指令的`Write Back`阶段转发到需要依赖结果的`or`的`Execute`阶段。
+
+![abstract pipeline diagram forwarding](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221645749.png)
+
+**当执行阶段的一条指令有一个源寄存器与上一条指令在`Memory`或`Write Back`阶段的目的寄存器匹配时，转发就是必要的**。下图修改了流水线处理器以支持转发，其新增了一个`冲突预测单元(hazard detection unit)`和两个转发多路选择器。冲突预测单元接收两个处于`Execute`阶段的源寄存器和处于`Memory`或`Write Back`阶段的目的寄存器，还接收来自`Memory`和`Write Back`阶段的`RegWrite`信号以便于了解目的寄存器是否会被实际写入(因为类似`sw`和`beq`指令不将结果写入`regfile`中，因此不需要转发)。值得注意的是，`RegWrite`信号在图中是通过名字连接的，而非直接使用长导线来横贯图示以使得图示混乱。
+
+![pipeline processor with forwarding](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221651697.png)
+
+冲突预测单元计算控制信号，用于转发多路复用器从`regfile`中选择操作数，或从`Memory`或`Write Back`阶段的结果中选择操作数。如果一个阶段将要写入一个目的寄存器，且该目的寄存器和源寄存器匹配，则应该从该阶段向前转发。但是，在`MIPS`中的`$0`寄存器无需转发，因为其恒为`0`值。如果`Memory`和`Write Back`阶段都包含匹配的目的寄存器，那么`Memory`阶段应该具有优先性的，因为它包含了最近执行的指令。因此，对于$SrcA$给出如下代码：
+
+``` verilog
+// 如果rs1寄存器不为$0，rs1与Memory阶段的目的寄存器匹配，且写使能导通
+if ((rsE != 0) and (rsE == WriteRegM) and RegWriteM) then 
+    ForwardAE = 10      // 直接从ALU计算结果处开始转发
+// 如果rs1寄存器不为$0，rs1与Write Back阶段的目的寄存器匹配，且写使能导通
+else if ((rsE != 0) and (rsE == WriteRegW) and RegWriteW) then
+    ForwardAE = 01      // 从写回阶段转发
+// 没有发生数据冲突
+else 
+    ForwardAE = 00      // rs1可以直接进行计算
+```
+
+这里也给出对应$SrcB$的代码，和$SrcA$相同，只不过判断的寄存器从`rs`变为`rt`：
+
+``` verilog
+if ((rtE != 0) and (rtE == WriteRegM) and RegWriteM) then
+    ForwardBE = 10      
+else if ((rtE != 0) and (rtE == WriteRegW) and RegWriteW) then
+    ForwardBE = 01      
+else 
+    ForwardBE = 00      
+```
+
+#### Solving Data Hazards with Stalls
+
+当结果在指令的`Execute`阶段被计算时，转发就足以处理`RAW`数据冲突，因为其结果可以被转发给下一条指令的`Execute`阶段。但是，对于`lw`指令而言，其直到`Memory`阶段结束才完成读取数据，因此其结果不能转发到下一条指令的`Execute`阶段。因此，我们称`lw`有两个周期的延迟，因为一个依赖指令不能使用它的结果，直到两个周期后才被允许。下图显示了这个问题，`lw`指令在周期四结束时从`Memory`中读取数据，但`and`指令需要在第四个周期开始时将数据作为源操作数进行计算，因此这种情况下，转发就不再有效。
+
+![abstract pipeline diagram trouble forwarding](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221725010.png)
+
+可供选择的解决方案是`暂停(stall)`管道，停止运行直到数据可用为止。下图展示了在`Decode`阶段暂停依赖指令`and`。`and`指令在第三周期进入`Decode`阶段，然后暂停直到第四周期结束，后续的指令`or`也必须保持在`Fetch`阶段。
+
+![abstract pipeline diagram stall](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221731679.png)
+
+在第五个周期，`lw`的的结果可以从`lw`的`Write Back`阶段转发到`and`的`Execute`阶段，而此时的`or`指令的$s0$并不需要转发，直接从`regfile`读取即可，因为此时结果已经写回到`regfile`中。
+
+注意，`Execute`阶段在周期四中并未被使用，同样`Memory`在周期五以及`Write Back`在周期六也是如此。这样通过流水线传播的未被使用的阶段被称为`气泡(bubble)`，它的行为就像一个`nop`指令。在`Decode`阶段暂停期间，通过将`Execute`阶段的控制信号置零来引入`bubble`，使得气泡不执行任何动作，也不改变架构状态。
+
+**总之，通过停用流水线寄存器来暂停流水线阶段的进行，使得其内容不发生变化。当一个阶段暂停时，之前的所有阶段都会因此停顿，以免后续指令丢失。为了防止伪信息向前传递，必须清空在该阶段之后的流水线。暂停会降低新能，因此只能在必要时使用**。
+
+下图是修改后的流水线处理器，为`lw`指令的数据依赖添加暂停操作。冲突预测单元在`Execute`阶段对指令进行检查：如果是`lw`指令，其目的寄存器`rtE`与`Decode`阶段的`rsD`或`rtD`的任意源操作数匹配，则该指令就必须在`Decode`阶段暂停，直到源操作数准备好。
+
+![pipeline for stall](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221824653.png)
+
+通过在`Fetch`和`Decode`阶段的流水线寄存器中添加使能输入`EN`和在`Execute`阶段添加同步的复位/清除输入(`CLR`)来支持暂停操作。当`lw`指令暂停发生时，`StallD`和`StallF`被导通使得`Decode`和`Fetch`阶段的流水线寄存器保持其旧值。`FlushE`导通，并且清空执行阶段流水线寄存器的值，引入一个`bubble`。`MemtoReg`信号被导通。
+
+``` verilog
+lwstall = ((rsD == rtE) or (rtD = rtE)) and MemtoRegE
+StallF = StallD = FlushE = lwstall
+```
+
+#### Solving Control Hazards
+
+`beq`指令存在一个`控制冲突(control hazard)`：**流水线处理器不知道下一次取指什么指令，因为下一次取指时还没有做出分支决策**。
+
+**处理控制冲突的一种机制是将流水线暂停，直到分支决策确定。但是，由于决策是在**`Memory`**阶段决定的，因此每个分支，流水线都必须暂停三个周期，这是我们无法接受的**。
+
+**一种更好的方法是预测分支是否会被取走，并根据预测结果开始执行指令。一旦分支决策做出，并且预测其错误，处理器就会丢弃这些指令。尤其是，假设我们预测的分支不会被执行，然后按照顺序执行程序。如果分支本应该执行，则必须通过清空这些流水线寄存器来丢弃分支后的三条指令，这种浪费被称为**`分支预测错误惩罚(branch misprediction penalty)`。
+
+下图便展示了这一机制，其中从地址`20`到地址`64`中取一个分支。该分支直到周期四才做出分支决策，此时地址`24`、`28`、`2C`处的`and`、`or`、`sub`指令已经被取出，因此这些指令必须被刷新，然后`slt`指令被取出。这在一定程度上相较于暂停做出了改进，但是一旦进行分支决策时的指令数过多，全部冲洗掉就会降低性能。
+
+![abstract pipeline diagram flushing when branch](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221839922.png)
+
+如果能够更早地做出决策，则可以减少分支预测错误惩罚。决策只需要比较两个寄存器的值即可。使用专用的比较器比执行减法和零检测要快得多。如果比较器的速度足够快，可用将其移回`Decode`阶段，以便从`regfile`中读取操作数并进行比较。
+
+下图展示了在第二个周期进行早期分支预测的流水线运行情况。在第三周期，刷新`and`指令并取出`slt`指令，现在分支预测错误惩罚被减少到只有一条指令。
+
+![ealier branch decision](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221846278.png)
+
+下图修改了流水线处理器，以便更早地移动分支决策和处理控制冲突。在`Decode`阶段增加一个相等比较器，并提前移动了$PCSrc AND$门，这就使得`Decode`阶段而非`Memory`阶段确定$PCSrc$。`PCBranch`加法器必须移入`Decode`阶段以便于及时计算目的地址。在`Decode`阶段的流水线寄存器中添加与$PCSrcD$相连的`CLR`信号，以便在分支决策时能够对读取的指令进行刷新。
+
+![solving branch control](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221848694.png)
+
+不幸的是，过早的分支预测硬件引入了新的`RAW`数据冲突。具体地说，**如果分支的一个源操作数是通过先前的指令计算得到的，尚未写入**`regfile`，**则该分支将从**`regfile`**中读取到错误的操作数值**。因此，我们还需要通过转发正确的值来解决数据冲突，或许也可以通过暂停流水线以获得已准备的数据。
+
+下图给出了具体的流水线处理器的修改。如果一个结果处于`Write Back`阶段，它将在周期的前半部分被写入，在后半部分被读出。因此不存在冲突；如果一个`ALU`指令的结果处于`Memory`阶段，则可用通过新增的两个多路选择器将其转发给相等比较器。如果`ALU`指令的结果在`Execute`阶段，或者`lw`指令的结果在`Memory`阶段，则必须在`Decode`阶段暂停流水线，直到结果准备就绪。
+
+![handing data](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221903204.png)
+
+这里给出`Decode`阶段的转发逻辑
+
+``` verilog
+// 如果需要比较的源操作数是后续处于Memory阶段的值，就需要转发
+ForwardAD = (rsD != 0) and (rsD == WriteRegM) and RegWriteM
+ForwardBD = (rtD != 0) and (rtD == WriteRegM) and RegWriteM
+```
+
+下面给出分支的暂停分支逻辑。处理器必须在`Decode`阶段进行分支预测。如果分支的任何一个源操作数在`Execute`阶段依赖于`ALU`指令，或者在`Memory`阶段依赖于`lw`指令，则处理器就应该暂停，直到源操作数准备就绪。
+
+``` verilog
+branchstall = 
+    BranchD and RegWriteE and (WriteRegE == rsD or WriteRegE == rtD)
+    or
+    BranchD and MemtoRegM and (WriteRegM == rsD or WriteRegM == rtD)
+```
+
+现在就得出了完整的逻辑：
+
+``` verilog
+StallF = StallD = FlushE = lwstall or branchstall
+```
+
+### Summary
+
+`RAW`**数据冲突发生在一条指令依赖于另一条指令的结果，而后者尚未写入寄存器文件时。如果结果能够很快计算出来，可以通过转发来解决数据冲突；否则，它们需要暂停流水线，直到结果可用**。
+
+**控制冲突发生在到达下一条指令必须获取之时，决定应该获取哪条指令的决定尚未做出。通过预测应该获取哪条指令并且在后续确认预测错误时清空流水线来解决控制冲突。尽早做出决定可以最大程度地减少错误预测时清空的指令数量**。
+
+到目前为止，设计流水线处理器的挑战之一是了解所有指令之间可能存在的所有交互作用，并发现可能存在的所有冲突。下图展示了处理所有冲突的完整流水线处理器。
+
+![whole](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404221913172.png)
