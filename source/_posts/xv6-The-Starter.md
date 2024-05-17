@@ -214,7 +214,9 @@ w_tp(id);
 
 ## Timer
 
-**暂时未能找到一份标准的**`CLINT`**手册**。
+### CLINT
+
+在`risc-v`中，`CLINT`的定义是由平台具体实现的，而`qemu virt`参考了`SIFIVE`的`CLINT`设计。因此，在这里我参考了`SiFive FE310-G000`型号的开发板进行分析。
 
 `xv6-riscv`的`CLINT`是根据[qemu virt](https://github.com/qemu/qemu/blob/master/hw/riscv/virt.c)中的设置而来，因此可以看见`CLINT`的基址位于`0x2000'0000`处。
 
@@ -223,6 +225,23 @@ static const MemMapEntry virt_memmap[] = {
     [VIRT_CLINT] =        {  0x2000000,       0x10000 },
 };
 ```
+
+了解到`CLINT`在实际物理地址中的基址后，我们就需要学习关于`CLINT`的一些基本概念:
+
+`CLINT(Core Local Interruptor)`是一个处理器内部模块，**负责处理和管理核本地的中断和定时器功能**。`CLINT`的主要功能包括:
+
+- `本地中断管理(Local Interrupt Management)`：`CLINT`处理核本地的中断请求，这些中断请求通常不需要通过全局中断控制器(如`PLIC，Platform-Level Interrupt Controller`)进行处理。`CLINT`**管理的中断通常是核内的特殊事件**，例如软件中断和定时器中断。
+- `定时器功能(Timer Functionality)`：`CLINT`**提供核本地的定时器功能，用于生成周期性中断**。每个处理器核都有一个独立的定时器，通过编程可以设置定时器的触发时间。**当定时器到达设定时间时，会触发一个中断，处理器核可以用这个中断来执行周期性任务或进行时间管理**。
+
+在`risc-v`中，操作`CLINT`是有着专属寄存器的：
+
+- `msip(Machine-mode Software Interrupt Pending Register)`：用于管理软件中断。每个核都有各自的`msip`寄存器。写入这个寄存器会触发相应核的机器模式软件中断(`Machine Software Interrupt`)
+- `mtime(Machine Timer Register)：这是一个64位的计时器寄存器，**用于跟踪时间**。**它通常由一个全局的、统一递增的计时器硬件单元提供时间戳**
+- `mtimecmp(Machine Timer Compare Register)`：每个处理器核都有一个独立的$64$位`mtimecmp`寄存器。处理器核会不断地比较`mtime`和`mtimecmp`的值，当`mtime`达到或超过`mtimecmp`的值时，会触发机器模式定时器中断(`Machine Timer Interrupt`)
+
+对于`CLINT`的专属寄存器，`risc-v`手册中并未给出详细定义地址，因此，我们参考`SiFive FE310-G000`能够得到其在物理地址中的映射地址：
+
+![CLINT register remap](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405171437088.png)
 
 ```c
 // core local interruptor (CLINT), which contains the timer.
@@ -234,6 +253,46 @@ static const MemMapEntry virt_memmap[] = {
 - `CLINT`：`CLINT`的基址，即`CLINT`寄存器的起始地址。
 - `CLINT_MTIMECMP(hartid)`：用于计算给定`hartid`的`MTIMECMP`寄存器的地址。在`CLINT`中，每个`hart`都有一个`MTIMECMP`寄存器，用于设置定时器中断触发的时间比较值。
 - `CLINT_MTIME`：用于访问`MTIME`寄存器的地址。`MTIME`寄存器用于跟踪自启动以来的时钟周期数，它通常用于实现定时器。
+
+在正式介绍`Timer`的代码前，我们需要对一些寄存器做出了解。
+
+### mscratch csr(Machine Scratch Register)
+
+`mscratch`寄存器是一个$MXLEN$位宽的读写寄存器，**其只能被**`M mode`**所使用**。**通常，它用于保存指向**`M mode`的`hart-local`**上下文空间的指针，并在进入**`M mode trap handler`**时与用户寄存器交换**。
+
+当处理器进入机器模式处理中断或异常时，通常会使用`mscratch`寄存器保存上下文信息，例如保存当前的寄存器状态、程序计数器等。这样可以在处理完中断或异常后恢复处理器状态。
+
+### mtvec csr(Machine Trap-Vector Base-Address Register)
+
+`mtvec`寄存器是一个$MXLEN$位宽的读写寄存器，**其保存了由一个向量基址**(`Vector Base Address`)**和向量模式**(`Vector Mode`)**组成的**`trap vector configuration`。
+
+![mtvec](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405171455924.png)
+
+`mtvec`总是被实现的，至少会包含一个可读的值；如果`mtvec`以可写的方式实现，那么`mtvec`所保存的值的集合根据实现的不同而不同。`mtvec.BASE`的值必须始终是四字节对齐的，而`mtvec.MODE`设置的值可能会对`mtvec.BASE`施加额外的对齐操作。
+
+![Encoding of mtvec MODE field](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405171502892.png)
+
+`mtvec.MODE`的编码如上所示。当$mtvec.MODE = Direct$时，所有进入到`M`态的`trap`都会导致`pc`被设置为`mtvec.BASE`字段中的值；当`mtvec.MODE = Vectored`时，所有进入到`M`态的**同步异常**都会导致`pc`被设置为`mtvec.BASE`字段中的值，而所有进入到`M`态的**异步中断**都会导致`pc`被设置为$mtvec.BASE + cause \times 4$。
+
+### Supervisor Interrupt Registers(sip and sie)
+
+我们在介绍`start`函数时，曾介绍过`sie`寄存器。现在，我们对`sip`寄存器做出介绍。
+
+`sip`寄存器是一个$SXLEN$位宽的读写寄存器，**其包含了挂起的中断的信息**。
+
+![sip](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405171514872.png)
+
+![scause values](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161929250.png)
+
+![sip portion](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405171519208.png)
+
+- `sip.SEIP`用于`S`态的外部中断的中断挂起，如果实现，`SEIP`在`sip`中是**只读**的，并且由执行环境设置和清除，通常通过特定于平台的中断控件
+- `sip.STIP`用于`S`态的定时器中断的中断挂起，如果实现，`STIP`在`sip`中是**只读**的，并且由执行环境设置和清除
+- `sip.SSIP`用于`S`态的软件中断的中断挂起，如果实现，`SSIP`在`sip`中是**可写**的，并且可能被平台特定的中断控制器置`1`
+
+### Timer Code
+
+#### Timer Init
 
 ```c 
 // a scratch area per CPU for machine-mode timer interrupts.
@@ -271,29 +330,40 @@ void timerinit() {
 
 然后`*(uint64 *)CLINT_MTIMECMP(id) = *(uint64 *)CLINT_MTIME + interval`: 在`CLINT`中设置一个定时器中断。这行代码将`CLINT`的`MTIMECMP`寄存器(**用于设置定时器中断触发的时间比较值**)的值设置为当前的`MTIME`寄存器值加上一个指定的间隔。在这里，间隔为$100'0000$个`CPU`周期，大约相当于`qemu`中的$1/10$秒。
 
-`uint64 *scratch = &timer_scratch[id][0]`: 创建一个指向`timer_scratch`数组的指针，并将其设置为当前`CPU`对应的条目的地址。这个数组用于存储一些与定时器中断相关的信息。
+`uint64 *scratch = &timer_scratch[id][0]`: 创建一个指向`timer_scratch`数组的指针，并将其设置为当前`hart`对应的上下文的地址。这个数组用于存储一些与定时器中断相关的信息。
 
 `scratch[3] = CLINT_MTIMECMP(id)`: 将`CLINT`的`MTIMECMP`寄存器的地址存储在`scratch`数组的第`3`个条目中。
 
 `scratch[4] = interval`: 将定时器中断触发的时间间隔(以`CPU`周期数表示)存储在`scratch`数组的第`4`个条目中
 
-`w_mscratch((uint64)scratch)`: 将`scratch`数组的地址存储在`MSRATCH`寄存器中，以便后续的处理。
+`w_mscratch((uint64)scratch)`: 将`scratch`数组的地址存储在`MSRATCH`寄存器中，以便后续的处理，这里实际上就是对定时器中断的信息进行了初始化，保存在了当前`hart`的上下文中。
 
-`w_mtvec((uint64)timervec)`: 将`M mode trap`向量基址寄存器(`MTVEC`)设置为`timervec`函数的地址。这意味着当发生`M mode`的`trap`时，处理器将跳转到`timervec`函数中执行相应的处理
+也就是说，在`timer init`中，我们创建了一个针对于每一个`hart`单独的定时器的上下文配置，具体如下所示：
+
+```c
+timer scratch[5] = {
+    0,  reserve for parameters 
+    8,  reserve for parameters 
+    16, reserve for parameters 
+    24, address of CLINT MTIMECMP register
+    32, desired interval (in cycles) between timer interrupts
+}
+```
+
+`w_mtvec((uint64)timervec)`: 将`M mode trap`向量基址寄存器(`MTVEC`)设置为`timervec`函数的地址。这意味着当发生`M mode`的`trap`时，处理器将跳转到`timervec`函数中执行相应的处理，而对于定时器中断，我们将其设置为`M mode trap handler`，因此只要发生定时器中断，那么就可以跳转到`timervec`中进行处理。
 
 `w_mstatus(r_mstatus() | MSTATUS_MIE)`: 使能`M mode`中断(`MIE`)。这行代码将`MSTATUS`寄存器的`MIE`位设置为`1`，允许`M mode`中断。
 
-`w_mie(r_mie() | MIE_MTIE)`: 使能机器模式的定时器中断(`MTIE`)。这行代码将`MIE`寄存器的`MTIE`位设置为`1`，允许机器模式的定时器中断。
+`w_mie(r_mie() | MIE_MTIE)`: 使能机器模式的定时器中断(`MTIE`)。这行代码将`MIE`寄存器的`MTIE`位设置为`1`，允许机器模式的定时器中断，这里就与上述代码对应了。
+
+#### Time Interrupt Handler
+
+实际上，我认为在这里将`Timer Trap Handler`不是太合适，因此此处仅仅列出代码，并不做任何解释。
 
 ```asm
 .globl timervec
 .align 4
 timervec:
-        # start.c has set up the memory that mscratch points to:
-        # scratch[0,8,16] : register save area.
-        # scratch[24] : address of CLINT's MTIMECMP register.
-        # scratch[32] : desired interval between interrupts.
-        
         csrrw a0, mscratch, a0
         sd a1, 0(a0)
         sd a2, 8(a0)
@@ -319,11 +389,5 @@ timervec:
 
         mret
 ```
-
-`csrrw a0, mscratch, a0`: 从`mscratch`寄存器中读取当前值，并将其写入寄存器`a0`中。`mscratch`寄存器通常用于存储中断处理函数的上下文信息
-
-`sd a1, 0(a0)`, `sd a2, 8(a0)`, `sd a3, 16(a0)`: 将寄存器`a1`, `a2`, `a3`的值分别存储到`mscratch`指向的内存中的偏移地址`0`, `8`, `16`处。这些值通常是中断处理函数需要保存的寄存器值。
-
-
 
 最后，所有的准备工作完成后，我们就能够正式进入内核态进行各种初始化配置和运行了。
