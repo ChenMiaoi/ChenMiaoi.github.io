@@ -7,7 +7,7 @@ categories: [books]
 ---
 
 # Hello, world of concurrency in C++!
-[Concurrency-in-Action-Introduction.md](Concurrency-in-Action-Introduction.md)
+
 本系列笔记是关于如何使用C++写出多线程并发的应用以及关于C++对于多线程的特性、库工具做出解析。仍然需要注意的是，该系列的笔记**只是个人理解下的观点，如有错误，请通过email发送信息给我**(<chenmiao.ku@gmail.com>)。
 
 ## What is concurrency?
