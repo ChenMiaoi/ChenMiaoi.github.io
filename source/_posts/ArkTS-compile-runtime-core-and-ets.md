@@ -16,7 +16,7 @@ categories: [arkts]
 
 从结构上看，ArkCompiler主要分成两个部分：编译工具链与运行时。
 
-![编译工具链架构](https://gitee.com/openharmony/docs/raw/master/zh-cn/readme/figures/zh-cn_image_ark_frontend.png)
+![编译工具链架构](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407011731363.png)
 
 ArkCompiler的编译工具链以ArkTS/TS/JS源码作为输入，将其编译生成为abc(ArkCompiler Bytecode，即方舟字节码)文件。其主要是通过在编译中产生的二进制程序`es2abc`进行工作：
 
@@ -24,7 +24,7 @@ ArkCompiler的编译工具链以ArkTS/TS/JS源码作为输入，将其编译生�
 es2abc hello.js
 ```
 
-![运行时架构](https://gitee.com/openharmony/docs/raw/master/zh-cn/readme/figures/zh-cn_image_ark-ts-arch.png)
+![运行时架构](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407011732850.png)
 
 ArkCompiler运行时直接运行字节码文件，实现对应语言规范的语义逻辑。
 
