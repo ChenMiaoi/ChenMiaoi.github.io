@@ -1,7 +1,7 @@
 ---
 title: 'ArkTS: analyze compiler_assembler'
 mathjax: true
-date: 2024-07-02 14:56:39
+date: 2024-07-04 9:39:39
 tags: [arkts, ospp]
 categories: [arkts]
 ---
@@ -551,4 +551,398 @@ private:
 class AssemblerAarch64 : public Assembler;
 ```
 
-#### Add
+这里还需要注意一点，在`ArkTS`实现`aarch64`时，使用了宏来确定了指令集的字段、位宽和掩码等数据：
+
+``` cpp
+#define DECL_FIELDS_IN_INSTRUCTION(INSTNAME, FIELD_NAME, HIGHBITS, LOWBITS) \
+static const uint32_t INSTNAME##_##FIELD_NAME##_HIGHBITS = HIGHBITS;  \
+static const uint32_t INSTNAME##_##FIELD_NAME##_LOWBITS = LOWBITS;    \
+static const uint32_t INSTNAME##_##FIELD_NAME##_WIDTH = ((HIGHBITS - LOWBITS) + 1); \
+static const uint32_t INSTNAME##_##FIELD_NAME##_MASK = (((1 << INSTNAME##_##FIELD_NAME##_WIDTH) - 1) << LOWBITS);
+
+#define DECL_INSTRUCTION_FIELDS(V)  \
+    COMMON_REGISTER_FIELD_LIST(V)   \
+    LDP_AND_STP_FIELD_LIST(V)       \
+    LDR_AND_STR_FIELD_LIST(V)       \
+    MOV_WIDE_FIELD_LIST(V)          \
+    BITWISE_OP_FIELD_LIST(V)        \
+    ADD_SUB_FIELD_LIST(V)           \
+    COMPARE_OP_FIELD_LIST(V)        \
+    BRANCH_FIELD_LIST(V)            \
+    BRK_FIELD_LIST(V)
+    
+#define COMMON_REGISTER_FIELD_LIST(V)   \
+    V(COMMON_REG, Rd, 4, 0)             \
+    V(COMMON_REG, Rn, 9, 5)             \
+    V(COMMON_REG, Rm, 20, 16)           \
+    V(COMMON_REG, Rt, 4, 0)             \
+    V(COMMON_REG, Rt2, 14, 10)          \
+    V(COMMON_REG, Sf, 31, 31)
+```
+
+#### Add && Sub
+
+在`aarch64`中，`add`和`sub`是一组几乎相同的指令。因此我们主要针对`add`进行讲解。`add`有两种类型：`add`和`adds`(我们不考虑`addg`的实现)。其中，`add`和`adds`各有三种情况：`extend register`、`immediate`和`shifted register`。
+
+##### add(extend register)
+
+`Add(extended register)`**指令将一个寄存器值和一个符号或零扩展的寄存器值相加，并可以选择进行左移，然后将结果写入目标寄存器**。由`<Rm>`寄存器扩展而来的参数可以是字节(byte)、半字(halfword)、字(word)或双字(doubleword)。
+
+![add extended register](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041036158.png)
+
+从`sf`位可以判断指令的数据位宽：
+
+- 如果$sf = 0$，则表示$32bits$:
+  - `ADD <Wd|WSP>, <Wn|WSP>, <Wm>{, <extend> {#<amount>}}`
+- 如果$sf = 1$，则表示$64bits$:
+  - `ADD <Xd|SP>, <Xn|SP>, <R><m>{, <extend> {#<amount>}}`
+
+对于`*d`而言，则为作为目的寄存器，而`*n`是第一个源寄存器。而`*m`自然就是第二个源寄存器。对于在$64bits$下的指令格式而言，`<R>`用于表示寄存器前缀，`<m>`表示其寄存器号：
+
+| `<R>` |     code     |
+|:-----:|:------------:|
+|   W   | option = 00x |
+|   W   | option = 010 |
+|   X   | option = x11 |
+|   W   | option = 10x | 
+|   W   | option = 110 | 
+
+对于`<extend>`而言，则是和`Extend`这一实现有关，如果有需要请自行向上检索`Extend`或查阅相关手册。
+
+如果`Rd`或`Rn`寄存器为$11111$即`WSP`时，当指令为$32bits$时，且$option = 010$，则以`LSL`作为扩展方式；如果为$64bits$，且$option = 011$，则以`LSL`作为扩展方式。但如果$imm3 = 000$时，其可以被省略，否则其他情况下`<extend>`是必须的；且在$option = 010$时($32bits$)，还需以`UXTW`方式扩展；在$option = 011$时(64bits)，以`UXTW`方式扩展。
+
+`<amount>`与`imm3`字段有关，其用于左移的适当的偏移量，范围在$0 - 4$中(默认为$0$)。如果`<extend>`字段不存在，那么`<amount>`也就不存在；如果`<extend>`为`LSL`，那么`<amount>`就必须存在；如果`<extend>`存在但不为`LSL`，那么`<amount>`就是一个可选择的选项。
+
+##### add(immediate)
+
+`add(immediate)`添加一个寄存器值和一个可选择性位移的立即数值，并写入到目的寄存器中。该指令可以用于`MOV(to/from SP)`的别名。
+
+``` asm
+ADD <Wd|WSP>, <Wn|WSP>, #<imm>{, <shift>} ; 32-bits
+ADD <Xd|SP>, <Xn|SP>, #<imm>{, <shift>}   ; 64-bits
+```
+
+![add immediate](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041138935.png)
+
+当$sh = 0$且$imm12 = 0$，以及$R_n = SP$和$R_d = SP$时，可以用作`MOV`的一个别名：
+
+![add mov](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041142177.png)
+
+对于之前相同的字段名，这里不做过多介绍。`imm12`和`imm3`类似，不过这里的`imm12`是立即数数据，用于计算，其范围在$0 - 4095$之间。
+
+对于`<shift>`字段，则是会默认对`<imm12>`字段进行`LSL #0`的操作。如果$sh = 1$，则会进行`LSL #12`的操作(即符号扩展)。
+
+``` cpp
+case sh of
+  when '0' imm = ZeroExtend(imm12, datasize);
+  when '1' imm = ZeroExtend(imm12:Zeros(12), datasize);
+```
+
+##### add(shifted register)
+
+`add(shifted register)`添加一个寄存器值和一个可选择性位移的寄存器值，并写入到目的寄存器中。
+
+``` asm
+ADD <Wd>, <Wn>, <Wm>{, <shift> #<amount>} ; 32-bits
+ADD <Xd>, <Xn>, <Xm>{, <shift> #<amount>} ; 64-bits
+```
+
+![add(shifted register)](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041156195.png)
+
+对于`<shift>`字段，其会对第二个源寄存器进行处理：
+
+| type |    code    |
+|:----:|:----------:|
+| LSL  | shift = 00 |
+| LSR  | shift = 01 |
+| ASR  | shift = 10 |
+
+而`<amount>`字段则是与`imm6`字段相关，用于位移的位宽，其范围为$0 - 31$，默认为$0$。
+
+##### adds
+
+对于`adds`指令而言，也有三种情况：`adds(extended register)`、`adds(immediate)`和`adds(shifted register)`。与上面的`add`不同的只有其中的`<S>`标志，**以及执行加法操作，同时更新条件标志**($N$, $Z$, $C$, $V$)。其余均无变化。
+
+![adds](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041216169.png)
+
+``` asm
+; adds(extend register)
+ADDS <Wd>, <Wn|WSP>, <Wm>{, <extend> {#<amount>}}   ; 32-bits
+ADDS <Xd>, <Xn|SP>, <R><m>{, <extend> {#<amount>}}  ; 64-bits
+
+; adds(immediate)
+ADDS <Wd>, <Wn|WSP>, #<imm>{, <shift>}
+ADDS <Xd>, <Xn|SP>, #<imm>{, <shift>}
+
+; adds(shifted register)
+ADDS <Wd>, <Wn>, <Wm>{, <shift> #<amount>}
+ADDS <Xd>, <Xn>, <Xm>{, <shift> #<amount>}
+```
+
+|  condition  |    meaning     |
+|:-----------:|:--------------:|
+| N(Negative) | $result \lt 0$ |
+|   Z(Zero)   |  $result = 0$  |
+|  C(Carry)   |     carry      |
+| V(Overflow) |   over flow    | 
+
+还有一点差距的是：
+
+- `adds(extended register)`可用作`CMN(extended register)`的别名
+- `adds(immediate)`可用作`CMN(immediate)`的别名
+- `adds(shifted register)`可用作`CMN(shifted register)`的别名
+
+##### add code
+
+首先，我们通过上面所说的宏定义，给出`add`指令集对应的字段和位宽。
+
+``` cpp
+#define ADD_SUB_FIELD_LIST(V)           \
+    V(ADD_SUB, S, 29, 29)               \
+    V(ADD_SUB, Sh, 22, 22)              \
+    V(ADD_SUB, Imm12, 21, 10)           \
+    V(ADD_SUB, Shift, 23, 22)           \
+    V(ADD_SUB, ShiftAmount, 15, 10)     \
+    V(ADD_SUB, ExtendOption, 15, 13)    \
+    V(ADD_SUB, ExtendShift, 12, 10)
+```
+
+因为`add`和`sub`这两个指令集相差无几，所以我们将这两个指令集的字段和处理逻辑同放在`AddSubImm`和`AddSubReg`中。
+
+``` cpp
+void AssemblerAarch64::AddSubImm(AddSubOpCode op, const Register &rd, const Register &rn, bool setFlags, uint64_t imm)
+{
+    ASSERT(IsAddSubImm(imm));
+    uint32_t shift = 0;
+    const uint64_t IMM12_MASK = (1 << ADD_SUB_Imm12_WIDTH) - 1;
+    uint64_t imm12 = imm & (~IMM12_MASK);
+    if (imm12 != 0) {
+        shift = 1;
+    } else {
+        imm12 = imm;
+    }
+    uint32_t flags_field = ((setFlags ? 1 : 0) << ADD_SUB_S_LOWBITS) & ADD_SUB_S_MASK;
+    uint32_t imm_field = (imm12 << ADD_SUB_Imm12_LOWBITS) & ADD_SUB_Imm12_MASK;
+    uint32_t shift_field = (shift << ADD_SUB_Sh_LOWBITS) & ADD_SUB_Sh_MASK;
+    uint32_t code = Sf(!rd.IsW()) | op | flags_field | shift_field | imm_field | Rd(rd.GetId()) | Rn(rn.GetId());
+    EmitU32(code);
+}
+```
+
+对于`add(immediate)`的处理而言，我们需要对是否需要进行扩展和立即数进行提取，然后移动到对应的位上即可。`setFlags`用于判断是`add`还是`adds`。
+
+``` cpp
+void AssemblerAarch64::AddSubReg(AddSubOpCode op, const Register &rd, const Register &rn,
+                                 bool setFlags, const Operand &operand)
+{
+    uint32_t flags_field = ((setFlags ? 1 : 0) << ADD_SUB_S_LOWBITS) & ADD_SUB_S_MASK;
+    uint32_t code = 0;
+    if (operand.IsShifted()) {
+        uint32_t shift_field = ((operand.GetShiftOption()) << ADD_SUB_Shift_LOWBITS) & ADD_SUB_Shift_MASK;
+        uint32_t shift_amount = ((operand.GetShiftAmount()) << ADD_SUB_ShiftAmount_LOWBITS) & ADD_SUB_ShiftAmount_MASK;
+        ASSERT((op == ADD_Shift) | (op == SUB_Shift));
+        code = Sf(!rd.IsW()) | op | flags_field | shift_field | Rm(operand.Reg().GetId()) |
+                  shift_amount | Rn(rn.GetId()) | Rd(rd.GetId());
+    } else {
+        ASSERT((op == ADD_Extend) | (op == SUB_Extend));
+        uint32_t extend_field =
+            (operand.GetExtendOption() << ADD_SUB_ExtendOption_LOWBITS) & ADD_SUB_ExtendOption_MASK;
+        uint32_t extend_shift = (operand.GetShiftAmount() << ADD_SUB_ExtendShift_LOWBITS) & ADD_SUB_ExtendShift_MASK;
+        code = Sf(!rd.IsW()) | op | flags_field | Rm(operand.Reg().GetId()) | extend_field |
+                  extend_shift | Rn(rn.GetId()) | Rd(rd.GetId());
+    }
+    EmitU32(code);
+}
+```
+
+这里同时处理了`add(extend register)`和`add(shifted register)`这两种情况，可以看见，实际上就是将对应字段数据处理到真实机器码字段的对应位置即可。
+
+#### CMP
+
+##### cmp
+
+在`aarch64`中，`CMP`有三种类型，其都可以与`SUBS`等价。
+
+![cmp](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041505225.png)
+
+``` asm
+; cmp(extend register)
+CMP <Wn|WSP>, <Wm>{, <extend> {#<amount>}}  ; 32-bits
+  equals SUBS WZR, <Wn|WSP>, <Wm>{, <extend> {#<amount>}}
+CMP <Xn|SP>, <R><m>{, <extend> {#<amount>}} ; 64-bits
+  equals SUBS XZR, <Xn|SP>, <R><m>{, <extend> {#<amount>}}
+  
+; cmp(immediate)
+CMP <Wn|WSP>, #<imm>{, <shift>} ; 32-bits
+  equals SUBS WZR, <Wn|WSP>, #<imm> {, <shift>}
+CMP <Xn|SP>, #<imm>{, <shift>}  ; 64-bits
+  equals SUBS XZR, <Xn|SP>, #<imm> {, <shift>}
+  
+; cmp(shifted register)
+CMP <Wn>, <Wm>{, <shift> #<amount>} ; 32-bits
+  equals SUBS WZR, <Wn>, <Wm> {, <shift> #<amount>}
+CMP <Xn>, <Xm>{, <shift> #<amount>} ; 64-bits
+  equals SUBS XZR, <Xn>, <Xm> {, <shift> #<amount>}
+```
+
+##### CBZ
+
+`CBZ`**将寄存器中的值与零进行比较，如果比较结果相等，则条件跳转到一个与当前程序计数器(PC)相对偏移的标签处。该指令提示这不是一个子程序调用或返回。这条指令不会影响条件标志**。
+
+![cbz](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041517189.png)
+
+``` asm
+CBZ <Wt>, <label> ; 32-bits
+CBZ <Xt>, <label> ; 64-bits
+```
+
+对于`CBZ`而言，最简单的实现就是直接跳转到立即数地址处，但是我们为了更加方便，还增加了一个`Label`的重载，通过`Label`计算其偏移量，然后进行跳转:
+
+``` cpp
+
+void AssemblerAarch64::Cbz(const Register &rt, Label *label)
+{
+    int32_t offsetImm = LinkAndGetInstOffsetToLabel(label);
+    // 2 : 2 means 4 bytes aligned.
+    offsetImm >>= 2;
+    Cbz(rt, offsetImm);
+}
+
+void AssemblerAarch64::Cbz(const Register &rt, int32_t imm)
+{
+    uint32_t code = Sf(!rt.IsW()) | BranchOpCode::CBZ | BranchImm19(imm) | rt.GetId();
+    EmitU32(code);
+}
+```
+
+##### CBNZ
+
+`CBNZ`**将寄存器中的值与零进行比较，如果比较结果不相等，则条件跳转到一个与当前程序计数器(PC)相对偏移的标签处。该指令提示这不是一个子程序调用或返回。这条指令不会影响条件标志**。
+
+![cbnz](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041527765.png)
+
+``` asm
+CBNZ <Wt>, <label> ; 32-bits
+CBNZ <Xt>, <label> ; 64-bits
+```
+
+`CBNZ`的代码实现和`CBZ`几乎相同：
+
+``` cpp
+void AssemblerAarch64::Cbnz(const Register &rt, Label *label)
+{
+    int32_t offsetImm = LinkAndGetInstOffsetToLabel(label);
+    // 2 : 2 means 4 bytes aligned.
+    offsetImm >>= 2;
+    Cbnz(rt, offsetImm);
+}
+
+void AssemblerAarch64::Cbnz(const Register &rt, int32_t imm)
+{
+    uint32_t code = Sf(!rt.IsW()) | BranchOpCode::CBNZ | BranchImm19(imm) | rt.GetId();
+    EmitU32(code);
+}
+```
+
+#### Branch
+
+##### B
+
+`B`会**引起一个无条件跳转到一个与程序计数器(PC)相对偏移的标签，并提示这不是一个子程序调用或返回**。
+
+![b](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041544668.png)
+
+为了支持度更高，我们也和`CMP`一样，针对`Label`做了一个重载：
+
+``` cpp
+void AssemblerAarch64::B(Label *label)
+{
+    int32_t offsetImm = LinkAndGetInstOffsetToLabel(label);
+    // 2 : 2 means 4 bytes aligned.
+    offsetImm >>= 2;
+    B(offsetImm);
+}
+
+void AssemblerAarch64::B(int32_t imm)
+{
+    uint32_t code = BranchOpCode::Branch | ((imm << BRANCH_Imm26_LOWBITS) & BRANCH_Imm26_MASK);
+    EmitU32(code);
+}
+```
+
+##### B.cond
+
+`B.cond`**根据条件跳转到一个与程序计数器(PC)相对偏移的标签，并提示这不是一个子程序调用或返回**。
+
+![B.cond](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041552227.png)
+
+对于`<cond>`而言，可以使用标准的`conditions`，可以参考上面所实现的`Condition`或对应的参考手册。
+
+而`<label>`相对于该指令地址的偏移量在$±1MB$范围内。
+
+``` cpp
+void AssemblerAarch64::B(Condition cond, Label *label)
+{
+    int32_t offsetImm = LinkAndGetInstOffsetToLabel(label);
+    // 2 : 2 means 4 bytes aligned.
+    offsetImm >>= 2;
+    B(cond, offsetImm);
+}
+
+void AssemblerAarch64::B(Condition cond, int32_t imm)
+{
+    uint32_t code = BranchOpCode::BranchCond | BranchImm19(imm) | cond;
+    EmitU32(code);
+}
+```
+
+##### Br
+
+`Br`**无条件地跳转到寄存器中的地址，并提示这不是一个子程序返回**。
+
+![Br](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041605898.png)
+
+``` cpp
+void AssemblerAarch64::Br(const Register &rn)
+{
+    uint32_t code = BranchOpCode::BR | Rn(rn.GetId());
+    EmitU32(code);
+}
+```
+
+##### Blr
+
+`Blr`**调用寄存器中的地址处的子程序，并将寄存器`X30`设置为**$PC+4$。
+
+![blr](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041613453.png)
+
+``` cpp
+void AssemblerAarch64::Blr(const Register &rn)
+{
+    ASSERT(!rn.IsW());
+    uint32_t code = CallOpCode::BLR | Rn(rn.GetId());
+    EmitU32(code);
+}
+```
+
+##### Bl
+
+`Bl`**跳转到一个与程序计数器(PC)相对偏移的位置，并将寄存器`X30`设置为$PC+4$。它提示这是一个子程序调用**。
+
+![Bl](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407041618598.png)
+
+``` cpp
+void AssemblerAarch64::Bl(Label *label)
+{
+    int32_t offsetImm = LinkAndGetInstOffsetToLabel(label);
+    // 2 : 2 means 4 bytes aligned.
+    offsetImm >>= 2;
+    Bl(offsetImm);
+}
+
+void AssemblerAarch64::Bl(int32_t imm)
+{
+    uint32_t code = CallOpCode::BL | ((imm << BRANCH_Imm26_LOWBITS) & BRANCH_Imm26_MASK);
+    EmitU32(code);
+}
+```
