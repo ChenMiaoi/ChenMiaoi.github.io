@@ -946,3 +946,777 @@ void AssemblerAarch64::Bl(int32_t imm)
     EmitU32(code);
 }
 ```
+
+#### TB
+
+##### TBNZ
+
+`TBNZ`**将通用寄存器中的一个位与零进行比较，并在比较结果不等于零时，按PC相对偏移有条件地分支到一个标签。该指令提供一个提示，表示这不是子程序调用或返回。该指令不会影响条件标志**。
+
+![TBNZ](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407051013408.png)
+
+``` asm
+TBNZ <R><t>, #<imm>, <label>
+```
+
+在这里的`<imm>`指的是第几位数据，其被$b5:b40$所共同组成。
+
+而`<label>`和`imm14`相关，其范围为$+/-32KB$
+
+在实际的处理中，我们依旧提供了`imm`和`Label`的两个实现版本：
+
+``` cpp
+void AssemblerAarch64::Tbnz(const Register &rt, int32_t bitPos, Label *label)
+{
+    int32_t offsetImm = LinkAndGetInstOffsetToLabel(label);
+    // 2 : 2 means 4 bytes aligned.
+    offsetImm >>= 2;
+    Tbnz(rt, bitPos, offsetImm);
+}
+
+void AssemblerAarch64::Tbnz(const Register &rt, int32_t bitPos, int32_t imm)
+{
+    uint32_t b5 = (bitPos << (BRANCH_B5_LOWBITS - 5)) & BRANCH_B5_MASK;
+    uint32_t b40 = (bitPos << BRANCH_B40_LOWBITS) & BRANCH_B40_MASK;
+    uint32_t imm14 = (imm <<BRANCH_Imm14_LOWBITS) & BRANCH_Imm14_MASK;
+    uint32_t code = b5 | BranchOpCode::TBNZ | b40 | imm14 | rt.GetId();
+    EmitU32(code);
+}
+```
+
+##### TBZ
+
+`TBZ`**将测试位的值与零进行比较，并在比较结果等于零时，按PC相对偏移有条件地分支到一个标签。该指令提供一个提示，表示这不是子程序调用或返回。该指令不会影响条件标志**。
+
+![TBZ](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407051019765.png)
+
+``` asm
+TBZ <R><t>, #<imm>, <label>
+```
+
+与`TBNZ`的实际处理情况相同：
+
+``` cpp
+void AssemblerAarch64::Tbz(const Register &rt, int32_t bitPos, Label *label)
+{
+    int32_t offsetImm = LinkAndGetInstOffsetToLabel(label);
+    // 2 : 2 means 4 bytes aligned.
+    offsetImm >>= 2;
+    Tbz(rt, bitPos, offsetImm);
+}
+
+void AssemblerAarch64::Tbz(const Register &rt, int32_t bitPos, int32_t imm)
+{
+    uint32_t b5 = (bitPos << (BRANCH_B5_LOWBITS - 5)) & BRANCH_B5_MASK;
+    uint32_t b40 = (bitPos << BRANCH_B40_LOWBITS) & BRANCH_B40_MASK;
+    uint32_t imm14 = (imm << BRANCH_Imm14_LOWBITS) & BRANCH_Imm14_MASK;
+    uint32_t code = b5 | BranchOpCode::TBZ | b40 | imm14 | rt.GetId();
+    EmitU32(code);
+}
+```
+
+#### TST
+
+##### TST(immediate)
+
+`TST(immediate)`**指令的作用是对两个操作数执行按位与(AND)运算，但不保存结果。相反，它会根据运算结果设置或清除条件标志寄存器中的相关标志位**。
+
+![TST(immediate)](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407051033270.png)
+
+值得注意的是，`TST(immediate)`的一个假名则是`ADDS(immediate)`。
+
+``` asm
+; sf = 0 && N = 0
+TST <Wn>, #<imm>
+  equals ANDS WZR, <Wn>, #<imm>
+  
+; sf = 1
+TST <Xn>, #<imm>
+  equals ANDS XZR, <Xn>, #<imm>
+```
+
+这里的`<imm>`需要注意：如果在$32-bits$下，其由$imms:immr$组成；在$64-bits$下由$N:imms:immr$组成。
+
+``` cpp
+void AssemblerAarch64::Tst(const Register &rn, const LogicalImmediate &imm)
+{
+    Ands(Register(Zero, rn.GetType()), rn, imm);
+}
+```
+
+##### TST(shifted register)
+
+`TST(shifted register)`**对寄存器值和可选移位的寄存器值执行按位与操作。它根据结果更新条件标志，并丢弃结果**。
+
+![TST(shifted register)](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407051040715.png)
+
+值得注意的是，`TST(shifted register)`的一个假名则是`ADDS(shifted register)`。
+
+``` asm
+TST <Wn>, <Wm>{, <shift> #<amount>} ; 32-bits
+  equals ANDS WZR, <Wn>, <Wm>{, <shift> #<amount>}
+
+TST <Xn>, <Xm>{, <shift> #<amount>} ; 64-bits
+  equals ANDS XZR, <Xn>, <Xm>{, <shift> #<amount>}
+```
+
+这里的`<shift>`的可选项为：
+
+![shift](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407051048196.png)
+
+#### Logic
+
+对于`ArkTS`中的`aarch64`架构的逻辑部分的汇编实现而言，主要分为`Orr`和`And`两类。更重要的是，`Orr`和`And`的内部实现实际上是十分相似的，因此我们会使用`BitWiseOP`这样的函数来统一实现其内部逻辑。
+
+对于`Orr`和`And`的具体差异主要在`opcode`上。
+
+``` cpp
+enum BitwiseOpCode {
+    AND_Imm      = 0x12000000,
+    AND_Shift    = 0x0a000000,
+    ANDS_Imm     = 0x72000000,
+    ANDS_Shift   = 0x6a000000,
+    ORR_Imm      = 0x32000000,
+    ORR_Shift    = 0x2a000000,
+};
+```
+
+对于`immediate`下的指令，我们只需要直接传入对应的`opcode`即可，不需要做多余的处理：
+
+``` cpp
+void AssemblerAarch64::BitWiseOpImm(BitwiseOpCode op, const Register &rd, const Register &rn, uint64_t imm)
+{
+    uint32_t code = Sf(!rd.IsW()) | op | imm | Rn(rn.GetId()) | Rd(rd.GetId());
+    EmitU32(code);
+}
+```
+
+而对于`shifted`的指令，我们就需要通过之前实现的`Operand`对`shift`操作进行具体的处理：
+
+``` cpp
+
+void AssemblerAarch64::BitWiseOpShift(BitwiseOpCode op, const Register &rd, const Register &rn, const Operand &operand)
+{
+    uint32_t shift_field = (operand.GetShiftOption() << BITWISE_OP_Shift_LOWBITS) & BITWISE_OP_Shift_MASK;
+    uint32_t shift_amount = (operand.GetShiftAmount() << BITWISE_OP_ShiftAmount_LOWBITS) & BITWISE_OP_ShiftAmount_MASK;
+    uint32_t code = Sf(!rd.IsW()) | op | shift_field | Rm(operand.Reg().GetId()) |
+                       shift_amount | Rn(rn.GetId()) | Rd(rd.GetId());
+    EmitU32(code);
+}
+```
+
+这里的类似于`BITWISE_OP_Shift_LOWBITS`是通过`BITWISE_OP_FIELD_LIST`宏实现的：
+
+``` cpp
+#define BITWISE_OP_FIELD_LIST(V)            \
+    V(BITWISE_OP, N, 22, 22)                \
+    V(BITWISE_OP, Immr, 21, 16)             \
+    V(BITWISE_OP, Shift, 23, 22)            \
+    V(BITWISE_OP, Imms, 15, 10)             \
+    V(BITWISE_OP, ShiftAmount, 15, 10)
+```
+
+##### ORR(immediate)
+
+`Orr immediate`**对一个寄存器值和一个立即数寄存器值进行按位或(包含或)操作，并将结果写入目标寄存器。该指令可用作别名指令**`MOV(bitmask immediate)`。
+
+![Orr immediate](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161552892.png)
+
+当$Rn = 11111$且`!MoveWidePreferred(sf, N, imms, immr)`时，可以用作`Mov(bitmask immediate)`的假名。
+
+``` asm
+ORR <Wd|WSP>, <Wn>, #<imm>  ; 32-bits
+ORR <Xd|SP>, <Xn>, #<imm>   ; 64-bits
+```
+
+对于`<imm>`而言，再$32bits$下由`imms:immr`组成；而$64bits$由`N:imms:immr`组成。
+
+##### ORR(shifted register)
+
+`Orr(shifted register)`**对一个寄存器值和一个可选择进行位移的寄存器值进行按位或(包含或)操作，并将结果写入目标寄存器。该指令可用作别名指令**`MOV(register)`。
+
+![orr shifted register](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161557139.png)
+
+当$shite = 00$且$imm6 = 000000$且$Rn = 11111$时，可以用作`Mov(register)`的假名。
+
+``` asm
+ORR <Wd>, <Wn>, <Wm>{, <shift> #<amount>} ; 32-bits
+ORR <Xd>, <Xn>, <Xm>{, <shift> #<amount>} ; 64-bits
+```
+
+##### AND(immediate)
+
+`And(immediate)`**对一个寄存器值和一个立即数值进行按位与操作，并将结果写入目标寄存器**。
+
+![and immediate](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161507612.png)
+
+``` asm
+AND <Wd|WSP>, <Wn>, #<imm>  ; 32-bits
+AND <Xd|SP>, <Xn>, #<imm>   ; 64-bits
+```
+
+对于`<imm>`来说，在$32bits$下由`imms:immr`构成；而$64bits$下由`N:imms:immr`构成。
+
+##### AND(shifted register)
+
+`And(shifted register)`**对一个寄存器值和一个可选择进行位移的寄存器值进行按位与操作，并将结果写入目标寄存器**。
+
+![and shifted](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161513255.png)
+
+``` asm
+AND <Wd>, <Wn>, <Wm>{, <shift> #<amount>} ; 32-bits
+AND <Xd>, <Xn>, <Xm>{, <shift> #<amount>} ; 64-bits
+```
+
+##### ANDS(immediate)
+
+`Ands immediate`**对一个寄存器值和一个立即数值进行按位与操作，并将结果写入目标寄存器。它根据结果更新条件标志位。该指令可用作别名指令**`TST(immediate)`。
+
+![ands immediate](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161523841.png)
+
+当$Rd = 11111$时，可以作为`TST(immediate)`的别名使用。
+
+``` asm
+ANDS <Wd>, <Wn>, #<imm> ; 32-bits
+ANDS <Xd>, <Xn>, #<imm> ; 64-bits
+```
+
+对于`<imm>`而言，再$32bits$下由`imms:immr`组成；而$64bits$由`N:imms:immr`组成。
+
+##### ANDS(shifted register)
+
+`Ands shifted register`**对一个寄存器值和一个可选择进行位移的寄存器值进行按位与操作，并将结果写入目标寄存器。它根据结果更新条件标志位。该指令可用作别名指令**`TST(shifted register)`。
+
+![ands shifted](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161536291.png)
+
+当$Rd = 11111$时，可以作为`TST(shifted register)`的别名使用。
+
+``` asm
+ANDS <Wd>, <Wn>, <Wm>{, <shift> #<amount>}  ; 32-bits
+ANDS <Xd>, <Xn>, <Xm>{, <shift> #<amount>}  ; 64-bits
+```
+
+#### Shift
+
+##### LSR(immediate)
+
+`LSR(immediate)`**将一个寄存器值向右移动固定的位数，移入零位，并将结果写入目标寄存器**。
+
+该指令是`UBFM`指令的别名。这意味着：
+
+- 在本描述中，编码的命名与`UBFM`的编码相匹配。
+- `UBFM`的描述提供了操作伪代码、任何`CONSTRAINED UNPREDICTABLE`行为和该指令的操作信息。
+
+![lsr immediate](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161614990.png)
+
+``` asm
+LSR <Wd>, <Wn>, #<shift> ; 32-bits
+  equals UBFM <Wd>, <Wn>, #<shift>, #31
+  when sf == 0 && N == 0 && imms == 011111 
+  
+LSR <Xd>, <Xn>, #<shift> ; 64-bits
+  equals UBFM <Xd>, <Xn>, #<shift>, #63
+  when sf == 1 && N == 1 && imms == 111111 
+```
+
+##### LSR(register)
+
+`LSR(register)`**根据一个可变的位数将一个寄存器值右移，移入零位，并将结果写入目标寄存器。第二个源寄存器除以数据大小所得的余数确定了将第一个源寄存器右移的位数**。
+
+该指令是`LSRV`指令的别名。这意味着：
+
+- 在本描述中，编码的命名与`LSRV`的编码相匹配。
+- `LSRV`的描述提供了操作伪代码、任何`CONSTRAINED UNPREDICTABLE`行为和该指令的操作信息。
+
+![lsr register](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161618114.png)
+
+``` asm
+LSR <Wd>, <Wn>, <Wm>  ; 32-bits
+  equals LSRV <Wd>, <Wn>, <Wm>
+  when sf == 0 
+  
+LSR <Xd>, <Xn>, <Xm>  ; 64-bits
+  equals LSRV <Xd>, <Xn>, <Xm>
+  when sf == 1 
+```
+
+##### LSL(register)
+
+`LSL(register)`**根据一个可变的位数将一个寄存器值左移，移入零位，并将结果写入目标寄存器。第二个源寄存器除以数据大小所得的余数确定了将第一个源寄存器左移的位数**。
+
+该指令是`LSLV`指令的别名。这意味着：
+
+- 在本描述中，编码的命名与`LSLV`的编码相匹配。
+- `LSLV`的描述提供了操作伪代码、任何`CONSTRAINED UNPREDICTABLE`行为和该指令的操作信息
+
+![lsl register](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161622992.png)
+
+``` asm
+LSL <Wd>, <Wn>, <Wm>  ; 32-bits
+  equals LSRV <Wd>, <Wn>, <Wm>
+  when sf == 0 
+  
+LSL <Xd>, <Xn>, <Xm>  ; 64-bits
+  equals LSRV <Xd>, <Xn>, <Xm>
+  when sf == 1 
+```
+
+##### UBFM
+
+`Unsigned Bitfield Move`**通常通过其别名访问，这些别名在反汇编时始终优先选择**。
+
+- 如果$imms \ge immr$，则将源寄存器中从位`immr`开始的长度为($imms - immr + 1$)位的位域复制到目标寄存器的最低有效位。
+- 如果$imms \lt immr$，则将源寄存器的最低有效位中长度为($imms + 1$)位的位域复制到目标寄存器的位位置($regsize - immr$)处，其中`regsize`是目标寄存器的大小，可以是$32$位或$64$位。
+- 在这两种情况下，位域下方和上方的目标位都设置为零。
+
+![UBFM](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161610214.png)
+
+`UBFM`的使用场景通常为：
+
+- 位字段操作：从一个寄存器中提取特定的位字段，并将其复制到另一个寄存器中，以进行后续的处理或使用。
+- 数据解析：当处理二进制数据时，可以使用 UBFM 指令来提取特定的位字段，并将其转换为有意义的数值或状态。
+
+该指令可用作别名指令`LSL(immediate)`、`LSR(immediate)`、`UBFIZ`、`UBFX`、`UXTB`和`UXTH`。
+
+![alias ubfm](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161612084.png)
+
+
+``` asm
+UBFM <Wd>, <Wn>, #<immr>, #<imms> ; 32-bits
+UBFM <Xd>, <Xn>, #<immr>, #<imms> ; 64-bits
+```
+
+#### Store and Load
+
+##### LDP
+
+`LDP`**指令通过基础寄存器值和立即偏移量计算地址，从内存中加载两个32位字或两个64位双字，并将它们写入两个寄存器中**。
+
+在`AddrMode`中我们提到，内存模型通常有三种：`Post`、`Pre`和`Signed offset`
+
+![memory mode](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161653917.png)
+
+``` asm
+; Post-index
+LDP <Wt1>, <Wt2>, [<Xn|SP>], #<imm> ; 32-bits, when opc == 00 
+LDP <Xt1>, <Xt2>, [<Xn|SP>], #<imm> ; 64-bits, when opc == 10 
+
+; Pre-index
+LDP <Wt1>, <Wt2>, [<Xn|SP>, #<imm>]! ; 32-bits, when opc == 00 
+LDP <Xt1>, <Xt2>, [<Xn|SP>, #<imm>]! ; 64-bits, when opc == 10 
+
+; Signed offset
+LDP <Wt1>, <Wt2>, [<Xn|SP>{, #<imm>}] ; 32-bits, when opc == 00 
+LDP <Xt1>, <Xt2>, [<Xn|SP>{, #<imm>}] ; 64-bits, when opc == 10
+```
+
+对于`<imm>`有以下的解释：
+
+- 对于32位`Post-index`和32位`Pre-index`变体：有符号的立即字节偏移量在范围$-256 ~ 252$之间，是`4`的倍数，并在`imm7`字段中编码为$imm/4$。
+- 对于32位`Signed offset`变体：可选的有符号立即字节偏移量在范围$-256 ~ 252$之间，是`4`的倍数，默认为`0`，并在`imm7`字段中编码为$imm/4$。
+- 对于64位`Post-index`和64位`Pre-index`变体：有符号的立即字节偏移量在范围$-512 ~ 504$之间，是`8`的倍数，并在`imm7`字段中编码为$imm/8$。
+- 对于64位`Signed offset`变体：可选的有符号立即字节偏移量在范围$-512 ~ 504$之间，是`8`的倍数，默认为`0`，并在`imm7`字段中编码为$imm/8$。
+
+而在实际的代码处理中，也能够很好的体现上面所说的：
+
+``` cpp
+enum LoadStorePairOpCode {
+    LDP_Post     = 0x28c00000,
+    LDP_Pre      = 0x29c00000,
+    LDP_Offset   = 0x29400000,
+};
+
+if (sf) {
+    imm >>= 3;  // 3: 64 RegSise, imm/8 to remove trailing zeros
+} else {
+    imm >>= 2;  // 2: 32 RegSise, imm/4 to remove trailing zeros
+}
+```
+
+##### Vector LDP
+
+`LDP(SIMD&FP)`**指令从内存中加载一对`SIMD&FP`寄存器。用于加载的地址是根据基础寄存器值和可选的立即偏移量计算得出的**。
+
+根据`CPACR_EL1`、`CPTR_EL2`和`CPTR_EL3`寄存器中的设置以及当前的安全状态和异常级别，执行该指令的尝试可能会被捕获。
+
+![ldp simd](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161713110.png)
+
+``` asm
+; Post-index
+LDP <St1>, <St2>, [<Xn|SP>], #<imm>   ; 32-bits, when opc == 00(S)
+LDP <Dt1>, <Dt2>, [<Xn|SP>], #<imm>   ; 64-bits, when opc == 01(D)
+LDP <Qt1>, <Qt2>, [<Xn|SP>], #<imm>   ; 128-bits, when opc == 10(Q)
+
+; Pre-index
+LDP <St1>, <St2>, [<Xn|SP>, #<imm>]!  ; 32-bits, when opc == 00(S)
+LDP <Dt1>, <Dt2>, [<Xn|SP>, #<imm>]!  ; 64-bits, when opc == 01(D)
+LDP <Qt1>, <Qt2>, [<Xn|SP>, #<imm>]!  ; 128-bits, when opc == 10(Q)
+
+; Signed offset
+LDP <St1>, <St2>, [<Xn|SP>{, #<imm>}] ; 32-bits, when opc == 00(S)
+LDP <Dt1>, <Dt2>, [<Xn|SP>{, #<imm>}] ; 64-bits, when opc == 01(D)
+LDP <Qt1>, <Qt2>, [<Xn|SP>{, #<imm>}] ; 128-bits, when opc == 10(Q)
+```
+
+对于`<imm>`有以下解释：
+
+- 对于32位`Post-index`和32位`Pre-index`变体：有符号的立即字节偏移量在范围$-256 ~ 252$之间，是`4`的倍数，并在`imm7`字段中编码为$imm / 4$。
+- 对于32位`Signed offset`变体：可选的有符号立即字节偏移量在范围$-256 ~ 252$之间，是`4`的倍数，默认为`0`，并在`imm7`字段中编码为$imm / 4$。
+- 对于64位`Post-index`和64位`Pre-index`变体：有符号的立即字节偏移量在范围$-512 ~ 504$之间，是`8`的倍数，并在`imm7`字段中编码为$imm / 8$。
+- 对于64位`Signed offset`变体：可选的有符号立即字节偏移量在范围$-512 ~ 504$之间，是`8`的倍数，默认为`0`，并在`imm7`字段中编码为$imm / 8$。
+- 对于128位`Post-index`和128位`Pre-index`变体：有符号的立即字节偏移量在范围$-1024 ~ 1008$之间，是`16`的倍数，并在`imm7`字段中编码为$imm / 16$。
+- 对于128位`Signed offset`变体：可选的有符号立即字节偏移量在范围$-1024 ~ 1008$之间，是`16`的倍数，默认为`0`，并在`imm7`字段中编码为$imm / 16$。
+
+其具体视线中，也能够体现：
+
+``` cpp
+switch (vt.GetScale()) {
+    case S:
+        // 2 : 2 means remove trailing zeros
+        imm >>= 2;
+        break;
+    case D:
+        // 3 : 3 means remove trailing zeros
+        imm >>= 3;
+        break;
+    case Q:
+        // 4 : 4 means remove trailing zeros
+        imm >>= 4;
+        break;
+    default:
+        LOG_ECMA(FATAL) << "this branch is unreachable";
+        UNREACHABLE();
+}
+```
+
+##### LDR(immediate)
+
+`LDR(immediate)`**指令从内存中加载一个字或双字，并将其写入一个寄存器。用于加载的地址是根据基础寄存器和立即偏移量计算得出的。无符号偏移量变体会将立即偏移量的值按照所访问值的大小进行缩放，然后再将其加到基础寄存器值上**。
+
+![ldr immediate](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161730888.png)
+
+``` asm
+; Post-index
+LDR <Wt>, [<Xn|SP>], #<simm>    ; 32-bits, when size == 10 
+LDR <Xt>, [<Xn|SP>], #<simm>    ; 64-bits, when size == 11
+
+; Pre-index
+LDR <Wt>, [<Xn|SP>, #<simm>]!   ; 32-bits, when size == 10
+LDR <Xt>, [<Xn|SP>, #<simm>]!   ; 64-bits, when size == 11
+
+; Signed offset
+LDR <Wt>, [<Xn|SP>{, #<pimm>}]  ; 32-bits, when size == 10
+LDR <Xt>, [<Xn|SP>{, #<pimm>}]  ; 64-bits, when size == 11 
+```
+
+实际中，我们在`Ldr`函数中共同处理了两种情况，这里给出`ldr(immediate)`的处理逻辑：
+
+``` cpp
+if (operand.IsImmediateOffset()) {
+    uint64_t imm = GetImmOfLdr(operand, scale, regX);
+    bool isSigned = operand.GetAddrMode() != AddrMode::OFFSET;
+    // 30: 30bit indicate the size of LDR Reg, and Ldrb and Ldrh do not need it
+    uint32_t instructionCode = ((regX && (scale == Scale::Q)) << 30) | op | LoadAndStoreImm(imm, isSigned) |
+                                Rn(operand.GetRegBase().GetId()) | Rt(rt.GetId());
+    EmitU32(instructionCode);
+}
+```
+
+##### LDR(register)
+
+`LDR(register)`**指令根据基础寄存器值和偏移寄存器值计算一个地址，从内存中加载一个字，并将其写入一个寄存器。偏移寄存器值可以选择进行位移和扩展操作**。
+
+![ldr register](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161747916.png)
+
+``` asm
+LDR <Wt>, [<Xn|SP>, (<Wm>|<Xm>){, <extend> {<amount>}}] ; 32-bits, when size == 10 
+LDR <Xt>, [<Xn|SP>, (<Wm>|<Xm>){, <extend> {<amount>}}] ; 64-bits, when size == 11
+```
+
+`<extend>`是索引扩展/位移说明符(`index extend/shift specifier`），默认为`LSL(左移)`。当`<amount>`被省略时，必须为`LSL`省略`<extend>`。其解码为`option`字段。它可以具有以下值:
+
+``` asm
+UXTW    when option = 010
+LSL     when option = 011
+SXTW    when option = 110
+SXTX    when option = 111
+```
+
+`<amount>`是唯一索引量，当`<extend>`不为`LSL`时可选。当允许被选中时，其默认值为`0`，被解码为`S`字段：
+
+``` asm
+; 32-bits
+#0 when S = 0
+#2 when S = 1
+
+; 64-bits
+#0 when S = 0
+#3 when S = 1
+```
+
+##### LDRB(immediate)
+
+`LDRB(immediate)`**从内存中加载一个字节，对其进行零扩展，并将结果写入寄存器。用于加载的地址是从基寄存器和立即偏移量计算出来的**。
+
+![ldrb immediate](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161800512.png)
+
+``` asm
+; Post-index
+LDRB <Wt>, [<Xn|SP>], #<simm>
+
+; Pre-index
+LDRB <Wt>, [<Xn|SP>, #<simm>]!
+
+; Signed offset
+LDRB <Wt>, [<Xn|SP>{, #<pimm>}]
+```
+
+对于`LDRB`的具体实现，直接通过`LDR`进行实现：
+
+``` cpp
+void AssemblerAarch64::Ldrb(const Register &rt, const MemoryOperand &operand)
+{
+    ASSERT(rt.IsW());
+    Ldr(rt, operand, Scale::B);
+}
+```
+
+##### LDRB(register)
+
+`LDRB(register)`**从基寄存器值和偏移寄存器值计算一个地址，从内存中加载一个字节，对其进行零扩展，并将其写入寄存器**。
+
+![ldrb regsiter](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161802805.png)
+
+``` asm
+; Extended register 
+LDRB <Wt>, [<Xn|SP>, (<Wm>|<Xm>), <extend> {<amount>}]  ; when option != 011 .
+
+; Shifted register
+LDRB <Wt>, [<Xn|SP>, <Xm>{, LSL <amount>}]  ; when option == 011 
+```
+
+##### LDRH(immediate)
+
+`LDRH(immediate)`**从内存中加载半字，对其进行零扩展，并将结果写入寄存器。用于加载的地址是从基寄存器和立即偏移量计算出来的**。
+
+![LDRH(immediate)](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161805014.png)
+
+``` asm
+; Post-index
+LDRH <Wt>, [<Xn|SP>], #<simm>
+
+; Pre-index
+LDRH <Wt>, [<Xn|SP>, #<simm>]!
+
+; Unsigned offset
+LDRH <Wt>, [<Xn|SP>{, #<pimm>}]
+```
+
+其内部实现由`LDR`构成：
+
+``` cpp
+void AssemblerAarch64::Ldrh(const Register &rt, const MemoryOperand &operand)
+{
+    ASSERT(rt.IsW());
+    Ldr(rt, operand, Scale::H);
+}
+```
+
+##### LDRH(register)
+
+`LDRH(register)`**从基寄存器值和偏移寄存器值计算地址，从内存中加载半字，对其进行零扩展，并将其写入寄存器**。
+
+![LDRH register](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161807499.png)
+
+``` asm
+LDRH <Wt>, [<Xn|SP>, (<Wm>|<Xm>){, <extend> {<amount>}}]
+```
+
+##### LDUR
+
+`LDUR`**从基寄存器和直接偏移量中计算一个地址，从内存中加载一个32位字或64位双字，对其进行零扩展，并将其写入寄存器**。
+
+![ldur](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161809487.png)
+
+``` asm
+LDUR <Wt>, [<Xn|SP>{, #<simm>}]   ; 32-bits, when size == 10
+LDUR <Xt>, [<Xn|SP>{, #<simm>}]   ; 64-bits, when size == 11
+```
+
+其具体实现为：
+
+``` cpp
+void AssemblerAarch64::Ldur(const Register &rt, const MemoryOperand &operand)
+{
+    bool regX = !rt.IsW();
+    uint32_t op = LDUR_Offset;
+    ASSERT(operand.IsImmediateOffset());
+    uint64_t imm = static_cast<uint64_t>(operand.GetImmediate().Value());
+    // 30: 30bit indicate the size of LDUR Reg
+    uint32_t instructionCode = (regX << 30) | op | LoadAndStoreImm(imm, true) |
+                               Rn(operand.GetRegBase().GetId()) | Rt(rt.GetId());
+    EmitU32(instructionCode);
+}
+```
+
+##### STP
+
+`STP`**从基寄存器值和直接偏移量计算地址，并从两个寄存器中存储两个32位字或两个64位双字到计算的地址**。
+
+![stp](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161818457.png)
+
+``` asm
+; Post-index
+STP <Wt1>, <Wt2>, [<Xn|SP>], #<imm>   ; 32-bits, when opc == 00 
+STP <Xt1>, <Xt2>, [<Xn|SP>], #<imm>   ; 64-bits, when opc == 01
+
+; Pre-index
+STP <Wt1>, <Wt2>, [<Xn|SP>, #<imm>]!   ; 32-bits, when opc == 00 
+STP <Xt1>, <Xt2>, [<Xn|SP>, #<imm>]!   ; 64-bits, when opc == 01
+
+; Signed offset
+STP <Wt1>, <Wt2>, [<Xn|SP>{, #<imm>}]   ; 32-bits, when opc == 00 
+STP <Xt1>, <Xt2>, [<Xn|SP>{, #<imm>}]   ; 64-bits, when opc == 01
+```
+
+对于`STP`的实际实现，主要代码片段为：
+
+``` cpp
+case OFFSET:
+    op = LoadStorePairOpCode::STP_Offset;
+    break;
+case PREINDEX:
+    op = LoadStorePairOpCode::STP_Pre;
+    break;
+case POSTINDEX:
+    op = LoadStorePairOpCode::STP_Post;
+    break;
+    
+if (sf) {
+    imm >>= 3;  // 3: 64 RegSise, imm/8 to remove trailing zeros
+} else {
+    imm >>= 2;  // 2: 32 RegSise, imm/4 to remove trailing zeros
+}
+```
+
+##### Vector STP
+
+`STP(SIMD&FP)`**将一对`SIMD&FP`寄存器存储到内存中。用于存储的地址是从基寄存器值和立即偏移量计算出来的**。
+
+根据`CPACR_EL1`、`CPTR_EL2`和`CPTR_EL3`寄存器中的设置，以及当前的安全状态和Exception级别，执行指令的尝试可能会被捕获。
+
+![stp(simd&fp)](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161822544.png)
+
+``` asm
+; Post-index
+STP <St1>, <St2>, [<Xn|SP>], #<imm>   ; 32-bits, when opc == 00(S)
+STP <Dt1>, <Dt2>, [<Xn|SP>], #<imm>   ; 64-bits, when opc == 01(D)
+STP <Qt1>, <Qt2>, [<Xn|SP>], #<imm>   ; 128-bits, when opc == 10(Q)
+
+; Pre-index
+STP <St1>, <St2>, [<Xn|SP>, #<imm>]!   ; 32-bits, when opc == 00(S)
+STP <Dt1>, <Dt2>, [<Xn|SP>, #<imm>]!   ; 64-bits, when opc == 01(D)
+STP <Qt1>, <Qt2>, [<Xn|SP>, #<imm>]!   ; 128-bits, when opc == 10(Q)
+
+; Signed offset
+STP <St1>, <St2>, [<Xn|SP>{, #<imm>}]   ; 32-bits, when opc == 00(S)
+STP <Dt1>, <Dt2>, [<Xn|SP>{, #<imm>}]   ; 64-bits, when opc == 01(D)
+STP <Qt1>, <Qt2>, [<Xn|SP>{, #<imm>}]   ; 128-bits, when opc == 10(Q)
+```
+
+其代码的主要部分为:
+
+``` cpp
+case OFFSET:
+    op = LoadStorePairOpCode::STP_V_Offset;
+    break;
+case PREINDEX:
+    op = LoadStorePairOpCode::STP_V_Pre;
+    break;
+case POSTINDEX:
+    op = LoadStorePairOpCode::STP_V_Post;
+    break;
+case S:
+    // 2 : 2 means remove trailing zeros
+    imm >>= 2;
+    break;
+case D:
+    // 3 : 3 means remove trailing zeros
+    imm >>= 3;
+    break;
+case Q:
+    // 4 : 4 means remove trailing zeros
+    imm >>= 4;
+    break;
+```
+
+##### STR
+
+`STR`**将一个字或双字从寄存器存储到存储器中。用于存储的地址是从基寄存器和立即偏移量计算出来的**。
+
+![str immediate](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161931064.png)
+
+``` asm
+; Post-index
+STR <Wt>, [<Xn|SP>], #<simm>    ; 32-bits, when size == 10
+STR <Xt>, [<Xn|SP>], #<simm>    ; 64-bits, when size == 11
+
+; Pre-index
+STR <Wt>, [<Xn|SP>, #<simm>]!   ; 32-bits, when size == 10
+STR <Xt>, [<Xn|SP>, #<simm>]!   ; 64-bits, when size == 11
+
+; Unsigned offset
+STR <Wt>, [<Xn|SP>{, #<pimm>}]  ; 32-bits, when size == 10
+STR <Xt>, [<Xn|SP>{, #<pimm>}]  ; 64-bits, when size == 11
+```
+
+在`ArkTS`中，主要实现了`str(immediate)`其内部的主要实现为：
+
+``` cpp
+case OFFSET:
+    op = LoadStoreOpCode::STR_Offset;
+    if (regX) {
+        imm >>= 3;   // 3:  64 RegSise, imm/8 to remove trailing zeros
+    } else {
+        imm >>= 2;  // 2: 32 RegSise, imm/4 to remove trailing zeros
+    }
+    isSigned = false;
+    break;
+case PREINDEX:
+    op = LoadStoreOpCode::STR_Pre;
+    break;
+case POSTINDEX:
+    op = LoadStoreOpCode::STR_Post;
+    break;
+```
+
+##### STUR
+
+`STUR`**从基本寄存器值和直接偏移量计算一个地址，并从寄存器中存储一个32位字或64位双字到计算出的地址**。
+
+![stur](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407161935126.png)
+
+``` asm
+STUR <Wt>, [<Xn|SP>{, #<simm>}]   ; 32-bits, when size == 10
+STUR <Xt>, [<Xn|SP>{, #<simm>}]   ; 64-bits, when size == 11
+```
+
+其内部实现为:
+
+``` cpp
+void AssemblerAarch64::Ldur(const Register &rt, const MemoryOperand &operand)
+{
+    bool regX = !rt.IsW();
+    uint32_t op = LDUR_Offset;
+    ASSERT(operand.IsImmediateOffset());
+    uint64_t imm = static_cast<uint64_t>(operand.GetImmediate().Value());
+    // 30: 30bit indicate the size of LDUR Reg
+    uint32_t instructionCode = (regX << 30) | op | LoadAndStoreImm(imm, true) |
+                               Rn(operand.GetRegBase().GetId()) | Rt(rt.GetId());
+    EmitU32(instructionCode);
+}
+```
+
+---  
+
+至此，`ArkTS`的`Aarch`汇编的分析到此结束了。
