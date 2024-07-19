@@ -186,3 +186,238 @@ categories: [arkts]
 
 ![RV64 Instructions](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181714021.png)
 
+## RISC-V64 Code Detail
+
+对于`ArkTS`的`RISC-V64`来说，我们的第一步还是先要确定其对应的寄存器(因为过长，此处就不贴出代码)。我们使用`enum RegisterId : uint8_t`来对每一个寄存器进行定义。
+
+为了简化操作，我们同时也需要对`Opcode`和`funct`进行定义，这样就能够明确的确定一条指令：
+
+``` cpp
+enum opCode {
+    opCodeI = 0x13,       // SLLI,SRLI,SRAI,ADDI,SLTI,SLTIU,XORI,ORI,ANDI,SLLI,SRLI,SRAI,
+    opCodeILoad = 0x03,   // LWU,LD,LB,LH,LW,LBU,LHU
+    opCodeR = 0x33,       // ADD,SUB,SLL,SLT,SLTU,XOR,SRL,SRA,OR,AND
+    opCodeW = 0x1b,       // ADDW,SUBW,SLLW,SRLW,SRAW
+    opCodeS = 0x23,       // SD,SB,SH,SW
+    opCodeB = 0x63,       // BEQ,BNE,BLT,BGE,BLTU,BGEU
+    opCodeULui = 0x37,    // LUI
+    opCodeUAuipc = 0x17,  // AUIPC
+    opCodeJal = 0x6f,     // JAL
+    opCodeJalr = 0x67,    // JALR
+    opCodeIF = 0X0f,      // FENCE,FENCE.I
+    opCodeIE = 0x73,      // ECALL,EBREA,
+    opCodeIC = 0x73,      // CSRRW,CSRRS,CSRRC,CSRRWI,CSRRSI,CSRRCI,ADDIW,SLLIW,SRLIW,SRAIW
+    opCodeIA = 0x3b       // ADDW,SUBW,SLLW,SRLW,SRAW
+};
+
+enum funct3 {
+    funct3Slli = 0x1000,
+    funct3Srli = 0x5000,
+    funct3Srai = 0x5000,
+    funct3Add = 0x0,
+    funct3Sub = 0x0,
+    funct3Sll = 0x1000,
+    ...
+};
+```
+
+在`ArkTS`中，我们依旧需要考虑$32bits$和$64bits$这两种情况，因此需要定义一个结构用于声明：
+
+``` cpp
+enum RegisterType {
+    W = 0,  /* a word for 32 bits */
+    D = 1,  /* a double-word for 64 bits */
+};
+```
+
+同时，和`Aarch64`一致，我们在处理汇编时需要对汇编的字段进行操作，因此我们需要分割每一条指令的字段，因此就采用了通常的方式使用宏进行分割：
+
+``` cpp
+#define DECL_FIELDS_IN_INSTRUCTION(INSTNAME, FIELD_NAME, HIGHBITS, LOWBITS) \
+static const uint32_t INSTNAME##_##FIELD_NAME##_HIGHBITS = HIGHBITS;  \
+static const uint32_t INSTNAME##_##FIELD_NAME##_LOWBITS = LOWBITS;    \
+static const uint32_t INSTNAME##_##FIELD_NAME##_WIDTH = ((HIGHBITS - LOWBITS) + 1); \
+static const uint32_t INSTNAME##_##FIELD_NAME##_MASK = (((1 << INSTNAME##_##FIELD_NAME##_WIDTH) - 1) << LOWBITS);
+
+#define DECL_INSTRUCTION_FIELDS(V)  \
+    R_TYPE_FIELD_LIST(V) \
+    B_TYPE_FIELD_LIST(V) \
+    S_TYPE_FIELD_LIST(V) \
+    U_TYPE_FIELD_LIST(V) \
+    J_TYPE_FIELD_LIST(V) \
+    I_TYPE_FIELD_LIST(V)
+
+DECL_INSTRUCTION_FIELDS(DECL_FIELDS_IN_INSTRUCTION)
+#undef DECL_INSTRUCTION_FIELDS
+```
+
+### RISC-V64 Header
+
+在`assembler_riscv64.h`中，我们首先需要注意的就是$XLEN$和各种字段类型处理。对于字段类型的处理而言，我们可以参考`aarch64`的实现过程，因此我们也分为了`Register`，`Immediate`，`LogicalImmediate`，`Operand`，`Extend`和`Shifte`。
+
+首先需要分析的是$XLEN$，对于该字段而言，`RV32`对应的则是$XLEN = 32$；而`RV64`为$XLEN = 64$：
+
+``` cpp
+enum RegisterWidth {
+    XLEN_32 = 32,  // 32bits
+    XLEN_64 = 64   // 64
+};
+```
+
+对于`Register`类型而言，我们还是对`RegisterId`进行一个封装：
+
+``` cpp
+class Register {
+public:
+    //TODO NOT SURE
+    Register(RegisterId reg, RegisterWidth width) : reg_(reg), width_(width) {}
+    Register(RegisterId reg) : reg_(reg) {};
+
+    RegisterWidth getWidth() const;
+    inline RegisterId GetId() const;
+    
+    inline bool IsValid() const;
+    inline bool operator !=(const Register &other);
+    inline bool operator ==(const Register &other);
+
+private:
+    RegisterId reg_;
+    RegisterWidth width_;
+};
+```
+
+这里有一个疑惑：**RV的官方手册中对于指令的长度有记录，`RV64`是基于`RV32`而来的，其给出的指令长度也是$32bits$的，只是立即数和操作数数据会被扩展为$XLEN$大小，但在这里我们的`getWidth`返回$64bits$是否会有问题**？
+
+然后我们就需要简单封装我们的立即数`Immediate`和`LogicalImmediate`：
+
+``` cpp
+class Immediate {
+public:
+    Immediate(int32_t value) : value_(value) {}
+    ~Immediate() = default;
+
+    int32_t Value() const;
+
+private:
+    int32_t value_;
+};
+
+class LogicalImmediate {
+public:
+    static LogicalImmediate Create(uint64_t imm, int width);
+    int Value() const;
+
+    bool IsValid() const;
+    // TODO NOT SURE
+private:
+    explicit LogicalImmediate(int value)
+        : imm_(value) {}
+    static const int InvalidLogicalImmediate = -1;
+    int imm_;
+};
+```
+
+然后再封装`Shift`和`Extend`：
+
+``` cpp
+enum Extend : uint8_t {
+    NO_EXTEND = 0xFF,
+    UXTB = 0,   /* zero extend to byte */
+    UXTH = 1,   /* zero extend to half word */
+    UXTW = 2,   /* zero extend to word */
+    UXTX = 3,   /* zero extend to 64bit */
+    SXTB = 4,   /* sign extend to byte */
+    SXTH = 5,   /* sign extend to half word */
+    SXTW = 6,   /* sign extend to word */
+    SXTX = 7,   /* sign extend to 64bit */
+};
+
+enum Shift : uint8_t {
+    NO_SHIFT = 0xFF,
+    LSL = 0x0,
+    LSR = 0x1,
+    ASR = 0x2,
+    ROR = 0x3,
+    MSL = 0x4,
+};
+```
+
+可以看见，`RV64`中的`Shift`和`Extend`也完全参照`Aarch64`的一个实现。那么对于`Operand`就不再多余赘述。
+
+最后，我们需要和`Aarch`一样，继承最开始的`Assembler`，对`RV64`的结构进行一个实现：
+
+``` cpp
+class AssemblerRiscv64 : public Assembler {
+public:
+    explicit AssemblerRiscv64(Chunk *chunk)
+        : Assembler(chunk) {}
+private:
+    // R_TYPE field defines
+    inline uint32_t Rd(uint32_t id);
+    inline uint32_t Rs1(uint32_t id);
+    inline uint32_t Rs2(uint32_t id);
+};
+```
+
+### RV INST
+
+**对于`RV`而言，其指令集分为了大致五个类型，其中每一个类型的结构都大致相同，因此，我们可以通过宏直接对相同结构的指令进行实现，而不需要手动实现(主要为`RV32`)**。
+
+因此，这里便提供了宏`EMIT_INSTS`和`AssemblerRiscv64::INSTNAME`进行实现：
+
+``` cpp
+#define EMIT_INSTS \
+    EMIT_R_TYPE_INSTS(EMIT_R_TYPE_INST) \
+    EMIT_B_TYPE_INSTS(EMIT_B_TYPE_INST) \
+    EMIT_S_TYPE_INSTS(EMIT_S_TYPE_INST) \
+    EMIT_U_TYPE_INSTS(EMIT_U_TYPE_INST) \
+    EMIT_J_TYPE_INSTS(EMIT_J_TYPE_INST)
+```
+
+在这里，我们主要分析`EMIT_R_TYPE_INSTS()`和`EMIT_R_TYPE_INST`这两个宏，有了这两个宏的理解能力，再去分析其他宏就信手拈来了。
+
+首先我们分析内层的`ENIT_R_TYPE_INST`宏，该宏是`R`型指令实现的具体接口，所有的`R`型指令均可以通过该宏进行实现：
+
+``` cpp
+#define EMIT_R_TYPE_INST(INSTNAME, INSTID) \
+void AssemblerRiscv64::INSTNAME(const Register &rd, const Register &rs1, const Register &rs2) \
+{ \
+    uint32_t rd_id = Rd(rd.GetId()); \
+    uint32_t rs1_id = Rs1(rs1.GetId()); \
+    uint32_t rs2_id = Rs2(rs2.GetId()); \
+    uint32_t code = rd_id | rs1_id | rs2_id | INSTID; \
+    EmitU32(code); \
+}
+```
+
+可以看见，`EMIT_R_TYPE_INST`接受两个参数，第一个则是实例化函数的名字，第二个则是其`opcode`和`funct`的结合。**因为，在`RV`中，`opcode`和`funct`的组合便足以确定一条确切的指令**。
+
+``` cpp
+enum AddSubOpFunct {
+    ADD     = 0x00000033,
+    ADDW    = 0x0000003b,
+    ...
+}
+
+#define EMIT_R_TYPE_INSTS(V) \
+    V( Add,  ADD)            \
+    V(Addw, ADDW)            \
+```
+
+可以看见，`EMIT_R_TYPE_INSTS`则是所有`R`型指令实现的入口，通过在`EMIT_R_TYPE_INSTS`宏中定义对应的实例化名字和`OpFunct`，就能够通过`EMIT_R_TYPE_INST`实现对应确定的指令处理的函数。
+
+至此，`RV64`在`Aarch64`的结构便分析完毕了。
+
+## 剩余任务分析
+
+|  INST  | TYPE |  INST  | TYPE |
+|:------:|:----:|:------:|:----:|
+|   Jr   |  J   |  Blr   |  J   |
+|   Br   |  B   |  Ret   |  J   |
+| SLLIW  |  I   | SRLIW  |  I   |
+| SRAIW  |  I   |  SLLI  |  I   |
+|  SRLI  |  I   |  SRAI  |  I   |
+| CSRRW  |  I   | CSRRS  |  I   |
+| CSRRC  |  I   | CSRRWI |  I   |
+| CSRRSI |  I   | CSRRCI |  I   |
+| ADDIW  |  I   | FENCE  |  I   |
