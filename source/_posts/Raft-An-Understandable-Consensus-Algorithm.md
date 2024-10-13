@@ -187,3 +187,5 @@ $$
 
 ![Raft](https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202409261551936.png)
 
+- 选举过程
+  - 假设一开始都是$follower$状态，其都有一个$electionTimeout$，当任一$follower$到达$electionTimeout$时，其会立即转变为$candidate$状态，
