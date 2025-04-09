@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>Rfc1951: DEFLATE Compressed Data Format Specification | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Rfc1951: DEFLATE Compressed Data Format Specification</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">May 10, 2024&nbsp;&nbsp;19:33:24</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/rfc/">rfc</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="DEFLATE-Compressed-Data-Format-Specification-version-1-3"><a href="#DEFLATE-Compressed-Data-Format-Specification-version-1-3" class="headerlink" title="DEFLATE Compressed Data Format Specification version 1.3"></a>DEFLATE Compressed Data Format Specification version 1.3</h1><hr>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>该规范定义了一种无损压缩数据格式，使用<code>LZ77</code>算法和哈夫曼编码的组合压缩数据，效率可与当前可用的最佳通用压缩方法相当。即使是对于一个长度任意的顺序呈现的输入数据流，数据可以被生成或消耗，而只需要有限的中间存储空间。该格式可以轻松地以一种未被专利覆盖的方式实现。</p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><h3 id="Purpose"><a href="#Purpose" class="headerlink" title="Purpose"></a>Purpose</h3><p>该规范的目的是定义一种无损压缩的数据格式：</p>
+<ul>
+<li>与<code>CPU</code>类型、操作系统、文件系统和字符集相独立；因此可以互换使用；</li>
+<li><strong>可以压缩或解压缩一个数据流(与此相对的是随机访问介质文件)来产生另一种数据流，只使用预先限定的中间存储量，因此可以用于数据通信或类似结果</strong>，比如<code>Unix过滤器</code>；</li>
+<li><strong>数据的压缩效率可以与当前最佳的通用压缩方法相媲美</strong>，尤其是比”compress”程序更好;</li>
+<li><strong>可以轻易地以专利不涵盖的方式实行</strong>，因此可以自由实现;</li>
+<li><strong>与当前广泛使用的</strong><code>gzip</code><strong>实用程序生成的文件格式兼容，符合标准的解压器能够读取由现有</strong><code>gzip</code><strong>压缩器生成的数据</strong>。</li>
+</ul>
+<blockquote>
+<p>可以压缩或解压缩数据流：</p>
+<blockquote>
+<p>将数据转化为一种更为紧凑的表示形式，以减少其占用空间；  </p>
+</blockquote>
+<p>只实用有限量的中间存储空间：  </p>
+<blockquote>
+<p>也就是说，数据的大小在一开始就会被计算，不会随着数据流的大小变化而增长；<strong>使用缓冲区或许能够提升一定的性能</strong>？  </p>
+</blockquote>
+<p>专利不涵盖：</p>
+<blockquote>
+<p><strong>该压缩格式没有与之相关的专利保护</strong>。换句话说，使用该压缩格式不会侵犯其他人的专利权利，因为该格式的设计没有涉及到受专利保护的技术或方法。这意味着任何人都可以自由地实现、使用和分发这种压缩格式，而不必担心侵犯他人的知识产权。  </p>
+</blockquote>
+</blockquote>
+<p>本规范定义的数据格式不会做出以下尝试：</p>
+<ul>
+<li>提供对压缩数据的随机访问;</li>
+<li>压缩专用数据以及目前最好的专用算法;</li>
+</ul>
+<p>在这上诉的点上，和上一篇规范<code>GZIP</code>一致。一个简单的计数论证表明：<strong>任何无损压缩算法都不能压缩每一个可能的输入数据集</strong>。对于本文定义的格式，最坏情况下每$32K$字节块的扩展为$5$个字节，即对于大数据集来说，大小增加了$0.015%$。英文文本通常能够压缩为原来的$2.5 \sim 3$倍；可执行文件通常压缩得稍微少一些；类似于光栅图像这样的图形数据可能会压缩的更多。</p>
+<h3 id="Intended-audience"><a href="#Intended-audience" class="headerlink" title="Intended audience"></a>Intended audience</h3><p>本规范供软件实现者使用，<strong>用于将数据压缩为</strong><code>deflate</code><strong>格式和(或)从</strong><code>deflate</code>格式中解压数据。</p>
+<p>本规范的文本假定读者具有编程方面的基础知识，能够理解位和其他基本数据表示级别的概念。熟悉哈夫曼编码技术是有帮助的，但这并非必须的。</p>
+<h3 id="Score"><a href="#Score" class="headerlink" title="Score"></a>Score</h3><p>本规范规定了一种将字节序列表示为(通常较短的)比特序列的方法，以及将后面的比特序列打包为字节的方法。</p>
+<h3 id="Compliance"><a href="#Compliance" class="headerlink" title="Compliance"></a>Compliance</h3><p>除非下文另有说明，<strong>符合规范的解压器必须能够接收并解压符合本文提出的所有规范的数据集；符合规范的压缩器必须生成符合此处提供的所有规范的数据集</strong>。</p>
+<h3 id="Definitions-of-terms-and-conventions-used"><a href="#Definitions-of-terms-and-conventions-used" class="headerlink" title="Definitions of terms and conventions used"></a>Definitions of terms and conventions used</h3><p><code>byte</code>: 以单位形式存储或传输的<code>8 bit</code>。(对于此规范，一个字节恰好是8位，即使在将字节存储在与8位不同的位数的计算机也是如此。)</p>
+<p><code>String</code>: 任意字节的序列</p>
+<h3 id="Changes-from-previous-versions"><a href="#Changes-from-previous-versions" class="headerlink" title="Changes from previous versions"></a>Changes from previous versions</h3><p>自从这个规范的<code>1.1</code>版本以来，<code>deflate</code>格式没有发生任何技术变化。在<code>1.2</code>版本中，一些术语被更改了。<code>1.3</code>版本是将规范转换为<code>RFC</code>风格的版本。</p>
+<h2 id="Compress-representation-overview"><a href="#Compress-representation-overview" class="headerlink" title="Compress representation overview"></a>Compress representation overview</h2><p>一个压缩数据集由一系列块组成，对应于输入数据的连续块。块的大小是任意的，除了不可压缩块被限制在$65535$字节之外。</p>
+<p>每个块都是用<code>LZ77</code>算法和哈夫曼编码的组合进行压缩。每个块的哈夫曼树与前后块的哈夫曼树无关；<code>LZ77</code>算法可以使用对前一个块中出现的重复字符串引用，最多可以回溯到$32K$个输入字节。</p>
+<p>每个块都由两部分组成：一对描述压缩数据部分表示的哈夫曼编码树，以及一个压缩数据部分。(哈夫曼树自身也会使用哈夫曼编码进行压缩。)压缩数据由两种类型的元素组成：<code>文字字节(literal bytes)</code>(即在前$32K$个输入字节中未被检测为重复的字符串)和指向重复字符串的指针，其中指针表示为$&lt;length, backward\  distance&gt;$。<code>deflate</code>格式中使用的表示方法将距离($distance$)限制为$32K$字节，长度($length$)限制为$258$字节，但不限制块的大小，除了上述已经注意到的不可压缩块。</p>
+<p>压缩数据中的每种值类型(<code>literal</code>, <code>distance</code>和<code>lengths</code>)都是用哈夫曼编码表示，使用一个用于文字(<code>literal</code>)和长度(<code>length</code>)的编码树，以及一个用于距离(<code>distance</code>)的单独编码树。每个块的编码树都以紧凑形式出现在该块的压缩数据之前。</p>
+<h2 id="Detailed-specification"><a href="#Detailed-specification" class="headerlink" title="Detailed specification"></a>Detailed specification</h2><h3 id="Overall-conventions"><a href="#Overall-conventions" class="headerlink" title="Overall conventions"></a>Overall conventions</h3><p>在下方的图示中，一个这样的<code>box</code>表示一个字节：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+---+ </span><br><span class="line">|   | &lt;-- the vertical bars might be missing </span><br><span class="line">+---+</span><br></pre></td></tr></table></figure>
+
+<p>而类似于这样的<code>box</code>表示可变的字节数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+==============+ </span><br><span class="line">|              | </span><br><span class="line">+==============+</span><br></pre></td></tr></table></figure>
+
+<p><strong>存储在计算机中的字节不具有“位序”，因为它们总是被视作一个单位来处理</strong>。然而，将字节视为介于$0 \sim 255$之间的整数确实具有最高有效位和最低有效位，因为我们总是以最高有效数字在左侧的方式书写数字，因此我们也以最高有效位在左侧的方式书写字节。</p>
+<p>在下方的图示中，我们对一个字节的比特进行编号，使得比特<code>0</code>是最低有效位。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+--------+ </span><br><span class="line">|76543210| </span><br><span class="line">+--------+</span><br></pre></td></tr></table></figure>
+
+<p>在计算机中，一个数字可能占据多个字节。在这里描述的格式中，<strong>所有的多字节数字都是以最低有效位优先的方式存储</strong>(<strong>即在较低的内存地址处</strong>)。  </p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">    0        1 </span><br><span class="line">+--------+--------+ </span><br><span class="line">|00001000|00000010| </span><br><span class="line">+--------+--------+ </span><br><span class="line">ˆ         ˆ </span><br><span class="line">|         | </span><br><span class="line">|         + more significant byte = 2 x 256 </span><br><span class="line">+ less significant byte = 8</span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">#### Packing into bytes</span><br><span class="line"></span><br><span class="line">**由于本文描述的数据格式是面向字节的，而不是面向比特的；因此，本文没有解决字节的比特在比特序列介质上传输的顺序问题**。然而，**我们将在下文中将压缩快格式描述为各种比特长度的数据元素的序列，而不是字节的序列。因此，我们必须指定如何将这些数据元素打包成字节，以形成最终的压缩字节序列**。</span><br><span class="line"></span><br><span class="line">- 数据元素按照字节内位序递增的顺序打包到字节中，即从字节的最低有效位开始</span><br><span class="line">- 哈夫曼编码以外的数据元素从数据元素的最低有效位开始打包</span><br><span class="line">- 哈夫曼编码从编码的最高有效位开始打包</span><br><span class="line"></span><br><span class="line">换句话说，如果将压缩数据按字节序列打印出来，从右边界开始的第一个字节，然后向左边进行，每个字节的最高有效位通常在左边，那么可以从右到左解析结果，固定宽度的元素按照正确的最高有效位到最低有效位的顺序排列，而哈夫曼编码则按位逆序排列（即，编码的第一位在相对的最低有效位位置）。</span><br><span class="line"></span><br><span class="line">```text</span><br><span class="line">假设我们有一个字节序列，其中每个字节包含以下数据元素：</span><br><span class="line">- 3位长度（LSB至MSB）</span><br><span class="line">- 2位距离（LSB至MSB）</span><br><span class="line">- 3位文字（LSB至MSB）</span><br><span class="line">现在让我们考虑一个示例字节：10110010。</span><br><span class="line"></span><br><span class="line">根据先前的说明，我们从右到左解析：</span><br><span class="line">- 最右侧的位（最低有效位）表示文字的最低位。</span><br><span class="line">- 接下来的2位表示距离。</span><br><span class="line">- 接下来的3位表示长度。</span><br><span class="line">- 最左侧的3位表示文字的最高位。</span><br><span class="line">所以，10110010字节可以解析为：</span><br><span class="line">- 文字：010</span><br><span class="line">- 距离：01</span><br><span class="line">- 长度：100</span><br></pre></td></tr></table></figure>
+
+<h3 id="Compressed-block-format"><a href="#Compressed-block-format" class="headerlink" title="Compressed block format"></a>Compressed block format</h3><h4 id="Synopsis-of-prefix-and-Huffman-coding"><a href="#Synopsis-of-prefix-and-Huffman-coding" class="headerlink" title="Synopsis of prefix and Huffman coding"></a>Synopsis of prefix and Huffman coding</h4><p>前缀编码(prefix code)通过位序列(代码)来表示来自已知字母表的符号，每个符号对应一个代码，以一种方式进行，以便不同的符号可以由不同长度的位序列表示，但解析器始终可以逐个符号无歧义的解析编码的字符串。</p>
+<p>我们<strong>将前缀码定义为一种二叉树，其中每个非叶节点下降的两条边分别标记为</strong><code>0</code>和<code>1</code>，<strong>叶节点与字母表中的符号一一对应（用标签标记）；然后，符号的编码是从根节点到标记为该符号的叶节点的边上的</strong><code>0</code>和<code>1</code><strong>序列</strong>。例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">      /\          Symbol      Code </span><br><span class="line">     0  1         ------      ----</span><br><span class="line">    /    \            A        00 </span><br><span class="line">   /\     B           B         1 </span><br><span class="line">  0  1                C       011 </span><br><span class="line"> /    \               D       010 </span><br><span class="line">A     /\ </span><br><span class="line">     0  1 </span><br><span class="line">    /    \ </span><br><span class="line">   D      C</span><br></pre></td></tr></table></figure>
+
+<p>解析器可以通过从根节点开始沿着树向下移动，在每一步选择与下一个输入位对应的边来从编码的输入流中解码下一个符号。</p>
+<p>在已知符号频率的字母表中，哈夫曼算法允许构建最佳前缀码(使用最少位数表示具有该字母表符号频率的字符串的前缀码)。这样的代码称为哈夫曼码。(有关赫夫曼码的更多信息，请参见参考文献&lt;<a target="_blank" rel="noopener" href="https://www.ias.ac.in/article/fulltext/reso/011/02/0091-0099">Huffman, D. A., “A Method for the Construction of Minimum Redundancy Codes”, Proceedings of the Institute of Radio Engineers, September 1952, Volume 40, Number 9, pp. 1098-1101</a>&gt;)</p>
+<p>请注意，在<code>deflate</code>格式中，<strong>各种字母表的哈夫曼码长度不能超过某些最大码长。这个约束条件使得从符号频率计算码长的算法变得更加复杂</strong>。详细信息请参见上述的参考文献。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/05/10/rfc1951-DEFLATE-Compressed-Data-Format-Specification/">https://chenmiaoi.github.io/2024/05/10/rfc1951-DEFLATE-Compressed-Data-Format-Specification/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/rfc/"># rfc</a>
+                    
+                        <a href="/tags/deflate/"># deflate</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/05/15/xv6-The-boot-loader/">Xv6: The Boot Loader</a>
+            
+            
+            <a class="next" rel="next" href="/2024/05/09/rfc1952-GZIP-file-format-specification/">Rfc1952: GZIP File Format Specification</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>STL17: New Features | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">STL17: New Features</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 15, 2025&nbsp;&nbsp;15:46:38</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/cpp/">cpp</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="C-STL17-CookBook-New-Features"><a href="#C-STL17-CookBook-New-Features" class="headerlink" title="C++ STL17 CookBook: New Features"></a>C++ STL17 CookBook: New Features</h1><p>在讨论C++语言的背景之前，我们首先需要认识到一个现实：由于国内就业压力和IT行业的相对保守性，大多数C++学习者并未深入研究STL(标准模板库)以及更新的C++标准。即便是C++23标准已经发布，许多C++开发人员和学习者仍然停留在较为传统的编程风格，常常只掌握<code>C with Class</code>或<code>C with Simple STL</code>，这导致了C++语言的潜力未能得到充分发挥。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// C with Class             // C with Simple STL</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;              <span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:                     <span class="keyword">public</span>:</span><br><span class="line">    <span class="type">char</span> name[<span class="number">32</span>];              std::string name;</span><br><span class="line">    <span class="type">int</span> age;                    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">char</span> gender[<span class="number">5</span>];             std::string gender;</span><br><span class="line">    ...                         ...</span><br><span class="line">&#125;;                          &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> person;        <span class="keyword">class</span> <span class="title class_">Person</span> person;</span><br><span class="line">person.name = <span class="string">&quot;Miao&quot;</span>;       person.name = <span class="string">&quot;Miao&quot;</span>;</span><br><span class="line">person.age = <span class="number">18</span>;            person.age = <span class="number">18</span>;</span><br><span class="line">person.gender = <span class="string">&quot;male&quot;</span>;     person.gender = <span class="string">&quot;male&quot;</span>;</span><br><span class="line">...                         ...</span><br></pre></td></tr></table></figure>
+
+<p>这种现象的存在在一定程度上阻碍了C++的学习和应用，限制了开发者对语言本身的深入理解和有效使用。C++作为一种多范式编程语言，本应在面向对象、泛型编程、模板元编程等领域展现出更强大的优势。然而，过于依赖传统编程模式的做法，不仅无法体现C++语言的真正风采，甚至有可能使开发者在处理复杂任务时错失现代C++所提供的诸多便利和性能优化。</p>
+<p>尽管C++语言本身近年来出现了诸如特性膨胀等问题，这些问题并不在本系列讨论的范围内，但需要明确的是，C++语言的演进过程仍在持续，理解和掌握语言的最新特性对提升开发者的能力是至关重要的。</p>
+<p>本系列的目标是帮助那些已经具备C++基础，但尚未深入理解和运用STL(标准模板库)以及C++各种现代特性的开发者，掌握如何使用C++编写更加现代、有效且高效的代码。如果你还没有学习过C++，那么本系列可能并不适合你，因为我们将假定读者已经对C++的基本语法和常见概念有所了解，并且目标是让你能够充分利用语言的最新功能来编写高质量的代码。</p>
+<p>值得注意的是，许多开发者对C++11有一定的了解，毕竟《C++ Primer》和《Effective C++》等经典书籍都是基于C++11编写的。然而，自C++11之后，尤其是C++14、C++17及更晚的标准发布后，关于这些版本的深入学习和实践的机会相对较少。因此，本系列将从C++17开始进行讲解。对于C++17之前的内容，只有在必要的情况下才会进行详细阐述。如果读者对C++11之前的特性有疑问，建议自行查阅相关文档，以便更好地跟进本系列的内容。</p>
+<hr>
+<h2 id="Structured-Binding"><a href="#Structured-Binding" class="headerlink" title="Structured Binding"></a>Structured Binding</h2><p>在现代编程语言中，解构(unpacking)已成为常见的功能之一，例如在Rust中，可以很方便地解构元组(tuple)或结构体(struct)：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">tup</span> = (<span class="number">1</span>, <span class="string">&quot;hello&quot;</span>, <span class="number">3.14</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> (a, b, c) = tup;</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;a: &#123;&#125;, b: &#123;&#125;, c: &#123;&#125;&quot;</span>, a, b, c);</span><br></pre></td></tr></table></figure>
+
+<p>在C++11中，除了<code>std::tuple</code>，还引入了一个非常有用(?)的函数——<code>std::tie</code>。<code>std::tie</code>可以将一个元组的元素与变量绑定，从而提供类似解构的功能，虽然它在语法上和结构化绑定(<code>Structured Binding</code>)有所不同。<code>std::tie</code>的<strong>作用是将元组或结构体的元素与现有变量进行关联</strong>，而不像结构化绑定那样直接创建新变量。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">std::tuple&lt;<span class="type">int</span>, std::string, <span class="type">double</span>&gt; tup = &#123;<span class="number">1</span>, <span class="string">&quot;hello&quot;</span>, <span class="number">3.14</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> a;</span><br><span class="line">std::string b;</span><br><span class="line"><span class="type">double</span> c;</span><br><span class="line"><span class="comment">// 使用 std::tie 来解构元组</span></span><br><span class="line">std::<span class="built_in">tie</span>(a, b, c) = tup;</span><br><span class="line">std::cout &lt;&lt; <span class="string">&quot;a: &quot;</span> &lt;&lt; a &lt;&lt; <span class="string">&quot;, b: &quot;</span> &lt;&lt; b &lt;&lt; <span class="string">&quot;, c: &quot;</span> &lt;&lt; c &lt;&lt; std::endl;</span><br></pre></td></tr></table></figure>
+
+<p>可以看出，std::tie要求我们在解构之前提前规划好每个元素的类型和相应的局部变量，这无疑对编码效率和灵活性造成了一定的限制。具体来说，使用std::tie时，必须显式地指定每个变量的类型，并且这些变量必须在解构之前已经声明好。</p>
+<p>并且，<code>std::tie</code>并不支持直接的引用解构，需要使用<code>std::ref</code>，这也使得学习和编码难度上升。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">std::tuple&lt;<span class="type">int</span>, std::string, <span class="type">double</span>&gt; tup = &#123;<span class="number">1</span>, <span class="string">&quot;hello&quot;</span>, <span class="number">3.14</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> a;</span><br><span class="line">std::string b;</span><br><span class="line"><span class="type">double</span> c;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用 std::ref 传递引用</span></span><br><span class="line">std::<span class="built_in">tie</span>(std::<span class="built_in">ref</span>(a), std::<span class="built_in">ref</span>(b), std::<span class="built_in">ref</span>(c)) = tup;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 修改解构后的值</span></span><br><span class="line">a = <span class="number">10</span>;</span><br><span class="line">b = <span class="string">&quot;world&quot;</span>;</span><br><span class="line">c = <span class="number">6.28</span>;</span><br><span class="line"></span><br><span class="line">std::cout &lt;&lt; <span class="string">&quot;a: &quot;</span> &lt;&lt; a &lt;&lt; <span class="string">&quot;, b: &quot;</span> &lt;&lt; b &lt;&lt; <span class="string">&quot;, c: &quot;</span> &lt;&lt; c &lt;&lt; std::endl;</span><br></pre></td></tr></table></figure>
+
+<p>因此，为了更好的支持更方便的解构，C++17引入了结构化绑定(Structured Binding)。通过这种语法糖，C++能够以类似的方式解构std::pair、std::tuple、结构体和数组：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> [var1, var2, ...] = &lt;pair, tuple, <span class="keyword">struct</span>, <span class="keyword">or</span> array expression&gt;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>std::pair</code>和<code>std::tuple</code>。</li>
+<li><code>struct</code>：结构体的成员必须是非静态的(non-static)，且定义在同一个类中。</li>
+<li><code>array</code>：必须是固定大小的数组(即大小在编译时已知)。</li>
+</ul>
+<p>通常，我们会结合<code>auto</code>来自动推导类型，<strong>如果条件允许的情况下，尽可能的使用引用以减少拷贝</strong>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">std::tuple&lt;<span class="type">int</span>, std::string, <span class="type">double</span>&gt; tup = &#123;<span class="number">1</span>, <span class="string">&quot;hello&quot;</span>, <span class="number">3.14</span>&#125;;</span><br><span class="line"><span class="keyword">auto</span> [a, b, c] = tup;  <span class="comment">// 解构元组</span></span><br><span class="line">std::cout &lt;&lt; <span class="string">&quot;a: &quot;</span> &lt;&lt; a &lt;&lt; <span class="string">&quot;, b: &quot;</span> &lt;&lt; b &lt;&lt; <span class="string">&quot;, c: &quot;</span> &lt;&lt; c &lt;&lt; std::endl;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>QUESTION: 许多人可能会认为大量使用解构(比如通过结构化绑定来解构元组、std::pair 或者其他数据结构)会导致性能问题，尤其是在涉及到返回值的情况下。传统上，C++开发者习惯于通过引用参数来传递结果(即使用“out parameter”模式)，认为这样能够避免拷贝操作，提高效率。然而，现代C++编译器通常会对返回值进行返回值优化(RVO，Return Value Optimization)或命名返回值优化(NRVO，Named Return Value Optimization)，从而大大减少了不必要的拷贝开销。<br>关于RVO和NRVO会在额外的单独章节中进行讲解。</p>
+</blockquote>
+<p>当然，<code>structured binding</code>并非全都是好处，相比<code>std::tie</code>，<code>structured binding</code>没有提供一个直接的机制来忽略元组或结构体中的某些元素，类似于Rust中的<code>_</code>或者说<code>std::ignore</code>。</p>
+<p>因此，你必须显示地声明每一个位置的变量进行接收，甚至是你根本不关心的值。</p>
+<h3 id="Action"><a href="#Action" class="headerlink" title="Action"></a>Action</h3><p>在实际的开发中，我们会在以下几个方面经常用到<code>structured binding</code>：</p>
+<ul>
+<li><code>std::map</code>(实际上是<code>std::pair</code>)</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">std::map&lt;<span class="type">int</span>, std::string&gt; m = &#123;&#123;<span class="number">1</span>, <span class="string">&quot;one&quot;</span>&#125;, &#123;<span class="number">2</span>, <span class="string">&quot;two&quot;</span>&#125;, &#123;<span class="number">3</span>, <span class="string">&quot;three&quot;</span>&#125;&#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="type">const</span> <span class="keyword">auto</span>&amp; [key, value] : m) &#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Key: &quot;</span> &lt;&lt; key &lt;&lt; <span class="string">&quot;, Value: &quot;</span> &lt;&lt; value &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Point</span> &#123;</span><br><span class="line">    <span class="type">int</span> x, y;</span><br><span class="line">&#125;;</span><br><span class="line">std::vector&lt;Point&gt; points = &#123;&#123;<span class="number">1</span>, <span class="number">2</span>&#125;, &#123;<span class="number">3</span>, <span class="number">4</span>&#125;, &#123;<span class="number">5</span>, <span class="number">6</span>&#125;&#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span>&amp; [x, y] : points) &#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;x: &quot;</span> &lt;&lt; x &lt;&lt; <span class="string">&quot;, y: &quot;</span> &lt;&lt; y &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>function return value</code></li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::tuple&lt;<span class="type">int</span>, <span class="type">double</span>, std::string&gt; <span class="title">get_values</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="number">42</span>, <span class="number">3.14</span>, <span class="string">&quot;example&quot;</span>&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> [x, y, z] = <span class="built_in">get_values</span>();</span><br><span class="line">std::cout &lt;&lt; <span class="string">&quot;x: &quot;</span> &lt;&lt; x &lt;&lt; <span class="string">&quot;, y: &quot;</span> &lt;&lt; y &lt;&lt; <span class="string">&quot;, z: &quot;</span> &lt;&lt; z &lt;&lt; std::endl;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>error handling</code></li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::pair&lt;<span class="type">bool</span>, std::string&gt; <span class="title">get_optional_value</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> std::<span class="built_in">make_pair</span>(<span class="literal">true</span>, <span class="string">&quot;example&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">auto</span> [x, y] = <span class="built_in">get_optional_value</span>(); x) &#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;y: &quot;</span> &lt;&lt; y &lt;&lt; std::endl;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;No value present!&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="How-To-Work"><a href="#How-To-Work" class="headerlink" title="How To Work"></a>How To Work</h3><p>现在我们来简单讲解一下结构体绑定的实现。在 <code>C++17</code> 的 结构化绑定(<code>structured binding</code>) 机制中，编译器会为 <code>identifier-list</code> ($v0, v1, v2, …$) 生成一组变量，并将其绑定到 <code>initializer</code>(初始化表达式)的元素。该机制的底层实现依赖于 <code>自动类型推导</code> 和 <code>对象解构</code>，并有以下假设：</p>
+<ul>
+<li>设<code>cv</code>代表<code>cv-qualifiers</code>：即<code>cv</code>限定符(<code>const</code>和<del>volatile</del>)。<em>在C++20中，<code>volatile</code>的用法已被移除</em></li>
+<li>设<code>S</code>代表<code>decl-specifier-seq</code>中的<code>storage-class specifiers</code>(例如：<code>static</code>)</li>
+<li>设<code>A</code>代表元素类型</li>
+</ul>
+<ol>
+<li>当 <code>initializer</code> 的 赋值表达式(<code>assignment-expression</code>) 具有 <code>cv A</code> 类型的数组，且没有引用限定符(<code>ref-qualifier</code>)时，结构化绑定的行为如下：<br>$$<br>attribute-specifier-seqopt \ S \ cv \ A \ e ;<br>$$</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Seem To:</span></span><br><span class="line"><span class="type">const</span> <span class="type">int</span> arr[<span class="number">3</span>] = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;  <span class="comment">// 这个数组类似 initializer</span></span><br><span class="line"><span class="keyword">auto</span> [x, y, z] = arr;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">int</span> e[<span class="number">3</span>] = arr;          <span class="comment">// e 的声明方式类似于这里 attribute-specifier-seqopt S cv A e ;</span></span><br><span class="line"><span class="keyword">auto</span>&amp; x = e[<span class="number">0</span>];  <span class="comment">// x 绑定到 e 的第 0 个元素</span></span><br><span class="line"><span class="keyword">auto</span>&amp; y = e[<span class="number">1</span>];  <span class="comment">// y 绑定到 e 的第 1 个元素</span></span><br><span class="line"><span class="keyword">auto</span>&amp; z = e[<span class="number">2</span>];  <span class="comment">// z 绑定到 e 的第 2 个元素</span></span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>e</code><strong>的每个元素都会从<code>assignment-expression</code>的对应元素中拷贝初始化或直接初始化，具体方式由<code>initializer</code>的形式所决定</strong>。</p>
+<ol start="2">
+<li>如果 <code>initializer</code> 的 赋值表达式(<code>assignment-expression</code>)不是数组类型，则结构化绑定的行为如下：</li>
+</ol>
+<p>$$<br>attribute-specifier-seqopt \ decl-specifier-seq \ ref-qualifieropt \ e &#x3D; initializer ;<br>$$</p>
+<ul>
+<li><code>attribute-specifier-seqopt</code>(可选的属性说明符序列)：允许使用属性(如<code>[[nodiscard]]</code>)</li>
+<li><code>decl-specifier-seq</code>：通常为 <code>auto</code></li>
+<li><code>ref-qualifier</code>：可能是<code>&amp;</code>或<code>&amp;&amp;</code>，表示是否使用引用</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Seem To:</span></span><br><span class="line">std::tuple&lt;<span class="type">int</span>, <span class="type">double</span>, <span class="type">char</span>&gt; t = &#123;<span class="number">1</span>, <span class="number">2.5</span>, <span class="string">&#x27;a&#x27;</span>&#125;;</span><br><span class="line"><span class="keyword">auto</span> [x, y, z] = t;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> e = t;   <span class="comment">// 这里的 e 相当于 attribute-specifier-seqopt decl-specifier-seq ref-qualifieropt e = initializer;</span></span><br><span class="line"><span class="keyword">auto</span>&amp; x = std::<span class="built_in">get</span>&lt;<span class="number">0</span>&gt;(e);</span><br><span class="line"><span class="keyword">auto</span>&amp; y = std::<span class="built_in">get</span>&lt;<span class="number">1</span>&gt;(e);</span><br><span class="line"><span class="keyword">auto</span>&amp; z = std::<span class="built_in">get</span>&lt;<span class="number">2</span>&gt;(e);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实际上可能的内部展开</span></span><br><span class="line"><span class="keyword">decltype</span>(<span class="keyword">auto</span>) __binding_obj = tuple;</span><br><span class="line"><span class="keyword">decltype</span>(<span class="keyword">auto</span>) a = std::<span class="built_in">get</span>&lt;<span class="number">0</span>&gt;(__binding_obj);</span><br><span class="line"><span class="keyword">decltype</span>(<span class="keyword">auto</span>) b = std::<span class="built_in">get</span>&lt;<span class="number">1</span>&gt;(__binding_obj);</span><br><span class="line"><span class="keyword">decltype</span>(<span class="keyword">auto</span>) c = std::<span class="built_in">get</span>&lt;<span class="number">2</span>&gt;(__binding_obj);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Scoped-Variable-With-If-and-Switch"><a href="#Scoped-Variable-With-If-and-Switch" class="headerlink" title="Scoped Variable With If and Switch"></a>Scoped Variable With If and Switch</h2><p>在 C++ 代码设计中，变量的作用域管理是影响代码可读性和可维护性的关键因素之一。良好的作用域管理不仅有助于避免命名冲突，还能减少无关变量对代码逻辑的干扰。在 C++17 之前，开发者经常面临一种常见情况：</p>
+<p>在 C++ 代码中，经常需要对某个表达式的计算结果进行条件判断。例如，考虑以下代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> s = <span class="built_in">is_ok</span>(something);</span><br><span class="line"><span class="keyword">if</span> (!s) &#123;</span><br><span class="line">    <span class="comment">// error handling</span></span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>在此代码中，<code>s</code> 仅用于 if 语句的判断条件，而在 <code>if</code> 语句之外并无实际用途。然而，由于 C++17 之前 if 语句不支持在条件部分定义变量，因此 s 不得不提前声明，从而污染了外部作用域。</p>
+<p>这种不必要的变量泄露可能导致：</p>
+<ul>
+<li>命名冲突 (Name Clashes)：在相同作用域下反复使用相同名称的变量，可能增加代码的复杂性和可读性负担。</li>
+<li>作用域污染 (Scope Pollution)：某些变量仅在特定语句块内使用，但由于语言特性，不得不提升其作用域。</li>
+<li>代码可读性下降 (Reduced Readability)：读者需要关注不必要的变量定义，降低代码逻辑的直观性。</li>
+</ul>
+<p>为了提高代码的可维护性，现代 C++ 遵循 最小作用域原则 (Minimizing Scope of Variables)，即“变量的作用域应尽可能小，仅限于其被使用的最小范围”。</p>
+<p>这一原则的核心思想包括：</p>
+<ul>
+<li>局部化 (Localization)：变量的生命周期应尽可能短，避免被误用或无意中修改。</li>
+<li>封装性 (Encapsulation)：将变量限定在尽可能小的作用域，以减少潜在的命名冲突。</li>
+<li>即时初始化 (Immediate Initialization)：在变量定义时立即初始化，减少未初始化变量的风险。</li>
+</ul>
+<p>在 C++17 之前，由于 if 语句不支持直接在条件部分定义变量，开发者不得不在 if 语句之前定义额外的变量，导致作用域扩展。因此，C++17 引入了一种新特性来优化这一模式。</p>
+<p>C++17 引入了 if 语句的 初始化子句 (Init-Statement)，允许开发者在 if 语句的条件部分直接声明和初始化变量，从而优化作用域管理。例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">auto</span> s = <span class="built_in">is_ok</span>(something); !s) &#123;</span><br><span class="line">    <span class="comment">// error handling</span></span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h3 id="Action-1"><a href="#Action-1" class="headerlink" title="Action"></a>Action</h3><p>在 C++ 代码中，资源的生命周期通常与变量的作用域绑定，这是 资源获取即初始化 (RAII, Resource Acquisition Is Initialization) 的核心思想。RAII 机制确保资源在对象构造时获取，并在对象析构时释放。例如，在多线程编程中，std::lock_guard<a href="std::mutex">std::mutex</a> 通过 RAII 自动管理互斥锁 (std::mutex) 的加锁与解锁。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// using if init-statement                                              // using traditional if </span></span><br><span class="line"><span class="keyword">if</span> (std::lock_guard&lt;std::mutex&gt; lg &#123;my_mutex&#125;; some_condition) &#123;        &#123;</span><br><span class="line">    <span class="comment">// do something                                                         std::lock_guard&lt;std::mutex&gt; lg &#123;my_mutex&#125;;</span></span><br><span class="line">&#125;                                                                           <span class="keyword">if</span> (some_condition) &#123;</span><br><span class="line">                                                                                <span class="comment">// do something</span></span><br><span class="line">                                                                            &#125;</span><br><span class="line">                                                                        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种模式适用于任何 RAII 类型的资源管理，例如：</p>
+<ul>
+<li><code>std::unique_lock&lt;std::mutex&gt;</code>(支持更灵活的锁管理)</li>
+<li><code>std::ifstream</code>(文件流自动关闭)</li>
+<li><code>std::scoped_lock</code>(C++17 引入的通用多互斥锁管理)</li>
+</ul>
+<h3 id="How-To-Work-1"><a href="#How-To-Work-1" class="headerlink" title="How To Work"></a>How To Work</h3><p>实际上，<code>if init-statement</code> 本质上是一种基础的语法糖，它可以被等价转换为如下形式：</p>
+<p>$$<br>\begin{aligned}<br>    &amp;\texttt{if constexpr}<em>{opt} \ (\texttt{init-statement}</em>{opt} \ \texttt{condition}) \ \texttt{statement} &#x3D; \<br>    {\<br>        &amp;\texttt{init-statement}<em>{opt} \<br>        &amp;\texttt{if constexpr}</em>{opt} \ (\texttt{condition}) \ \texttt{statement} \<br>    }<br>\end{aligned}<br>$$</p>
+<p>这意味着 if init-statement 语句的行为等同于在 if 语句之前引入一个新的作用域 {}，并在其中执行 init-statement，然后再执行 if 条件判断。这种转换不会改变底层语义，只是提供了一种更加紧凑的写法，使代码更易读、更符合局部作用域管理的最佳实践。</p>
+<h2 id="Automatically-deduce-the-resulting-class-type"><a href="#Automatically-deduce-the-resulting-class-type" class="headerlink" title="Automatically deduce the resulting class type"></a>Automatically deduce the resulting class type</h2><h2 id="Constexpr"><a href="#Constexpr" class="headerlink" title="Constexpr"></a>Constexpr</h2><p>在现代编程中，C++关注到编译时常量的引入可显著减少运行时的计算负担，特别是在高频调用的场景中，避免了重复的运行时计算。因此，在C++11中，C++首次提出了<code>constexpr</code>关键字允许开发者显式声明一个变量或函数的值在编译时求解，确保其为常量表达式，进而实现更早的优化和更严格的编译期检查。</p>
+<h2 id="Inline"><a href="#Inline" class="headerlink" title="Inline"></a>Inline</h2><p>在C&#x2F;C++编程语言中，<code>inline</code>关键字是一个广为人知的特性，大多数开发者对其基本功能有一定的了解。然而，对于C语言中的inline与C++中的inline之间的区别，以及随着C++标准的演进，inline语义的变化，却鲜有人深入探讨。</p>
+<h3 id="C-Inline"><a href="#C-Inline" class="headerlink" title="C Inline"></a>C Inline</h3><p>首先，我们将详细探讨C语言中的inline关键字的定义及其作用(鉴于本系列教程主要关注C++，因此我们将仅讨论到C11标准)。</p>
+<p>第一步我们先来了解下C语言中inline的作用：</p>
+<ul>
+<li>提高执行效率：通过消除函数调用开销，减少函数调用的栈操作，适合小函数。</li>
+<li>优化编译器的优化机会：可以让编译器更好地进行进一步的优化，如常量折叠、死代码消除等。</li>
+<li>改善代码可读性和可维护性：比宏更加清晰、类型安全且易于调试。</li>
+</ul>
+<p>在C11标准(ISO&#x2F;IEC 9800:201x文档)中对<code>inline</code>关键字有明确的约束：</p>
+<ul>
+<li><code>inline</code>应该只能被用于一个函数标识符的声明中。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="type">int</span> x; <span class="comment">// Error, inline specifier allowed on function declarations only</span></span><br></pre></td></tr></table></figure>
+
+<p>具有外部链接(external linkage)的内联函数定义不应该包含含有静态存储期(static storage duration)或线程存储期(thread storage duration)的可修改对象的定义，也不应该引用具有内部链接(internal linkage)的标识符。</p>
+<ol>
+<li>静态存储期的对象(如 static 变量)或线程存储期的对象(如 thread_local 变量)在程序运行期间具有持久性。内联函数可能会被多次展开到不同的调用点，如果允许定义这类对象，可能会导致多个副本或冲突，从而引发未定义行为。</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">void</span> <span class="title">counter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line">    x++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">note: use <span class="string">&#x27;static&#x27;</span> to give <span class="keyword">inline</span> function <span class="string">&#x27;counter&#x27;</span> internal linkage</span><br><span class="line">warning: non-constant <span class="type">static</span> local variable in <span class="keyword">inline</span> function may be different in different files</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>内部链接(internal linkage)的标识符(如 static 函数或 static 全局变量)仅在当前翻译单元(translation unit)内可见。如果内联函数引用了这类标识符，而该内联函数被其他翻译单元使用，就会导致链接错误或未定义行为。</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> internal_var = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">void</span> <span class="title">counter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> y = internal_var;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">warning: <span class="type">static</span> variable <span class="string">&#x27;internal_var&#x27;</span> is used in an <span class="keyword">inline</span> function with external linkage</span><br></pre></td></tr></table></figure>
+
+<p><strong>这些限制的目的是确保内联函数的行为在不同翻译单元之间保持一致，并避免潜在的链接或运行时问题。在实际测试中，编译器并不会将其视作inline的</strong>。</p>
+<ul>
+<li>在<code>hosted environment</code>中，<code>main</code>函数的声明不得出现任何函数说明符(function specifier)。</li>
+</ul>
+<p>标准明确禁止在 main 函数的声明中使用任何函数说明符。这是因为 main 函数的调用和返回机制是由运行时环境(runtime environment)管理的，任何额外的修饰都可能破坏其标准行为。</p>
+<blockquote>
+<p>C Standard Enviroment</p>
+<p>C语言标准规定了两种主要的执行环境：</p>
+<blockquote>
+<p>Hosted Environment<br>完整的C语言执行环境，通常依赖于操作系统，并提供完整的标准库支持；程序从<code>main</code>函数开始执行</p>
+<p>Freestanding Environment<br>不依赖于操作系统的简化执行环境，通常用于嵌入式系统、操作系统内核或裸机程序；程序的入口点不一定是 <code>main</code> 函数，具体由实现定义</p>
+</blockquote>
+</blockquote>
+<p>任何具有内部链接(internal linkage)的函数都可以是内联函数。对于具有外部链接(external linkage)的函数，适用以下限制：</p>
+<p>如果一个函数被声明为 inline，那么它必须在同一翻译单元(translation unit)中定义:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果在某个翻译单元中，某个函数的所有文件作用域声明都包含 inline 函数说明符且没有 extern，那么该翻译单元中的定义是一个内联定义(inline definition)</p>
+<p>首先我们需要理解什么叫做：<strong>所有文件作用域(all of the file scope declarations for a function in a translation unit)</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// file1.c</span></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">void</span> <span class="title">func</span><span class="params">()</span></span>; <span class="comment">// </span></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123;&#125; <span class="comment">//</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// file2.c</span></span><br><span class="line"><span class="function"><span class="keyword">extern</span> <span class="type">void</span> <span class="title">func</span><span class="params">()</span></span>; <span class="comment">//</span></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123;&#125; <span class="comment">//</span></span><br></pre></td></tr></table></figure>
+
+<p>内联定义不会为该函数提供外部定义(external definition)，也不禁止在其他翻译单元中提供外部定义</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// file1.c</span></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// file2.c</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>内联定义是外部定义的替代方案，编译器可以使用它来实现同一翻译单元中对函数的调用。对于函数的调用是使用内联定义还是外部定义，是由实现定义的(unspecified)。</p>
+<hr>
+<h4 id="Using-C-Inline"><a href="#Using-C-Inline" class="headerlink" title="Using C Inline"></a>Using C Inline</h4><p>在C语言中，inline关键字用于提示编译器将函数内联展开，以减少函数调用的开销。然而，inline的行为会受到extern和static关键字的影响，尤其是在涉及函数的链接属性(linkage)时。在实际开发中，许多C语言开发者通常更倾向于使用static inline，这也是最为常见和推荐的用法。</p>
+<p><code>static inline</code>用于定义具有内部链接(internal linkage)的内联函数。这种函数的作用域仅限于当前翻译单元(translation unit)，其他翻译单元无法访问该函数。由于函数的作用域被限制在当前翻译单元内，因此不会与其他翻译单元中的同名函数产生冲突。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// file1.c</span></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述代码中，add函数仅在file1.c中可见，其他翻译单元无法调用它。编译器可以选择将add函数内联展开，以减少函数调用的开销。</p>
+<p>extern inline用于定义具有外部链接(external linkage)的内联函数。这种函数的作用域不限于当前翻译单元，其他翻译单元可以访问该函数。然而，使用extern inline时，<strong>必须确保在其他翻译单元中提供一个非内联的外部定义，以便链接器能够正确解析函数的引用</strong>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// file1.c</span></span><br><span class="line"><span class="function"><span class="keyword">extern</span> <span class="keyword">inline</span> <span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// file2.c</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述代码中，file1.c中的add函数是一个内联定义，编译器可以选择将其内联展开。而在file2.c中，提供了一个非内联的外部定义，以确保链接器能够找到该函数。</p>
+<p><strong>如果仅使用inline关键字而不加extern或static修饰，其行为类似于extern inline，但具体的链接属性由编译器决定。这种用法可能会导致不确定的行为，尤其是在跨翻译单元使用时。因此，为了明确函数的链接属性，建议在使用inline时显式指定extern inline或static inline</strong>。</p>
+<p>通过合理使用static inline和extern inline，可以在C语言中实现高效的内联函数，同时避免链接冲突和未定义行为。在实际开发中，static inline因其简单性和明确的作用域限制，成为最为常见和推荐的用法。</p>
+<blockquote>
+<p>实际上，在开发中的99%都不会用上奇怪的<code>extern inline</code>。</p>
+</blockquote>
+<hr>
+<h3 id="C-inline"><a href="#C-inline" class="headerlink" title="C++ inline"></a>C++ inline</h3><h4 id="C-98"><a href="#C-98" class="headerlink" title="C++98"></a>C++98</h4><p>C++98标准中引入了inline关键字，而国内许多C++开发者和学习者往往是从C语言过渡到C++的，因此可能会误认为C语言中的inline与C++98中的inline功能相同，使用方式也一致。然而，尽管两者在语法上相似，但其设计目标和行为存在显著差异。</p>
+<p>在C语言中，inline关键字主要用于优化提示，鼓励编译器将函数内联展开，以减少函数调用的开销。C99标准引入inline时，更注重与C语言的编译模型和链接规则的兼容性。C语言中的inline函数通常需要在某个翻译单元中提供非内联的外部定义，以确保链接器能够正确解析函数的引用。此外，C语言禁止在具有外部链接的inline函数中定义静态存储期对象(如static变量)，以避免多个翻译单元中的重复定义问题。</p>
+<p>C++98中的inline关键字不仅是一种优化提示，还是一种链接属性机制。其主要目标是支持头文件中的函数定义，避免在多个翻译单元中重复定义函数导致的链接错误。因此，在C++98中，在多个翻译单元中定义相同的inline函数(通常通过头文件实现)是合法的，链接器会确保只有一个实例被使用。此外，C++98不需要显式提供非内联的外部定义，编译器会自动处理inline函数的链接问题。</p>
+<p>并且，C++98允许在inline函数中定义静态存储期对象(如static变量)，并且这些对象在多个翻译单元中是共享的：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">int</span> <span class="title">counter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> ++x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述代码中，static变量x在多个翻译单元中共享，确保了其唯一性和一致性。</p>
+<p><strong>值得注意的是，由于C++中有<code>class</code>的概念，因此，在完全定义的<code>class/struct/union</code>中，无论是成员函数还是友元函数，都是一个隐式的inline函数</strong>。</p>
+<p>对于大多数C++开发者来说，上面涉及到的C++98前的inline则被一直延续下去(此时的inline主要是作为编译器是否优化的指标)；但在C++11后，更加强调 inline 函数能够在多个翻译单元中出现且不导致重复定义的链接错误。</p>
+<h4 id="C-11"><a href="#C-11" class="headerlink" title="C++11"></a>C++11</h4><p>在C++11中，inline关键字的功能发生了显著变化。它不再主要作为编译器优化函数的参考指标，而是更多地用于解决链接问题，确保inline函数能够在多个翻译单元中重复定义而不会导致链接错误。同时，C++11沿用了C++98中class、struct和union成员函数隐式内联的规则，即类内定义的成员函数默认具有inline属性。</p>
+<p>C++11引入了constexpr关键字，用于定义编译时常量表达式函数。constexpr函数在首次定义时隐式地具有inline属性，这意味着：</p>
+<ul>
+<li>constexpr函数可以在多个翻译单元中定义(通常通过头文件实现)，而不会导致链接错误。</li>
+<li>编译器会自动处理constexpr函数的链接问题，无需显式提供非内联的外部定义。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">constexpr</span> <span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>C++11引入了delete关键字，用于禁用类的某些成员函数(如拷贝构造函数、拷贝赋值运算符等)。被删除的函数隐式地具有inline属性，因此：</p>
+<ul>
+<li>被删除函数的定义可以出现在多个翻译单元中，而不会导致链接错误。</li>
+<li>这种设计解决了&#x3D; delete声明可能引发的重复定义问题。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">MyClass</span>() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="built_in">MyClass</span>(<span class="type">const</span> MyClass&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>随着软件规模的扩大，类名和函数名重复的可能性显著增加。为了避免命名冲突，开发者通常使用namespace来组织代码。然而，嵌套过多的namespace以及版本控制的需求，使得开发者常常依赖宏或符号前缀(Symbol Prefix Overlay, SPO)来区分不同版本的实现。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Using Macro</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LIB_VERSION 1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> Lib &#123;</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> LIB_VERSION == 1</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;v1&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">elif</span> LIB_VERSION == 2</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;v2&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Using SOO</span></span><br><span class="line"><span class="keyword">namespace</span> Lib &#123;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">v1_func</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;v1&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">v2_func</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;v2&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>C++11引入了<code>inline namespace</code>，为版本控制提供了更安全、更灵活的解决方案。<code>inline namespace</code>中的内容会被视为外层命名空间的一部分，从而简化了版本切换和符号管理。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> Lib &#123;</span><br><span class="line">    <span class="keyword">inline</span> <span class="keyword">namespace</span> v1 &#123; <span class="comment">// default version</span></span><br><span class="line">        <span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;v1&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">namespace</span> v2 &#123; <span class="comment">// 新版本</span></span><br><span class="line">        <span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;v2&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Lib::<span class="built_in">func</span>(); <span class="comment">// using v1 version func by default</span></span><br><span class="line">    Lib::v2::<span class="built_in">func</span>(); <span class="comment">// using v2 version func explicit</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="C-17"><a href="#C-17" class="headerlink" title="C++17"></a>C++17</h4><p>在C++17中，考虑到当前inline已经是确保重复定义而不会导致链接错误，在之前的标准中只提供了函数的inline版本，而如果我们想要在头文件中声明一个变量，则必须使用如下的方式去声明和定义，二者缺一不可：</p>
+<p>在C++17之前，如果需要在头文件中声明一个全局变量，必须使用extern关键字在头文件中声明变量，并在某个源文件中提供定义。例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// In header</span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">int</span> x;</span><br><span class="line"></span><br><span class="line"><span class="comment">// In source</span></span><br><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这种方式需要分别在头文件和源文件中进行声明和定义，二者缺一不可，否则会导致链接错误。</p>
+<p>C++17 引入了inline变量，允许在头文件中直接定义全局变量或类静态成员变量，而不会导致链接错误。具体规则如下：</p>
+<ul>
+<li>当inline关键字用于具有静态存储期(static storage duration)的变量(如全局变量或静态类成员变量)的声明说明符序列时，它将该变量声明为内联变量(inline variable)。</li>
+<li>内联变量可以在多个翻译单元中重复定义，链接器会确保只有一个实例被使用。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="type">int</span> GLOBAL_VAR = <span class="number">42</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">inline</span> <span class="type">static</span> <span class="type">int</span> STATIC_VAR = <span class="number">42</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这就解决了：</p>
+<ul>
+<li>全局变量的定义：通过inline关键字，可以在头文件中直接定义全局变量，而无需在源文件中提供额外定义。</li>
+<li>类静态成员变量的初始化：通过inline关键字，可以在类内直接初始化静态成员变量，而无需在类外定义。</li>
+<li>C++头文件库的支持：这一特性解决了C++头文件库开发中的主要障碍，使得头文件库的实现更加简洁和高效。</li>
+</ul>
+<p>并且，C++17 还扩展了constexpr关键字的功能，使其可以用于静态数据成员。当静态数据成员在首次声明时被声明为constexpr，它会隐式地具有inline属性。这意味着：</p>
+<ul>
+<li>可以在类内直接初始化constexpr静态数据成员，而无需在类外定义。</li>
+<li>该静态数据成员可以在多个翻译单元中共享，而不会导致链接错误。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int</span> STATIC_VAR = <span class="number">42</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>C++17中，对于inline的行为做出了更为明显的规定：</p>
+<p><strong>inline 函数和变量的定义需要在访问它们的翻译单元中可见</strong>。这一规则确保了编译器能够在需要时正确地内联展开函数或解析变量的定义。</p>
+<p><strong>内联函数或变量可以有多个定义，只要每个定义出现在不同的翻译单元中，并且(对于非静态内联函数和变量)所有定义都是相同的</strong>，这就是良构的。</p>
+<p>在命名空间作用域中，inline 的 const 变量默认具有外部链接(external linkage),对于非 inline 的 const 变量而言，默认具有内部链接。因此，一旦定义了<code>const inline</code>，那么原先的非 inline 的 const 变量都会共享同一个 inline 定义，从而不会出现链接错误。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// file1.cc</span></span><br><span class="line"><span class="type">const</span> <span class="type">int</span> globalVar = <span class="number">42</span>; <span class="comment">// internal linkage</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// file2.cc</span></span><br><span class="line"><span class="type">const</span> <span class="type">int</span> globalVar = <span class="number">100</span>; <span class="comment">// internal linkage, differ with file1</span></span><br><span class="line"></span><br><span class="line">-----------------------------------------</span><br><span class="line"></span><br><span class="line"><span class="comment">// myheader.h</span></span><br><span class="line"><span class="keyword">inline</span> <span class="type">const</span> <span class="type">int</span> globalVar = <span class="number">42</span>; <span class="comment">// external linkage</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// file1.cpp</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;myheader.h&quot;</span></span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">func1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> value = globalVar; <span class="comment">// Using external linkage variable</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// file2.cpp</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;myheader.h&quot;</span></span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">func2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> value = globalVar; <span class="comment">// Using the same external linkage variable</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2025/02/15/STL17-New-Features/">https://chenmiaoi.github.io/2025/02/15/STL17-New-Features/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/cpp/"># cpp</a>
+                    
+                        <a href="/tags/books/"># books</a>
+                    
+                        <a href="/tags/stl/"># stl</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2025/04/09/rCore-ch3-Details/">rCore Ch3 Details</a>
+            
+            
+            <a class="next" rel="next" href="/2024/10/14/CephV10-2-1-Universal-Modules/">CephV10.2.1: Universal Modules</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

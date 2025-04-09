@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>ArkTS: Analyze Riscv64 Assember | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">ArkTS: Analyze Riscv64 Assember</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">July 16, 2024&nbsp;&nbsp;19:42:50</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/arkts/">arkts</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="ArkTS-RISC-V64-Assembler"><a href="#ArkTS-RISC-V64-Assembler" class="headerlink" title="ArkTS RISC-V64 Assembler"></a>ArkTS RISC-V64 Assembler</h1><p>在这一节中，我们会主要分析<code>ArkTS</code>中的<code>RISC-V</code>架构的汇编，这也是我们的主要目标之一。当前分析的版本位于<a target="_blank" rel="noopener" href="https://gitee.com/riscv-sig/arkcompiler_ets_runtime/tree/weekly_20230905/">ArkTS Runtime</a>[commit 2d8e197]。</p>
+<h2 id="RISC-V64-Detail"><a href="#RISC-V64-Detail" class="headerlink" title="RISC-V64 Detail"></a>RISC-V64 Detail</h2><p>在开始分析实际代码前，我们需要了解一点<code>RISC-V</code>的相关知识。<code>RISC-V</code>是一种<code>RISC</code>架构的汇编语言，因此和<code>CISC</code>相比，其汇编更加精简。在<code>RISC-V</code>中主要把汇编分为了几种对应的类型，如下所示：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407180955152.png" alt="RISCV I format"></p>
+<p>在基础的<code>RV32I</code>指令集中，如上图所示，有四种主要的指令格式(<code>R</code>&#x2F;<code>I</code>&#x2F;<code>S</code>&#x2F;<code>U</code>)。在这里，<strong>所有的指令集的长度都被固定为$32-bits$，并且基础指令集是$IALIGN&#x3D;32$的吗，这就意味着内存中的指令集必须以四字节对齐</strong>。如果目标地址没有按$IALIGN$位对齐，则在获取的分支或无条件跳转上生成指令地址不对齐异常。该异常报告在分支或跳转指令上，而不是在目标指令上。对于未采用的条件分支，不会生成指令地址不对齐异常。</p>
+<p><code>RISC-V</code><strong>指令集架构在所有格式中都保持源寄存器(<code>rs1</code>和<code>rs2</code>)和目标寄存器(<code>rd</code>)处于相同位置，以简化解码。除了用于<code>CSR</code>指令的<code>5</code>位立即数外，立即数总是符号扩展的，并且通常打包到指令中最左边的可用位，这样分配是为了减少硬件复杂性。特别是，所有立即数的符号位总是位于指令的第<code>31</code>位，以加快符号扩展电路的速度</strong>。</p>
+<p>除了上面的四种主要指令格式之外，基础指令集还提供了关于<code>B</code>和<code>J</code>指令格式的变种：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181004346.png" alt="RISCV I format variant"></p>
+<p><code>S</code>格式和<code>B</code>格式之间的唯一区别在于，<code>B</code><strong>格式中<code>12</code>位立即数字段用于以<code>2</code>的倍数编码分支偏移。通常做法是在硬件中将指令编码的立即数的所有位左移一位，而在这里，中间位(<code>imm[10:1]</code>)和符号位保持在固定位置，而<code>S</code>格式中的最低位(<code>inst[7]</code>)在<code>B</code>格式中编码为高位</strong>。</p>
+<h3 id="RV32"><a href="#RV32" class="headerlink" title="RV32"></a>RV32</h3><p>在<code>RISC-V</code>汇编中，单独分析一条汇编是繁琐的，因为<code>RISC-V</code>通常是一组汇编一起分析，通过对应的<code>funct code</code>和<code>opcode</code>就能够确定其具体为哪一条指令。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181014022.png" alt="RISCV opcode"></p>
+<h4 id="RV32-Immediate"><a href="#RV32-Immediate" class="headerlink" title="RV32-Immediate"></a>RV32-Immediate</h4><p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181022943.png" alt="RV32 Immediate"></p>
+<p><code>ADDI</code>指令将符号扩展的<code>12</code>位立即数加到寄存器<code>rs1</code>。算术溢出被忽略，结果仅保留低<code>XLEN</code>位。<code>ADDI rd, rs1, 0</code>用于实现汇编伪指令<code>MV rd, rs1</code>。</p>
+<p><code>SLTI</code>指令将值<code>1</code>写入寄存器<code>rd</code>，如果寄存器<code>rs1</code>小于符号扩展的立即数(两者都作为有符号数处理)，否则将<code>0</code>写入<code>rd</code>。<code>SLTIU</code>与<code>SLTI</code>类似，但将值作为无符号数进行比较(即，立即数首先符号扩展到$XLEN$位，然后作为无符号数处理)。注意，<code>SLTIU rd, rs1, 1</code>如果$rs1 &#x3D; 0$则将<code>rd</code>置为<code>1</code>，否则置为<code>0</code>(汇编伪指令<code>SEQZ rd, rs</code>)。</p>
+<p><code>ANDI</code>, <code>ORI</code>, <code>XORI</code>是逻辑操作指令，对寄存器<code>rs1</code>和符号扩展的<code>12</code>位立即数执行按位与、或和异或操作，并将结果放入<code>rd</code>。注意，<code>XORI rd, rs1, -1</code>对寄存器<code>rs1</code>执行按位逻辑反转(汇编伪指令<code>NOT rd, rs</code>)。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181040556.png" alt="RV32 Immediate shift"></p>
+<p>按常数进行移位的指令被编码为<code>I</code>型格式的特化形式。要移位的操作数在<code>rs1</code>中，移位量编码在<code>I</code>型立即数字段的低<code>5</code>位。右移的类型编码在第<code>30</code>位。<code>SLLI</code>是逻辑左移(零被移入低位)；<code>SRLI</code>是逻辑右移(零被移入高位)；<code>SRAI</code>是算术右移(原符号位被复制到空出的高位)。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181048420.png" alt="RV32 Immediate other"></p>
+<p><code>LUI</code>用于构建<code>32</code>位常量，使用<code>U</code>型格式。<code>LUI</code>将<code>32</code>位<code>U</code>型立即数值放入目标寄存器<code>rd</code>中，最低的<code>12</code>位填充为零。</p>
+<p><code>AUIPC</code>用于构建相对于程序计数器(<code>pc</code>)的地址，使用<code>U</code>型格式。<code>AUIPC</code>形成一个<code>32</code>位偏移量，最低的<code>12</code>位填充为零，将此偏移量加到<code>AUIPC</code>指令的地址上，然后将结果放入寄存器<code>rd</code>中。</p>
+<h4 id="RV32-Register"><a href="#RV32-Register" class="headerlink" title="RV32-Register"></a>RV32-Register</h4><p><code>RV32I</code>定义了几种算术<code>R</code>型操作。所有操作都读取<code>rs1</code>和<code>rs2</code>寄存器作为源操作数，并将结果写入<code>rd</code>寄存器。<code>funct7</code>和<code>funct3</code>字段选择操作的类型。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181115880.png" alt="RV32 Register"></p>
+<p><code>ADD</code>执行<code>rs1</code>和<code>rs2</code>的加法。<code>SUB</code>执行<code>rs1</code>减去<code>rs2</code>的减法。溢出被忽略，结果的低$XLEN$位写入目标寄存器<code>rd</code>。<code>SLT</code>和<code>SLTU</code>分别执行有符号和无符号比较，如果$rs1 lt rs2$，则将<code>1</code>写入<code>rd</code>，否则写入<code>0</code>。注意，<code>SLTU rd, x0, rs2</code>如果$rs \ne 0$则将<code>rd</code>置为<code>1</code>，否则置为<code>0</code>(汇编伪指令<code>SNEZ rd, rs</code>)。<code>AND</code>、<code>OR</code>和<code>XOR</code>执行按位逻辑运算。</p>
+<p><code>SLL</code>、<code>SRL</code>和<code>SRA</code>分别对寄存器<code>rs1</code>中的值按寄存器<code>rs2</code>低<code>5</code>位中的移位量执行逻辑左移、逻辑右移和算术右移。</p>
+<h4 id="RV32-NOP"><a href="#RV32-NOP" class="headerlink" title="RV32-NOP"></a>RV32-NOP</h4><p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181422238.png" alt="RV32 NOP"></p>
+<p><code>NOP</code>指令不会改变任何架构上可见的状态，除了推进程序计数器(pc)和增加任何适用的性能计数器。<code>NOP</code>被编码为<code>ADDI x0, x0, 0</code>。</p>
+<h4 id="RV32-Jump"><a href="#RV32-Jump" class="headerlink" title="RV32-Jump"></a>RV32-Jump</h4><p><code>RV32I</code>提供了两种类型的控制转移指令：<strong>无条件跳转和条件分支</strong>。<code>RV32I</code><strong>中的控制转移指令没有架构上可见的延迟槽</strong>。如果在跳转或已执行分支的目标上发生指令访问故障或指令页故障异常，则异常在目标指令上报告，而不是在跳转或分支指令上报告。</p>
+<p>跳转并链接(<code>JAL</code>)指令使用<code>J</code>型格式，其中<code>J</code>型立即数编码为以<code>2</code>字节为单位的有符号偏移量。偏移量被符号扩展并加到跳转指令的地址上，以形成跳转目标地址。因此，跳转可以目标$±1 MiB$的范围。<code>JAL</code>将跳转后指令$pc+4$的地址存储到寄存器<code>rd</code>中。标准的软件调用约定使用<code>x1</code>作为返回地址寄存器，并使用<code>x5</code>作为备用链接寄存器。</p>
+<p>普通无条件跳转(汇编伪指令<code>J</code>)被编码为$rd&#x3D;x0$的<code>JAL</code>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181447591.png" alt="JAL"></p>
+<p>间接跳转指令<code>JAL</code>(跳转并链接寄存器)使用<code>I</code>型编码。目标地址通过将符号扩展的<code>12</code>位<code>I</code>型立即数加到寄存器<code>rs1</code>上获得，然后将结果的最低有效位设为零。跳转后指令($pc+4$)的地址写入寄存器<code>rd</code>。如果不需要结果，可以使用寄存器<code>x0</code>作为目标寄存器。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181455224.png" alt="JALR"></p>
+<p><strong>如果目标地址未对齐到四字节边界, <code>JAL</code>和<code>JALR</code>指令将生成指令地址未对齐异常</strong>。</p>
+<p><strong>返回地址预测堆栈是高性能指令获取单元的常见特性，但需要准确检测用于过程调用和返回的指令才能有效</strong>。对于<code>RISC-V</code>，指令使用的提示通过使用的寄存器编号隐式编码。仅当<code>JAL</code>指令的<code>rd</code>是<code>x1</code>或<code>x5</code>时，才应将返回地址推入返回地址堆栈(<code>RAS</code>)。<code>JALR</code>指令应根据下图所示推入&#x2F;弹出<code>RAS</code>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181500273.png" alt="Return-address stack Table"></p>
+<h4 id="RV32-Branch"><a href="#RV32-Branch" class="headerlink" title="RV32-Branch"></a>RV32-Branch</h4><p>所有分支指令都使用<code>B</code>型指令格式。<code>12</code>位<code>B</code>型立即数以<code>2</code>字节为单位编码有符号偏移量。偏移量被符号扩展并加到分支指令的地址上，以得出目标地址。条件分支范围为$±4 KiB$。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181502814.png" alt="Branch"></p>
+<p>分支指令比较两个寄存器。<code>BEQ</code>和<code>BNE</code>分别在寄存器<code>rs1</code>和<code>rs2</code>相等或不等时执行分支。<code>BLT</code>和<code>BLTU</code>分别在使用有符号和无符号比较时$rs1 \lt rs2$时执行分支。<code>BGE</code>和<code>BGEU</code>分别在使用有符号和无符号比较时$rs1 \ge rs2$时执行分支。注意，<code>BGT</code>、<code>BGTU</code>、<code>BLE</code>和<code>BLEU</code>可以通过反转<code>BLT</code>、<code>BLTU</code>、<code>BGE</code>和<code>BGEU</code>的操作数来合成。</p>
+<h4 id="RV32-LoadStore"><a href="#RV32-LoadStore" class="headerlink" title="RV32-LoadStore"></a>RV32-LoadStore</h4><p><code>RV32I</code>是一种<code>load-store</code>架构，其中只有加载和存储指令访问内存，算术指令只对<code>CPU</code>寄存器进行操作。<code>RV32I</code>提供一个<code>32</code>位的地址空间，以字节为单位寻址。<code>EEI</code>(执行环境接口)将定义哪些部分的地址空间可以使用哪些指令进行访问(例如，某些地址可能是只读的，或者只支持字访问)。即使目标寄存器是<code>x0</code>的加载操作，仍必须引发任何异常并引起其他副作用，即使加载的值被丢弃。</p>
+<p><code>EEI</code>将定义内存系统是小端序还是大端序。在<code>RISC-V</code>中，端序是字节地址不变的。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181512721.png" alt="RV32I load-store"></p>
+<p>加载和存储指令在寄存器和内存之间传输值。加载指令使用<code>I</code>型格式编码，存储指令使用<code>S</code>型格式。有效地址通过将寄存器<code>rs1</code>与符号扩展的<code>12</code>位偏移量相加获得。加载指令将内存中的值复制到寄存器<code>rd</code>。存储指令将寄存器<code>rs2</code>中的值复制到内存中。</p>
+<p><code>LW</code>指令将<code>32</code>位值从内存加载到<code>rd</code>中。<code>LH</code>从内存加载<code>16</code>位值，然后符号扩展到<code>32</code>位后存储在<code>rd</code>中。<code>LHU</code>从内存加载<code>16</code>位值，但随后零扩展到<code>32</code>位后存储在<code>rd</code>中。<code>LB</code>和<code>LBU</code>类似地定义为加载<code>8</code>位值。<code>SW</code>、<code>SH</code>和<code>SB</code>指令将<code>32</code>位、<code>16</code>位和<code>8</code>位值从寄存器<code>rs2</code>的低位存储到内存中。</p>
+<h4 id="RV32-Memory"><a href="#RV32-Memory" class="headerlink" title="RV32-Memory"></a>RV32-Memory</h4><p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181539309.png" alt="FENCE"></p>
+<p><code>FENCE</code>指令用于对设备<code>I/O</code>和内存访问进行排序，使其在其他<code>RISC-V</code>处理器核(<code>hart</code>)和外部设备或协处理器看来有序。可以将设备输入(<code>I</code>)、设备输出(<code>O</code>)、内存读取(<code>R</code>)和内存写入(<code>W</code>)的任意组合相对于相同的任意组合进行排序。<strong>非正式地说, <code>FENCE</code>之后的继承集合中的任何操作，在<code>FENCE</code>之前的前置集合中的任何操作完成之前，不能被其他<code>RISC-V</code>处理器核或外部设备观察到</strong>。</p>
+<p><code>FENCE</code><strong>指令还对处理器核进行的内存读写操作相对于外部设备进行的内存读写操作进行排序。然而，<code>FENCE</code>不对外部设备使用任何其他信号机制进行的事件观察进行排序</strong>。</p>
+<p><code>EEI</code><strong>将定义哪些<code>I/O</code>操作是可能的，特别是哪些内存地址在被加载和存储指令访问时将分别被视为设备输入和设备输出操作，而不是内存读写操作</strong>。例如，通常使用未缓存的加载和存储访问内存映射的<code>I/O</code>设备，这些操作使用<code>I</code>和<code>O</code>位进行排序，而不是使用<code>R</code>和<code>W</code>位。指令集扩展可能还会描述新的<code>I/O</code>指令，这些指令也将使用<code>FENCE</code>中的<code>I</code>和<code>O</code>位进行排序。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181540312.png" alt="Fence mode encoding"></p>
+<p><code>fence</code>模式字段<code>fm</code>定义了<code>FENCE</code>指令的语义。$fm&#x3D;0000$的<code>FENCE</code>指令在其继承集合中的所有内存操作之前排序其前置集合中的所有内存操作。</p>
+<p><code>FENCE.TSO</code>指令被编码为$fm&#x3D;1000$、前置集合&#x3D;<code>RW</code>、继承集合&#x3D;<code>RW</code>的<code>FENCE</code>指令。<code>FENCE.TSO</code>指令在其前置集合中的所有加载操作之前排序其继承集合中的所有内存操作，并在其前置集合中的所有存储操作之前排序其继承集合中的所有存储操作。这使得<code>FENCE.TSO</code>的前置集合中的非<code>AMO</code>存储操作与其继承集合中的非<code>AMO</code>加载操作不排序。</p>
+<h4 id="RV32-Env"><a href="#RV32-Env" class="headerlink" title="RV32-Env"></a>RV32-Env</h4><p><code>SYSTEM</code>指令用于访问可能需要特权访问的系统功能，并使用<code>I</code>型指令格式编码。这些指令可以分为两大类：<strong>atomically read-modify-write control</strong>和<strong>状态寄存器</strong>(<strong>CSR</strong>)的指令，以及所有其他潜在的特权指令。<code>CSR</code>指令需要单独描述，基本的非特权指令在以下部分描述。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181553919.png" alt="SYSTEM"></p>
+<p><code>ECALL</code>指令用于向执行环境发出服务请求。<code>EEI</code>将定义如何传递服务请求的参数，但通常这些参数将在整数寄存器文件中的指定位置。</p>
+<p><code>EBREAK</code>指令用于将控制权返回到调试环境。</p>
+<h3 id="RV64"><a href="#RV64" class="headerlink" title="RV64"></a>RV64</h3><p><code>RV64I</code>将整数寄存器和支持的用户地址空间扩展到<code>64</code>位($XLEN&#x3D;64$)。</p>
+<h4 id="RV64-Immediate"><a href="#RV64-Immediate" class="headerlink" title="RV64-Immediate"></a>RV64-Immediate</h4><p>大多数整数计算指令操作$XLEN$位值。在<code>RV64I</code>中提供了额外的指令变体，用于操作<code>32</code>位值，这些指令的操作码以 <code>W</code> 后缀表示。这些 <code>*W</code> 指令忽略输入的高<code>32</code>位，并始终生成<code>32</code>位有符号值，将它们符号扩展到<code>64</code>位，即位 $XLEN-1$ 到 <code>31</code> 是相等的。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181620677.png" alt="ADDIW"></p>
+<p><code>ADDIW</code>是<code>RV64I</code>指令，将符号扩展的<code>12</code>位立即数加到寄存器<code>rs1</code>，并在<code>rd</code>中生成正确符号扩展的<code>32</code>位结果。溢出被忽略，结果是低<code>32</code>位的符号扩展到<code>64</code>位的结果。注意，<code>ADDIW rd, rs1, 0</code>将寄存器<code>rs1</code>的低<code>32</code>位的符号扩展写入寄存器<code>rd</code>(汇编伪指令 <code>SEXT.W</code>)。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181631534.png" alt="immediate"></p>
+<p>常量移位指令使用与<code>RV32I</code>相同的指令操作码作为<code>I</code>型格式的特化。待移位的操作数在<code>rs1</code>中，移位量在<code>RV64I</code>的<code>I</code>型立即数字段的低<code>6</code>位中编码。右移类型在第<code>30</code>位中编码。<code>SLLI</code>是逻辑左移(零被移入低位)；<code>SRLI</code>是逻辑右移(零被移入高位)；<code>SRAI</code>是算术右移(原始符号位被复制到腾出的高位)。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181633545.png" alt="Shift"></p>
+<p><code>SLLIW</code>、<code>SRLIW</code> 和 <code>SRAIW</code> 是仅 <code>RV64I</code> 支持的指令，它们以类似的方式定义，但作用于 <code>32</code> 位值，并将其 <code>32</code> 位结果符号扩展到 <code>64</code> 位。$imm[5] \ne 0$ 的 <code>SLLIW</code>、<code>SRLIW</code> 和 <code>SRAIW</code> 编码是保留的。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181657447.png" alt="other"></p>
+<p><code>LUI</code>使用与 <code>RV32I</code> 相同的操作码。<code>LUI</code> 将 <code>32</code> 位 <code>U</code> 型立即数放入寄存器 <code>rd</code>，并用零填充最低的 <code>12</code> 位。<code>32</code> 位结果被符号扩展到 <code>64</code> 位。</p>
+<p><code>AUIPC</code>使用与 <code>RV32I</code> 相同的操作码。<code>AUIPC</code> 用于构建相对于 <code>pc</code> 的地址，并使用 <code>U</code> 型格式。<code>AUIPC</code> 从 <code>U</code> 型立即数形成一个 <code>32</code> 位偏移量，填充最低的 <code>12</code> 位为零，将结果符号扩展到 <code>64</code> 位，将其加到 <code>AUIPC</code> 指令的地址，然后将结果放入寄存器 <code>rd</code>。</p>
+<h4 id="RV64-Register"><a href="#RV64-Register" class="headerlink" title="RV64-Register"></a>RV64-Register</h4><p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181700821.png" alt="RV64 Register"></p>
+<p><code>ADDW</code> 和 <code>SUBW</code> 是仅 <code>RV64I</code> 支持的指令，定义类似于 <code>ADD</code> 和 <code>SUB</code>，但作用于 <code>32</code> 位值并生成有符号的 <code>32</code> 位结果。溢出被忽略，结果的低 <code>32</code> 位被符号扩展到 <code>64</code> 位并写入目标寄存器。</p>
+<p><code>SLL</code>、<code>SRL</code> 和 <code>SRA</code> 对寄存器 <code>rs1</code> 中的值执行逻辑左移、逻辑右移和算术右移，移位量由寄存器 <code>rs2</code> 中的值决定。在 <code>RV64I</code> 中，仅考虑 <code>rs2</code> 的低 <code>6</code> 位作为移位量。</p>
+<p><code>SLLW</code>、<code>SRLW</code> 和 <code>SRAW</code> 是仅 <code>RV64I</code> 支持的指令，定义类似，但作用于 <code>32</code> 位值并将其 <code>32</code> 位结果符号扩展到 <code>64</code> 位。移位量由 <code>rs2[4:0]</code> 给出。</p>
+<h4 id="RV64-LoadStore"><a href="#RV64-LoadStore" class="headerlink" title="RV64-LoadStore"></a>RV64-LoadStore</h4><p><code>RV64I</code> 将地址空间扩展到 <code>64</code> 位。执行环境将定义哪些部分的地址空间是合法访问的。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181704209.png" alt="Load Store"></p>
+<p>在 <code>RV64I</code> 中，<code>LD</code> 指令从内存中加载一个 <code>64</code> 位值到寄存器 <code>rd</code>。</p>
+<p>在 <code>RV64I</code> 中，<code>LW</code> 指令从内存中加载一个 <code>32</code> 位值，并将其符号扩展到 <code>64</code> 位后存储到寄存器 <code>rd</code>。而 <code>LWU</code> 指令则将内存中的 <code>32</code> 位值零扩展到 <code>64</code> 位。同样，<code>LH</code> 和 <code>LHU</code> 对 <code>16</code> 位值的操作与此类似，<code>LB</code> 和 <code>LBU</code> 对 <code>8</code> 位值的操作也类似。<code>SD</code>、<code>SW</code>、<code>SH</code> 和 <code>SB</code> 指令分别将寄存器 <code>rs2</code> 的低位的 <code>64</code> 位、<code>32</code> 位、<code>16</code> 位和 <code>8</code> 位值存储到内存中。</p>
+<h3 id="RV-Instructions"><a href="#RV-Instructions" class="headerlink" title="RV Instructions"></a>RV Instructions</h3><p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181712540.png" alt="RV32 Instructions"></p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407181714021.png" alt="RV64 Instructions"></p>
+<h2 id="RISC-V64-Code-Detail"><a href="#RISC-V64-Code-Detail" class="headerlink" title="RISC-V64 Code Detail"></a>RISC-V64 Code Detail</h2><p>对于<code>ArkTS</code>的<code>RISC-V64</code>来说，我们的第一步还是先要确定其对应的寄存器(因为过长，此处就不贴出代码)。我们使用<code>enum RegisterId : uint8_t</code>来对每一个寄存器进行定义。</p>
+<p>为了简化操作，我们同时也需要对<code>Opcode</code>和<code>funct</code>进行定义，这样就能够明确的确定一条指令：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">opCode</span> &#123;</span><br><span class="line">    opCodeI = <span class="number">0x13</span>,       <span class="comment">// SLLI,SRLI,SRAI,ADDI,SLTI,SLTIU,XORI,ORI,ANDI,SLLI,SRLI,SRAI,</span></span><br><span class="line">    opCodeILoad = <span class="number">0x03</span>,   <span class="comment">// LWU,LD,LB,LH,LW,LBU,LHU</span></span><br><span class="line">    opCodeR = <span class="number">0x33</span>,       <span class="comment">// ADD,SUB,SLL,SLT,SLTU,XOR,SRL,SRA,OR,AND</span></span><br><span class="line">    opCodeW = <span class="number">0x1b</span>,       <span class="comment">// ADDW,SUBW,SLLW,SRLW,SRAW</span></span><br><span class="line">    opCodeS = <span class="number">0x23</span>,       <span class="comment">// SD,SB,SH,SW</span></span><br><span class="line">    opCodeB = <span class="number">0x63</span>,       <span class="comment">// BEQ,BNE,BLT,BGE,BLTU,BGEU</span></span><br><span class="line">    opCodeULui = <span class="number">0x37</span>,    <span class="comment">// LUI</span></span><br><span class="line">    opCodeUAuipc = <span class="number">0x17</span>,  <span class="comment">// AUIPC</span></span><br><span class="line">    opCodeJal = <span class="number">0x6f</span>,     <span class="comment">// JAL</span></span><br><span class="line">    opCodeJalr = <span class="number">0x67</span>,    <span class="comment">// JALR</span></span><br><span class="line">    opCodeIF = <span class="number">0X0f</span>,      <span class="comment">// FENCE,FENCE.I</span></span><br><span class="line">    opCodeIE = <span class="number">0x73</span>,      <span class="comment">// ECALL,EBREA,</span></span><br><span class="line">    opCodeIC = <span class="number">0x73</span>,      <span class="comment">// CSRRW,CSRRS,CSRRC,CSRRWI,CSRRSI,CSRRCI,ADDIW,SLLIW,SRLIW,SRAIW</span></span><br><span class="line">    opCodeIA = <span class="number">0x3b</span>       <span class="comment">// ADDW,SUBW,SLLW,SRLW,SRAW</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">funct3</span> &#123;</span><br><span class="line">    funct3Slli = <span class="number">0x1000</span>,</span><br><span class="line">    funct3Srli = <span class="number">0x5000</span>,</span><br><span class="line">    funct3Srai = <span class="number">0x5000</span>,</span><br><span class="line">    funct3Add = <span class="number">0x0</span>,</span><br><span class="line">    funct3Sub = <span class="number">0x0</span>,</span><br><span class="line">    funct3Sll = <span class="number">0x1000</span>,</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>ArkTS</code>中，我们依旧需要考虑$32bits$和$64bits$这两种情况，因此需要定义一个结构用于声明：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">RegisterType</span> &#123;</span><br><span class="line">    W = <span class="number">0</span>,  <span class="comment">/* a word for 32 bits */</span></span><br><span class="line">    D = <span class="number">1</span>,  <span class="comment">/* a double-word for 64 bits */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>同时，和<code>Aarch64</code>一致，我们在处理汇编时需要对汇编的字段进行操作，因此我们需要分割每一条指令的字段，因此就采用了通常的方式使用宏进行分割：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> DECL_FIELDS_IN_INSTRUCTION(INSTNAME, FIELD_NAME, HIGHBITS, LOWBITS) \</span></span><br><span class="line"><span class="meta">static const uint32_t INSTNAME##_##FIELD_NAME##_HIGHBITS = HIGHBITS;  \</span></span><br><span class="line"><span class="meta">static const uint32_t INSTNAME##_##FIELD_NAME##_LOWBITS = LOWBITS;    \</span></span><br><span class="line"><span class="meta">static const uint32_t INSTNAME##_##FIELD_NAME##_WIDTH = ((HIGHBITS - LOWBITS) + 1); \</span></span><br><span class="line"><span class="meta">static const uint32_t INSTNAME##_##FIELD_NAME##_MASK = (((1 &lt;&lt; INSTNAME##_##FIELD_NAME##_WIDTH) - 1) &lt;&lt; LOWBITS);</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DECL_INSTRUCTION_FIELDS(V)  \</span></span><br><span class="line"><span class="meta">    R_TYPE_FIELD_LIST(V) \</span></span><br><span class="line"><span class="meta">    B_TYPE_FIELD_LIST(V) \</span></span><br><span class="line"><span class="meta">    S_TYPE_FIELD_LIST(V) \</span></span><br><span class="line"><span class="meta">    U_TYPE_FIELD_LIST(V) \</span></span><br><span class="line"><span class="meta">    J_TYPE_FIELD_LIST(V) \</span></span><br><span class="line"><span class="meta">    I_TYPE_FIELD_LIST(V)</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">DECL_INSTRUCTION_FIELDS</span>(DECL_FIELDS_IN_INSTRUCTION)</span><br><span class="line"><span class="meta">#<span class="keyword">undef</span> DECL_INSTRUCTION_FIELDS</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="RISC-V64-Header"><a href="#RISC-V64-Header" class="headerlink" title="RISC-V64 Header"></a>RISC-V64 Header</h3><p>在<code>assembler_riscv64.h</code>中，我们首先需要注意的就是$XLEN$和各种字段类型处理。对于字段类型的处理而言，我们可以参考<code>aarch64</code>的实现过程，因此我们也分为了<code>Register</code>，<code>Immediate</code>，<code>LogicalImmediate</code>，<code>Operand</code>，<code>Extend</code>和<code>Shifte</code>。</p>
+<p>首先需要分析的是$XLEN$，对于该字段而言，<code>RV32</code>对应的则是$XLEN &#x3D; 32$；而<code>RV64</code>为$XLEN &#x3D; 64$：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">RegisterWidth</span> &#123;</span><br><span class="line">    XLEN_32 = <span class="number">32</span>,  <span class="comment">// 32bits</span></span><br><span class="line">    XLEN_64 = <span class="number">64</span>   <span class="comment">// 64</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>对于<code>Register</code>类型而言，我们还是对<code>RegisterId</code>进行一个封装：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Register</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">//TODO NOT SURE</span></span><br><span class="line">    <span class="built_in">Register</span>(RegisterId reg, RegisterWidth width) : <span class="built_in">reg_</span>(reg), <span class="built_in">width_</span>(width) &#123;&#125;</span><br><span class="line">    <span class="built_in">Register</span>(RegisterId reg) : <span class="built_in">reg_</span>(reg) &#123;&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="function">RegisterWidth <span class="title">getWidth</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">inline</span> RegisterId <span class="title">GetId</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">inline</span> <span class="type">bool</span> <span class="title">IsValid</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="keyword">inline</span> <span class="type">bool</span> <span class="keyword">operator</span> !=(<span class="type">const</span> Register &amp;other);</span><br><span class="line">    <span class="keyword">inline</span> <span class="type">bool</span> <span class="keyword">operator</span> ==(<span class="type">const</span> Register &amp;other);</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    RegisterId reg_;</span><br><span class="line">    RegisterWidth width_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这里有一个疑惑：<strong>RV的官方手册中对于指令的长度有记录，<code>RV64</code>是基于<code>RV32</code>而来的，其给出的指令长度也是$32bits$的，只是立即数和操作数数据会被扩展为$XLEN$大小，但在这里我们的<code>getWidth</code>返回$64bits$是否会有问题</strong>？</p>
+<p>然后我们就需要简单封装我们的立即数<code>Immediate</code>和<code>LogicalImmediate</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Immediate</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Immediate</span>(<span class="type">int32_t</span> value) : <span class="built_in">value_</span>(value) &#123;&#125;</span><br><span class="line">    ~<span class="built_in">Immediate</span>() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int32_t</span> <span class="title">Value</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int32_t</span> value_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LogicalImmediate</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">static</span> LogicalImmediate <span class="title">Create</span><span class="params">(<span class="type">uint64_t</span> imm, <span class="type">int</span> width)</span></span>;</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">Value</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">IsValid</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="comment">// TODO NOT SURE</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">LogicalImmediate</span><span class="params">(<span class="type">int</span> value)</span></span></span><br><span class="line"><span class="function">        : imm_(value) &#123;</span>&#125;</span><br><span class="line">    <span class="type">static</span> <span class="type">const</span> <span class="type">int</span> InvalidLogicalImmediate = <span class="number">-1</span>;</span><br><span class="line">    <span class="type">int</span> imm_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>然后再封装<code>Shift</code>和<code>Extend</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">Extend</span> : <span class="type">uint8_t</span> &#123;</span><br><span class="line">    NO_EXTEND = <span class="number">0xFF</span>,</span><br><span class="line">    UXTB = <span class="number">0</span>,   <span class="comment">/* zero extend to byte */</span></span><br><span class="line">    UXTH = <span class="number">1</span>,   <span class="comment">/* zero extend to half word */</span></span><br><span class="line">    UXTW = <span class="number">2</span>,   <span class="comment">/* zero extend to word */</span></span><br><span class="line">    UXTX = <span class="number">3</span>,   <span class="comment">/* zero extend to 64bit */</span></span><br><span class="line">    SXTB = <span class="number">4</span>,   <span class="comment">/* sign extend to byte */</span></span><br><span class="line">    SXTH = <span class="number">5</span>,   <span class="comment">/* sign extend to half word */</span></span><br><span class="line">    SXTW = <span class="number">6</span>,   <span class="comment">/* sign extend to word */</span></span><br><span class="line">    SXTX = <span class="number">7</span>,   <span class="comment">/* sign extend to 64bit */</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">Shift</span> : <span class="type">uint8_t</span> &#123;</span><br><span class="line">    NO_SHIFT = <span class="number">0xFF</span>,</span><br><span class="line">    LSL = <span class="number">0x0</span>,</span><br><span class="line">    LSR = <span class="number">0x1</span>,</span><br><span class="line">    ASR = <span class="number">0x2</span>,</span><br><span class="line">    ROR = <span class="number">0x3</span>,</span><br><span class="line">    MSL = <span class="number">0x4</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>可以看见，<code>RV64</code>中的<code>Shift</code>和<code>Extend</code>也完全参照<code>Aarch64</code>的一个实现。那么对于<code>Operand</code>就不再多余赘述。</p>
+<p>最后，我们需要和<code>Aarch</code>一样，继承最开始的<code>Assembler</code>，对<code>RV64</code>的结构进行一个实现：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">AssemblerRiscv64</span> : <span class="keyword">public</span> Assembler &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">AssemblerRiscv64</span><span class="params">(Chunk *chunk)</span></span></span><br><span class="line"><span class="function">        : Assembler(chunk) &#123;</span>&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// R_TYPE field defines</span></span><br><span class="line">    <span class="function"><span class="keyword">inline</span> <span class="type">uint32_t</span> <span class="title">Rd</span><span class="params">(<span class="type">uint32_t</span> id)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">inline</span> <span class="type">uint32_t</span> <span class="title">Rs1</span><span class="params">(<span class="type">uint32_t</span> id)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">inline</span> <span class="type">uint32_t</span> <span class="title">Rs2</span><span class="params">(<span class="type">uint32_t</span> id)</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="RV-INST"><a href="#RV-INST" class="headerlink" title="RV INST"></a>RV INST</h3><p>**对于<code>RV</code>而言，其指令集分为了大致五个类型，其中每一个类型的结构都大致相同，因此，我们可以通过宏直接对相同结构的指令进行实现，而不需要手动实现(主要为<code>RV32</code>)**。</p>
+<p>因此，这里便提供了宏<code>EMIT_INSTS</code>和<code>AssemblerRiscv64::INSTNAME</code>进行实现：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> EMIT_INSTS \</span></span><br><span class="line"><span class="meta">    EMIT_R_TYPE_INSTS(EMIT_R_TYPE_INST) \</span></span><br><span class="line"><span class="meta">    EMIT_B_TYPE_INSTS(EMIT_B_TYPE_INST) \</span></span><br><span class="line"><span class="meta">    EMIT_S_TYPE_INSTS(EMIT_S_TYPE_INST) \</span></span><br><span class="line"><span class="meta">    EMIT_U_TYPE_INSTS(EMIT_U_TYPE_INST) \</span></span><br><span class="line"><span class="meta">    EMIT_J_TYPE_INSTS(EMIT_J_TYPE_INST)</span></span><br></pre></td></tr></table></figure>
+
+<p>在这里，我们主要分析<code>EMIT_R_TYPE_INSTS()</code>和<code>EMIT_R_TYPE_INST</code>这两个宏，有了这两个宏的理解能力，再去分析其他宏就信手拈来了。</p>
+<p>首先我们分析内层的<code>ENIT_R_TYPE_INST</code>宏，该宏是<code>R</code>型指令实现的具体接口，所有的<code>R</code>型指令均可以通过该宏进行实现：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> EMIT_R_TYPE_INST(INSTNAME, INSTID) \</span></span><br><span class="line"><span class="meta">void AssemblerRiscv64::INSTNAME(const Register &amp;rd, const Register &amp;rs1, const Register &amp;rs2) \</span></span><br><span class="line"><span class="meta">&#123; \</span></span><br><span class="line"><span class="meta">    uint32_t rd_id = Rd(rd.GetId()); \</span></span><br><span class="line"><span class="meta">    uint32_t rs1_id = Rs1(rs1.GetId()); \</span></span><br><span class="line"><span class="meta">    uint32_t rs2_id = Rs2(rs2.GetId()); \</span></span><br><span class="line"><span class="meta">    uint32_t code = rd_id | rs1_id | rs2_id | INSTID; \</span></span><br><span class="line"><span class="meta">    EmitU32(code); \</span></span><br><span class="line"><span class="meta">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看见，<code>EMIT_R_TYPE_INST</code>接受两个参数，第一个则是实例化函数的名字，第二个则是其<code>opcode</code>和<code>funct</code>的结合。<strong>因为，在<code>RV</code>中，<code>opcode</code>和<code>funct</code>的组合便足以确定一条确切的指令</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">AddSubOpFunct</span> &#123;</span><br><span class="line">    ADD     = <span class="number">0x00000033</span>,</span><br><span class="line">    ADDW    = <span class="number">0x0000003b</span>,</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> EMIT_R_TYPE_INSTS(V) \</span></span><br><span class="line"><span class="meta">    V( Add,  ADD)            \</span></span><br><span class="line"><span class="meta">    V(Addw, ADDW)            \</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看见，<code>EMIT_R_TYPE_INSTS</code>则是所有<code>R</code>型指令实现的入口，通过在<code>EMIT_R_TYPE_INSTS</code>宏中定义对应的实例化名字和<code>OpFunct</code>，就能够通过<code>EMIT_R_TYPE_INST</code>实现对应确定的指令处理的函数。</p>
+<p>至此，<code>RV64</code>在<code>Aarch64</code>的结构便分析完毕了。</p>
+<h2 id="剩余任务分析"><a href="#剩余任务分析" class="headerlink" title="剩余任务分析"></a>剩余任务分析</h2><table>
+<thead>
+<tr>
+<th align="center">INST</th>
+<th align="center">TYPE</th>
+<th align="center">INST</th>
+<th align="center">TYPE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Jr</td>
+<td align="center">J</td>
+<td align="center">Blr</td>
+<td align="center">J</td>
+</tr>
+<tr>
+<td align="center">Br</td>
+<td align="center">B</td>
+<td align="center">Ret</td>
+<td align="center">J</td>
+</tr>
+<tr>
+<td align="center">SLLIW</td>
+<td align="center">I</td>
+<td align="center">SRLIW</td>
+<td align="center">I</td>
+</tr>
+<tr>
+<td align="center">SRAIW</td>
+<td align="center">I</td>
+<td align="center">SLLI</td>
+<td align="center">I</td>
+</tr>
+<tr>
+<td align="center">SRLI</td>
+<td align="center">I</td>
+<td align="center">SRAI</td>
+<td align="center">I</td>
+</tr>
+<tr>
+<td align="center">CSRRW</td>
+<td align="center">I</td>
+<td align="center">CSRRS</td>
+<td align="center">I</td>
+</tr>
+<tr>
+<td align="center">CSRRC</td>
+<td align="center">I</td>
+<td align="center">CSRRWI</td>
+<td align="center">I</td>
+</tr>
+<tr>
+<td align="center">CSRRSI</td>
+<td align="center">I</td>
+<td align="center">CSRRCI</td>
+<td align="center">I</td>
+</tr>
+<tr>
+<td align="center">ADDIW</td>
+<td align="center">I</td>
+<td align="center">FENCE</td>
+<td align="center">I</td>
+</tr>
+</tbody></table>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/07/16/ArkTS-analyze-riscv64-assember/">https://chenmiaoi.github.io/2024/07/16/ArkTS-analyze-riscv64-assember/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/arkts/"># arkts</a>
+                    
+                        <a href="/tags/ospp/"># ospp</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/09/16/LevelDB-A-whole-Put-Operation/">LevelDB: A Whole Put Operation</a>
+            
+            
+            <a class="next" rel="next" href="/2024/07/04/ArkTS-analyze-compiler-assember/">ArkTS: Analyze Compiler_assembler</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
