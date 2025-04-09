@@ -2,8 +2,8 @@
 title: 'STL17: New Features'
 mathjax: true
 date: 2025-02-15 15:46:38
-tags:
-categories:
+tags: [cpp, books, stl]
+categories: [cpp]
 ---
 
 # C++ STL17 CookBook: New Features
