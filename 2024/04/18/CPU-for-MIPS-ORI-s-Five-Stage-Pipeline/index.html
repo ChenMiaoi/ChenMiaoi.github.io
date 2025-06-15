@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>CPU for MIPS: ORI&#39;s Five-Stage Pipeline | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">CPU for MIPS: ORI&#39;s Five-Stage Pipeline</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">April 18, 2024&nbsp;&nbsp;0:44:03</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/architecture/">architecture</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="The-First-instruction-for-ORI"><a href="#The-First-instruction-for-ORI" class="headerlink" title="The First instruction for ORI"></a>The First instruction for ORI</h1><blockquote>
+<p>在CPU for MIPS系列的笔记中，我会详细介绍从一个最小的五级流水线开始不断的构建出一个完整的五级流水线(支持$MIPS Release&#x2160;，从而将$ucos$&#x2161;进行搭载)。</p>
+</blockquote>
+<h2 id="ORI-Instruction"><a href="#ORI-Instruction" class="headerlink" title="ORI Instruction"></a>ORI Instruction</h2><p>下图是<code>ORI</code>指令的类型格式：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404181017833.png" alt="ori instruction type"></p>
+<p>也就是说，在后续，我们需要通过<code>001_101</code>这一编码来判断是否是<code>ori</code>类型；同时，也需要注意的是：<code>ori</code>是<code>I</code>型指令，也就是有一个立即数<code>imm</code>。在<code>MIPS</code>中，<code>imm</code>是无符号扩展的，这一点很重要。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">; ori的用法</span><br><span class="line">ori rs, rt, imm</span><br></pre></td></tr></table></figure>
+
+<h2 id="A-Simple-Five-Stage-Pipeline"><a href="#A-Simple-Five-Stage-Pipeline" class="headerlink" title="A Simple Five-Stage Pipeline"></a>A Simple Five-Stage Pipeline</h2><p>在我之间的文章中，已经详细介绍过流水线(<a href="https://chenmiaoi.github.io/2024/04/13/DDCA-The-Chapter-3-Reading/#Parallelism">DDCA The Chapter 3 Reading, Parallelism</a>)的概念，因此就不再赘述。本节我主要讲述的是，关于<code>ori</code>的完备的，简单的五级流水线系统。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404181036641.png" alt="origin data graph"></p>
+<p>由上图可以看见，五级流水线实际上就是五个阶段过程：</p>
+<ul>
+<li>取指<ul>
+<li>取指阶段是从指令存储器中取出<code>pc</code>所对应的指令数据，以供译指(译码)阶段使用，而后<code>pc</code>自增。</li>
+<li>因此，这里涉及的两个元件是<code>pc</code>、<code>inst_fetch_inst_decode</code>和<code>inst_rom</code></li>
+</ul>
+</li>
+<li>译码<ul>
+<li>译码阶段是要将从取指阶段得到的指令翻译成<code>cpu</code>能够识别的二进制数据。因此，在这一阶段，<strong>我们需要对指令进行解析</strong>，比如：<ul>
+<li>指令的类型</li>
+<li>指令需要操作的寄存器(通常是读取源寄存器，写入目的寄存器)</li>
+<li>指令需要操作的寄存器中的数据</li>
+<li>指令中是否含有立即数</li>
+<li>…</li>
+</ul>
+</li>
+<li>获得如上数据后，将这些数据送往执行阶段让<code>cpu</code>进行实际的执行</li>
+<li>因此，这里涉及的元件有<code>regfile</code>，<code>inst_decode</code>和<code>inst_decode_execute</code></li>
+</ul>
+</li>
+<li>执行<ul>
+<li>执行阶段是根据从译码阶段得到的各种数据，进行真实的执行，比如：<ul>
+<li>从译码阶段获得的操作码判断操作类型，本次进行的是<code>ori</code>操作，也就是或操作</li>
+<li>通过从译码阶段得到的源寄存器数据和目的寄存器数据，进行或操作</li>
+<li>然后指定将结果写入目的寄存器中</li>
+</ul>
+</li>
+<li>下一步便是访存阶段</li>
+</ul>
+</li>
+<li>访存<ul>
+<li>对于这一阶段，通常是对内存进行读写操作的指令需要进行的。因此<code>ori</code>在此阶段并没有操作，将执行阶段的数据向下传递到回写阶段即可</li>
+</ul>
+</li>
+<li>回写<ul>
+<li>回写将执行的计算结果保存到目的寄存器中</li>
+</ul>
+</li>
+</ul>
+<p>因此，我们主要实现的就是一个简单的针对<code>ori</code>指令的五级流水线。</p>
+<h2 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h2><p>上面我们已经介绍了五级流水线的基本模型，现在，就应该具体来实现每一个部分了。</p>
+<h3 id="取指阶段"><a href="#取指阶段" class="headerlink" title="取指阶段"></a>取指阶段</h3><p>取指阶段要求我们根据<code>pc</code>从<code>inst_rom</code>中取出对应的指令数据，并传递给译码阶段。因此，这一阶段我们需要实现三个模块：<code>pc</code>、<code>inst_rom</code>和<code>inst_fetch</code>。</p>
+<h4 id="PC模块"><a href="#PC模块" class="headerlink" title="PC模块"></a>PC模块</h4><p><code>pc</code>的作用是给出当前指令地址，并准备下一条指令的执行。其接口对应的参数为:</p>
+<table>
+<thead>
+<tr>
+<th align="center">接口名</th>
+<th align="center">宽度</th>
+<th align="center">输入&#x2F;输出</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">rst</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">复位信号</td>
+</tr>
+<tr>
+<td align="center">clk</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">时钟信号</td>
+</tr>
+<tr>
+<td align="center">pc_addr</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center">要读取的指令地址</td>
+</tr>
+<tr>
+<td align="center">inst_en</td>
+<td align="center">1</td>
+<td align="center">o</td>
+<td align="center">指令存储器使能信号</td>
+</tr>
+</tbody></table>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> pc(</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>            rst,        <span class="comment">// reset signal</span></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>            clk,        <span class="comment">// clock signal</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>             inst_en,    <span class="comment">// instruction memory enable signal</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [<span class="number">31</span>:<span class="number">0</span>]  pc_addr     <span class="comment">// need to get the address of pc </span></span><br><span class="line">    );</span><br><span class="line"><span class="keyword">endmodule</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>pc</code>模块中，我们只需要做两个极其简单的判断(在时钟上升沿时)：</p>
+<ul>
+<li>如果复位信号是开启的，那么就需要重置；反之，则给指令存储器使能信号</li>
+<li>如果指令存储器使能信号没有开启，就说明<code>pc</code>无法使用，则给一个初始值；反之，则需要累加<code>4</code></li>
+</ul>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (rst == `RST_ENABLE) ...</span><br><span class="line"><span class="keyword">if</span> (inst_en == `CHIP_DISABLE) ...</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：<br>为什么<code>pc</code>要累加<code>4</code>呢？因此在<code>risc</code>指令集中，一条指令被强制规定为<code>4</code>字节的，常见的有<code>arm</code>、<code>mips</code>和<code>risc-v</code></p>
+</blockquote>
+<p>此时的电路图为：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404181121963.png" alt="pc circuit"></p>
+<h4 id="Instruction-ROM模块"><a href="#Instruction-ROM模块" class="headerlink" title="Instruction ROM模块"></a>Instruction ROM模块</h4><p><code>inst_rom</code>的作用是存储系统中需要执行的指令，因此，该模块只与<code>pc</code>暂时相关联。</p>
+<table>
+<thead>
+<tr>
+<th align="center">接口名</th>
+<th align="center">宽度</th>
+<th align="center">输入&#x2F;输出</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">i_pc_en</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">指令存储器使能信号</td>
+</tr>
+<tr>
+<td align="center">i_pc_addr</td>
+<td align="center">31</td>
+<td align="center">i</td>
+<td align="center">当前指令的地址</td>
+</tr>
+<tr>
+<td align="center">o_pc_inst</td>
+<td align="center">31</td>
+<td align="center">o</td>
+<td align="center">当前指令地址对应的指令</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>这里需要说明的是：<br><strong>接口名的命名规范问题：</strong>  </p>
+<blockquote>
+<p><code>i</code>表示输入，<code>o</code>表示输出<br>紧接着的<code>pc</code>就是从什么地方输入过来的信号，需要输出到哪一个模块去<br>最后的是信息<br>也就是说，接口名具体意义是(以<code>i_pc_en</code>为例)：从<code>pc</code>过来的使能信号输入  </p>
+</blockquote>
+</blockquote>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> rom_memory(</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                    i_pc_en,        <span class="comment">// 从pc输入的使能信号</span></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span> [`INST_ADDR_BUS]   i_pc_addr,      <span class="comment">// 从pc输入的指令地址</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span> [`INST_BUS]         o_fetch_inst    <span class="comment">// 输出到fetch模块的指令</span></span><br><span class="line">    );</span><br><span class="line"><span class="keyword">endmodule</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>inst_rom</code>中，我们需要做的就是创建一块内存用于保存指令数据，然后根据对应的<code>pc</code>地址和使能信号取出指令。因此，当前的电路为：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404181139643.png" alt="inst_rom"></p>
+<h4 id="Fetch模块"><a href="#Fetch模块" class="headerlink" title="Fetch模块"></a>Fetch模块</h4><p><code>inst_fetch</code>模块的作用是暂时保存取指阶段的数据，并在下一个时钟传递给译码阶段。</p>
+<table>
+<thead>
+<tr>
+<th align="center">接口名</th>
+<th align="center">宽度</th>
+<th align="center">输入&#x2F;输出</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">rst</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">复位信号</td>
+</tr>
+<tr>
+<td align="center">clk</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">时钟信号</td>
+</tr>
+<tr>
+<td align="center">i_rom_pc</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">通过<code>pc</code>从<code>inst_rom</code>模块中获得的指令地址</td>
+</tr>
+<tr>
+<td align="center">i_rom_inst</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">通过<code>pc</code>从<code>inst_rom</code>模块中获得的指令</td>
+</tr>
+<tr>
+<td align="center">o_inst_decode_pc</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center">输出到译码阶段的指令地址</td>
+</tr>
+<tr>
+<td align="center">o_inst_decode_inst</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center">输出到译码阶段的指令</td>
+</tr>
+</tbody></table>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> inst_fetch(</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                            rst,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                            clk,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`INST_ADDR_BUS]        i_rom_pc,               <span class="comment">// the addr of the instruction attached in instruction fetch </span></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`INST_BUS]             i_rom_inst,             <span class="comment">// the instruction attached in instruction fetch</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`INST_ADDR_BUS]        o_inst_decode_pc,       <span class="comment">// the addr of the instruction for instruction decode</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`INST_BUS]             o_inst_decode_inst      <span class="comment">// the instruction for instruction decode</span></span><br><span class="line">    );</span><br><span class="line"><span class="keyword">endmodule</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>inst_fetch</code>模块中，我们不需要做任何处理，这就相当于一个中转站，将<code>pc</code>和<code>inst</code>数据发送给译码阶段的模块。</p>
+<p>如下就是整个<code>fetch</code>模块的电路图:</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404181207668.png" alt="fetch"></p>
+<h3 id="译码阶段"><a href="#译码阶段" class="headerlink" title="译码阶段"></a>译码阶段</h3><p>译码阶段需要将取指阶段的数据进行处理，然后输出到执行阶段，因此，译码阶段涉及<code>regfile</code>、<code>inst_decode</code>和<code>inst_decode_excute</code>模块。</p>
+<h4 id="Regfile模块"><a href="#Regfile模块" class="headerlink" title="Regfile模块"></a>Regfile模块</h4><p><code>regfile</code>模块主要是用于寄存器表，也就是汇编中我们使用的寄存器，其可以同时支持两个寄存器的读操作和一个寄存器的写操作。</p>
+<table>
+<thead>
+<tr>
+<th align="center">接口名</th>
+<th align="center">宽度</th>
+<th align="center">输入&#x2F;输出</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">rst</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">复位信号</td>
+</tr>
+<tr>
+<td align="center">clk</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">时钟信号</td>
+</tr>
+<tr>
+<td align="center">i_w_reg_addr</td>
+<td align="center">5</td>
+<td align="center">i</td>
+<td align="center">需要写入的寄存器地址</td>
+</tr>
+<tr>
+<td align="center">i_w_reg_data</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">需要写入的寄存器数据</td>
+</tr>
+<tr>
+<td align="center">i_w_reg_en</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">写使能信号</td>
+</tr>
+<tr>
+<td align="center">i_r_reg_addr1</td>
+<td align="center">5</td>
+<td align="center">i</td>
+<td align="center">第一个需要读取的寄存器地址</td>
+</tr>
+<tr>
+<td align="center">i_r_reg_addr2</td>
+<td align="center">5</td>
+<td align="center">i</td>
+<td align="center">第二个需要读取的寄存器地址</td>
+</tr>
+<tr>
+<td align="center">i_r_reg_en1</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">第一个读使能信号</td>
+</tr>
+<tr>
+<td align="center">i_r_reg_en2</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">第二个读使能信号</td>
+</tr>
+<tr>
+<td align="center">o_r_reg_data1</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center">被读取的第一个寄存器数据</td>
+</tr>
+<tr>
+<td align="center">o_r_reg_data2</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center">被读取的第二个寄存器数据</td>
+</tr>
+</tbody></table>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> regfile(</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        rst,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        clk,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_ADDR_BUS]     i_w_reg_addr,     <span class="comment">// rd&#x27;s addr</span></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_BUS]          i_w_reg_data,     <span class="comment">// rd&#x27;s data</span></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_ADDR_BUS]     i_r_reg_addr1,    <span class="comment">// rs1&#x27;s addr</span></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_ADDR_BUS]     i_r_reg_addr2,    <span class="comment">// rs2&#x27;s addr</span></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        i_w_reg_en,       <span class="comment">// write rd enable</span></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        i_r_reg_en1,      <span class="comment">// read rs1 enable</span></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        i_r_reg_en2,      <span class="comment">// read rs2 enable</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_BUS]          o_r_reg_data1,    <span class="comment">// read rs1&#x27;s data</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_BUS]          o_r_reg_data2     <span class="comment">// read rs2&#x27;s data</span></span><br><span class="line">    );</span><br><span class="line"><span class="keyword">endmodule</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>regfile</code>模块中，我们需要考虑两种情况，读和写：</p>
+<ul>
+<li>写：<ul>
+<li>如果<code>i_w_reg_en</code>是开启的，且<code>i_w_reg_addr</code>不为<code>$0</code>，那么就将对应的<code>i_w_reg_data</code>写入到寄存器表中</li>
+</ul>
+</li>
+<li>读：<ul>
+<li>读有四种情况：<ul>
+<li>第一种：如果<code>rs1</code>(或<code>rs2</code>)需要读的寄存器为<code>$0</code>，那么直接赋值为<code>0</code>进行输出</li>
+<li>第二种：如果<code>rs1</code>(或<code>rs2</code>)需要读的寄存器刚好是写寄存器，那么直接将写寄存器的值赋值进行输出</li>
+<li>第三种：如果<code>rs1</code>(或<code>rs2</code>)单纯的读，那么将在寄存器中<code>i_r_reg_addr</code>对应的值赋值进行输出</li>
+<li>第四种：其他情况均赋值为<code>0</code>进行输出</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>由于<code>regfile</code>类似于表模块，因此暂时不给出对应的电路。</p>
+<h4 id="inst-decode模块"><a href="#inst-decode模块" class="headerlink" title="inst_decode模块"></a>inst_decode模块</h4><p><code>inst_decode</code>模块的作用是对指令进行译码，得到最终的运算类型、子类型、源操作数1、源操作数2和要写入的目的寄存器地址等信息。</p>
+<table>
+<thead>
+<tr>
+<th align="center">接口名</th>
+<th align="center">宽度</th>
+<th align="center">输入&#x2F;输出</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">rst</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">复位信号</td>
+</tr>
+<tr>
+<td align="center">i_fetch_pc</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">从<code>fetch</code>模块中得到的<code>pc</code>地址</td>
+</tr>
+<tr>
+<td align="center">i_fetch_inst</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">从<code>fetch</code>模块中得到的指令</td>
+</tr>
+<tr>
+<td align="center">i_regfile_reg_data1</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">从<code>regfile</code>模块中查询到的<code>reg1</code>的数据</td>
+</tr>
+<tr>
+<td align="center">i_regfile_reg_data2</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">从<code>regfile</code>模块中查询到的<code>reg2</code>的数据</td>
+</tr>
+<tr>
+<td align="center">o_regfile_r_reg_en1</td>
+<td align="center">1</td>
+<td align="center">o</td>
+<td align="center">输出到<code>regfile</code>的<code>reg1</code>的读使能信号</td>
+</tr>
+<tr>
+<td align="center">o_regfile_r_reg_en2</td>
+<td align="center">1</td>
+<td align="center">o</td>
+<td align="center">输出到<code>regfile</code>的<code>reg2</code>的读使能信号</td>
+</tr>
+<tr>
+<td align="center">o_regfile_r_reg_addr1</td>
+<td align="center">5</td>
+<td align="center">o</td>
+<td align="center">输出到<code>regfile</code>的<code>reg1</code>的地址</td>
+</tr>
+<tr>
+<td align="center">o_regfile_r_reg_addr2</td>
+<td align="center">5</td>
+<td align="center">o</td>
+<td align="center">输出到<code>regfile</code>的<code>reg2</code>的地址</td>
+</tr>
+<tr>
+<td align="center">o_execute_alu_op</td>
+<td align="center">8</td>
+<td align="center">o</td>
+<td align="center">输出到<code>execute</code>阶段的指令的子类型</td>
+</tr>
+<tr>
+<td align="center">o_execute_alu_sel</td>
+<td align="center">3</td>
+<td align="center">o</td>
+<td align="center">输出到<code>execute</code>阶段的指令的类型</td>
+</tr>
+<tr>
+<td align="center">o_execute_reg_data1</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center">输出到<code>execute</code>阶段的<code>reg1</code>的数据</td>
+</tr>
+<tr>
+<td align="center">o_execute_reg_data2</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center">输出到<code>execute</code>阶段的<code>reg2</code>的数据</td>
+</tr>
+<tr>
+<td align="center">o_execute_w_reg_addr</td>
+<td align="center">5</td>
+<td align="center">o</td>
+<td align="center">输出到<code>execute</code>阶段的<code>rd</code>的地址</td>
+</tr>
+<tr>
+<td align="center">o_execute_w_reg_en</td>
+<td align="center">1</td>
+<td align="center">o</td>
+<td align="center">输出到<code>execute</code>阶段的<code>rd</code>的写使能信号</td>
+</tr>
+</tbody></table>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> inst_decode(</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        rst,    </span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`INST_ADDR_BUS]    i_fetch_pc,             <span class="comment">//! the addr of the instruction whith need to be decoded</span></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`INST_BUS]         i_fetch_inst,           <span class="comment">//! the instruction whith need to be decoded</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// read the regfile</span></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_BUS]          i_regfile_reg_data1,    <span class="comment">//! rs1&#x27;s data</span></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_BUS]          i_regfile_reg_data2,    <span class="comment">//! rs2&#x27;s data</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// output into regfile</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>                         o_regfile_r_reg_en1,    <span class="comment">//! the read enable signal for rs1 </span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>                         o_regfile_r_reg_en2,    <span class="comment">//! the read enable signal for rs2</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_ADDR_BUS]     o_regfile_r_reg_addr1,  <span class="comment">//! the addr of rs1 which will be readed</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_ADDR_BUS]     o_regfile_r_reg_addr2,  <span class="comment">//! the addr of rs2 which will be readed</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// output into execution inst</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`ALU_OP_BUS]       o_execute_alu_op,       <span class="comment">//! bit range operator code: logic、shift、algorithm</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`ALU_SEL_BUS]      o_execute_alu_sel,      <span class="comment">//! small range operator code: and logic, or logic...</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_BUS]          o_execute_reg_data1,    <span class="comment">//! the rs1 which need to be calc</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_BUS]          o_execute_reg_data2,    <span class="comment">//! the rs2 which need to be calc</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_ADDR_BUS]     o_execute_w_reg_addr,   <span class="comment">//! the addr which need to be writen when calc done</span></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>                         o_execute_w_reg_en      <span class="comment">//! the write enable signal for rd</span></span><br><span class="line">    );</span><br><span class="line"><span class="keyword">endmodule</span>;</span><br></pre></td></tr></table></figure>
+
+<p>因此，可以看见，<code>inst_decode</code>会从<code>fetch</code>模块中得到的指令和地址进行解析，然后通过访问<code>regfile</code>查表操作，获得对应寄存器的操作数值作为输出；同时，在内部解析指令每一个字段含义。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 31       26 25       21 20       16 15                   0</span><br><span class="line">// ----------------------------------------------------------</span><br><span class="line">//     ORI    |    rs    |     rd    |          imme</span><br><span class="line">// ----------------------------------------------------------</span><br><span class="line">//   001101   |          |           |</span><br><span class="line">// ----------------------------------------------------------</span><br><span class="line"></span><br><span class="line">// 31       26 25       21 20       16 15       11 10       6 5         0</span><br><span class="line">// ----------------------------------------------------------------------</span><br><span class="line">//     op     |     rs    |     rt    |     rd    |     sa   |   func   </span><br><span class="line">// ----------------------------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<p>如上所示，第一个是<code>ori</code>指令的格式，而下面的是常见的<code>R-type</code>指令格式。因此，如果<code>rst</code>是关闭的，我们的初始化应该需要根据每个字段进行初始化，我们默认<code>rs</code>、<code>rt</code>和<code>rd</code>是存在的，也就是一般意义的<code>R-type</code>指令。</p>
+<p>然后我们通过<code>i_fetch_inst[21:26]</code>来截取最开始的操作码，目前我们只需要判断<code>ori</code>指令，因此，一旦判断是<code>ori</code>指令后，写使能开启，指令类型是<code>logic</code>，子类型是<code>or logic</code>；又从上面可以知道<code>ori</code>是<code>I-type</code>指令，因此我们假设<code>rt</code>寄存器无效，<code>rs</code>作为第一个操作数。而<code>imm</code>直接由<code>i_fetch_inst[15:0]</code>截取后进行无符号扩展(<strong>注意，这里是大端编码</strong>)，然后还需要设置<code>rd</code>寄存器地址，并指出该指令有效。</p>
+<p>初始化完成后，我们就需要去<code>regfile</code>表中读取<code>rs1(或rs2，如果有效的话)</code>作为<code>o_execute_reg_data</code>的数据输出到<code>execute</code>阶段，如果<code>rs1(或rs2)</code>是无效的，那么对应的<code>o_execute_reg_data</code>就应该是<code>imm</code>的数据。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404181703512.png" alt="inst_decode"></p>
+<h4 id="inst-decode-execute模块"><a href="#inst-decode-execute模块" class="headerlink" title="inst_decode_execute模块"></a>inst_decode_execute模块</h4><p>这个模块和<code>fetch</code>模块类似，是作为<code>inst_decode</code>模块的输出中转站，用以在下一个时钟送往<code>execute</code>模块的。</p>
+<table>
+<thead>
+<tr>
+<th align="center">接口名</th>
+<th align="center">宽度</th>
+<th align="center">输入&#x2F;输出</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">rst</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">复位信号</td>
+</tr>
+<tr>
+<td align="center">clk</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">时钟信号</td>
+</tr>
+<tr>
+<td align="center">i_inst_decode_alu_sel</td>
+<td align="center">3</td>
+<td align="center">i</td>
+<td align="center">从译码阶段获取的运算类型信息</td>
+</tr>
+<tr>
+<td align="center">i_inst_decode_alu_op</td>
+<td align="center">8</td>
+<td align="center">i</td>
+<td align="center">从译码阶段获取的子运算类型信息</td>
+</tr>
+<tr>
+<td align="center">i_inst_decode_reg_data1</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">从译码阶段获取的第一个源操作数的数据</td>
+</tr>
+<tr>
+<td align="center">i_inst_decode_reg_data2</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">从译码阶段获取的第二个源操作数的数据</td>
+</tr>
+<tr>
+<td align="center">i_inst_decode_w_reg_addr</td>
+<td align="center">5</td>
+<td align="center">i</td>
+<td align="center">从译码阶段获取的目的寄存器地址</td>
+</tr>
+<tr>
+<td align="center">i_inst_decode_w_reg_en</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">从译码阶段获取的目的寄存器写使能</td>
+</tr>
+<tr>
+<td align="center">o_execute_alu_sel</td>
+<td align="center">3</td>
+<td align="center">o</td>
+<td align="center">将要输出到<code>execute</code>阶段的类型信息</td>
+</tr>
+<tr>
+<td align="center">o_execute_alu_op</td>
+<td align="center">8</td>
+<td align="center">o</td>
+<td align="center">将要输出到<code>execute</code>阶段的子类型信息</td>
+</tr>
+<tr>
+<td align="center">o_execute_reg_data1</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center">将要输出到<code>execute</code>阶段的第一个操作数数据</td>
+</tr>
+<tr>
+<td align="center">o_execute_reg_data2</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center">将要输出到<code>execute</code>阶段的第二个操作数数据</td>
+</tr>
+<tr>
+<td align="center">o_execute_w_reg_addr</td>
+<td align="center">5</td>
+<td align="center">o</td>
+<td align="center">将要输出到<code>execute</code>阶段的目的寄存器地址信息</td>
+</tr>
+<tr>
+<td align="center">o_execute_w_reg_en</td>
+<td align="center">1</td>
+<td align="center">o</td>
+<td align="center">将要输出到<code>execute</code>阶段的目的寄存器写使能信息</td>
+</tr>
+</tbody></table>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> inst_decode_execute(</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        rst,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        clk,</span><br><span class="line"></span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`ALU_SEL_BUS]      i_inst_decode_alu_sel,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`ALU_OP_BUS]       i_inst_decode_alu_op,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_BUS]          i_inst_decode_reg_data1,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_BUS]          i_inst_decode_reg_data2,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_ADDR_BUS]     i_inst_decode_w_reg_addr,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        i_inst_decode_w_reg_en,</span><br><span class="line"></span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`ALU_SEL_BUS]      o_execute_alu_sel,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`ALU_OP_BUS]       o_execute_alu_op,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_BUS]          o_execute_reg_data1,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_BUS]          o_execute_reg_data2,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_ADDR_BUS]     o_execute_w_reg_addr,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>                         o_execute_w_reg_en</span><br><span class="line">    );</span><br><span class="line"><span class="keyword">endmodule</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这里的逻辑极其简单，就是在下一个时钟上升沿时，将输入的输出转交给<code>execute</code>模块即可。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404181724602.png" alt="instruction decode"></p>
+<h3 id="执行阶段"><a href="#执行阶段" class="headerlink" title="执行阶段"></a>执行阶段</h3><p>我们已经在译码阶段得到了第一个操作数数据、第二个操作数数据、指令类型、指令子类型、目的寄存器地址和目的寄存器的写使能。现在就需要通过获得的数据来进行具体的操作实现了。</p>
+<h4 id="execute模块"><a href="#execute模块" class="headerlink" title="execute模块"></a>execute模块</h4><p><code>execute</code>模块会根据译码阶段的信息，来实现对应类型的操作，然后得出应该存在目的寄存器中的数据。</p>
+<table>
+<thead>
+<tr>
+<th align="center">接口名</th>
+<th align="center">宽度</th>
+<th align="center">输出&#x2F;输入</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">rst</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">复位信号</td>
+</tr>
+<tr>
+<td align="center">i_inst_decode_alu_sel</td>
+<td align="center">3</td>
+<td align="center">i</td>
+<td align="center">从译码阶段得到的计算子类型</td>
+</tr>
+<tr>
+<td align="center">i_inst_decode_alu_op</td>
+<td align="center">8</td>
+<td align="center">i</td>
+<td align="center">从译码阶段得到的计算类型</td>
+</tr>
+<tr>
+<td align="center">i_inst_decode_reg_data1</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">从译码阶段得到的第一个源操作数的数据</td>
+</tr>
+<tr>
+<td align="center">i_inst_decode_reg_data2</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">从译码阶段得到的第一个源操作数的数据</td>
+</tr>
+<tr>
+<td align="center">i_inst_decode_w_reg_addr</td>
+<td align="center">5</td>
+<td align="center">i</td>
+<td align="center">从译码阶段得到的目的寄存器地址</td>
+</tr>
+<tr>
+<td align="center">i_inst_decode_w_reg_en</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">从译码阶段得到的目的寄存器写使能</td>
+</tr>
+<tr>
+<td align="center">o_w_reg_addr</td>
+<td align="center">5</td>
+<td align="center">o</td>
+<td align="center"><code>execute</code>模块计算后需要写入的目的寄存器地址</td>
+</tr>
+<tr>
+<td align="center">o_w_reg_en</td>
+<td align="center">1</td>
+<td align="center">o</td>
+<td align="center"><code>execute</code>模块需要写入的目的寄存器的写使能</td>
+</tr>
+<tr>
+<td align="center">o_w_reg_data</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center"><code>execute</code>模块需要写入的目的寄存器的数据</td>
+</tr>
+</tbody></table>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> execute(</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                    rst,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>  [`ALU_SEL_BUS]    i_inst_decode_alu_sel,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>  [`ALU_OP_BUS]     i_inst_decode_alu_op,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>  [`REG_BUS]        i_inst_decode_reg_data1,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>  [`REG_BUS]        i_inst_decode_reg_data2,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>  [`REG_ADDR_BUS]   i_inst_decode_w_reg_addr,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                    i_inst_decode_w_reg_en,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>                     o_w_reg_en,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>   [`REG_ADDR_BUS]   o_w_reg_addr,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>   [`REG_BUS]        o_w_reg_data</span><br><span class="line">    );</span><br><span class="line"><span class="keyword">endmodule</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>execute</code>模块中，我们需要根据得到的子类型来计算对应的数据，然后判断<code>i_inst_decode_alu_sel</code>后通过<code>o_w_reg_data</code>进行输出。</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> (i_inst_decode_alu_op)</span><br><span class="line">  `EXE_OR_OP: <span class="keyword">begin</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line">  </span><br><span class="line"><span class="keyword">case</span> (i_inst_decode_alu_sel)</span><br><span class="line">  `EXE_RES_LOGIC: <span class="keyword">begin</span></span><br><span class="line">  <span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404182017748.png" alt="execute"></p>
+<h4 id="execute-memory模块"><a href="#execute-memory模块" class="headerlink" title="execute_memory模块"></a>execute_memory模块</h4><p>该模块是执行阶段和访存阶段之间的中转站，用于将<code>execute</code>中的输出信息转交给<code>memory</code>模块。</p>
+<table>
+<thead>
+<tr>
+<th align="center">接口名</th>
+<th align="center">宽度</th>
+<th align="center">输入&#x2F;输出</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">rst</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">复位信号</td>
+</tr>
+<tr>
+<td align="center">clk</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">时钟信号</td>
+</tr>
+<tr>
+<td align="center">i_execute_w_reg_addr</td>
+<td align="center">5</td>
+<td align="center">i</td>
+<td align="center">从<code>execute</code>模块得到的目的寄存器的地址</td>
+</tr>
+<tr>
+<td align="center">i_execute_w_reg_en</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">从<code>execute</code>模块得到的目的寄存器的写使能</td>
+</tr>
+<tr>
+<td align="center">i_execute_w_reg_data</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">从<code>execute</code>中计算得到的目的寄存器的数据</td>
+</tr>
+<tr>
+<td align="center">o_memory_w_reg_addr</td>
+<td align="center">5</td>
+<td align="center">o</td>
+<td align="center">访存阶段将要写入的地址</td>
+</tr>
+<tr>
+<td align="center">o_memory_w_reg_en</td>
+<td align="center">1</td>
+<td align="center">o</td>
+<td align="center">访存阶段的使能信号</td>
+</tr>
+<tr>
+<td align="center">o_memory_w_reg_data</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center">访存阶段将要写入的数据</td>
+</tr>
+</tbody></table>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> execute_memory(</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        rst,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        clk,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        i_execute_w_reg_en,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_ADDR_BUS]     i_execute_w_reg_addr,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_BUS]          i_execute_w_reg_data,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>                         o_memory_w_reg_en,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_ADDR_BUS]     o_memory_w_reg_addr,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_BUS]          o_memory_w_reg_data</span><br><span class="line">    );</span><br><span class="line"><span class="keyword">endmodule</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="访存阶段"><a href="#访存阶段" class="headerlink" title="访存阶段"></a>访存阶段</h3><p>当执行阶段结束后，就应该进入访存阶段了，但是，<code>ori</code>指令并不涉及访存操作，因此我们不需要做任何事，直接将数据传给回写阶段即可。</p>
+<h4 id="memory模块"><a href="#memory模块" class="headerlink" title="memory模块"></a>memory模块</h4><table>
+<thead>
+<tr>
+<th align="center">接口号</th>
+<th align="center">宽度</th>
+<th align="center">输入&#x2F;输出</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">rst</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">复位信号</td>
+</tr>
+<tr>
+<td align="center">i_execute_w_reg_addr</td>
+<td align="center">5</td>
+<td align="center">i</td>
+<td align="center">从执行阶段得到的目的寄存器地址</td>
+</tr>
+<tr>
+<td align="center">i_execute_w_reg_en</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">从执行阶段得到的目的寄存器写使能</td>
+</tr>
+<tr>
+<td align="center">i_execute_w_reg_data</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">从执行阶段得到的目的寄存器数据</td>
+</tr>
+<tr>
+<td align="center">o_write_back_w_reg_addr</td>
+<td align="center">5</td>
+<td align="center">o</td>
+<td align="center">输出到写回阶段的目的寄存器的地址</td>
+</tr>
+<tr>
+<td align="center">o_write_back_w_reg_en</td>
+<td align="center">1</td>
+<td align="center">o</td>
+<td align="center">输出到写回阶段的目的寄存器的写使能信号</td>
+</tr>
+<tr>
+<td align="center">o_write_back_w_reg_data</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center">输出到写回阶段的目的寄存器的值</td>
+</tr>
+</tbody></table>
+<p>在<code>ori</code>中，没有任何操作。</p>
+<h3 id="回写阶段"><a href="#回写阶段" class="headerlink" title="回写阶段"></a>回写阶段</h3><p>回写阶段实际上是两部分组成，一个是<code>memory_write_back</code>模块，一个就是通过该模块回写到<code>regfile</code>中。</p>
+<h4 id="memory-write-back模块"><a href="#memory-write-back模块" class="headerlink" title="memory write back模块"></a>memory write back模块</h4><table>
+<thead>
+<tr>
+<th align="center">接口名</th>
+<th align="center">宽度</th>
+<th align="center">输入&#x2F;输出</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">rst</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">复位信号</td>
+</tr>
+<tr>
+<td align="center">clk</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">时钟信号</td>
+</tr>
+<tr>
+<td align="center">i_memory_w_reg_addr</td>
+<td align="center">5</td>
+<td align="center">i</td>
+<td align="center">从访存阶段得到的目的寄存器地址</td>
+</tr>
+<tr>
+<td align="center">i_memory_w_reg_en</td>
+<td align="center">1</td>
+<td align="center">i</td>
+<td align="center">从访存阶段得到的目的寄存器写使能</td>
+</tr>
+<tr>
+<td align="center">i_memory_w_reg_data</td>
+<td align="center">32</td>
+<td align="center">i</td>
+<td align="center">从访存阶段得到的目的寄存器数据</td>
+</tr>
+<tr>
+<td align="center">o_regfile_w_reg_addr</td>
+<td align="center">5</td>
+<td align="center">o</td>
+<td align="center">回写到<code>regfile</code>模块的目的寄存器地址</td>
+</tr>
+<tr>
+<td align="center">o_regfile_w_reg_en</td>
+<td align="center">1</td>
+<td align="center">o</td>
+<td align="center">回写到<code>regfile</code>模块的目的寄存器写使能</td>
+</tr>
+<tr>
+<td align="center">o_regfile_w_reg_data</td>
+<td align="center">32</td>
+<td align="center">o</td>
+<td align="center">回写到<code>regfile</code>模块的目的寄存器数据</td>
+</tr>
+</tbody></table>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> memory_write_back(</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        rst,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        clk,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>                        i_memory_w_reg_en,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_ADDR_BUS]     i_memory_w_reg_addr,</span><br><span class="line">    <span class="keyword">input</span>   <span class="keyword">wire</span>    [`REG_BUS]          i_memory_w_reg_data,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>                         o_regfile_w_reg_en,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_ADDR_BUS]     o_regfile_w_reg_addr,</span><br><span class="line">    <span class="keyword">output</span>  <span class="keyword">reg</span>     [`REG_BUS]          o_regfile_w_reg_data</span><br><span class="line">    );</span><br><span class="line"><span class="keyword">endmodule</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="顶层模块构建"><a href="#顶层模块构建" class="headerlink" title="顶层模块构建"></a>顶层模块构建</h3><p>目前，我们已经完成了<code>ori</code>的五级流水线的五个部分，现在就应该通过顶层模块来布线了。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404182121621.png" alt="top-module"></p>
+<p>每一个部分分别为：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404182136329.png" alt="fetch stage"><br><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404182136278.png" alt="decode stage"><br><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404182137914.png" alt="execute stage"><br><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404182137828.png" alt="memory stage"><br><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404182137278.png" alt="write back stage"></p>
+<p>最终我们得到如下电路图：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404182134795.png" alt="top-circuit"></p>
+<p>……世纪长图</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/04/18/CPU-for-MIPS-ORI-s-Five-Stage-Pipeline/">https://chenmiaoi.github.io/2024/04/18/CPU-for-MIPS-ORI-s-Five-Stage-Pipeline/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/verilog/"># verilog</a>
+                    
+                        <a href="/tags/cpu/"># cpu</a>
+                    
+                        <a href="/tags/mips/"># mips</a>
+                    
+                        <a href="/tags/five-stage/"># five-stage</a>
+                    
+                        <a href="/tags/pipeline/"># pipeline</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/04/20/DDCA-The-Chapter-7-Reading/">DDCA: The Chapter 7 Reading</a>
+            
+            
+            <a class="next" rel="next" href="/2024/04/13/DDCA-The-Chapter-3-Reading/">DDCA: The Chapter 3 Reading</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

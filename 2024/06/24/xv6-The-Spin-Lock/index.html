@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>Xv6: The Spin Lock | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Xv6: The Spin Lock</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">June 24, 2024&nbsp;&nbsp;18:22:51</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/xv6/">xv6</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="XV6-Operator-System-04-The-Spin-Lock"><a href="#XV6-Operator-System-04-The-Spin-Lock" class="headerlink" title="XV6 Operator System: 04-The Spin Lock"></a>XV6 Operator System: 04-The Spin Lock</h1><p>在上一节中，我简单介绍了内核态中的入口函数<code>main()</code>。如果按照入口函数中的初始化顺序，理应讲解<code>consoleinit()</code>，但是位于<code>consoleinit</code>中有涉及到其余部分的介绍，为了每个章节的独立性和可读性，并且为了避免一次性知识的复杂程度过高，这里选择率先讲解<code>spinlock</code>。</p>
+<p>在这一节中，我并不打算详细介绍什么是“锁”，只会简单的提一点最为基本的概念以及锁的种类。</p>
+<p><strong>锁是一种用于控制多线程或多进程环境中资源访问的同步机制。它的主要作用是防止数据竞争和保持数据一致性。当多个线程或进程需要访问共享资源时，锁可以确保同一时间只有一个线程或进程可以访问该资源，从而避免并发操作带来的问题</strong>。</p>
+<p>一般而言，常见的锁有：</p>
+<table>
+<thead>
+<tr>
+<th align="center">种类</th>
+<th align="center">用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">互斥锁(Mutex Lock)</td>
+<td align="center">适用于需要严格防止并发访问的场景，如更新共享变量或文件操作</td>
+</tr>
+<tr>
+<td align="center">读写锁 (Read-Write Lock)</td>
+<td align="center">适用于读多写少的场景，例如缓存系统</td>
+</tr>
+<tr>
+<td align="center">递归锁 (Recursive Lock)</td>
+<td align="center">适用于需要递归调用且每次调用都需要获取同一锁的场景</td>
+</tr>
+<tr>
+<td align="center">自旋锁 (Spin Lock)</td>
+<td align="center">适用于锁持有时间很短的场景，因为自旋锁会消耗 CPU 资源</td>
+</tr>
+</tbody></table>
+<p>而在<code>xv6-riscv</code>中，我们主要实现的锁便是自旋锁。<code>xv6</code>的目标是尽可能简单地展示操作系统的基本原理。<strong>自旋锁的实现相对简单，不需要处理复杂的上下文切换或线程调度问题</strong>。实现其他类型的锁（如互斥锁、读写锁）需要更复杂的调度机制和上下文切换管理，这会增加内核的复杂性。而自旋锁只需要简单的检查和自旋等待，不需要操作系统调度线程的切换，简化了内核的实现。</p>
+<p>同时，在自旋锁中，由于线程在等待锁的时候不会进行上下文切换，这在某些情况下反而更加高效，特别是在临界区执行时间极短的情况下。避免上下文切换的开销，可以提升系统性能。</p>
+<h2 id="Lock"><a href="#Lock" class="headerlink" title="Lock"></a>Lock</h2><p>多个$CPU$的<code>xv6</code>共享物理内存，并且利用共享来维护所有$cpu$读取和写入的数据结构。而共享数据则是增加了一个$CPU$在读取数据的同时，另一个$CPU$正在更新该数据结构的可能性，甚至多个$CPU$同时更新。哪怕在单核中，内核也可能不断的在$CPU$中切换大量线程，使得它们交替执行。<strong>并发一词指的是由于多处理器并行性、线程切换或中断而导致多条指令流交错的情况</strong>。</p>
+<p>内核中总是充斥着许多并行数据，内核设计者们为了让内核使用并行以增加其性能和响应性，不得不允许了大量并发的存在。为了不造成严重错误，又设计出并发控制技术来解决这一问题。</p>
+<p>这一节主要涉及到并发控制及技术中最为广泛使用的一项技术：锁。锁提供了互斥性，确保了一次只能一个$CPU$享有锁。也就是说，如果一个数据结构使用锁来保护其数据，那么锁就使得一次只有一个$CPU$能够使用该数据。尽管锁是一种极其简单有效的机制，但是大量使用锁会使得性能下降，因为它使其变为了单独的序列化执行。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202406251020809.png" alt="Simplified SMP architecture"></p>
+<h2 id="Races"><a href="#Races" class="headerlink" title="Races"></a>Races</h2><p>考虑一下这个例子：两个具有退出子进程的进程在两个不同的$CPU$上调用<code>wait</code>，而<code>wait</code>会释放这两个子进程的内存。因此，对于这两个$CPU$而言，内核会调用<code>kfree</code>来回收这两个子进程的内存页。<code>xv6</code>的内核分配器维护了一个链表<code>kalloc()</code>，<code>kalloc</code>会从空闲链表中弹出一页内存，而<code>kfree</code>就会将这页内存给回收。</p>
+<p>下图展示了一个详细情况：空闲页面的链表位于两个$CPU$的共享内存中，它们使用<code>load</code>和<code>store</code>指令操作该链表：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202406251030024.png" alt="Example race"></p>
+<p>如果不考虑并发情况，那么你可能会这样实现：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">element</span> &#123;</span><br><span class="line">    <span class="type">int</span> data;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">element</span>* next;  </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">element</span>* list = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">push</span><span class="params">(<span class="type">int</span> data)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">element</span>* l;</span><br><span class="line">    l = <span class="built_in">malloc</span>( <span class="keyword">sizeof</span> *l );</span><br><span class="line">    l-&gt;data = data;</span><br><span class="line">    l-&gt;next = list;</span><br><span class="line">    list = l;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上面我们说过，如果这段代码是单进程下，那么是正确的。如果两个$CPU$同时执行<code>push</code>，因此这两个$CPU$都可能会在<code>list = l</code>前执行<code>l-&gt;next = list</code>。那么就会导致上面图示的结果，两个元素确实插入到链表中，但是第一次对于链表的数据的赋值会发生在第二个节点上，并且第二次的赋值会覆盖掉第一次的赋值，并且第一个节点是没有值的。</p>
+<p>这就是竞争的一个简单例子。竞争是一种发生在一块内存被并发访问，并且其中至少有一个操作是写入时的一种状态。<strong>竞争的结果取决于编译器生成的机器码、所涉及的两个$cpu$的计时以及它们的内存操作如何由内存系统排序，这可能使竞争引起的错误难以重现和调试</strong>。</p>
+<p>避免竞争发生的常用方法就是锁。锁的存在保证了互斥性，以至于一次只有一个$cpu$能够执行一些敏感数据：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">element</span>* list = <span class="literal">NULL</span>;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">lock</span> listlock;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">push</span><span class="params">(<span class="type">int</span> data)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">element</span>* l;</span><br><span class="line">    l = <span class="built_in">malloc</span>( <span class="keyword">sizeof</span> *l );</span><br><span class="line">    l-&gt;data = data;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">acquire</span>(&amp;listlock);</span><br><span class="line">    l-&gt;next = list;</span><br><span class="line">    list = l;</span><br><span class="line">    <span class="built_in">release</span>(&amp;listlock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>位于<code>acquire</code>和<code>release</code>之间的代码片段被称为<code>临界区(critical section)</code>。</p>
+<p>当我们说锁保护数据时，通常而言是指锁保护应用于数据的一些不变量集合。不变量才是跨操作维护数据结构的属性。换言之，一个操作的是否正确取决于操作时的不变量是否正确。</p>
+<p>你可以将锁视为序列化并发临界区，以便它们一次运行一个，从而保留不变量。你还可以将由同一锁保护的临界区视为彼此之间的原子性，因此每个临界区都只能看到来自早期临界区的完整更改集，而永远不会看到部分完成的更新。</p>
+<p><strong>内核设计中的一个主要挑战是，在追求并行性时避免锁争用</strong>。<code>xv6</code>在这方面做得很少，但复杂的内核会专门组织数据结构和算法以避免锁争用。</p>
+<h2 id="Spin-Lock’s-Code"><a href="#Spin-Lock’s-Code" class="headerlink" title="Spin Lock’s Code"></a>Spin Lock’s Code</h2><p>在<code>xv6</code>种实际上是存在两种锁的，一种则是<code>自旋锁(spin lock)</code>，另一种是<code>睡眠锁(sleep lock)</code>。我们首先从自旋锁开始介绍。</p>
+<p>在<code>xv6</code>中，自旋锁的结构是在<a target="_blank" rel="noopener" href="https://github.com/mit-pdos/xv6-riscv/blob/riscv//kernel/spinlock.h#L2">kernel&#x2F;spinlock.h:2</a>中被定义的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Mutual exclusion lock.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">spinlock</span> &#123;</span><br><span class="line">  uint locked;      <span class="comment">// Is the lock held?</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// For debugging:</span></span><br><span class="line">  <span class="type">char</span> *name;       <span class="comment">// Name of lock.</span></span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">cpu</span> *cpu;  <span class="comment">// The cpu holding the lock.</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>其中，最为主要的一个元素自然是<code>locked</code>，这用于标识是否上锁：<strong>当锁可用时，其值为零；锁被拥有时，为非零</strong>。</p>
+<p>然后我们可以在<a target="_blank" rel="noopener" href="https://github.com/mit-pdos/xv6-riscv/blob/riscv//kernel/spinlock.c">kernel&#x2F;spinlock.c</a>中查看其余函数的定义和实现。</p>
+<h3 id="initlock"><a href="#initlock" class="headerlink" title="initlock"></a>initlock</h3><p>不止在锁这一个模块中，其余每个模块基本上都会存在一个初始化函数，用于在内核进入时统一初始化。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">initlock</span><span class="params">(<span class="keyword">struct</span> spinlock *lk, <span class="type">char</span> *name)</span> </span>&#123;</span><br><span class="line">  lk-&gt;name = name;</span><br><span class="line">  lk-&gt;locked = <span class="number">0</span>;</span><br><span class="line">  lk-&gt;cpu = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于锁的初始化而言，没有过多讲解的必要。这里额外讲解一点$cpu$的结构信息：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Per-CPU state.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">cpu</span> &#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">proc</span> *proc;          <span class="comment">// The process running on this cpu, or null.</span></span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">context</span> context;     <span class="comment">// swtch() here to enter scheduler().</span></span><br><span class="line">  <span class="type">int</span> noff;                   <span class="comment">// Depth of push_off() nesting.</span></span><br><span class="line">  <span class="type">int</span> intena;                 <span class="comment">// Were interrupts enabled before push_off()?</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">struct</span> <span class="title class_">cpu</span> cpus[NCPU];</span><br><span class="line"></span><br><span class="line"><span class="comment">// Return this CPU&#x27;s cpu struct.</span></span><br><span class="line"><span class="comment">// Interrupts must be disabled.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">cpu</span> *<span class="built_in">mycpu</span>(<span class="type">void</span>) &#123;</span><br><span class="line">  <span class="type">int</span> id = <span class="built_in">cpuid</span>();</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">cpu</span> *c = &amp;cpus[id];</span><br><span class="line">  <span class="keyword">return</span> c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于<code>proc</code>和<code>context</code>这两个字段的含义，有些读者可能能够理解，但是目前暂时不需要过多的讲解，因为在此处不会有更多的使用。我们主要了解<code>noff</code>和<code>intena</code>，前者是关于锁嵌套的深度，而后者则是在获取锁之前，该$CPU$的中断使能状态信息。</p>
+<p>因此对于锁而言，<strong>我们在获取锁后为了避免死锁的发生，需要关闭中断使得获取锁后不会因为中断的发生而导致跳出锁的作用范围</strong>。因此，我们就需要率先获取获取锁之前的状态，然后关闭中断使能，后续释放锁后，再根据获取的状态进行恢复使能状态。</p>
+<p>对于<code>cpus</code>和<code>mycpu()</code>，则是针对于现代计算机多核的一种设计，我们在处理锁的时候，需要锁住当前$cpu$状态就需要使用。</p>
+<h3 id="push-off-pop-off"><a href="#push-off-pop-off" class="headerlink" title="push_off &amp;&amp; pop_off"></a>push_off &amp;&amp; pop_off</h3><p><a target="_blank" rel="noopener" href="https://github.com/mit-pdos/xv6-riscv/blob/riscv//kernel/spinlock.c#L80">push_off</a>和<a target="_blank" rel="noopener" href="https://github.com/mit-pdos/xv6-riscv/blob/riscv//kernel/spinlock.c#L89">pop_off</a>函数的设计和作用主要与中断的管理有关，以确保在持有自旋锁期间不发生上下文切换，从而避免死锁和竞争条件。</p>
+<p><code>push_off</code>函数的主要作用是<strong>禁用当前处理器的中断，并记录之前的中断状态。其设计目的是确保在持有自旋锁期间，中断不会打断当前的执行流，从而避免由于中断处理程序尝试获取相同自旋锁而导致的死锁</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">push_off</span><span class="params">(<span class="type">void</span>)</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> old = <span class="built_in">intr_get</span>();</span><br><span class="line"></span><br><span class="line">  <span class="built_in">intr_off</span>();</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">mycpu</span>()-&gt;noff == <span class="number">0</span>)</span><br><span class="line">    <span class="built_in">mycpu</span>()-&gt;intena = old;</span><br><span class="line">  <span class="built_in">mycpu</span>()-&gt;noff += <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title">intr_off</span><span class="params">()</span> </span>&#123; <span class="built_in">w_sstatus</span>(<span class="built_in">r_sstatus</span>() &amp; ~SSTATUS_SIE); &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// are device interrupts enabled?</span></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">int</span> <span class="title">intr_get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  uint64 x = <span class="built_in">r_sstatus</span>();</span><br><span class="line">  <span class="keyword">return</span> (x &amp; SSTATUS_SIE) != <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上面的实现中，<code>intr_get()</code>会获取<code>mstatus</code>寄存器，用于读取当前中断使能状态，然后通过<code>intr_off()</code>关闭中断。当<code>cpu</code>是第一次获取锁时，其中的<code>intena</code>会保存之前的使能状态以供后续恢复。</p>
+<p><code>pop_off</code>函数的主要作用是<strong>恢复之前的中断状态。其设计目的是在完成对共享资源的访问后，重新启用中断</strong>(<strong>如果在获取自旋锁之前中断是启用的</strong>)。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">pop_off</span><span class="params">(<span class="type">void</span>)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">cpu</span> *c = <span class="built_in">mycpu</span>();</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">intr_get</span>())</span><br><span class="line">    <span class="built_in">panic</span>(<span class="string">&quot;pop_off - interruptible&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (c-&gt;noff &lt; <span class="number">1</span>)</span><br><span class="line">    <span class="built_in">panic</span>(<span class="string">&quot;pop_off&quot;</span>);</span><br><span class="line">  c-&gt;noff -= <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> (c-&gt;noff == <span class="number">0</span> &amp;&amp; c-&gt;intena)</span><br><span class="line">    <span class="built_in">intr_on</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// enable device interrupts</span></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title">intr_on</span><span class="params">()</span> </span>&#123; <span class="built_in">w_sstatus</span>(<span class="built_in">r_sstatus</span>() | SSTATUS_SIE); &#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，解锁的过程中也是处于关中断状态的，因此我们需要判断此时的中断状态以及<code>noff</code>字段。然后通过<code>intena</code>判断是否使用<code>intr_on()</code>恢复中断使能状态。</p>
+<h3 id="acquire-release"><a href="#acquire-release" class="headerlink" title="acquire &amp;&amp; release"></a>acquire &amp;&amp; release</h3><p>在<code>xv6</code>中，我们最为常用的两个自旋锁接口是<a target="_blank" rel="noopener" href="https://github.com/mit-pdos/xv6-riscv/blob/riscv//kernel/spinlock.c#19">acquire</a>和<a target="_blank" rel="noopener" href="https://github.com/mit-pdos/xv6-riscv/blob/riscv//kernel/spinlock.c#42">release</a>。<code>acquire</code>和<code>release</code>函数用于管理自旋锁，它们分别用于获取和释放锁，从而确保对共享资源的互斥访问。</p>
+<p><code>acquire</code>函数用于获取自旋锁。它的主要步骤包括禁用中断、检查当前锁状态、尝试获取锁以及记录当前持有锁的CPU。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">acquire</span><span class="params">(<span class="keyword">struct</span> spinlock *lk)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">push_off</span>(); <span class="comment">// disable interrupts to avoid deadlock.</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">holding</span>(lk))</span><br><span class="line">    <span class="built_in">panic</span>(<span class="string">&quot;acquire&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (__sync_lock_test_and_set(&amp;lk-&gt;locked, <span class="number">1</span>) != <span class="number">0</span>)</span><br><span class="line">    ;</span><br><span class="line">  __sync_synchronize();</span><br><span class="line"></span><br><span class="line">  lk-&gt;cpu = <span class="built_in">mycpu</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们在上面知道，整个锁的环节都是需要在关中断的状态下完成的，因此关中断肯定是获取锁的第一步。然后我们需要判断该$cpu$是否以及获取过一次锁，如果以及获取锁，那么就会导致错误，因为两个锁的同时拥有会导致问题频发。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">holding</span><span class="params">(<span class="keyword">struct</span> spinlock *lk)</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> r;</span><br><span class="line">  r = (lk-&gt;locked &amp;&amp; lk-&gt;cpu == <span class="built_in">mycpu</span>());</span><br><span class="line">  <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>判断有条件拥有锁后，我们就需要设置<code>locked</code>字段，这里使用了$GCC$提供的内置的原子操作<code>__sync_lock_test_and_set</code>，它是一个$atomic exchange operation$，这样就使得<strong>执行交换操作期间不会发生其他线程或进程的干扰，从而保证交换操作是原子的</strong>。因此<code>locked</code>就被置为了<code>1</code>，并且其返回值是原先的旧值。因此，如果锁被其他$cpu$所持有，那么就会一直在<code>while</code>中循环直到获取锁，因此被称为自旋锁。</p>
+<blockquote>
+<p>原子交换操作($atomic exchange operation$)<br>原子交换操作是一种并发编程中的操作，用于在多线程或多进程环境下实现原子性的值交换。它确保在执行交换操作期间不会发生其他线程或进程的干扰，从而保证交换操作是原子的。<br>在并发环境中，多个线程或进程可以同时访问和修改共享的变量。当多个线程或进程需要同时对某个变量进行读取和写入时，就可能发生竞态条件(race condition)，导致不确定的结果或数据不一致的情况。原子交换操作提供了一种解决竞态条件问题的机制。<br>原子交换操作通常包括两个步骤：读取变量的当前值并将新值写入变量。这两个步骤被视为一个原子操作，要么完全执行成功，要么完全不执行。原子交换操作通常使用底层的硬件指令或操作系统提供的原子操作函数来实现。  </p>
+</blockquote>
+<p>然后通过<code>__sync_synchronize</code>内置函数，用于提交一个<code>fence</code>指令进行内存屏障操作。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">; __sync_lock_test_and_set</span><br><span class="line">; a5 = 1</span><br><span class="line">; s1 = &amp;lk-&gt;locked</span><br><span class="line"></span><br><span class="line">amoswap.w.aq a5, a5, (s1)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>AMOSWAP<br>AMOSWAP指令用于在多线程或多处理器环境下执行原子性的值交换操作。它允许程序原子地读取一个内存位置的当前值，并将一个新值写入该位置。该指令确保在执行交换操作期间不会发生其他线程或处理器的干扰，从而保证交换操作是原子的</p>
+</blockquote>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202406261048339.png" alt="riscv Atomic Memory Operations"></p>
+<p>最后，将当前$cpu$的结构信息保存在锁中，用于后续判断和调试。</p>
+<p><code>release</code>函数用于释放自旋锁。它的主要步骤包括检查当前持有锁的$CPU$、清除持有锁的$CPU$信息、释放锁以及恢复中断状态。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">release</span><span class="params">(<span class="keyword">struct</span> spinlock *lk)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">holding</span>(lk))</span><br><span class="line">    <span class="built_in">panic</span>(<span class="string">&quot;release&quot;</span>);</span><br><span class="line"></span><br><span class="line">  lk-&gt;cpu = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  __sync_synchronize();</span><br><span class="line"></span><br><span class="line">  __sync_lock_release(&amp;lk-&gt;locked);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">pop_off</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看见，首先需要判断的就是当前$cpu$是否含有锁，如果不持有锁，那么<code>release</code>操作肯定就是有问题的。然后我们清空锁持有的$cpu$状态。</p>
+<p>在释放锁前，我们需要同步一下$cpu$的状态，因此使用<code>__sync_synchronize</code>提交<code>fence</code>指令。然后通过内建的原子操作<code>__sync_lock_release</code>用于释放通过<code>__sync_lock_test_and_set</code>的设置值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">; sync_lock_release</span><br><span class="line">; s1 = &amp;lk-&gt;locked</span><br><span class="line">amoswap.w zero, zero, (s1)</span><br></pre></td></tr></table></figure>
+
+<p>最后，通过<code>pop_off</code>恢复$cpu$的中断使能状态。</p>
+<hr>
+<p>至此，关于<code>xv6</code>的自旋锁源码就解释完了。</p>
+<h2 id="Deadlock-and-Lock-Ordering"><a href="#Deadlock-and-Lock-Ordering" class="headerlink" title="Deadlock and Lock Ordering"></a>Deadlock and Lock Ordering</h2><p>如果内核中的某个代码路径必须同时持有多个锁，那么确保所有代码路径以相同的顺序获取这些锁是非常重要的。如果它们不按照相同的顺序获取锁，就会存在死锁的风险。</p>
+<p>假设在<code>xv6</code>操作系统中有两个代码路径需要锁$A$和$B$，但是代码路径<code>1</code>按照$A$然后$B$的顺序获取锁，而另一个代码路径按照$B$然后$A$的顺序获取锁。假设线程<code>T1</code>执行代码路径<code>1</code>并获取了锁$A$，线程<code>T2</code>执行代码路径<code>2</code>并获取了锁$B$。接下来，<code>T1</code>将尝试获取锁$B$，而<code>T2</code>将尝试获取锁$A$。由于在这两种情况下，另一个线程持有所需的锁，并且在其获取返回之前不会释放它，因此两个获取操作都将无限期地阻塞。为了避免这种死锁情况，<strong>所有代码路径必须按照相同的顺序获取锁。对于全局锁获取顺序的需求意味着锁实际上是每个函数规范的一部分：调用者必须以一种使得按照约定的顺序获取锁的方式调用函数</strong>。</p>
+<table>
+<thead>
+<tr>
+<th align="center">Lock</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">bcache.lock</td>
+<td align="center">保存块缓冲条目的分配</td>
+</tr>
+<tr>
+<td align="center">cons.lock</td>
+<td align="center">序列化对终端硬件的访问，避免混合输出</td>
+</tr>
+<tr>
+<td align="center">ftable.lock</td>
+<td align="center">序列化文件表中结构文件的分配</td>
+</tr>
+<tr>
+<td align="center">itable.lock</td>
+<td align="center">保护内存中inode条目的分配</td>
+</tr>
+<tr>
+<td align="center">vdisk.lock</td>
+<td align="center">序列化对磁盘硬件和DMA描述符队列的访问</td>
+</tr>
+<tr>
+<td align="center">kmem.lock</td>
+<td align="center">序列化内存分配</td>
+</tr>
+<tr>
+<td align="center">log.lock</td>
+<td align="center">序列化事务日志上的操作</td>
+</tr>
+<tr>
+<td align="center">pipe’s pi-&gt;lock</td>
+<td align="center">序列化每个管道上的操作</td>
+</tr>
+<tr>
+<td align="center">pid_lock</td>
+<td align="center">序列化next_pid的增量</td>
+</tr>
+<tr>
+<td align="center">proc’s p-&gt;lock</td>
+<td align="center">序列化进程状态的更改</td>
+</tr>
+<tr>
+<td align="center">wait_lock</td>
+<td align="center">帮助等待避免丢失唤醒</td>
+</tr>
+<tr>
+<td align="center">tickslock</td>
+<td align="center">序列化计时计数器上的操作</td>
+</tr>
+<tr>
+<td align="center">inode’s ip-&gt;lock</td>
+<td align="center">序列化每个索引节点及其内容上的操作</td>
+</tr>
+<tr>
+<td align="center">buf’s b-&gt;lock</td>
+<td align="center">序列化每个块缓冲区上的操作</td>
+</tr>
+</tbody></table>
+<p>出于这种情况，<code>xv6</code>的<code>struct proc</code>有一个<code>chain</code>字段，用于<code>sleep</code>和锁的协同作用。这样就避免了死锁的发生。例如：<code>consoleintr</code>是处理键入字符的中断例程。当输入一个换行符时，任何正在等待控制台输入的进程都应该被唤醒。为了实现这一点，<code>consoleintr</code>在调用<code>wakeup</code>时持有<code>cons.lock</code>，而<code>wakeup</code>会获取等待进程的锁以唤醒它。因此，为了避免全局死锁，锁的获取顺序规则中包括了<code>cons.lock</code>必须在任何进程锁之前获取的规定。文件系统代码包含了<code>xv6</code>中最长的锁链。例如，创建一个文件需要同时持有目录的锁、新文件的<code>inode</code>的锁、磁盘块缓冲区的锁、磁盘驱动器的<code>vdisk_lock</code>以及调用进程的<code>p-&gt;lock</code>。为了避免死锁，文件系统代码总是按照前面提到的顺序获取锁。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/06/24/xv6-The-Spin-Lock/">https://chenmiaoi.github.io/2024/06/24/xv6-The-Spin-Lock/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/os/"># os</a>
+                    
+                        <a href="/tags/xv6/"># xv6</a>
+                    
+                        <a href="/tags/risc-v/"># risc-v</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/06/27/xv6-The-Uart/">Xv6: The Uart</a>
+            
+            
+            <a class="next" rel="next" href="/2024/06/15/Concurrency-in-Action-Share-data-between-threads/">Concurrency in Action: Share Data Between Threads</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

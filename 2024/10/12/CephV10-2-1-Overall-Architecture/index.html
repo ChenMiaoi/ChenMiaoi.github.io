@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>CephV10.2.1: Overall Architecture | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">CephV10.2.1: Overall Architecture</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">October 12, 2024&nbsp;&nbsp;17:54:30</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/cephv10-2-1/">cephv10.2.1</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="CephV10-2-1-Overall-Architecture"><a href="#CephV10-2-1-Overall-Architecture" class="headerlink" title="CephV10.2.1: Overall Architecture"></a>CephV10.2.1: Overall Architecture</h1><p>本节主要对Ceph的系统架构进行介绍。</p>
+<h2 id="Ceph的设计目标"><a href="#Ceph的设计目标" class="headerlink" title="Ceph的设计目标"></a>Ceph的设计目标</h2><p><em><strong>Ceph的设计目标是构建大规模的、具有高可用性的、高可扩展性的、高性能的分布式存储系统</strong></em>。</p>
+<p>系统的高可用性指的是系统某个部件失效后，系统依然可以提供正常服务的能力。一半用设备部件和数据的冗余来提高可用性。Ceph通过数据多副本、纠删码来提供数据的冗余。</p>
+<p>高可扩展性指的是系统可以灵活地应对集群的伸缩。一般值两个方面，一方面指集群的容量可以伸缩，集群可以任意地添加和删除存储节点和存储设备；另一方面指的是系统的性能随集群的增加而线性增加。</p>
+<h2 id="Ceph基本架构"><a href="#Ceph基本架构" class="headerlink" title="Ceph基本架构"></a>Ceph基本架构</h2><p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202410131738213.png" alt="Ceph基本架构"></p>
+<p>Ceph的整体架构由三个层次组成：</p>
+<ul>
+<li>最底层&#x2F;最核心的部分RADOS对象存储系统，基于RADOS($Reliable, Autonomous, Distributed\ object\ store$)，是一个可靠的、自组织的、可自动修复、自我管理的分布式对象存储系统。内部包括<code>ceph-osd</code>后台服务和<code>ceph-mon</code>监控</li>
+<li><code>librados</code>层用于本地或者远程通过网络访问RADOS对象存储系统</li>
+<li>Ceph的存储接口实现层<ul>
+<li>块存储接口，通过<code>librbd</code>提供了块存储访问接口。可以为虚拟机提供虚拟磁盘，或者通过内核映射为物理主机提供磁盘空间。</li>
+<li>对象存储接口，目前提供了两种类型的API，<ul>
+<li>AWS S3 API</li>
+<li>OpenStack Swift API</li>
+</ul>
+</li>
+<li>文件存储接口，提供了两种类型的接口，文件系统的元数据通过<code>MDS</code>访问，而数据直接通过<code>librados</code>访问<ul>
+<li>标准Posix接口  </li>
+<li><code>libcephfs</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="Ceph客户端接口"><a href="#Ceph客户端接口" class="headerlink" title="Ceph客户端接口"></a>Ceph客户端接口</h2><h3 id="RBD"><a href="#RBD" class="headerlink" title="RBD"></a>RBD</h3><p>RBD($Rados\ Block\ Device$)通过<code>librbd</code>对应用提供块存储，主要面向云平台的虚拟机提供虚拟磁盘。</p>
+<p>目前RBD提供了两个接口，一种是直接在用户态中实现，通过<code>QEMU Driver</code>供KVM虚拟机使用。另一种在操作系统内核态中实现了一个内核模块。通过该模块可以把块设备映射给物理主机，由物理主机直接访问。</p>
+<p><strong>块存储既需要有较好的随机I&#x2F;O，有要求有较好的顺序I&#x2F;O，且对延迟有比较严格的要求</strong>。</p>
+<h3 id="CephFS"><a href="#CephFS" class="headerlink" title="CephFS"></a>CephFS</h3><p>CephFS通过在$RADOS$基础之上增加了$MDS(Metadata\ Server)$来提供文件存储。其提供了<code>libcephfs</code>和标准的POSIX文件接口。<strong>CephFS通过NFS或CIFS协议提供文件系统或文件目录文件</strong>。</p>
+<h3 id="RadosGW"><a href="#RadosGW" class="headerlink" title="RadosGW"></a>RadosGW</h3><p>$RadosGW$基于<code>librados</code>提供了和Amazon S3接口以及OpenStack Swift接口兼容的对象存储接口。可将其简单地理解为提供基本文件的上传和下载的需求：</p>
+<ul>
+<li><strong>提供$RESTful\ Web\ API$</strong></li>
+<li><strong>采用扁平化数据组织形式</strong></li>
+</ul>
+<h4 id="RESTful存储接口"><a href="#RESTful存储接口" class="headerlink" title="RESTful存储接口"></a>RESTful存储接口</h4><p>其简单的提供了<code>GET</code>、<code>PUT</code>、<code>DEL</code>等接口，对应文件的上传、下载、删除、查询等操作。</p>
+<h4 id="扁平化数据组织形式"><a href="#扁平化数据组织形式" class="headerlink" title="扁平化数据组织形式"></a>扁平化数据组织形式</h4><p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202410131752728.png" alt="Amazon S3"></p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202410131752185.png" alt="OpenStack Swift"></p>
+<h2 id="RADOS"><a href="#RADOS" class="headerlink" title="RADOS"></a>RADOS</h2><p>$RADOS$是Ceph存储系统的基石，它完成了一个存储系统的核心功能：</p>
+<ul>
+<li>Monitor模块为整个存储集群提供全局的配置和系统信息</li>
+<li>CRUSH算法实现对象的寻址过程</li>
+<li>完成对象的读写以及其他数据功能</li>
+<li>提供数据均衡功能</li>
+<li>通过Peering完成一个PG内存达成数据一致性的过程</li>
+<li>提供数据自恢复的功能</li>
+<li>提供克隆和快照功能</li>
+<li>实现对象分层存储的功能</li>
+<li>实现数据一致性检查工具Scrub</li>
+</ul>
+<h3 id="Monitor"><a href="#Monitor" class="headerlink" title="Monitor"></a>Monitor</h3><p>$Monitor$是一个独立部署的daemon进程。通过组成Monitor集群来保证自己的高可用性。Monitor集群通过Paxos算法实现了自己数据的一致性。它提供了整个存储系统的节点信息等全局的配置信息。</p>
+<p>$Cluster\ Map$中保存了系统的全局信息，主要包括：</p>
+<ul>
+<li>Monitor Map<ul>
+<li>集群的fsid</li>
+<li>所有Monitor的地址和端口</li>
+<li>current epoch</li>
+</ul>
+</li>
+<li>OSD Map<ul>
+<li>所有OSD的列表，和OSD的状态等</li>
+</ul>
+</li>
+<li>MDS Map<ul>
+<li>所有的MDS的列表和状态</li>
+</ul>
+</li>
+</ul>
+<p>$Cluster\ Map$是直接保存在$Monitor$的内存中的，不过我们可以通过$mon&#x2F;store.db&#x2F;*.sst$文件进行查看：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph-kvstore-tool rocksdb */mon.a/store.db/*.sst list</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是：<strong>该文件中的内容很多，不宜查看</strong>。</p>
+<p>而$Monitor\ Map$、$OSD\ Map$和$MDS\ Map$都是保存在<code>rocksdb</code>的数据库中，因此也无法直接查看，我们可以通过Ceph命令进行查看：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ceph mon getmap -o ./monmap.bin</span><br><span class="line">monmaptool --<span class="built_in">print</span> ./monmap.bin</span><br><span class="line"></span><br><span class="line">monmaptool: monmap file ./monmap.bin</span><br><span class="line">epoch 1</span><br><span class="line">fsid 5bbbc20d-a725-4e68-a426-4c9210a4062e</span><br><span class="line">last_changed 2024-10-13 18:02:39.282195</span><br><span class="line">created 2024-10-13 18:02:39.282195</span><br><span class="line">0: &lt;mon_ip&gt;:6789/0 mon.a</span><br></pre></td></tr></table></figure>
+
+<p>由于我启动时只启动了一个<code>MON</code>节点，因此这里只会输出一个<code>MON</code>节点信息，<code>fsid</code>($File\ System\ ID$)是<strong>一个唯一标识符，用于识别和区分 Ceph 集群。每个 Ceph 集群在初始化时都会生成一个 <code>fsid</code>，并在集群的配置文件和元数据中进行存储</strong>。<code>fsid</code> 是一个 128 位的 UUID，以十六进制格式表示。</p>
+<p>其余节点的信息均可以通过以下命令查看：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方式一</span></span><br><span class="line">ceph mon/osd dump</span><br><span class="line">ceph mds <span class="built_in">stat</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式二</span></span><br><span class="line">ceph mon/osd/mds getmap</span><br><span class="line">*maptool --<span class="built_in">print</span> /path/to/*map.bin <span class="comment">#V10.2.1版本未提供mdsmaptool</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="对象存储"><a href="#对象存储" class="headerlink" title="对象存储"></a>对象存储</h3><p>在这里的对象均指$RADOS$对象，需要和$RadosGW$的SE或Swift对象区别开来。<strong>对象是数据存储的基本单元，一般默认$4MB$大小</strong>，如下图所示</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202410131823505.png" alt="对象示意图"></p>
+<p>一个对象由三部分组成：</p>
+<ul>
+<li>标识(ID)，唯一标识一个对象</li>
+<li>数据，在本地文件系统中对应一个文件，对象的数据均保存在文件中</li>
+<li>元数据，以$Key-Value$的形式保存，$RADOS$以$LevelDB$等本地KV存储系统来保存对象的元数据</li>
+</ul>
+<h3 id="pool-PG"><a href="#pool-PG" class="headerlink" title="pool &amp; PG"></a>pool &amp; PG</h3><p>$pool$是一个抽象的存储池，其规定了数据冗余的类型以及对应的副本分布策略。目前实现了两种类型的$pool$：</p>
+<ul>
+<li>$Replicated$</li>
+<li>$Erasure\ Code$</li>
+</ul>
+<p>一个$pool$由多个$PG$组成。$PG(Placement\ Group)$从名字上可理解为一个放置策略组，<strong>它是对象的集合，该集合的所有对象都具有相同的放置策略：<em>对象的副本都分布在相同的$OSD$列表上，一个对象只能属于一个PG，一个PG对应于放置在其上的OSD列表，而一个OSD上可以分布多个PG</em></strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202410131859238.png" alt="PG概念示意图"></p>
+<ul>
+<li>$PG1$和$PG2$都属于同一个$pool$，所以都是副本类型，并且都是两副本</li>
+<li>$PG1$和$PG2$都包含许多对象，$PG1$上的所有对象，主从副本分布在$OSD1$和$OSD2$上，$PG2$上的所有对象的主从副本都分布在$OSD2$和$OSD3$上</li>
+<li>一个对象只能属于一个$PG$，一个$PG$包含多个对象</li>
+<li>一个$PG$的副本分布在对应的$OSD$列表中，在一个$OSD$上可以分布多个$PG$</li>
+</ul>
+<h3 id="对象寻址过程"><a href="#对象寻址过程" class="headerlink" title="对象寻址过程"></a>对象寻址过程</h3><p>对象取址过程指的是<strong>查找对象在集群中分布的位置信息</strong>，该过程分为两步：</p>
+<ul>
+<li>对象到$PG$的映射。这个过程是静态$Hash$映射(加入$pg\ split$后实际变为动态$Hash$映射)，通过对$object_id$计算出$hash$值，使用该$pool$的$PG$的总数量$pg_num$对$hash$取模，就能够得到该对象所在的$PG$的$id$：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pg_id = <span class="built_in">hash</span>(object_id) % pg_num</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>$PG$到$OSD$列表映射。这里指$PG$上对象的副本如何分布在$OSD$上，使用了Ceph创新的$CRUSH$算法实现：</li>
+</ul>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202410131907133.png" alt="对象寻址过程"></p>
+<h4 id="数据读写过程"><a href="#数据读写过程" class="headerlink" title="数据读写过程"></a>数据读写过程</h4><p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202410131908931.png" alt="读写过程"></p>
+<ol>
+<li>Client向该$PG$所在的主$OSD$发送写请求</li>
+<li>主$OSD$接收到写请求后，同时向两个$OSD$发送写副本的请求，并同时写入主$OSD$的本地存储中</li>
+<li>主$OSD$接收到两个从$OSD$发送写成功的$ACK$应答，同时确认自己写成功，就向客户端返回写成功的$ACK$应答</li>
+</ol>
+<p><strong>写操作中，主$OSD$必须等待所有从$OSD$返回正确应答，才能向客户端返回写操作成功</strong>。</p>
+<h4 id="数据均衡"><a href="#数据均衡" class="headerlink" title="数据均衡"></a>数据均衡</h4><p><strong>当在集群中添加一个新OSD存储设备时，整个集群会发生数据的迁移，使得数据分布达到均衡</strong>。<em>Ceph数据迁移的基本单位是</em>$PG$，即数据迁移是将$PG$中的所有对象作为一个整体来迁移。</p>
+<p>迁移触发的流程为：<strong>新加入一个OSD，改变系统的$CRUSH\ MAP$，从而引起对象寻址过程中的第二步，$PG$到$OSD$列表的映射发生了变化。从而引发数据的迁移</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202410131917345.png" alt="数据迁移"></p>
+<h4 id="Peering"><a href="#Peering" class="headerlink" title="Peering"></a>Peering</h4><p><strong>当OSD启动，或者某个OSD失效时，该OSD上的主$PG$会发起一个Peering的过程</strong>。<em>Ceph的Peering过程指的是一个$PG$内的所有副本通过$PG$日志来打成数据一致的过程</em>。</p>
+<p>当Peering完成之后，该$PG$就可以对外提供读写服务。此时的$PG$的某些对象可能处于数据不一致的状态，则被标记出来，需要恢复。系统优先恢复该对象，才能继续完成写操作。</p>
+<h4 id="Recovery-Backfill"><a href="#Recovery-Backfill" class="headerlink" title="Recovery &amp; Backfill"></a>Recovery &amp; Backfill</h4><h4 id="纠删码"><a href="#纠删码" class="headerlink" title="纠删码"></a>纠删码</h4><h4 id="快照和克隆"><a href="#快照和克隆" class="headerlink" title="快照和克隆"></a>快照和克隆</h4><p>$SnapShot$<strong>是一个存储设备在某一时刻的<em>全部只读镜像</em></strong>。而$Clone$<strong>是在某一时刻的<em>全部可写镜像</em></strong>。</p>
+<p>$RADOS$对象存储系统本身支持$Copy-on-Write$方式的快照机制。基于这个机制，Ceph可以实现两种类型的$SnapShot$：</p>
+<ul>
+<li>$pool$级别，给整个$pool$中的所有对象统一做快照操作</li>
+<li>用户自定义快照，$RBD$快照实现就属于这一级别</li>
+</ul>
+<h4 id="Cache-Tier"><a href="#Cache-Tier" class="headerlink" title="Cache Tier"></a>Cache Tier</h4><p>$RADOS$实现了以$pool$为基础的自动分层存储机制。在第一层可以设置$cache\ pool$，<strong>其为高速存储设备</strong>；第二层为$data\ pool$，<strong>使用大容量低速存储设备，可以使用EC模式来降低存储空间</strong>。</p>
+<p>通过$Cache\ Tier$，<strong>可以提高关键数据或热点数据的性能，同时降低存储开销</strong>：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202410131927609.png" alt="Cache Tier"></p>
+<ul>
+<li>Ceph Client对于Cache层是透明的</li>
+<li>Objecter负责请求是发送给Cache Tier层，还是发给Storage Tier层</li>
+<li>Cache Tier层为高速I&#x2F;O层，保存热点数据，或称为活跃的数据</li>
+<li>Storage Tier层为慢速层，保存非活跃的数据</li>
+<li>在Cache Tier层和Storage Tier层之间，数据根据活跃度自动进行迁移</li>
+</ul>
+<h4 id="Scrub"><a href="#Scrub" class="headerlink" title="Scrub"></a>Scrub</h4><p>$Scrub$<strong>用于系统检查数据一致性，通过在后台定期扫描，比较一个$PG$内的对象分别在其他$OSD$上的各个副本的元数据和数据来检查是否一致</strong>。</p>
+<p>根据扫描内容分为两种：</p>
+<ul>
+<li>只比较对象各个副本的元数据：代价小、效率高，对系统影响小</li>
+<li>$deep\ scrub$，不仅需要比较元数据，还需要比较数据</li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/10/12/CephV10-2-1-Overall-Architecture/">https://chenmiaoi.github.io/2024/10/12/CephV10-2-1-Overall-Architecture/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/ceph/"># ceph</a>
+                    
+                        <a href="/tags/distribute-system/"># distribute system</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/10/14/CephV10-2-1-Universal-Modules/">CephV10.2.1: Universal Modules</a>
+            
+            
+            <a class="next" rel="next" href="/2024/10/11/CephV10-2-1-Deploy-Ceph/">CephV10.2.1: Deploy Ceph</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
