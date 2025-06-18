@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>GSOC2025: How to Start With OpenRISC | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">GSOC2025: How to Start With OpenRISC</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">June 15, 2025&nbsp;&nbsp;18:02:57</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/GSOC/">GSOC</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="GSOC-2025-How-To-Start-With-OpenRISC"><a href="#GSOC-2025-How-To-Start-With-OpenRISC" class="headerlink" title="GSOC 2025: How To Start With OpenRISC"></a>GSOC 2025: How To Start With OpenRISC</h1><p>2025年5月9日的清晨，阳光透过窗帘洒在书桌上，我像往常一样打开邮箱，例行公事般地扫视着堆积如山的垃圾邮件和社区订阅信件（尽管这些内容我从未真正点开过^v^）。距离我提交GSOC提案已经过去整整一个月了，最初的几天里，我几乎每隔几分钟就会刷新一次收件箱，满心期待能收到回复；而如今，这份期待早已被时间冲淡，只剩下一种机械般的习惯，让我每天早晨仍会不自觉地检查邮箱。</p>
+<p>正当我准备关掉页面，心想今天大概又是一无所获时，屏幕突然一闪——邮箱自动刷新，一封崭新的邮件赫然出现在最上方。</p>
+<p>《<strong>GSoC 2025: Congratulations, your proposal with Free and Open Source Silicon Foundation has been accepted</strong>!》</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/20250615182136.png" alt="GSoC 2025: Congratulations"></p>
+<p>我知道，我的任务开始了——这不再是一个普通的周五早晨，而是我开源生涯真正的起点。</p>
+<hr>
+<p>在提案通过的那天，我正式与导师Shorne展开合作。他给我的第一个任务是<strong>搭建OpenRISC架构的编译工具链，并通过QEMU启动一个OpenRISC架构的Linux系统</strong>。</p>
+<p>起初，我花费了大量时间编写自己的构建脚本(<a target="_blank" rel="noopener" href="https://github.com/ChenMiaoi/GSO2025-OpenRISC">OpenRISC-Build</a>)，但后来才发现Shorne早已维护了一个成熟的工具库(<a target="_blank" rel="noopener" href="https://github.com/stffrdhrn/or1k-utils">or1k-util</a>)。由于走了弯路，两周过去，我仍未能成功启动OpenRISC Linux系统。</p>
+<p>当Shorne询问进展时，我告诉他我的脚本卡在了启动阶段。他反问道：“为什么不直接用<code>or1k-util</code>？”这时我才意识到，自己又陷入了过度发散思维的陷阱，白白浪费了不少时间。</p>
+<p>于是，我转而使用<code>or1k-util</code>，按照文档指引一步步配置，最终顺利运行起了OpenRISC Linux系统。</p>
+<h2 id="Really-Docs-For-How-To-Start"><a href="#Really-Docs-For-How-To-Start" class="headerlink" title="Really Docs For How To Start"></a>Really Docs For How To Start</h2><p>本章节是正式的对如何通过<a target="_blank" rel="noopener" href="https://github.com/stffrdhrn/or1k-utils">or1k-util</a>实现在本地通过QEMU运行起一个真正的OpenRISC架构的Linux内核，并且可以通过该内核进行调试的教程。</p>
+<p>我当前使用的环境如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Ubuntu 24.10</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">uname</span> -a</span><br><span class="line">Linux nyaos 6.11.0-26-generic <span class="comment">#26-Ubuntu SMP PREEMPT_DYNAMIC Sat Apr 12 11:25:41 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux</span></span><br></pre></td></tr></table></figure>
+
+<p>由于OpenRISC架构的主线版本的glibc暂时有bug，因此我们暂时使用了指定版本的编译链版本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">OR1K_GCC_URL=<span class="string">&quot;https://mirrors.aliyun.com/gnu/gcc/gcc-14.2.0/gcc-14.2.0.tar.gz&quot;</span></span><br><span class="line">OR1K_BINUTILS_GDB_URL=<span class="string">&quot;https://github.com/bminor/binutils-gdb.git&quot;</span></span><br><span class="line">OR1K_NEWLIB_URL=<span class="string">&quot;ftp://sourceware.org/pub/newlib/newlib-4.5.0.20241231.tar.gz&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>在一切开始之前，我们需要确定<strong>运行并调试一个OpenRISC架构的Linux内核到底需要什么？</strong></p>
+<ul>
+<li>QEMU OpenRISC</li>
+<li>rootfs</li>
+<li>or1k-linux-gcc</li>
+<li>or1k-elf-gdb</li>
+<li>linux OpenRISC</li>
+</ul>
+<p>虽然在前面提到，我浪费了很多时间在自己的脚本上，但是由于<code>or1k-utils</code>本身并不会自动下载对应的源码&#x2F;软件包，只会对指定目录下是否存在对应的源码&#x2F;软件包进行检测。因此我们的下载工具使用<code>OpenRISC-Build</code>进行自动下载，后续的编译工作则是交给<code>or1k-utils</code>进行。</p>
+<h3 id="DownLoad-Source-With-OpenRISC-Build"><a href="#DownLoad-Source-With-OpenRISC-Build" class="headerlink" title="DownLoad Source With OpenRISC-Build"></a>DownLoad Source With OpenRISC-Build</h3><p>首先，我们需要将脚本仓库克隆到一个任意位置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/ChenMiaoi/GSO2025-OpenRISC.git OpenRISC-Build</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意：<code>OpenRISC-Build</code>现只有下载源码的功能，一切的编译操作由<code>or1k-utils</code>来进行</strong>。</p>
+</blockquote>
+<p>当仓库克隆完毕后，我们就可以进入到仓库中，然后进行源码的下载。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> OpenRISC-Build</span><br><span class="line">./build-or1k.sh --get-rootfs</span><br><span class="line">./build-or1k.sh --get-tools</span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br><span class="line"></span><br><span class="line">./build-or1k.sh --get-qemu</span><br><span class="line">./build-or1k.sh --get-linux</span><br><span class="line">./build-or1k.sh --get-or1k-utils</span><br></pre></td></tr></table></figure>
+
+<p>下表是关于脚本下载各种源码的命令，下载的内容以及各自源码存放的位置(根据<code>or1k-utils</code>所设置)</p>
+<table>
+<thead>
+<tr>
+<th align="left"><strong>Command</strong></th>
+<th align="left"><strong>Work</strong></th>
+<th align="left"><strong>Dir</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">get rootfs</td>
+<td align="left">download rootfs</td>
+<td align="left">$HOME&#x2F;work&#x2F;openrisc&#x2F;buildroot-rootfs</td>
+</tr>
+<tr>
+<td align="left">get tools</td>
+<td align="left">download or1k-linux-</td>
+<td align="left">$HOME&#x2F;work&#x2F;gnu-toolchain&#x2F;local</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">download gcc-14.2.0</td>
+<td align="left">$HOME&#x2F;work&#x2F;gnu-toolchain&#x2F;gcc</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">download binutils-gdb</td>
+<td align="left">$HOME&#x2F;work&#x2F;gnu-toolchain&#x2F;binutils-gdb</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">download newlib-4.5.0.20241231</td>
+<td align="left">$HOME&#x2F;work&#x2F;gnu-toolchain&#x2F;newlib</td>
+</tr>
+<tr>
+<td align="left">get qemu</td>
+<td align="left">download qemu</td>
+<td align="left">$HOME&#x2F;work&#x2F;openrisc&#x2F;qemu</td>
+</tr>
+<tr>
+<td align="left">get linux</td>
+<td align="left">download linux</td>
+<td align="left">$HOME&#x2F;work&#x2F;linux</td>
+</tr>
+<tr>
+<td align="left">get or1k-utils</td>
+<td align="left">download or1k-utils</td>
+<td align="left">$HOME&#x2F;work&#x2F;openrisc&#x2F;or1k-utils</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>注意：<strong>一切的源码均会下载到<code>$HOME/work/openrisc</code>、<code>$HOME/work/linux</code>以及<code>$HOME/work/toolchain</code>中</strong><br>注意：<strong>当使用<code>--get-tools</code>后，建议<code>source ~/.bashrc</code>一下</strong></p>
+</blockquote>
+<p>下面是关于各自命令下载后的目录结构：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ tree -L 1 work/</span><br><span class="line">work/</span><br><span class="line">├── gnu-toolchain</span><br><span class="line">├── linux</span><br><span class="line">└── openrisc</span><br><span class="line"></span><br><span class="line">$ tree -L 1 work/gnu-toolchain/</span><br><span class="line">work/gnu-toolchain/</span><br><span class="line">├── binutils</span><br><span class="line">├── gcc</span><br><span class="line">├── gdb</span><br><span class="line">├── <span class="built_in">local</span></span><br><span class="line">└── newlib</span><br><span class="line"></span><br><span class="line">$ tree -L 1 work/openrisc/</span><br><span class="line">work/openrisc/</span><br><span class="line">├── buildroot-rootfs</span><br><span class="line">├── or1k-utils</span><br><span class="line">├── qemu</span><br><span class="line">└── toolchain</span><br></pre></td></tr></table></figure>
+
+<p>当一切准备就绪后，我们就可以开始进行编译了。</p>
+<h3 id="Build-Source-With-Or1k-utils"><a href="#Build-Source-With-Or1k-utils" class="headerlink" title="Build Source With Or1k-utils"></a>Build Source With Or1k-utils</h3><p>虽然已经说过很多次了，但在这里还需要强调：<strong>一切的编译步骤都是通过下载的<code>or1k-utils</code>进行</strong>。</p>
+<p>因此，我们进入<code>or1k-utils</code>目录中：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> or1k-utils</span><br></pre></td></tr></table></figure>
+
+<h4 id="BUILD-QEMU"><a href="#BUILD-QEMU" class="headerlink" title="BUILD QEMU"></a>BUILD QEMU</h4><p>首先，我们应该编译<code>QEMU</code>和<code>OR1K-ELF-</code>工具链：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./qemu/config.qemu</span><br><span class="line">./scripts/qemu-build</span><br></pre></td></tr></table></figure>
+
+<p>编译完成后，可以查看对应目录以及查看其对应的版本信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> <span class="variable">$HOME</span>/work/openrisc/qemu/build</span><br><span class="line">qemu-or1k</span><br><span class="line">qemu-system-or1k</span><br><span class="line"></span><br><span class="line"><span class="variable">$HOME</span>/work/openrisc/qemu/build/qemu-system-or1k --version</span><br><span class="line">QEMU emulator version 10.0.50</span><br><span class="line">Copyright (c) 2003-2025 Fabrice Bellard and the QEMU Project developers</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：<strong>我们并不需要安装QEMU到一个指定路径，因为后续的使用均直接使用了编译目录的QEMU</strong>。</p>
+</blockquote>
+<h4 id="BUILD-OR1K-ELF"><a href="#BUILD-OR1K-ELF" class="headerlink" title="BUILD OR1K-ELF"></a>BUILD OR1K-ELF</h4><p>然后，我们开始编译<code>OR1K-ELF-</code>工具链：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NOTIFY=n ./toolchains/newlib.build</span><br></pre></td></tr></table></figure>
+
+<p>这里我们传递了一个<code>NOTIFY</code>参数，这时因为在<code>newlib.build</code>中有一个<a target="_blank" rel="noopener" href="https://github.com/stffrdhrn/or1k-utils/blob/82f7c73cf60c79c282297e7ec4e43311f20b2118/toolchains/newlib.config#L56">MAILTO</a>参数，我并不需要发送邮件给自己或其他人，因此，这里使用<code>NOTIFY=n</code>禁止发送。</p>
+<p>由于编译脚本会将所有的编译信息重定向到<code>$HOME/work/gnu-toolchain/log/$&#123;CROSS&#125;-build.log</code>中，因此你可以使用下面的命令来实时监控：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">tail</span> -f <span class="variable">$HOME</span>/work/gnu-toolchain/log/or1k-elf-build.log</span><br></pre></td></tr></table></figure>
+
+<p>编译完成后，我们可以查看指定目录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> <span class="variable">$HOME</span>/work/gnu-toolchain/local/</span><br><span class="line">bin  include  lib  libexec  or1k-elf  share</span><br><span class="line"></span><br><span class="line"><span class="built_in">ls</span> <span class="variable">$HOME</span>/work/gnu-toolchain/local/bin/</span><br><span class="line">or1k-elf-addr2line  or1k-elf-c++      or1k-elf-elfedit  or1k-elf-gcc-14.2.0  or1k-elf-gcc-ranlib  or1k-elf-gcov-tool      or1k-elf-gprof   or1k-elf-ld.bfd   or1k-elf-objdump  or1k-elf-run      or1k-elf-strip</span><br><span class="line">or1k-elf-ar         or1k-elf-c++filt  or1k-elf-g++      or1k-elf-gcc-ar      or1k-elf-gcov        or1k-elf-gdb            or1k-elf-gstack  or1k-elf-nm       or1k-elf-ranlib   or1k-elf-size</span><br><span class="line">or1k-elf-as         or1k-elf-cpp      or1k-elf-gcc      or1k-elf-gcc-nm      or1k-elf-gcov-dump   or1k-elf-gdb-add-index  or1k-elf-ld      or1k-elf-objcopy  or1k-elf-readelf  or1k-elf-strings</span><br></pre></td></tr></table></figure>
+
+<p>我们着重需要注意的是两个东西：<code>or1k-elf-gcc</code>和<code>or1k-elf-gdb</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$HOME</span>/work/gnu-toolchain/local/bin/or1k-elf-gcc -v</span><br><span class="line">Using built-in specs.</span><br><span class="line">COLLECT_GCC=/home/nya/work/gnu-toolchain/local/bin/or1k-elf-gcc</span><br><span class="line">COLLECT_LTO_WRAPPER=/home/nya/work/gnu-toolchain/local/libexec/gcc/or1k-elf/14.2.0/lto-wrapper</span><br><span class="line">Target: or1k-elf</span><br><span class="line">Configured with: /home/nya/work/gnu-toolchain/gcc/configure --target=or1k-elf --prefix=/home/nya/work/gnu-toolchain/local --with-gnu-ld --with-gnu-as --disable-nls --disable-lto --disable-libssp --disable-shared --with-multilib-list=mcmov --enable-languages=c,c++ --with-newlib</span><br><span class="line">Thread model: single</span><br><span class="line">Supported LTO compression algorithms: zlib</span><br><span class="line">gcc version 14.2.0 (GCC) </span><br><span class="line"></span><br><span class="line"><span class="variable">$HOME</span>/work/gnu-toolchain/local/bin/or1k-elf-gdb -v</span><br><span class="line">GNU gdb (GDB) 17.0.50.20250605-git</span><br><span class="line">Copyright (C) 2024 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.</span><br></pre></td></tr></table></figure>
+
+<h4 id="BUILD-LINUX"><a href="#BUILD-LINUX" class="headerlink" title="BUILD LINUX"></a>BUILD LINUX</h4><p>当前面的所有准备就绪后，我们就可以编译OpenRISC架构的Linux内核了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./scripts/make-or1k-linux virt_defconfig</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Shorne曾问过我: “did you compile the kernel with debug symbols?”<br>当时我以为我会，事实上，我并不会。因此，Shorne手把手带我编译了一遍，感谢Shorne</p>
+</blockquote>
+<p>接下来我们需要编译一个带调试信息的内核，因此我们使用<code>menuconfig</code>进行配置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./scripts/make-or1k-linux menuconfig</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/20250615202715.png" alt="or1k menuconfig"></p>
+<p>如上图所示，当你执行<code>menuconfig</code>后会进入如下的TUI界面，我们需要通过这样的路径：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Kernel hacking  ---&gt;</span><br><span class="line">    Kernel debugging  ---&gt; y</span><br><span class="line">    </span><br><span class="line">Kernel hacking  ---&gt;</span><br><span class="line">    Compile-time checks and compiler options  ---&gt;</span><br><span class="line">        Debug information (Disable debug information)  ---&gt;</span><br><span class="line">            Rely on the toolchain&#x27;s implicit default DWARF version  ---&gt; y</span><br><span class="line">        Provide GDB scripts for kernel debugging  ---&gt; y</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/20250615202956.png" alt="menuconfig debug info"></p>
+<p>通过上面的设置，我们就将三个关键选项设置好了：</p>
+<ul>
+<li>Kernel debugging</li>
+<li>Rely on the toolchain’s implicit default DWARF version</li>
+<li>Provide GDB scripts for kernel debugging</li>
+</ul>
+<p>然后我们就可以开始编译内核：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./scripts/make-or1k-linux</span><br></pre></td></tr></table></figure>
+
+<p>如果一切没有报错，我们就可以检查内核目录下是否存在<code>vmlinux</code>文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> <span class="variable">$HOME</span>/work/linux/</span><br><span class="line">vmlinux</span><br><span class="line"></span><br><span class="line">file <span class="variable">$HOME</span>/work/linux/vmlinux</span><br><span class="line">/home/nya/work/linux/vmlinux: ELF 32-bit MSB executable, OpenRISC, version 1 (SYSV), statically linked, BuildID[sha1]=bab6c2d0b0a5111785bda2c9268c7a3871e3dc6e, with debug_info, not stripped</span><br></pre></td></tr></table></figure>
+
+<p>至此，所有的编译工作就完成了。</p>
+<h3 id="Starting-And-Debugging"><a href="#Starting-And-Debugging" class="headerlink" title="Starting And Debugging"></a>Starting And Debugging</h3><p>在启动内核之前，我们需要了解启动脚本的一些参数。</p>
+<blockquote>
+<p>Shorne又一次拷打我：”do you know what commands to run? For example, how to start qemu in debug mode?” </p>
+</blockquote>
+<p>在<code>or1k-utils</code>中，启动内核所使用的脚本为<code>qemu-or1k-linux</code>，其中有一个<code>-S</code>参数与QEMU的调试相关：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># Debug, add -S to stop on startup</span><br><span class="line">DEBUG=&quot;-gdb tcp::10001&quot;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>我当时回答Shorne：”add the -S, using the qemu-linux -S”  </p>
+</blockquote>
+<p>显而易见的，这是截然相反的。如果我们想要调试内核，就不应该加上<code>-S</code>参数，这个脚本默认启动了调试端口。因此，对于调试，我们可以直接运行脚本(当然，直接启动也是可以的)。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">./scripts/qemu-or1k-linux</span><br><span class="line">[    0.000000] FDT at (ptrval)</span><br><span class="line">[    0.000000] random: crng init <span class="keyword">done</span></span><br><span class="line">[    0.000000] Linux version 6.15.0-dirty (nya@nyaos) (or1k-linux-gcc (GCC) 14.2.0, GNU ld (GNU Binutils) 2.43.1) <span class="comment">#2 SMP Fri Jun 13 16:02:54 UTC 2025</span></span><br><span class="line">[    0.000000] OF: reserved mem: Reserved memory: No reserved-memory node <span class="keyword">in</span> the DT</span><br><span class="line">[    0.000000] CPU: OpenRISC-13 (revision 8) @20 MHz</span><br><span class="line">[    0.000000] -- dmmu:  128 entries, 1 way(s)</span><br><span class="line">[    0.000000] -- immu:  128 entries, 1 way(s)</span><br><span class="line">[    0.000000] -- additional features:</span><br><span class="line">[    0.000000] -- power management</span><br><span class="line">[    0.000000] -- PIC</span><br><span class="line">[    0.000000] -- timer</span><br><span class="line">[    0.000000] Initial ramdisk not found</span><br><span class="line">......</span><br><span class="line">[    0.360000] EXT4-fs (vda2): INFO: recovery required on <span class="built_in">readonly</span> filesystem</span><br><span class="line">[    0.360000] EXT4-fs (vda2): write access will be enabled during recovery</span><br><span class="line">[    1.590000] EXT4-fs (vda2): orphan cleanup on <span class="built_in">readonly</span> fs</span><br><span class="line">[    1.590000] EXT4-fs (vda2): recovery complete</span><br><span class="line">[    1.600000] EXT4-fs (vda2): mounted filesystem d4e1e6f8-942f-4d45-9afe-4e73dcfff064 ro with ordered data mode. Quota mode: disabled.</span><br><span class="line">[    1.600000] VFS: Mounted root (ext4 filesystem) <span class="built_in">readonly</span> on device 254:2.</span><br><span class="line">[    1.600000] devtmpfs: mounted</span><br><span class="line">[    1.640000] Freeing unused kernel image (initmem) memory: 264K</span><br><span class="line">[    1.640000] This architecture does not have kernel memory protection.</span><br><span class="line">[    1.640000] Run /sbin/init as init process</span><br><span class="line">INIT: version 3.13 booting</span><br><span class="line">INIT: No inittab.d directory found</span><br><span class="line">[    1.800000] EXT4-fs (vda2): re-mounted d4e1e6f8-942f-4d45-9afe-4e73dcfff064 r/w.</span><br><span class="line">[    1.920000] Adding 2097144k swap on /dev/vda1.  Priority:-2 extents:1 across:2097144k </span><br><span class="line">INIT: Entering runlevel: 3</span><br><span class="line">Seeding 256 bits without crediting</span><br><span class="line">Saving 256 bits of creditable seed <span class="keyword">for</span> next boot</span><br><span class="line">Starting syslogd: OK</span><br><span class="line">Starting klogd: OK</span><br><span class="line">Running sysctl: OK</span><br><span class="line">Starting network: OK</span><br><span class="line">Starting sntp: sntp 4.2.8p18@1.4062-o Wed Apr 16 22:01:36 UTC 2025 (1)</span><br><span class="line">libgcc_s.so.1 must be installed <span class="keyword">for</span> pthread_exit to work</span><br><span class="line">/etc/init.d/S48sntp: line 15:   124 Aborted                 /usr/bin/<span class="variable">$DAEMON</span> <span class="variable">$SNTP_ARGS</span> -K <span class="variable">$SNTP_KEY_CACHE</span> <span class="variable">$SNTP_SERVERS</span></span><br><span class="line">FAIL</span><br><span class="line">Starting crond: OK</span><br><span class="line">Starting sshd: OK</span><br><span class="line"></span><br><span class="line">Welcome to Linux on OpenRISC</span><br><span class="line">buildroot login: </span><br></pre></td></tr></table></figure>
+
+<p>默认的用户为<code>root</code>，并且没有密码，因此我们键入<code>root</code>敲击回车后，即可直接进入系统。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Welcome to Linux on OpenRISC</span><br><span class="line">buildroot login: root</span><br><span class="line">  _      __    __</span><br><span class="line"> | | /| / /__ / /______  __ _  ___</span><br><span class="line"> | |/ |/ / -_) / __/ _ \/  <span class="string">&#x27; \/ -_)</span></span><br><span class="line"><span class="string"> |__/|__/\__/_/\__/\___/_/_/_/\__/</span></span><br><span class="line"><span class="string">                   / /____</span></span><br><span class="line"><span class="string">                  / __/ _ \</span></span><br><span class="line"><span class="string">  ____     _____  \__/\___/________  ______</span></span><br><span class="line"><span class="string"> / __ \___&lt;  / /_____| | / /  _/ _ \/_  __/</span></span><br><span class="line"><span class="string">/ /_/ / __/ /  &#x27;</span>_/___/ |/ // // , _/ / /</span><br><span class="line">\____/_/ /_/_/\_\    |___/___/_/|_| /_/</span><br><span class="line"></span><br><span class="line"> 32-bit OpenRISC CPUs on a QEMU Virt Platform</span><br><span class="line"><span class="comment"># uname -a</span></span><br><span class="line">Linux buildroot 6.15.0-dirty <span class="comment">#2 SMP Fri Jun 13 16:02:54 UTC 2025 openrisc GNU/Linux</span></span><br></pre></td></tr></table></figure>
+
+<p>如果我们想要调试内核，则通过编译好的<code>or1k-elf-gdb</code>进行调试。</p>
+<blockquote>
+<p>注意：<strong>远程调试端口号为10001</strong>  </p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">or1k-elf-gdb vmlinux</span><br><span class="line">(gdb) target remote :10001</span><br><span class="line">Remote debugging using :10001</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/20250615204830.png" alt="qemu debug"></p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2025/06/15/GSOC2025-How-To-Start-With-OpenRISC/">https://chenmiaoi.github.io/2025/06/15/GSOC2025-How-To-Start-With-OpenRISC/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/GSOC/"># GSOC</a>
+                    
+                        <a href="/tags/OpenRISC/"># OpenRISC</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2025/06/15/GSOC2025-How-To-Support-jump-label-For-OpenRISC/">GSOC2025: How to Support Jump_label for OpenRISC</a>
+            
+            
+            <a class="next" rel="next" href="/2025/04/09/rCore-ch3-Details/">rCore Ch3 Details</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

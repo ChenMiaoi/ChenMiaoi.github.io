@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>Xv6: The Kernel Env | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Xv6: The Kernel Env</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">May 17, 2024&nbsp;&nbsp;15:44:54</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/xv6/">xv6</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="XV6-Operator-System-03-The-Kernel-Environment"><a href="#XV6-Operator-System-03-The-Kernel-Environment" class="headerlink" title="XV6 Operator System: 03-The Kernel Environment"></a>XV6 Operator System: 03-The Kernel Environment</h1><p>在上一节中，我详细介绍了<code>xv6-riscv</code>的<code>start</code>函数，里面对<code>xv6-riscv</code>的内核执行特权级环境、中断环境和定时器中断进行了一系列配置。现在，让我们来看看<code>xv6-riscv</code>内核态中的具体配置和实现。</p>
+<h2 id="Main-Function"><a href="#Main-Function" class="headerlink" title="Main Function"></a>Main Function</h2><p>在本节中，我们只会对内核态的配置做出大概介绍，具体的介绍在后续会为每一个模块做出详细章节来讲述。</p>
+<p>我们从<code>xv6-riscv</code>的源码中也可以看出<code>main</code>函数主要是对各种模块进行启用，然后调用<code>initcode</code>进入到用户态中，完成整个操作系统的启动。</p>
+<p>需要完全的理解该代码，我们需要进行一些知识的准备。</p>
+<h3 id="volatile-type"><a href="#volatile-type" class="headerlink" title="volatile type"></a>volatile type</h3><p><strong>Every access (both read and write) made through a lvalue expression of volatile-qualified type is considered an observable side effect for the purpose of optimization and is evaluated strictly according to the rules of the abstract machine (that is, all writes are completed at some time before the next sequence point). This means that within a single thread of execution, a volatile access cannot be optimized out or reordered relative to another visible side effect that is separated by a sequence point from the volatile access</strong>.</p>
+<p>使用<code>volatile</code>限定类型的左值表达式的每次访问(无论是读取还是写入)都被视为一个可观察的副作用，并且严格按照抽象机器的规则进行评估(也就是说，所有写操作都会在下一个序列点之前完成)。<strong>这意味着在单个线程的执行过程中，一个</strong><code>volatile</code><strong>访问不能被优化掉，也不能相对于另一个由序列点分隔的可见副作用进行重新排序</strong>。</p>
+<p>通常，编译器会优化代码以提高执行效率。例如，如果一个变量在代码中没有被显式修改，编译器可能会将其值缓存到寄存器中，以避免多次访问内存。然而，对于某些变量(如硬件寄存器、共享内存、信号处理程序中的变量等)，它们的值可能在程序之外被修改。如果编译器对这些变量进行优化，可能会导致程序读取的值不是最新的，从而引发错误。<code>volatile</code><strong>关键字通知编译器不要对这些变量进行优化，每次都应从内存中读取它们的最新值</strong>。</p>
+<p>在多线程环境中，多个线程可能会访问和修改同一个变量。使用<code>volatile</code>可以<strong>确保一个线程对该变量所做的修改能立即被其他线程看到</strong>。</p>
+<p>值得注意的：<code>volatile</code><strong>仅保证了变量的最新值读取，不提供任何同步机制。如果多个线程同时读写同一个变量，还需要使用适当的同步机制(如互斥锁)来确保操作的原子性和一致性</strong>。</p>
+<p>在某些体系结构和编译器实现中，即使使用了<code>volatile</code>，依然可能需要额外的内存屏障(<code>memory barrier</code>)指令来确保正确的内存访问顺序。</p>
+<h3 id="sync-synchronize"><a href="#sync-synchronize" class="headerlink" title="__sync_synchronize"></a>__sync_synchronize</h3><p><code>__sync_synchronize</code>是<code>GCC</code>提供的一种内存屏障(<code>memory barrier</code>或<code>memory fence</code>)，<strong>用于确保在多处理器系统上进行的内存操作按照程序指定的顺序执行。它在涉及多线程编程时尤其有用，能够防止编译器和CPU对内存操作进行不正确的重排序</strong>。</p>
+<ul>
+<li>防止重排<ul>
+<li><code>__sync_synchronize</code>用于阻止编译器和<code>CPU</code>对内存操作进行重排序。<strong>这样可以确保在它之前的内存操作在它之后的内存操作之前完成</strong>。这对于多线程程序中的同步非常重要，能确保不同线程对共享数据的访问顺序正确</li>
+</ul>
+</li>
+<li>确保内存可见性<ul>
+<li><strong>在调用该函数之前进行的所有内存写操作在其他处理器和线程中变得可见</strong>。因此，它可以用于实现内存可见性保证，确保一个线程所做的更改对其他线程可见</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">volatile</span> <span class="type">int</span> flag = <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> data = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> *<span class="title function_">thread1_func</span><span class="params">(<span class="type">void</span> *arg)</span> &#123;</span><br><span class="line">    data = <span class="number">42</span>;             <span class="comment">// 写入数据</span></span><br><span class="line">    __sync_synchronize();  <span class="comment">// 内存屏障，确保写操作完成</span></span><br><span class="line">    flag = <span class="number">1</span>;              <span class="comment">// 设置标志，通知另一个线程</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> *<span class="title function_">thread2_func</span><span class="params">(<span class="type">void</span> *arg)</span> &#123;</span><br><span class="line">    <span class="keyword">while</span> (flag == <span class="number">0</span>);     <span class="comment">// 等待标志</span></span><br><span class="line">    __sync_synchronize();  <span class="comment">// 内存屏障，确保读取最新的data</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Data: %d\n&quot;</span>, data);  <span class="comment">// 输出data</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">pthread_t</span> thread1, thread2;</span><br><span class="line">    pthread_create(&amp;thread1, <span class="literal">NULL</span>, thread1_func, <span class="literal">NULL</span>);</span><br><span class="line">    pthread_create(&amp;thread2, <span class="literal">NULL</span>, thread2_func, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    pthread_join(thread1, <span class="literal">NULL</span>);</span><br><span class="line">    pthread_join(thread2, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>线程1在写入<code>data</code>后调用<code>__sync_synchronize</code>来确保在设置<code>flag</code>之前，<code>data</code>的写操作已经完成并且对其他线程可见。线程2在读取到<code>flag</code>为<code>1</code>后调用<code>__sync_synchronize</code>来确保在读取<code>data</code>之前，所有之前的内存操作(包括线程1对<code>data</code>的写操作)都已经完成并且对当前线程可见。</p>
+<p>这样就使得，不论如何，线程2所看见的<code>data</code>的数据总是线程1已经写入完毕后的<code>data</code>数据，而不会发生线程1正在写的时候(并未写入)，线程2访问<code>data</code>得到了一个错误的数据。</p>
+<h3 id="Main-Code"><a href="#Main-Code" class="headerlink" title="Main Code"></a>Main Code</h3><p>在了解上面的前置知识后，我们就可以逐行解析<code>xv6-riscv</code>内核的大致流程了:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">volatile</span> <span class="type">static</span> <span class="type">int</span> started = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// start() jumps here in supervisor mode on all CPUs.</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (cpuid() == <span class="number">0</span>) &#123;</span><br><span class="line">        consoleinit();</span><br><span class="line">        printfinit();</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;xv6 kernel is booting\n&quot;</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">        kinit();            <span class="comment">// physical page allocator</span></span><br><span class="line">        kvminit();          <span class="comment">// create kernel page table</span></span><br><span class="line">        kvminithart();      <span class="comment">// turn on paging</span></span><br><span class="line">        procinit();         <span class="comment">// process table</span></span><br><span class="line">        trapinit();         <span class="comment">// trap vectors</span></span><br><span class="line">        trapinithart();     <span class="comment">// install kernel trap vector</span></span><br><span class="line">        plicinit();         <span class="comment">// set up interrupt controller</span></span><br><span class="line">        plicinithart();     <span class="comment">// ask PLIC for device interrupts</span></span><br><span class="line">        binit();            <span class="comment">// buffer cache</span></span><br><span class="line">        iinit();            <span class="comment">// inode table</span></span><br><span class="line">        fileinit();         <span class="comment">// file table</span></span><br><span class="line">        virtio_disk_init(); <span class="comment">// emulated hard disk</span></span><br><span class="line">        userinit();         <span class="comment">// first user process</span></span><br><span class="line">        __sync_synchronize();</span><br><span class="line">        started = <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (started == <span class="number">0</span>)</span><br><span class="line">            ;</span><br><span class="line">        __sync_synchronize();</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;hart %d starting\n&quot;</span>, cpuid());</span><br><span class="line">        kvminithart();  <span class="comment">// turn on paging</span></span><br><span class="line">        trapinithart(); <span class="comment">// install kernel trap vector</span></span><br><span class="line">        plicinithart(); <span class="comment">// ask PLIC for device interrupts</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    scheduler();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>volatile static int started = 0</code>：定义一个静态变量<code>started</code>，用来协调各个<code>hart</code>的启动。<code>volatile</code>关键字确保每次访问该变量时，都从内存中读取最新的值，而不是从寄存器中读取缓存值。</p>
+<p>在<code>xv6-riscv</code>中，我们将$hartid &#x3D; 0$的<code>hart</code>标识为主要的执行流，主<code>hart</code>执行一系列初始化函数，如<code>consoleinit()</code>、<code>kinit()</code>、<code>kvminit()</code>等，这些函数负责<strong>初始化控制台</strong>、<strong>物理内存分配器</strong>、<strong>内核页表</strong>、<strong>进程表</strong>、<strong>trap vector</strong>、<strong>中断控制器</strong>、<strong>缓存</strong>、<strong>inode表</strong>、<strong>文件表</strong>和<strong>虚拟磁盘</strong>等。</p>
+<p>而<code>__sync_synchronize()</code>在<code>started</code>变量赋值之前调用内存屏障，确保所有的初始化操作都在赋值之前完成。这样就使得其他<code>hart</code>流执行时，访问到的<code>started</code>数据一定是$started &#x3D;&#x3D; 1$的。</p>
+<p>其他的<code>hart</code>流执行需要等待主要<code>hart</code>流执行完毕，直到$started &#x3D;&#x3D; 1$为止，<code>__sync_synchronize()</code>使得<code>hart</code>流能够看见主要<code>hart</code>执行流的一切初始化操作，然后<code>hart</code>执行自己的初始化函数，如<code>kvminithart()</code>、<code>trapinithart()</code>和<code>plicinithart()</code>，这些函数负责启用分页、安装内核陷阱向量、请求设备中断等。</p>
+<p>最终，所有<code>hart</code>(包括主<code>hart</code>和从<code>hart</code>)都进入调度器，以开始调度和执行任务。值得注意的是，第一个任务是<strong>跳转到用户态执行</strong><code>initcode</code>。</p>
+<p>这里给出对应的部分逻辑(在此不做过多介绍)：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">uchar initcode[] = &#123;</span><br><span class="line">  <span class="number">0x17</span>, <span class="number">0x05</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x13</span>, <span class="number">0x05</span>, <span class="number">0x45</span>, <span class="number">0x02</span>,</span><br><span class="line">  ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">uvmfirst(p-&gt;pagetable, initcode, <span class="keyword">sizeof</span>(initcode));</span><br><span class="line">p-&gt;trapframe-&gt;epc = <span class="number">0</span>;     <span class="comment">// user program counter</span></span><br><span class="line">p-&gt;state = RUNNABLE;</span><br><span class="line"></span><br><span class="line"><span class="meta"># exec(init, argv)</span></span><br><span class="line">.globl start</span><br><span class="line">start:</span><br><span class="line">        la a0, init</span><br><span class="line">        la a1, argv</span><br><span class="line">        li a7, SYS_exec</span><br><span class="line">        ecall</span><br></pre></td></tr></table></figure>
+
+<p>可以看见，<code>userinit</code>会在内部调用<code>uvmfirst</code>函数来设置第一个任务为<code>initcode</code>，然后通过<code>scheduler</code>函数跳转到<code>initcode.S</code>中执行。而<code>initcode</code>中通过<code>exec</code>程序调用了用户态的<code>init</code>程序，<code>init</code>程序又会调用<code>sh</code>执行<code>shell</code>环境，然后就正式进入了用户态，并且终端上呈现出:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">init: starting sh</span><br><span class="line"><span class="comment">#  </span></span><br></pre></td></tr></table></figure>
+
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/05/17/xv6-The-Kernel-Env/">https://chenmiaoi.github.io/2024/05/17/xv6-The-Kernel-Env/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/os/"># os</a>
+                    
+                        <a href="/tags/xv6/"># xv6</a>
+                    
+                        <a href="/tags/risc-v/"># risc-v</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/06/12/Concurrency-in-Action-Introduction/">Concurrency in Action: Introduction</a>
+            
+            
+            <a class="next" rel="next" href="/2024/05/16/xv6-The-Starter/">Xv6: The Starter</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

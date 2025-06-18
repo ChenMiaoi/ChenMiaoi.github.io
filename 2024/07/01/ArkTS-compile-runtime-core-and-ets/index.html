@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>ArkTS: Compile Runtime_core and Ets_* | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">ArkTS: Compile Runtime_core and Ets_*</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">July 1, 2024&nbsp;&nbsp;15:52:20</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/arkts/">arkts</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="ArkTS-Compile"><a href="#ArkTS-Compile" class="headerlink" title="ArkTS Compile"></a>ArkTS Compile</h1><p>在这一节中，我会介绍<code>ArkTS</code>的四大组件以及如何编译并成功运行<code>ArkTS</code>的前端和运行时。</p>
+<h2 id="ArkTS-Components"><a href="#ArkTS-Components" class="headerlink" title="ArkTS Components"></a>ArkTS Components</h2><p>方舟编译器(ArkCompiler)是为支持多种编程语言、多种芯片平台的联合编译、运行而设计的统一编译运行时平台。它支持包括动态类型和静态类型语言在内的多种编程语言，如JS、TS、ArkTS；它是支撑OpenHarmony系统成为打通手机、PC、平板、电视、车机和智能穿戴等多种设备的操作系统的编译运行时底座。</p>
+<p>从结构上看，ArkCompiler主要分成两个部分：编译工具链与运行时。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407011731363.png" alt="编译工具链架构"></p>
+<p>ArkCompiler的编译工具链以ArkTS&#x2F;TS&#x2F;JS源码作为输入，将其编译生成为abc(ArkCompiler Bytecode，即方舟字节码)文件。其主要是通过在编译中产生的二进制程序<code>es2abc</code>进行工作：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">es2abc hello.js</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407011732850.png" alt="运行时架构"></p>
+<p>ArkCompiler运行时直接运行字节码文件，实现对应语言规范的语义逻辑。</p>
+<p>主要由四个子系统组成：</p>
+<ul>
+<li>Core Subsystem <ul>
+<li>Core Subsystem主要由与语言无关的基础运行库组成，包括承载字节码的File组件、支持Debugger的Tooling组件、负责适配系统调用的Base库组件等。</li>
+</ul>
+</li>
+<li>Execution Subsystem <ul>
+<li>Execution Subsystem包含执行字节码的解释器、快速路径内联缓存、以及抓取运行时信息的Profiler。</li>
+</ul>
+</li>
+<li>Compiler Subsystem <ul>
+<li>Compiler Subsystem包含Stub编译器、基于IR的编译优化框架和代码生成器。</li>
+</ul>
+</li>
+<li>Runtime subsystem <ul>
+<li>Runtime Subsystem包含了ArkTS&#x2F;TS&#x2F;JS运行相关的模块。 </li>
+<li>内存管理：对象分配器与垃圾回收器(并发标记和部分内存压缩的CMS-GC和Partial-Compressing-GC)<ul>
+<li>分析工具：DFX工具、cpu和heap的profiling工具 </li>
+<li>并发管理：actor并发模型中的abc文件管理器 </li>
+<li>标准库：Ecmascript规范定义的标准库、高效的container容器库与对象模型 </li>
+<li>其他：异步工作队列、TypeScript类型加载、跟C++交互的JSNAPI接口等。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>在本次任务中，我们着重关注<code>Compiler Subsystem</code>中的<code>stub</code>和<code>assember</code>。以下给出了具体的一个工作目录结构：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">/arkcompiler</span><br><span class="line">├── ets_runtime       <span class="comment"># ArkTS运行时组件</span></span><br><span class="line">    ├── ecmascript</span><br><span class="line">        ├── compiler  <span class="comment"># Assember解析目录</span></span><br><span class="line">        └── stubs     <span class="comment"># stubs</span></span><br><span class="line">├── runtime_core      <span class="comment"># 运行时公共组件</span></span><br><span class="line">├── ets_frontend      <span class="comment"># ArkTS语言的前端工具</span></span><br><span class="line">└── toolchain         <span class="comment"># ArkTS工具链</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Compile-ETS"><a href="#Compile-ETS" class="headerlink" title="Compile ETS"></a>Compile ETS</h2><p>本次编译过程中的项目组织结构为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">├── arkcompiler</span><br><span class="line">│         ├── ets_frontend</span><br><span class="line">│         ├── ets_runtime</span><br><span class="line">│         ├── runtime_core</span><br><span class="line">│         └── toolchain</span><br><span class="line">├── ark.py -&gt; arkcompiler/toolchain/build/compile_script/ark.py</span><br><span class="line">├── build</span><br><span class="line">│         ├── build_scripts</span><br><span class="line">│         ├── config</span><br><span class="line">│         ├── core</span><br><span class="line">│         ├── docs</span><br><span class="line">│         ├── ...</span><br><span class="line">│         ├── gn_helpers.py</span><br><span class="line">│         ├── ohos_var.gni</span><br><span class="line">│         ├── prebuilts_download_config.json</span><br><span class="line">│         ├── prebuilts_download.py</span><br><span class="line">│         ├── prebuilts_download.sh</span><br><span class="line">│         └── zip.py</span><br><span class="line">├── developtools</span><br><span class="line">├── download_packages</span><br><span class="line">├── kernel</span><br><span class="line">├── kernel_linux_patches -&gt; kernel/linux/patches/</span><br><span class="line">├── out</span><br><span class="line">│         ├── install</span><br><span class="line">│         ├── lib</span><br><span class="line">│         ├── ... </span><br><span class="line">│         ├── ohos-riscv64</span><br><span class="line">│         ├── ohos-riscv64-install</span><br><span class="line">│         ├── riscv64.release</span><br><span class="line">│         └── x64.release</span><br><span class="line">├── packages</span><br><span class="line">├── prebuilts</span><br><span class="line">├── README.md</span><br><span class="line">├── third_party</span><br><span class="line">└── toolchain</span><br><span class="line">    ├── lldb-mi</span><br><span class="line">    └── llvm-project</span><br></pre></td></tr></table></figure>
+
+<h3 id="Dependency-Compile"><a href="#Dependency-Compile" class="headerlink" title="Dependency &amp;&amp; Compile"></a>Dependency &amp;&amp; Compile</h3><p>在正式开始编译之前，我们首先需要解决依赖配置。目前，我所使用的环境为<code>Ubuntu 22.04 LTS</code>发行版，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install git-lfs git bison flex gnupg build-essential zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses-dev x11proto-core-dev libx11-dev libc++1 lib32z1-dev ccache libgl1-mesa-dev libxml2-utils xsltproc unzip m4 libtinfo5 bc npm genext2fs liblz4-tool libssl-dev ruby openjdk-8-jre-headless gdb python3-pip libelf-dev libxcursor-dev libxrandr-dev libxinerama-dev</span><br></pre></td></tr></table></figure>
+
+<p>这里是参考了<a target="_blank" rel="noopener" href="https://gitee.com/openharmony/arkcompiler_ets_runtime/blob/master/docs/README_zh.md">方舟运行时使用指南</a>的依赖配置。</p>
+<p>需要注意的是，在<code>Ubuntu18.04</code>或<code>Ubuntu20.04</code>时，可能还存在<code>python</code>(通常新式的系统都直接支持<code>python3</code>)。因此需要通过符号链接生成一个<code>python</code>可执行文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -s python3 python</span><br></pre></td></tr></table></figure>
+
+<p>完成这一步后，我们需要下载一些额外的依赖，这一点可以通过项目中的下载脚本自动配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">toolchain/llvm-project/llvm-build/env_prepare.sh</span><br><span class="line">arkcompiler/toolchain/build/prebuilts_download/prebuilts_download.sh</span><br></pre></td></tr></table></figure>
+
+<p>下载完毕后，就可以通过<code>build.py</code>进行自动化构建<code>ArkTS</code>编译所需要的<code>clang</code>，在此处，我们需要的<code>x64</code>和<code>riscv64</code>架构的构建：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">python3 ./toolchain/llvm-project/llvm-build/build.py \</span><br><span class="line">	--no-build-arm \</span><br><span class="line">	--no-build-aarch64 \</span><br><span class="line">	--no-build-mipsel \</span><br><span class="line">	--no-build windows</span><br></pre></td></tr></table></figure>
+
+<p>我当前的配置为<code>11th Gen Intel i5-11400H (8) @ 2.688GHz</code>，使用的虚拟机配置为八核16G内存，通常编译<code>clang</code>的时长在三个半小时左右。编译完成后，需要将产出的<code>clang</code>拷贝到<code>prebuilts</code>文件夹中：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mv</span> prebuilts/clang/ohos/linux-x86_64/llvm prebuilts/clang/ohos/linux-x86_64/llvm.origin </span><br><span class="line"><span class="built_in">cp</span> -r out/install/linux-x86_64/clang-dev/ prebuilts/clang/ohos/linux-x86_64/llvm</span><br></pre></td></tr></table></figure>
+
+<p>为了构建在<code>riscv64</code>架构下适配的<code>ArkTS</code>，我们需要单独构建<code>riscv64</code>架构的<code>LLVM lib</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 toolchain/llvm-project/llvm-build/build-ohos-riscv64.py</span><br></pre></td></tr></table></figure>
+
+<p>执行<code>build-ohos-riscv64.py</code>通常需要半个小时左右，完成后，需要将<code>riscv64</code>架构的<code>LLVM lib</code>产出拷贝到<code>prebuilts</code>目录下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p prebuilts/ark_tools/ark_js_prebuilts/llvm_prebuilts_riscv64/&#123;build,llvm&#125;</span><br><span class="line"><span class="built_in">cp</span> -r out/ohos-riscv64-install/include prebuilts/ark_tools/ark_js_prebuilts/llvm_prebuilts_riscv64/llvm/</span><br><span class="line"><span class="built_in">cp</span> -r out/ohos-riscv64/&#123;include,lib&#125; prebuilts/ark_tools/ark_js_prebuilts/llvm_prebuilts_riscv64/build/</span><br></pre></td></tr></table></figure>
+
+<p>这样，前期准备就完成了。现在，就可以开始执行<code>ark.py</code>脚本来编译对应架构下的<code>ets_*</code>工具链了。</p>
+<p>编译<code>x86_64</code>的<code>ArkTS</code>前端、运行时：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 ./arkcompiler/toolchain/build/compile_script/ark.py x64.release --verbose</span><br></pre></td></tr></table></figure>
+
+<p>编译<code>riscv64</code>的<code>ArkTS</code>前端、运行时：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 ./arkcompiler/toolchain/build/compile_script/ark.py riscv64.release --verbose</span><br></pre></td></tr></table></figure>
+
+<p><strong>需要注意的是，在未修改的依赖项中</strong>，<code>riscv64</code><strong>架构下编译不会对</strong><code>ets_frontend</code><strong>生效</strong>。关于如何启用和修改<code>bug</code>，将在后面进行介绍。</p>
+<p>然后你可以看到在<code>out</code>目录中的一个目录树结构：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">out/</span><br><span class="line">├── install</span><br><span class="line">├── ...</span><br><span class="line">├── ohos-riscv64</span><br><span class="line">├── ohos-riscv64-install</span><br><span class="line">├── riscv64.release</span><br><span class="line">└── x64.release</span><br></pre></td></tr></table></figure>
+
+<p>我们的目标生成文件位于：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">out/x64.release/</span><br><span class="line">├── args.gn</span><br><span class="line">├── arkcompiler</span><br><span class="line">│         ├── ets_frontend</span><br><span class="line">│         ├── ets_runtime</span><br><span class="line">│         ├── runtime_core</span><br><span class="line">│         └── toolchain</span><br><span class="line">├── ...</span><br><span class="line">├── gen</span><br><span class="line">│         ├── arkcompiler</span><br><span class="line">│         ├── isa</span><br><span class="line">│         └── libpandabase</span><br><span class="line">└── toolchain.ninja</span><br><span class="line"></span><br><span class="line">out/riscv64.release/</span><br><span class="line">├── args.gn</span><br><span class="line">├── arkcompiler</span><br><span class="line">│         ├── ets_runtime</span><br><span class="line">│         ├── runtime_core</span><br><span class="line">│         └── toolchain</span><br><span class="line">├── ...</span><br><span class="line">├── gen</span><br><span class="line">│         ├── arkcompiler</span><br><span class="line">│         ├── isa</span><br><span class="line">│         └── libpandabase</span><br><span class="line">└── toolchain.ninja</span><br></pre></td></tr></table></figure>
+
+<p>在这里我们也可以发现，<code>riscv64</code>架构下的<code>arkcompiler</code>目录中缺少了<code>ets_frontend</code>的生成。</p>
+<h2 id="Dependency-Detail-Fix"><a href="#Dependency-Detail-Fix" class="headerlink" title="Dependency Detail &amp;&amp; Fix"></a>Dependency Detail &amp;&amp; Fix</h2><p>在上面我们发现，我们实际真正需要的<code>riscv64</code>的<code>ArkTS</code>工具链中，<code>ets_frontend</code>缺失，并且，关于<code>stub</code>实际上也没有真正编译。在这一小节中，我会对<code>arkcompiler</code>的<code>GN</code>依赖进行分析，然后逐步修复错误使得<code>ets_frontend</code>至少可用。</p>
+<h3 id="Dependency-Detail"><a href="#Dependency-Detail" class="headerlink" title="Dependency Detail"></a>Dependency Detail</h3><p>我们是通过<code>ark.py</code>进行自动化构建的，现在对<code>ark.py</code>进行溯源，其原始目录位于:<code>arkcompiler/toolchain/build/compile_script/</code>，然后进入<code>ark.py</code>中进行解析：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">build_for_gn_target</span>(<span class="params">self, out_path: <span class="built_in">str</span>, gn_args: <span class="built_in">list</span>, arg_list: <span class="built_in">list</span>, log_file_name: <span class="built_in">str</span></span>):</span><br><span class="line">    <span class="comment"># prepare log file</span></span><br><span class="line">    build_log_path = os.path.join(out_path, log_file_name)</span><br><span class="line">    str_to_build_log = <span class="string">&quot;================================\nbuild_time: &#123;0&#125;\nbuild_target: &#123;1&#125;\n\n&quot;</span>.<span class="built_in">format</span>(</span><br><span class="line">        str_of_time_now(), <span class="string">&quot; &quot;</span>.join(arg_list))</span><br><span class="line">    _write(build_log_path, str_to_build_log, <span class="string">&quot;a&quot;</span>)</span><br><span class="line">    <span class="comment"># gn command</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=== gn gen start ===&quot;</span>)</span><br><span class="line">    code = call_with_output(</span><br><span class="line">        <span class="string">&quot;&#123;0&#125; gen &#123;1&#125; --args=\&quot;&#123;2&#125;\&quot;&quot;</span>.<span class="built_in">format</span>(</span><br><span class="line">            self.gn_binary_path, out_path, <span class="string">&quot; &quot;</span>.join(gn_args).replace(<span class="string">&quot;\&quot;&quot;</span>, <span class="string">&quot;\\\&quot;&quot;</span>)),</span><br><span class="line">        build_log_path)</span><br></pre></td></tr></table></figure>
+
+<p><code>build_for_gn_target</code>是主要构建函数，通过<code>gn</code>来进行构建，而<code>gn</code>会通过同级目录下的<code>.gn</code>文件进行配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The location of the build configuration file.</span></span><br><span class="line">buildconfig = <span class="string">&quot;//arkcompiler/toolchain/build/config/BUILDCONFIG.gn&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># The source root location.</span></span><br><span class="line">root = <span class="string">&quot;//arkcompiler/toolchain/build/core/gn&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们暂时不需要关注<code>buildconfig</code>中的配置，我们主要的构建逻辑位于<code>root</code>中。并且，在开启<code>riscv64</code>后，我们需要首先知道这个信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">current_os=ohos,   current_cpu=riscv64</span><br><span class="line">host_os=linux,      host_cpu=x64</span><br><span class="line">target_os=ohos,    target_cpu=riscv64</span><br></pre></td></tr></table></figure>
+
+<p>首先<code>//root</code>设置了一个基本的默认构建逻辑，如果<code>host_os</code>不在<code>MacOS</code>上运行时，则对于<code>ArkTS</code>的四个组件都应该构建：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">group(&quot;default&quot;) &#123;</span><br><span class="line">  if (host_os != &quot;mac&quot;) &#123;</span><br><span class="line">    deps = [</span><br><span class="line">      &quot;:ets_frontend&quot;,</span><br><span class="line">      &quot;:ets_runtime&quot;,</span><br><span class="line">      &quot;:runtime_core&quot;,</span><br><span class="line">      &quot;:toolchain&quot;,</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="ets-runtime"><a href="#ets-runtime" class="headerlink" title="ets_runtime"></a>ets_runtime</h4><p>然后，我们来看一看<code>ets_runtime</code>的构建逻辑：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">group(&quot;ets_runtime&quot;) &#123;</span><br><span class="line">  deps = [</span><br><span class="line">    &quot;$js_root:libark_jsruntime&quot;,</span><br><span class="line">    &quot;$js_root/ecmascript/js_vm:ark_js_vm&quot;,</span><br><span class="line">    &quot;$js_root/ecmascript/quick_fix:quick_fix&quot;,</span><br><span class="line">  ]</span><br><span class="line">  if ((target_os == &quot;linux&quot; &amp;&amp; target_cpu == &quot;x64&quot;) ||</span><br><span class="line">      (target_cpu == &quot;arm64&quot; &amp;&amp; target_os == &quot;ohos&quot;)) &#123;</span><br><span class="line">    deps += [</span><br><span class="line">      &quot;$js_root/ecmascript/compiler:ark_aot_compiler&quot;,</span><br><span class="line">      &quot;$js_root/ecmascript/compiler:ark_stub_compiler&quot;,</span><br><span class="line">      &quot;$js_root/ecmascript/pgo_profiler/prof_dump:profdump&quot;,</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看见，在以来中，我们会生成两个可执行文件<code>ark_js_vm</code>和<code>quick_fix</code>。我们主要关注<code>ark_js_vm</code>的生成。在后面我们发现，这里只对于<code>x64</code>架构的<code>ets_runtime</code>提供了<code>ark_stub_compiler</code>提供了构建依赖，而对于<code>riscv64</code>并没有，因此，<strong>我猜测，在后续实现时，我们需要在这里添加对于</strong><code>riscv64-ohos</code><strong>架构的支持</strong>。</p>
+<p>但是目前而言，因为<code>riscv stub</code>的实现暂时有些许问题，因此先忽视。在这里，<code>ets_runtime</code>都是能够正常编译的。</p>
+<h4 id="ets-frontend"><a href="#ets-frontend" class="headerlink" title="ets_frontend"></a>ets_frontend</h4><p>现在，我们来看一看<code>ets_frontend</code>的构建逻辑：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">group(&quot;ets_frontend&quot;) &#123;</span><br><span class="line">  if ((target_os == &quot;linux&quot; &amp;&amp; target_cpu == &quot;x64&quot;) || target_os == &quot;mingw&quot;) &#123;</span><br><span class="line">    deps = [</span><br><span class="line">      &quot;$ets_frontend_root/es2panda:es2panda&quot;,</span><br><span class="line">      &quot;$ets_frontend_root/merge_abc:merge_abc&quot;,</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这里我们看到，<code>ets_frontend</code>只支持了<code>x64</code>的完整支持，因此需要做一定的修改：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">group(&quot;ets_frontend&quot;) &#123;</span><br><span class="line">  # FIX: Add the ohos-riscv64 ets_frontend dependency</span><br><span class="line">  if ((target_os == &quot;linux&quot; &amp;&amp; target_cpu == &quot;x64&quot;) || </span><br><span class="line">      (target_os == &quot;mingw&quot;) || </span><br><span class="line">      (target_os == &quot;ohos&quot; &amp;&amp; target_cpu == &quot;riscv64&quot;)) &#123;</span><br><span class="line">    deps = [</span><br><span class="line">      &quot;$ets_frontend_root/es2panda:es2panda&quot;,</span><br><span class="line">      &quot;$ets_frontend_root/merge_abc:merge_abc&quot;,</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>修改后我们尝试运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ERROR at //arkcompiler/toolchain/build/templates/cxx/cxx.gni:182:7: Script returned non-zero <span class="built_in">exit</span> code.</span><br><span class="line">      exec_script(<span class="string">&quot;<span class="variable">$build_root</span>/templates/cxx/external_deps_handler.py&quot;</span>,</span><br><span class="line">      ^----------</span><br><span class="line">      </span><br><span class="line">See //arkcompiler/toolchain/build/third_party_gn/protobuf/BUILD.gn:85:1: <span class="built_in">whence</span> it was called.</span><br><span class="line">ohos_static_library(<span class="string">&quot;protobuf_lite_static&quot;</span>) &#123;</span><br><span class="line">^--------------------------------------------</span><br><span class="line"></span><br><span class="line">See //arkcompiler/ets_frontend/merge_abc/BUILD.gn:148:5: <span class="built_in">which</span> caused the file to be included.</span><br><span class="line">    <span class="string">&quot;<span class="variable">$ark_third_party_root</span>/protobuf:protobuf_lite_static&quot;</span>,</span><br><span class="line">    ^----------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<p>就会产生报错，通过查看错误日志后发现，这里是有一个依赖不能够被<code>external_deps_handler.py</code>处理，该依赖是<code>[hilog:libhilog]</code>。</p>
+<p>通过日志发现，最先出现的调用栈为：<code>arkcompiler/ets_frontend/merge_abc/BUILD.gn:148:5</code>，因此可以查看：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># Cause Proto -&gt; hilog:libhilog</span><br><span class="line">deps = [</span><br><span class="line">    &quot;:arkcompiler_generate_proto&quot;,</span><br><span class="line">    &quot;$ark_third_party_root/protobuf:protobuf_lite_static&quot;,</span><br><span class="line">    &quot;$ark_third_party_root/protobuf:protobuf_static&quot;,</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>可以发现是<code>protobuf_lite_static</code>依赖出现问题，因此进入<code>arkcompiler/toolchain/build/third_party_gn/protobuf/BUILD.gn:85:1</code>中进行查看：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ohos_static_library(&quot;protobuf_lite_static&quot;) &#123;</span><br><span class="line">    ...</span><br><span class="line">    if (!is_mingw) &#123;</span><br><span class="line">        if (current_toolchain != host_toolchain) &#123;</span><br><span class="line">            # target build, not host build</span><br><span class="line">            defines = [ &quot;HAVE_HILOG&quot; ]</span><br><span class="line">            external_deps = [ &quot;hilog:libhilog&quot; ]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        defines = [ &quot;_FILE_OFFSET_BITS_SET_LSEEK&quot; ]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以发现，在<code>ohos_static_library(&quot;protobuf_lite_static&quot;)</code>逻辑中，因为这里只是简单的判断<code>current_toolchain != host_toolchain</code>然后就添加了<code>external_deps = [ &quot;hilog:libhilog&quot; ]</code>从而导致无法处理<code>[ hilog:libhilog ]</code>。</p>
+<p>因此，我们做出以下修改：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># To Append the `enable_hilog` identifier</span><br><span class="line">import(&quot;//arkcompiler/runtime_core/ark_config.gni&quot;)</span><br><span class="line"></span><br><span class="line">ohos_static_library(&quot;protobuf_lite_static&quot;) &#123;</span><br><span class="line">    ...</span><br><span class="line">    if (!is_mingw) &#123;</span><br><span class="line">        if (enable_hilog &amp;&amp; current_toolchain != host_toolchain) &#123;</span><br><span class="line">            # target build, not host build</span><br><span class="line">            defines = [ &quot;HAVE_HILOG&quot; ]</span><br><span class="line">            external_deps = [ &quot;hilog:libhilog&quot; ]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        defines = [ &quot;_FILE_OFFSET_BITS_SET_LSEEK&quot; ]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在再次运行<code>riscv64</code>的构建脚本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">python3 ./arkcompiler/toolchain/build/compile_script/ark.py riscv64.release --verbose</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">Done. Made 3926 targets from 543 files <span class="keyword">in</span> 661ms</span><br><span class="line"></span><br><span class="line">=== gn gen success! ===</span><br></pre></td></tr></table></figure>
+
+<h4 id="runtime-core-toolchain"><a href="#runtime-core-toolchain" class="headerlink" title="runtime_core &amp;&amp; toolchain"></a>runtime_core &amp;&amp; toolchain</h4><p>对于这两个结构而言，没有太多需要注意的地方，只有<code>runtime_core</code>构建出的两个可执行文件在后续可能会用上<code>ark_asm</code>和<code>ark_disasm</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">group(&quot;runtime_core&quot;) &#123;</span><br><span class="line">  deps = [</span><br><span class="line">    &quot;$ark_root/assembler:ark_asm&quot;,</span><br><span class="line">    &quot;$ark_root/disassembler:ark_disasm&quot;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">group(&quot;toolchain&quot;) &#123;</span><br><span class="line">  if (target_cpu != &quot;mipsel&quot;) &#123;</span><br><span class="line">    deps = [</span><br><span class="line">      &quot;$toolchain_root/inspector:ark_debugger&quot;,</span><br><span class="line">      &quot;$toolchain_root/inspector:connectserver_debugger&quot;,</span><br><span class="line">      &quot;$toolchain_root/tooling:libark_ecma_debugger&quot;,</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Compile-Show"><a href="#Compile-Show" class="headerlink" title="Compile Show"></a>Compile Show</h2><p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202407011726816.png" alt="ArkTS result"></p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/07/01/ArkTS-compile-runtime-core-and-ets/">https://chenmiaoi.github.io/2024/07/01/ArkTS-compile-runtime-core-and-ets/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/arkts/"># arkts</a>
+                    
+                        <a href="/tags/ospp/"># ospp</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/07/04/ArkTS-analyze-compiler-assember/">ArkTS: Analyze Compiler_assembler</a>
+            
+            
+            <a class="next" rel="next" href="/2024/06/27/xv6-The-Uart/">Xv6: The Uart</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

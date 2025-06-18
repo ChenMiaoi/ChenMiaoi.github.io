@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>Rfc1952: GZIP File Format Specification | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Rfc1952: GZIP File Format Specification</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">May 9, 2024&nbsp;&nbsp;18:35:37</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/rfc/">rfc</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="GZIP-file-format-specification-version-4-3"><a href="#GZIP-file-format-specification-version-4-3" class="headerlink" title="GZIP file format specification version 4.3"></a>GZIP file format specification version 4.3</h1><hr>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>本篇规范定义了一种无损压缩数据格式，与广泛使用的<code>GZIP</code>实用程序兼容。该格式包括<code>循环冗余校验值(cyclic redundancy check, CRC)</code>，用于检测数据损坏。该格式目前使用<code>DEFLATE</code>压缩方法，但可以轻松扩展以使用其他压缩方法。该格式可以轻松地以未受专利覆盖的方式实现。</p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><h3 id="Purpose"><a href="#Purpose" class="headerlink" title="Purpose"></a>Purpose</h3><p>该规范的目的是定义一种无损压缩的数据格式：</p>
+<ul>
+<li>与<code>CPU</code>类型、操作系统、文件系统和字符集相独立；因此可以互换使用；</li>
+<li><strong>可以压缩或解压缩一个数据流(与此相对的是随机访问介质文件)来产生另一种数据流，只使用预先限定的中间存储量，因此可以用于数据通信或类似结果</strong>，比如<code>Unix过滤器</code>；</li>
+<li><strong>数据的压缩效率可以与当前最佳的通用压缩方法相媲美</strong>，尤其是比”compress”程序更好;</li>
+<li><strong>可以轻易地以专利不涵盖的方式实行</strong>，因此可以自由实现;</li>
+<li><strong>与当前广泛使用的</strong><code>gzip</code><strong>实用程序生成的文件格式兼容，符合标准的解压器能够读取由现有</strong><code>gzip</code><strong>压缩器生成的数据</strong>。</li>
+</ul>
+<blockquote>
+<p>可以压缩或解压缩数据流：</p>
+<blockquote>
+<p>将数据转化为一种更为紧凑的表示形式，以减少其占用空间；  </p>
+</blockquote>
+<p>只实用有限量的中间存储空间：  </p>
+<blockquote>
+<p>也就是说，数据的大小在一开始就会被计算，不会随着数据流的大小变化而增长；<strong>使用缓冲区或许能够提升一定的性能</strong>？  </p>
+</blockquote>
+<p>专利不涵盖：</p>
+<blockquote>
+<p><strong>该压缩格式没有与之相关的专利保护</strong>。换句话说，使用该压缩格式不会侵犯其他人的专利权利，因为该格式的设计没有涉及到受专利保护的技术或方法。这意味着任何人都可以自由地实现、使用和分发这种压缩格式，而不必担心侵犯他人的知识产权。  </p>
+</blockquote>
+</blockquote>
+<p>本规范定义的数据格式不会做出以下尝试：</p>
+<ul>
+<li>提供对压缩数据的随机访问;</li>
+<li>压缩专用数据以及目前最好的专用算法;</li>
+</ul>
+<h3 id="Intended-audience"><a href="#Intended-audience" class="headerlink" title="Intended audience"></a>Intended audience</h3><p>本规范供软件实现者使用，<strong>用于将数据压缩为</strong><code>gzip</code><strong>格式和(或)从</strong><code>gzip</code>格式中解压数据。</p>
+<p>本规范的文本假定读者具有编程方面的基础知识，能够理解位和其他基本数据表示级别的概念。</p>
+<h3 id="Scope"><a href="#Scope" class="headerlink" title="Scope"></a>Scope</h3><p>本规范指定了一种压缩方法和一个文件格式(<strong>后者仅假定文件可以存储在任意字节序列</strong>)。它没有指定与文件系统的任何特定接口，也没有涉及字符集或编码的任何内容(除了文件名和注释，这些都是可选的)。</p>
+<h3 id="Compliance"><a href="#Compliance" class="headerlink" title="Compliance"></a>Compliance</h3><p>除非下文另有说明，<strong>符合规范的解压器必须能够接收并解压符合此处提供的所有规范的任何文件；符合规范的压缩器必须生成符合此处提供的所有规范的文件</strong>。附录中的材料不属于规范本身，与符合性无关。</p>
+<h3 id="Definitions-of-terms-and-conventions-used"><a href="#Definitions-of-terms-and-conventions-used" class="headerlink" title="Definitions of terms and conventions used"></a>Definitions of terms and conventions used</h3><p><code>byte</code>: 以单位形式存储或传输的<code>8 bit</code>。(对于此规范，一个字节恰好是8位，即使在将字节存储在与8位不同的位数的计算机也是如此。)</p>
+<h3 id="Changes-from-previous-versions"><a href="#Changes-from-previous-versions" class="headerlink" title="Changes from previous versions"></a>Changes from previous versions</h3><p>自本规范的<code>4.1</code>版本起，未对<code>gzip</code>格式进行任何技术变更。在<code>4.2</code>版本中，更改了一些术语，并重写了示例<code>CRC</code>代码，以提高清晰度并消除调用者进行前置和后置条件的要求。<code>4.3</code>版本是将规范转为<code>RFC</code>风格的过程。</p>
+<h2 id="Detailed-specification"><a href="#Detailed-specification" class="headerlink" title="Detailed specification"></a>Detailed specification</h2><h3 id="Overall-conventions"><a href="#Overall-conventions" class="headerlink" title="Overall conventions"></a>Overall conventions</h3><p>在下方的图示中，一个这样的<code>box</code>表示一个字节：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+---+ </span><br><span class="line">|   | &lt;-- the vertical bars might be missing </span><br><span class="line">+---+</span><br></pre></td></tr></table></figure>
+
+<p>而类似于这样的<code>box</code>表示可变的字节数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+==============+ </span><br><span class="line">|              | </span><br><span class="line">+==============+</span><br></pre></td></tr></table></figure>
+
+<p><strong>存储在计算机中的字节不具有“位序”，因为它们总是被视作一个单位来处理</strong>。然而，将字节视为介于$0 \sim 255$之间的整数确实具有最高有效位和最低有效位，因为我们总是以最高有效数字在左侧的方式书写数字，因此我们也以最高有效位在左侧的方式书写字节。</p>
+<p>在下方的图示中，我们对一个字节的比特进行编号，使得比特<code>0</code>是最低有效位。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+--------+ </span><br><span class="line">|76543210| </span><br><span class="line">+--------+</span><br></pre></td></tr></table></figure>
+
+<p><strong>由于本文描述的数据格式是面向字节的，而不是面向比特的；因此，本文没有解决字节的比特在比特序列介质上传输的顺序问题</strong>。</p>
+<p>在计算机中，一个数字可能占据多个字节。在这里描述的格式中，<strong>所有的多字节数字都是以最低有效位优先的方式存储</strong>(<strong>即在较低的内存地址处</strong>)。  </p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">    0        1 </span><br><span class="line">+--------+--------+ </span><br><span class="line">|00001000|00000010| </span><br><span class="line">+--------+--------+ </span><br><span class="line">ˆ         ˆ </span><br><span class="line">|         | </span><br><span class="line">|         + more significant byte = 2 x 256 </span><br><span class="line">+ less significant byte = 8</span><br></pre></td></tr></table></figure>
+
+<h3 id="File-format"><a href="#File-format" class="headerlink" title="File format"></a>File format</h3><p>一个<code>gzip</code>文件由一系列”成员”(压缩数据集)组成。每个成员的格式在下面会详细说明。成员只是在文件中一个接一个地出现，在它们之前、之间或之后没有额外的信息。  </p>
+<h3 id="Member-format"><a href="#Member-format" class="headerlink" title="Member format"></a>Member format</h3><p>每一个成员都有如下结构:  </p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+---+---+---+---+---+---+---+---+---+---+ </span><br><span class="line">|ID1|ID2|CM |FLG|     MTIME     |XFL|OS | (more--&gt;) </span><br><span class="line">+---+---+---+---+---+---+---+---+---+---+</span><br></pre></td></tr></table></figure>
+<p><a href="rfc1952-GZIP-file-format-specification.md">rfc1952-GZIP-file-format-specification.md</a><br>如果<code>FLG::FEXTRA</code>字段被设置:</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+---+---+=================================+ </span><br><span class="line">| XLEN |...XLEN bytes of &quot;extra field&quot;...| (more--&gt;) </span><br><span class="line">+---+---+=================================+</span><br></pre></td></tr></table></figure>
+
+<p>如果<code>FLG::FNAME</code>字段被设置:</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+=========================================+ </span><br><span class="line">|...original file name, zero-terminated...| (more--&gt;) </span><br><span class="line">+=========================================+</span><br></pre></td></tr></table></figure>
+
+<p>如果<code>FLG::FCOMMENT</code>字段被设置:</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+===================================+ </span><br><span class="line">|...file comment, zero-terminated...| (more--&gt;) </span><br><span class="line">+===================================+</span><br></pre></td></tr></table></figure>
+
+<p>如果<code>FLG::FHCRC</code>字段被设置:</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">+---+---+ </span><br><span class="line">| CRC16 | </span><br><span class="line">+---+---+</span><br><span class="line"></span><br><span class="line">+=======================+ </span><br><span class="line">|...compressed blocks...| (more--&gt;) </span><br><span class="line">+=======================+</span><br><span class="line"></span><br><span class="line">  0   1   2   3   4   5   6   7 </span><br><span class="line">+---+---+---+---+---+---+---+---+ </span><br><span class="line">|     CRC32     |     ISIZE     | </span><br><span class="line">+---+---+---+---+---+---+---+---+</span><br></pre></td></tr></table></figure>
+
+<h4 id="Member-header-and-trailer"><a href="#Member-header-and-trailer" class="headerlink" title="Member header and trailer"></a>Member header and trailer</h4><h5 id="ID1-IDentification-1"><a href="#ID1-IDentification-1" class="headerlink" title="ID1(IDentification 1)"></a>ID1(IDentification 1)</h5><h5 id="ID2-IDentification-2"><a href="#ID2-IDentification-2" class="headerlink" title="ID2(IDentification 2)"></a>ID2(IDentification 2)</h5><p>这两个字段是固定值：$ID1 &#x3D; 31(0x1f, \037)，ID2 &#x3D; 139(0x8b, \213)$，<strong>用于标识文件为</strong><code>gzip</code>格式。</p>
+<h5 id="CM-Compression-Method"><a href="#CM-Compression-Method" class="headerlink" title="CM(Compression Method)"></a>CM(Compression Method)</h5><p>该字段确定了文件中使用的压缩方法。$CM &#x3D; 0 - 7$被保留，$CM &#x3D; 8$表示<code>deflate</code>压缩方法，这是<code>gzip</code>习惯使用的压缩方法，其他文档中有详细说明。</p>
+<h5 id="FLG-FLaGs"><a href="#FLG-FLaGs" class="headerlink" title="FLG(FLaGs)"></a>FLG(FLaGs)</h5><p>该标志字段被划分为单个比特，如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th align="center">bit</th>
+<th align="center">位</th>
+<th align="center">标识</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">bit</td>
+<td align="center">0</td>
+<td align="center">FTEXT</td>
+</tr>
+<tr>
+<td align="center">bit</td>
+<td align="center">1</td>
+<td align="center">FHCRC</td>
+</tr>
+<tr>
+<td align="center">bit</td>
+<td align="center">2</td>
+<td align="center">FEXTRA</td>
+</tr>
+<tr>
+<td align="center">bit</td>
+<td align="center">3</td>
+<td align="center">FNAME</td>
+</tr>
+<tr>
+<td align="center">bit</td>
+<td align="center">4</td>
+<td align="center">FCOMMENT</td>
+</tr>
+<tr>
+<td align="center">bit</td>
+<td align="center">5</td>
+<td align="center">reserved</td>
+</tr>
+<tr>
+<td align="center">bit</td>
+<td align="center">6</td>
+<td align="center">reserved</td>
+</tr>
+<tr>
+<td align="center">bit</td>
+<td align="center">7</td>
+<td align="center">reserved</td>
+</tr>
+</tbody></table>
+<p>如果<code>FTEXT</code>被设置，该文件就很可能是<code>ASCII</code>文本。这是一个可选的指示，<strong>压缩器可以通过减少少量的输入数据来查看是否存在任何非</strong><code>ASCII</code><strong>字符</strong>。如果存疑，<code>FTEXT</code>将会被重置，表示二进制数据。对于<code>ASCII</code>文本和二进制数据格式不同的系统，解压器可以使用<code>FTEXT</code>选项选择合适的文件格式。<strong>我们有意不指定此位的算法，因为压缩程序始终有可能将其清零，而解压程序始终有可能忽略它，让其他程序处理数据转换的问题</strong>。</p>
+<blockquote>
+<p>FTEXT</p>
+<blockquote>
+<p>在压缩和解压缩过程中，如果<code>FTEXT</code>字段被设置为<code>1</code>，压缩器和解压器可以相应地进行处理，以确保数据的正确性和可读性。如果<code>FTEXT</code>字段被设置为<code>0</code>，压缩器和解压器可以将数据视为二进制数据处理，而不会进行额外的文本处理。这样设计是为了提高灵活性，使得<code>gzip</code>格式可以适应不同类型的数据。</p>
+</blockquote>
+</blockquote>
+<p>如果<code>FHCRC</code>被设置，则在压缩数据的前面，<code>gzip</code>头部存在一个<code>CRC16</code>数据。<code>CRC16</code>由<code>gzip</code>头部中直到<code>CRC16</code>之前的所有字节的<code>CRC32</code>的最低有效字节组成。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ID1 = <span class="number">32</span></span><br><span class="line">ID2 = <span class="number">139</span></span><br><span class="line">CM = <span class="number">8</span></span><br><span class="line">FLG = <span class="number">2</span></span><br><span class="line">CRC32 = <span class="number">0x11223344</span></span><br><span class="line"></span><br><span class="line">==&gt; CRC16 = <span class="number">0x3344</span></span><br></pre></td></tr></table></figure>
+
+<p>如果<code>FEXTRA</code>被设置，则存在可选的额外字段(将会在后续介绍)。</p>
+<p>如果<code>FNAME</code>被设置，则存在一个原始文件名，<strong>以零字节终止</strong>。名称必须以<code>ISO 8859-1(LATIN-1)</code>字符组成;在使用<code>EBCDIC</code>或任何其他字符集作为文件名的操作系统上，必须将文件名翻译为<code>ISO LATIN-1</code>字符集。<strong>这是被压缩的文件的原始名称，其中已删除了任何目录组件，并且如果被压缩的文件位于不区分大小写的文件系统上，则将其强制转换为小写</strong>。<strong>如果数据不是从具名文件而是从其他来源压缩的，则没有原始文件名</strong>；例如，如果数据源是<code>Unix</code>系统上的<code>stdin</code>，则没有文件名。</p>
+<blockquote>
+<p>[零字节终止文件名]</p>
+<blockquote>
+<p>原始文件名以零字节终止，这意味着在gzip文件格式中，原始文件名的末尾是一个零字节（ASCII码为0）。这个零字节用来表示文件名的结束，后面可能会跟随其他数据。这种方式使得解压缩程序可以轻松地确定原始文件名的结束位置，而不必依赖于固定长度或其他分隔符。<br>“example.txt” &#x3D;&gt; 65 78 61 6d 70 6c 65 2e 74 78 74 00  </p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://cs.stanford.edu/people/miles/iso8859.html">ISO LATIN-1字符集</a></p>
+<blockquote>
+<p>它定义了用于拉丁字母语言的8位字符编码，覆盖了大多数西欧语言，如英语、法语、德语、西班牙语、意大利语等。<code>ISO LATIN-1</code>编码的范围是<code>0x00</code>到<code>0xFF</code>，其中包含了基本拉丁字母、拉丁字母补充、数字、标点符号以及一些特殊字符。</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.ibm.com/docs/en/zos-basic-skills?topic=mainframe-ebcdic-character-set">EBCDIC(Extended Binary Coded Decimal Interchange Code)</a></p>
+<blockquote>
+<p>通常用于<code>IBM</code>的大型机系统（如<code>System/360</code>，<code>System/370</code>和<code>zSeries</code>）。与<code>ASCII</code>和<code>ISO Latin-1</code>不同，<code>EBCDIC</code>编码使用8位编码，并且其编码值与<code>ASCII</code>或<code>ISO Latin-1</code>中的对应字符不同。<code>EBCDIC</code>编码方案包含了数字、字母、标点符号和其他特殊字符。</p>
+</blockquote>
+</blockquote>
+<p>如果<code>FCOMMENT</code>被设置，<strong>则存在一个以零字节终止的文件注释。此注释不会被解释；它仅供人类阅读</strong>。注释必须由<code>ISO 8859-1(LATIN-1)</code>字符组成。换行应该用单个换行字符(10进制)表示。</p>
+<p><strong>预留的FLG位应该被置零</strong>。</p>
+<h5 id="MTIME-Modification-TIME"><a href="#MTIME-Modification-TIME" class="headerlink" title="MTIME(Modification TIME)"></a>MTIME(Modification TIME)</h5><p>该字段给出了源文件被压缩时的最近修改时间。这个时间是<code>Unix</code>格式的(也就是格林威治时间)。(<strong>注意，这可能会给<code>MSDOS</code>和其他使用本地时间而非全球时间的系统带来问题</strong>)。如果压缩后的数据不是来自于文件，那么<code>MTIME</code>则会被设置为压缩开始的时间。$MTIME &#x3D; 0$表示没有可用的时间戳。</p>
+<h5 id="XFL-eXtra-FLags"><a href="#XFL-eXtra-FLags" class="headerlink" title="XFL(eXtra FLags)"></a>XFL(eXtra FLags)</h5><p>这些标志位可以通过特定的压缩方法使用。<code>DEFLATE</code>方法($CM &#x3D; 8$)将这些标志位设置如下：</p>
+<ul>
+<li>$XFL &#x3D; 2$表示压缩器使用最大压缩、最慢算法</li>
+<li>$XFL &#x3D; 4$表示压缩器使用最快算法</li>
+</ul>
+<h5 id="OS-Operating-System"><a href="#OS-Operating-System" class="headerlink" title="OS(Operating System)"></a>OS(Operating System)</h5><p>该字段标识了发生压缩的文件系统类型，这对于确定文本文件的行尾约定可能是有用的。</p>
+<table>
+<thead>
+<tr>
+<th align="center">bit</th>
+<th align="center">type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">0</td>
+<td align="center">FAT filesystem(MS-DOS, OS&#x2F;2, NT&#x2F;Win32)</td>
+</tr>
+<tr>
+<td align="center">1</td>
+<td align="center">Amiga</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">VMS(or OpenVMS)</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">Unix</td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td align="center">VM&#x2F;CMS</td>
+</tr>
+<tr>
+<td align="center">5</td>
+<td align="center">Atari TOS</td>
+</tr>
+<tr>
+<td align="center">6</td>
+<td align="center">HPFS filesystem(OS&#x2F;2, NT)</td>
+</tr>
+<tr>
+<td align="center">7</td>
+<td align="center">Macintosh</td>
+</tr>
+<tr>
+<td align="center">8</td>
+<td align="center">Z-System</td>
+</tr>
+<tr>
+<td align="center">9</td>
+<td align="center">CP&#x2F;M</td>
+</tr>
+<tr>
+<td align="center">10</td>
+<td align="center">TOPS-20</td>
+</tr>
+<tr>
+<td align="center">11</td>
+<td align="center">NTFS filesystem(NT)</td>
+</tr>
+<tr>
+<td align="center">12</td>
+<td align="center">QDOS</td>
+</tr>
+<tr>
+<td align="center">13</td>
+<td align="center">Acorn RISCOS</td>
+</tr>
+<tr>
+<td align="center">255</td>
+<td align="center">unknown</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>常见的行尾约定为：</p>
+<blockquote>
+<p>Unix&#x2F;Linux -&gt; LF<br>Windows -&gt; CRLF<br>macOS -&gt; CR</p>
+</blockquote>
+</blockquote>
+<h5 id="XLEN-eXtra-LENgth"><a href="#XLEN-eXtra-LENgth" class="headerlink" title="XLEN(eXtra LENgth)"></a>XLEN(eXtra LENgth)</h5><p>如果<code>FLG::FEXYRA</code>被设置，给出一个可选的额外字段的长度，详情见下文。</p>
+<h5 id="CRC32-CRC-32"><a href="#CRC32-CRC-32" class="headerlink" title="CRC32(CRC-32)"></a>CRC32(CRC-32)</h5><p>这个字段包含了未压缩数据的循环冗余校验值，根据ISO 3309标准和ITU-T推荐V.42中的CRC-32算法计算得出。你可以在 <a target="_blank" rel="noopener" href="http://www.iso.ch/">http://www.iso.ch</a> 上订购ISO文件。你也可以在 gopher:&#x2F;&#x2F;info.itu.ch 上找到ITU-T V.42的在线版本。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://cdn.standards.iteh.ai/samples/8561/ee3e6fc1cc8641fabff5257e9660cf07/ISO-IEC-3309-1993.pdf">CRC-32 ISO3309</a></p>
+<blockquote>
+<p>定义了一种循环冗余校验（CRC）算法，用于检测数据的传输错误。具体来说，ISO 3309标准描述了CRC-32算法，这是一种32位的循环冗余校验算法，常用于检测数据的完整性。<br>CRC-32算法通过对数据流进行多项式除法运算来计算校验值，然后将该校验值附加到数据流中。接收方可以使用相同的CRC-32算法来计算接收到的数据的校验值，并将其与发送方提供的校验值进行比较，从而检测数据是否在传输过程中发生了错误或损坏。</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.itu.int/rec/T-REC-V.42/en">ITU-T V.42</a></p>
+<blockquote>
+<p>具体而言，ITU-T V.42标准涵盖了数据压缩、误码纠正和数据流控制等方面的内容。其中，压缩算法和误码纠正技术对于提高数据传输效率和减少传输错误非常重要。在ITU-T V.42中提到的CRC-32算法是用于数据传输中的校验和验证，以确保数据的完整性。<br>ITU-T V.42标准的发布旨在促进数据通信技术的发展和应用，为各种类型的数据通信提供了一个共同的技术框架和标准化的基础。这有助于不同厂商和组织之间的互操作性，并为用户提供了更可靠和高效的数据通信解决方案。</p>
+</blockquote>
+</blockquote>
+<h5 id="ISIZE-Input-SIZE"><a href="#ISIZE-Input-SIZE" class="headerlink" title="ISIZE(Input SIZE)"></a>ISIZE(Input SIZE)</h5><p>该字段包含了原始输入数据(未压缩数据)$mod 2^{32}$的大小</p>
+<h5 id="Extra-field"><a href="#Extra-field" class="headerlink" title="Extra field"></a>Extra field</h5><p>如果<code>FLG::FEXTRA</code>被设置，那么一个“额外字段”就会出现在头部中，总长度为<code>XLEN</code>字节。它由一系列子字段组成，每一个子字段的形式都是如下所示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+---+---+---+---+==================================+ </span><br><span class="line">|SI1|SI2|  LEN  |... LEN bytes of subfield data ...| </span><br><span class="line">+---+---+---+---+==================================+</span><br></pre></td></tr></table></figure>
+
+<p><code>SI1</code>和<code>SI2</code>提供了一个子字段<code>ID</code>，通常是两个具有一定助记符价值的<code>ASCII</code>字母。[<strong>Jean-Loup Gailly</strong>]<a href="mailto:&#x67;&#122;&#x69;&#112;&#x40;&#x70;&#114;&#x65;&#112;&#46;&#x61;&#105;&#46;&#109;&#x69;&#116;&#x2e;&#101;&#100;&#117;">&#x67;&#122;&#x69;&#112;&#x40;&#x70;&#114;&#x65;&#112;&#46;&#x61;&#105;&#46;&#109;&#x69;&#116;&#x2e;&#101;&#100;&#117;</a>维护着一个子字段ID的注册表；请将您希望使用的任何子字段<code>ID</code>发送给他。<code>SI2</code>为<code>0</code>的子字段<code>ID</code>保留供将来使用。当前已定义的子字段<code>ID</code>如下:</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SI1         SI2         Data </span><br><span class="line">----------  ----------  ---</span><br><span class="line">0x41 (&#x27;A&#x27;)  0x70 (&#x27;P&#x27;)  Apollo file type information</span><br></pre></td></tr></table></figure>
+
+<p><code>LEN</code>字段给出了子字段数据的长度，不包括四个初始字节。</p>
+<h5 id="Compliance-1"><a href="#Compliance-1" class="headerlink" title="Compliance"></a>Compliance</h5><p><strong>符合规范的压缩器必须生成具有正确的</strong><code>ID1</code>、<code>ID2</code>、<code>CM</code>、<code>CRC32</code>和<code>ISIZE</code><strong>字段的文件，但可以将头部固定长度部分中的所有其他字段设置为默认值</strong>(<code>OS</code>字段为<code>255</code>，其他字段为<code>0</code>)。<strong>压缩器必须将所有保留位设置为零</strong>。</p>
+<p><strong>符合规范的解压器必须检查</strong><code>ID1</code>、<code>ID2</code>和<code>CM</code>，<strong>并在其中任何一个具有不正确的值时提供错误指示</strong>。<strong>它必须至少检查</strong><code>FEXTRA/XLEN</code>、<code>FNAME</code>、<code>FCOMMENT</code>和<code>FHCRC</code>，<strong>以便在这些可选字段存在时可以跳过它们。它不需要检查头部或尾部的任何其他部分；特别是，解压器可以忽略</strong><code>FTEXT</code>和<code>OS</code><strong>并始终生成二进制输出，仍然符合规范。如果任何保留位为非零，则符合规范的解压器必须提供错误指示，因为这样的位可能指示存在新字段，这将导致后续数据被错误解释</strong>。</p>
+<h2 id="Security-Considerations"><a href="#Security-Considerations" class="headerlink" title="Security Considerations"></a>Security Considerations</h2><p>任何数据压缩方法都涉及减少数据中的冗余。因此，对数据的任何损坏可能会产生严重影响，并且很难纠正。另一方面，未压缩的文本可能仍然可读，尽管存在一些损坏的字节。</p>
+<p>建议使用这种数据格式的系统提供某种验证压缩数据完整性的手段，例如设置和检查CRC-32校验值。</p>
+<h2 id="Appendix-Jean-Loup-Gailly’s-gzip-utility"><a href="#Appendix-Jean-Loup-Gailly’s-gzip-utility" class="headerlink" title="Appendix: Jean-Loup Gailly’s gzip utility"></a>Appendix: Jean-Loup Gailly’s gzip utility</h2><p>gzip压缩的最广泛使用的实现，以及这个规范的原始文档，是由[<strong>Jean-Loup Gailly</strong>]<a href="mailto:&#x67;&#122;&#x69;&#x70;&#x40;&#x70;&#x72;&#x65;&#x70;&#46;&#x61;&#105;&#46;&#109;&#105;&#x74;&#x2e;&#101;&#100;&#x75;">&#x67;&#122;&#x69;&#x70;&#x40;&#x70;&#x72;&#x65;&#x70;&#46;&#x61;&#105;&#46;&#109;&#105;&#x74;&#x2e;&#101;&#100;&#x75;</a>创建的。由于这个实现已成为事实上的标准，我们在这里提到了一些它的更多特性。<strong>再次强调，本节中的内容并不是规范的一部分，实现不必遵循它才能符合规范</strong>。</p>
+<p><strong>在压缩或解压缩文件时，</strong><code>gzip</code><strong>会保留本地文件系统上的保护、所有权和修改时间属性，因为</strong><code>gzip</code><strong>文件格式本身没有提供表示保护属性的方法。由于文件格式包含修改时间，</strong><code>gzip</code><strong>解压缩器提供了一个命令行开关，将文件的修改时间分配给解压后的输出，而不是使用压缩输入的本地修改时间</strong>。</p>
+<h2 id="Appendix-Sample-CRC-Code"><a href="#Appendix-Sample-CRC-Code" class="headerlink" title="Appendix: Sample CRC Code"></a>Appendix: Sample CRC Code</h2><p>以下示例代码表示了<code>CRC(循环冗余校验)</code>的实际实现。(也请参阅<code>ISO 3309</code>和<code>ITU-T V.42</code>进行正式规范。）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// CRC table for fast computation</span></span><br><span class="line"><span class="type">uint32_t</span> crc_table[<span class="number">256</span>];</span><br><span class="line"><span class="type">int</span> crc_table_computed = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Make the table for a fast CRC.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">make_crc_table</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="type">uint32_t</span> c;</span><br><span class="line">    <span class="type">int</span> n, k;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (n = <span class="number">0</span>; n &lt; <span class="number">256</span>; n++) &#123;</span><br><span class="line">        c = (<span class="type">uint32_t</span>)n;</span><br><span class="line">        <span class="keyword">for</span> (k = <span class="number">0</span>; k &lt; <span class="number">8</span>; k++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (c &amp; <span class="number">1</span>) &#123;</span><br><span class="line">                c = <span class="number">0xedb88320</span>L ^ (c &gt;&gt; <span class="number">1</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                c = c &gt;&gt; <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        crc_table[n] = c;</span><br><span class="line">    &#125;</span><br><span class="line">    crc_table_computed = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Update a running crc with the bytes buf[0..len-1] and return the updated crc. </span></span><br><span class="line"><span class="comment"> * The crc should be initialized to zero. Pre- and post-conditioning (one’s complement) is performed </span></span><br><span class="line"><span class="comment"> * within this function so it shouldn’t be done by the caller. Usage example:</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">uint32_t</span> <span class="title function_">update_crc</span><span class="params">(<span class="type">uint32_t</span> crc, <span class="type">unsigned</span> <span class="type">char</span>* buf, <span class="type">int</span> len)</span> &#123;</span><br><span class="line">    <span class="type">uint32_t</span> c = crc ^ <span class="number">0xffffffff</span>L;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!crc_table_computed) </span><br><span class="line">        make_crc_table();</span><br><span class="line">    <span class="keyword">for</span> (n = <span class="number">0</span>; n &lt; len; n++) &#123;</span><br><span class="line">        c = crc_table[(c ^ buf[n]) &amp; <span class="number">0xff</span>] ^ (c &gt;&gt; <span class="number">8</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> c ^ <span class="number">0xffffffff</span>L;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Return the CRC of the bytes buf[0..len-1].</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">uint32_t</span> <span class="title function_">crc</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span>* buf, <span class="type">int</span> len)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> update_crc(<span class="number">0L</span>, buf, len);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// Example usage:</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> buffer[] = <span class="string">&quot;Hello, world!&quot;</span>;</span><br><span class="line">    <span class="type">int</span> length = <span class="keyword">sizeof</span>(buffer) - <span class="number">1</span>;    <span class="comment">// Exclude the null terminator</span></span><br><span class="line">    <span class="type">uint32_t</span> original_crc = <span class="number">0x12345678</span>; <span class="comment">// Original CRC, for comparison</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Calculate CRC</span></span><br><span class="line">    <span class="type">uint32_t</span> crc_value = crc(buffer, length);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Verify CRC</span></span><br><span class="line">    <span class="keyword">if</span> (crc_value != original_crc)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Error: CRC does not match!\n&quot;</span>);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;CRC matches!\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/05/09/rfc1952-GZIP-file-format-specification/">https://chenmiaoi.github.io/2024/05/09/rfc1952-GZIP-file-format-specification/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/rfc/"># rfc</a>
+                    
+                        <a href="/tags/gzip/"># gzip</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/05/10/rfc1951-DEFLATE-Compressed-Data-Format-Specification/">Rfc1951: DEFLATE Compressed Data Format Specification</a>
+            
+            
+            <a class="next" rel="next" href="/2024/04/20/DDCA-The-Chapter-7-Reading/">DDCA: The Chapter 7 Reading</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

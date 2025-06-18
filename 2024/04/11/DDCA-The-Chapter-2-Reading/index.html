@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>DDCA: The Chapter 2 Reading | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">DDCA: The Chapter 2 Reading</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">April 11, 2024&nbsp;&nbsp;23:13:29</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/books/">books</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="Combinational-Logic-Design"><a href="#Combinational-Logic-Design" class="headerlink" title="Combinational Logic Design"></a>Combinational Logic Design</h1><p>在上一篇笔记中，我们已经学习了关于数字系统的一些基本原理以及构建和理解数字系统的基本概念。现在本篇笔记将讲解<code>组合逻辑(Combinational Logic)</code>，<strong>即输出只取决于当前的输入</strong>。在上一篇笔记中的逻辑门介绍都是组合逻辑的例子，<strong>本篇中你将学习设计多个门电路，以实现由</strong><code>真值表(truth table)</code>或<code>布尔方程(Boolean Equation)</code><strong>指定的输入和输出之间的关系</strong>。</p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>在一个数字电子学中，<code>电路(circuit)</code><strong>是处理离散变量的网格，其可以被看作一个黑箱</strong>，如下图中左图所示：</p>
+<ul>
+<li>一个或多个离散值输入接口</li>
+<li>一个或多个离散值输出接口</li>
+<li><strong>描述输入和输出之间关系的</strong><code>功能规范(functional specification)</code></li>
+<li><strong>描述输入变化和输出相应之间延迟的</strong><code>时许规范(timing specification)</code></li>
+</ul>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404112329840.png" alt="black box with circuit"></p>
+<p>电路由<code>节点(node)</code>和<code>元件(element)</code>组成。<strong>一个元件本身就是一个具有输入输出和规范的电路；节点是导线，其电压传递一个离散值变量。节点一般分为输入、输出和内部节点</strong>(<strong>也就是没有输入或输出的导线</strong>)。上图中的左图解释了三个元件的电路，以及六个节点。</p>
+<p>数字电路被分为组合逻辑电路或<code>时序逻辑电路(sequential)</code>。<strong>一个组合逻辑电路的输出只取决于输入的当前值；时序逻辑电路的输出则取决于输入的当前值和之前的值(也就是上一个状态)，换句话说，其取决于输入的序列。组合逻辑是</strong><code>无记忆性(memoryless)</code><strong>，而时序逻辑是具有</strong><code>记忆性(memory)</code>。</p>
+<p>组合电路的功能规范用电流输入值表示输出值，时序规范由输入到输出的上界和下界组成。我们首先关注的功能规范。</p>
+<p>下图展示了一个二输入单输出的组合电路，黑盒内部的符号&#x2104;表明它只用组合逻辑实现，在下图的例子中，特指功能$F$为$OR$：$Y &#x3D; F(A, B) &#x3D; A + B$。同时，我们也可以从右图中发现，<strong>对于单个功能的实现可能会存在多种形式，在给定可用的构建块和设计约束下，可以自由地选择如何设计</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404121105178.png" alt="combinational logic circuit"></p>
+<p>而下面一张图则表示了多输出的情况，该电路被称为<code>全加器(full adder)</code>。为了简化图纸，我们通常使用一条带斜线的单线和旁边的一个数字来表示总线，即多个信号的约束。该数字规定了总线中有多少个信号。如下图中的左图所示。如果位数不重要或上下文中明显，就可能如图b一样只展示斜线，不表示数字，表示一个块的任意数量的输出作为第二个块的输入。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404121113083.png" alt="multiple-output"></p>
+<p>而<code>组合构图(combinational composition)</code>的规则告诉我们如何从较小的组合逻辑电路元件构造一个大的组合电路：</p>
+<ul>
+<li>每个电路元件本身就是组合的</li>
+<li>电路的每个节点要么被指定为电路的输入，要么恰好连接电路元件的一个输出端</li>
+<li>电路中不包含循环路径：<strong>每条经过电路的路径至多访问每个电路节点一次</strong>。</li>
+</ul>
+<p>大型电路(比如微处理器)是非常复杂的，所以我们使用从上一篇笔记中所说的原则来管理复杂性。<strong>将电路看成一个具有良好定义的接口和功能的黑盒，是抽象化和模块化的运用；由小模块构建电路是层次化的应用；而组合构图则是规约的一种运用</strong>。</p>
+<h2 id="Boolean-Equations"><a href="#Boolean-Equations" class="headerlink" title="Boolean Equations"></a>Boolean Equations</h2><p><code>布尔方程(Boolean Equations)</code>处理的变量要么为$TRUE$，要么为$FALSE$，因此它们非常适合描述数字逻辑。本节定义了布尔方程中常用的一些术语，然后展示了如何根据真值表为任何逻辑函数编写布尔方程。</p>
+<h3 id="Terminology"><a href="#Terminology" class="headerlink" title="Terminology"></a>Terminology</h3><p>变量$A$的<code>补(complement)</code>被称为$\overline {A}$。一个变量或自身的补被称为<code>字面量(literal)</code>。我们也称$A$是变量的<code>真正形式(true form)</code>，而$\overline {A}$是变量的<code>补充形式(complementary form)</code>。<strong>真正形式并不意味着$A$就是$TRUE$，仅仅是说明$A$没有上划线</strong>。</p>
+<p>一个或多个字面量的$AND$运算被称为<code>乘积(product)</code>或<code>蕴含项(implicant)</code>。一个<code>最小项(minterm)</code>是一个涉及到函数的所有输入的积；一个<code>最大项(maxterm)</code>是一个涉及到函数的所有输入的和。</p>
+<h3 id="Sum-of-Products-Form"><a href="#Sum-of-Products-Form" class="headerlink" title="Sum-of-Products Form"></a>Sum-of-Products Form</h3><p>一个$N$输入的真值表包含$2^N$行，真值表中的每一行都与一个最小项相关联，而该最小项就是该行的$TRUE$值。例如下图中的左图所示，第一行的最小项是$\overline {AB}$，因为当$A &#x3D; 0, B &#x3D; 0$时，$\overline {AB} &#x3D; TRUE$。最小项的编号从0开始计算。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404121212217.png" alt="truth table and minterms"></p>
+<p><strong>对于任意一个真值表，我们可以通过求和每一个最小项来写出一个布尔方程，其满足输出$Y &#x3D; TRUE$即可</strong>。比如上图中两表画蓝圈所表示的：$Y_1 &#x3D; m_1 &#x3D; \overline {A}B$，$Y_2 &#x3D; m_1 + m_3 &#x3D; \overline {A}B + AB$。</p>
+<p>如上述的表达式被称为函数的<code>乘积和规范式(sum-of-products canonical form)</code>。<strong>其表明了，对于同一个真值表，我们总是能够写出相同的布尔表达式</strong>(<strong>即真值表具有唯一性</strong>)。乘积和规范式也可以使用求和符号$\sum$写成<code>sigma表示法(sigma notation)</code>：</p>
+<p>$$<br>    F(A, B) &#x3D; \sum(m_1, m_3) or F(A, B) &#x3D; \sum(1, 3)<br>$$</p>
+<p>同时，乘积和规范式为任意变量个数的真值表提供了一个布尔方程。<strong>但令人遗憾地是，乘积和规范式并不一定产生最简单的方程</strong>。产生最简式的方法将在后续介绍。</p>
+<h3 id="Product-of-Sums-Form"><a href="#Product-of-Sums-Form" class="headerlink" title="Product-of-Sums Form"></a>Product-of-Sums Form</h3><p>布尔表达式的另一种表示方式是<code>和积规范式(product-of-sums canonical form)</code>。真值表中的每一行都与一个最大值相关联，而该最大值就是该行的$FALSE$值。<strong>对于任意一个真值表，我们可以通过乘积每一个最大项来写出一个布尔方程，其满足输出$Y &#x3D; FALSE$即可</strong>。和积规范式也可以使用乘积分号$\Pi$来表示<code>pi表示法(pi notation)</code>。</p>
+<p><strong>只有当少数几行真值表上的输出为$TRUE$时，乘积和规范式产生一个较短的等式；仅当少数几行真值表上的输出为$FALSE$时，和积规范式更简单</strong>。</p>
+<h2 id="Boolean-Algebra"><a href="#Boolean-Algebra" class="headerlink" title="Boolean Algebra"></a>Boolean Algebra</h2><p>为了产生最简式，我们可以通过<code>布尔代数(Boolean Algebra)</code>来简化布尔方程。布尔代数的规则与普通代数的规则非常类似，并且在某些情况下更为简单。</p>
+<p>布尔代数的公理和定理都遵循<code>对偶原则(the principle of duality)</code>。如果符号<code>0</code>和<code>1</code>以及$+$和$\cdot$可以互换，并且语句依旧正确，那么就可以使用$\prime$来标记一个语句的对偶。</p>
+<h3 id="Axioms"><a href="#Axioms" class="headerlink" title="Axioms"></a>Axioms</h3><p>下表陈述了布尔代数的<code>公理(Axioms)</code>。这五条公理和它们的对偶定义了布尔变量和$NOT$、$AND$和$OR$。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404121254979.png" alt="Axioms of Boolean Algebra"></p>
+<h3 id="Theorems-of-One-Variable"><a href="#Theorems-of-One-Variable" class="headerlink" title="Theorems of One Variable"></a>Theorems of One Variable</h3><p>下表陈述了布尔代数的<code>定理(Theorems)</code>。<strong>这五条定理描述了如何化简含有一个变量的方程</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404121657502.png" alt="Boolean theorems of one variable"></p>
+<h3 id="Theorems-of-Several-Variables"><a href="#Theorems-of-Several-Variables" class="headerlink" title="Theorems of Several Variables"></a>Theorems of Several Variables</h3><p>下表描述了如何简化多个布尔变量。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404121701668.png" alt="Boolean theorems of several variables"></p>
+<p>从德摩根律可以得出一些有趣的结论。假如我们把<code>反转圈(inversion circle)</code>看作<code>气泡(bubble)</code>，如果你把下图中在输入端的“气泡”推向输出端，那么输入端的“气泡”就会移动到输出端，然后门体就会发生翻转(比如从$OR$翻转为$AND$)，我们就得到两个不同的逻辑门表示同一个门功能。但是，“气泡”的推动是有一些依赖规则的：</p>
+<ul>
+<li>向前或向后(输入到输入为向前)推动“气泡”会改变门体从$AND$到$OR$，反之亦然</li>
+<li>从输出端推回“气泡”会使得输入端的每个接口都会有一个“气泡”</li>
+<li><strong>保证输入端都有“气泡”的情况下，从输出入段推送“气泡”会使得输出端有一个“气泡”</strong></li>
+</ul>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404121706989.png" alt="De Morgan equivalent"></p>
+<h3 id="Simplifying-Equations"><a href="#Simplifying-Equations" class="headerlink" title="Simplifying Equations"></a>Simplifying Equations</h3><p>简化乘积和规范式的基本原理是利用关系式$PA + P\overline{A} &#x3D; P$来组合项，其中$P$可以是任意蕴含项。<strong>我们定义一个乘积和规范式如果在尽可能少的使用蕴含项的情况下那么就是</strong><code>最小化方程(minimized)</code>。如果有几个方程具有相同的蕴含项，则最小的则是具体字面量少的那个。</p>
+<p><strong>如果一个蕴含项不能与方程中的其他任何蕴含项结合起来，以较少的字面量构成一个新的蕴含项，就称其为</strong><code>素蕴含项(prime implicant)</code>。<strong>最小化等式中的蕴含项一定都是素蕴含项</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404122022122.png" alt="improved equation"></p>
+<p>如上图所示，虽然这有点反直觉($A\overline{B}C &#x3D; A\overline{B}C + A\overline{B}\overline{C}$)，但扩展蕴含项有时在简化最小化方程时有妙用。这样做能够重复扩展的最小项中的一个与另外一个最小项进行组合。</p>
+<p>或许你已经注意到，使用布尔定理完全简化一个布尔代数方程可能会导致一些错误的(也就是求出来的最小化可能有误)。后续笔者会介绍另一个被称为卡诺图的方法，用于简化。</p>
+<h2 id="From-Logic-To-Gates"><a href="#From-Logic-To-Gates" class="headerlink" title="From Logic To Gates"></a>From Logic To Gates</h2><p><code>原理图(schematic)</code>是数字电路的示意图，显示了连接它们的元件和导线。比如该等式$Y &#x3D; \overline{A}\overline{B}\overline{C} + A\overline{B}\overline{C} + A\overline{B}C$可能的硬件实现为：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404122029433.png" alt="schematic"></p>
+<p>通过一致的方式绘制原理图使得它们更容易阅读和调试，以下是一些准则：</p>
+<ul>
+<li>原理图中的输入通常是在左边(或上方)</li>
+<li>原理图中的输出通常是在右边(或下方)</li>
+<li>在可能的情况下，门应该是从左到右的</li>
+<li>直线导线比有多个拐角的导线更好用(<strong>参差不齐的导线会浪费精力跟踪电线，而不是思考电路的功能</strong>)</li>
+<li>导线总是连接在$T$连结上</li>
+<li>导线交叉的点表示导线之间的连接(若无点，则说明不连接)</li>
+</ul>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404122036060.png" alt="wires form"></p>
+<p>任何乘积和规范的布尔方程都能够用系统的方式绘制成原理图。<code>可编辑逻辑阵列(Programmable Logic Array，PLA)</code>是一种数字电路，其中包含了一系列可编程的逻辑门，允许用户根据特定需求配置逻辑功能。$PLA$通常由一组可编程的$AND$门阵列和一组可编程的$OR$门阵列组成。通过编程这些门的连接方式和输入，可以实现各种逻辑功能，从而定制化地构建数字电路。</p>
+<p>我们可以利用非门来进一步减少门的数量，比如下图中$\overline{B}\overline{C}$是一个带反向输入的与门。我们回忆以下德摩根律，一个带反向输入的与门等价于一个或非门。根据实现的技术不同，使用最少的门或优先使用某些类型的门或许更便宜，这样我们就能够再次进行优化。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404122045848.png" alt="optimization gate"></p>
+<p>许多电路具有多个输出，其每个输出都与单独的布尔函数输入相关。我们可以为每个输出写一个单独的真值表，但在单个真值表上写出所有的输出，并用所有的输出画出一个示意图往往是方便很多的。例如，四输入优先电路的绘制：</p>
+<ul>
+<li>当$A_3$是导通时，$Y_3$才能是$TRUE$，因此$Y_3 &#x3D; A_3$</li>
+<li>当$A_2$是导通的，$A_3$断开时，$Y_2$才能是$TRUE$，因此$Y_2 &#x3D; \overline{A_3}A_2$</li>
+<li>依次类推…$Y_1 &#x3D; \overline{A_3}\overline{A_2}A_1$，$Y_0 &#x3D; \overline{A_3}\overline{A_2}\overline{A_1}A_0$</li>
+<li>然后列出四个输出的真值表</li>
+<li>画出对应电路</li>
+</ul>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404122100899.png" alt="priority circuit"></p>
+<p>我们需要注意的是，当$A_3$是导通时，<strong>该优先电路的输出不关心其他的输入是什么</strong>，因此，我们使用$X$来描述不被输出关心的输入值。然后，我们可以简化该真值表，如上图所示。</p>
+<h3 id="Multilevel-Combinational-Logic"><a href="#Multilevel-Combinational-Logic" class="headerlink" title="Multilevel Combinational Logic"></a>Multilevel Combinational Logic</h3><p>在乘积和规范式的逻辑被称为<code>二级逻辑(two-level logic)</code>，因为它由字面量连接到一级与门和一级或门。通常的，我们使用多级组合逻辑来设计电路，因为其可能使用更少的元件。</p>
+<h3 id="Hardware-Reduction"><a href="#Hardware-Reduction" class="headerlink" title="Hardware Reduction"></a>Hardware Reduction</h3><p>现在我们学过的异或门来看，假如我们想要通过二级逻辑来构建三输入的异或门。</p>
+<p>回忆$N$输入异或门：<strong>当有奇数个输入为$TRUE$时，异或门的输出是</strong>$TRUE$。因此我们得到其表达式：$Y &#x3D; \overline {A}\overline {B}C + \overline {A}B\overline {C} + A\overline {B}\overline {C} + ABC$。我们发现，<strong>该表达式已经没有办法再简化了</strong>。</p>
+<p>另一方面，$A \oplus B \oplus C &#x3D; (A \oplus B) \oplus C$，因此，三输入异或可以由二输入的异或级联而成。</p>
+<p>依次推广，你会发现<strong>使用二输入的异或级联称为多输入的异或是极好的</strong>，假如你需要一个个三输入异或，你就需要$128$个输入的或门和$128$个八输入与门级联。不过，<strong>选择一个特定逻辑功能的最佳多级实现不是一个简单的过程</strong>。</p>
+<h3 id="Bubble-Pushing"><a href="#Bubble-Pushing" class="headerlink" title="Bubble Pushing"></a>Bubble Pushing</h3><p>$CMOS$更倾向于使用与非门和或非门(而非与门和或门)。但是，<strong>通过观察具有与非门和或非门的多级电路来构建方程是一件非常复杂的事</strong>。所以“气泡”的推动有助于重绘这些电路，以便“气泡”消除和功能更容易确定。</p>
+<ul>
+<li>从电路的输出端开始，向输入端工作</li>
+<li><strong>推回任何再最终输出上的“气泡”使得你可以根据输出读取一个方程</strong>(<strong>也就是输出</strong>$Y$<strong>而不是</strong>$\overline {Y}$)</li>
+<li>往后回推，绘制每个门的形式以至于“气泡”抵消：<ul>
+<li><strong>如果当前门有一个输入“气泡”，那么前一个门(注意，前一个门是指从右往左方向)就应该有一个输出“气泡”</strong></li>
+<li><strong>如果当前门有一个输出“气泡”，那么后一个门就应该有一个输入“气泡”</strong></li>
+</ul>
+</li>
+</ul>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404122142430.png" alt="bubble-pushed circuit"></p>
+<p>最后需要强调的是，<strong>由于串联的气泡相互抵消</strong>，我们可以忽略在中间门的输出和最右门的一个输入上的“气泡”，因此得到：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404122146980.png" alt="Logically equivalent bubble-pushed circuit"></p>
+<h2 id="X’s-and-Z’s-Oh-My"><a href="#X’s-and-Z’s-Oh-My" class="headerlink" title="X’s and Z’s, Oh My"></a>X’s and Z’s, Oh My</h2><p>虽然布尔代数限制在<code>0</code>和<code>1</code>之间，但是真实的电路会存在非法值和浮动值，使用$X$和$Z$分别代替。</p>
+<h3 id="Illegal-Value-X"><a href="#Illegal-Value-X" class="headerlink" title="Illegal Value: X"></a>Illegal Value: X</h3><p>符号$X$表示电路节点存在<code>未知的(unknown)</code>或<code>非法的(illegal)</code>值，其通常发生在电路同时导通<code>0</code>和<code>1</code>，这种情况被称为<code>竞争(contention)</code>。这种情况的发生是被错误的且必须避免的。发生竞争后，该电路节点的电压通常是在$0 \thicksim V_{DD}$的，并且绝大多数都是在禁区的。竞争会导致大量电能在冲突的门中流动，导致电路发热并损坏。</p>
+<p>$X$值也通常被用于电路模拟中的未初始化值。不过，回忆之前看的，我们在真值表中也会出现$X$，但是该$X$与这两种情况不同，仅仅是表示其值可以被忽略的。</p>
+<h3 id="Floating-Value-Z"><a href="#Floating-Value-Z" class="headerlink" title="Floating Value: Z"></a>Floating Value: Z</h3><p>符号$Z$表示一个节点既不在高电压也不在低电压，因此被称为<code>浮动(floating)</code>、<code>高阻抗(high impedance)</code>或者<code>高Z(high Z)</code>。<strong>一个经典错误是：浮动或非驱动的节点的逻辑值和</strong><code>0</code><strong>相同；实际上，浮动节点可能为</strong><code>0</code><strong>也可能为</strong><code>1</code>，<strong>还可能为其中间的其他电压值，这取决于系统</strong>。还需要注意的是：<strong>一个浮动的节点所表现的电路状态不总是错的，有可能也会正确的执行其功能</strong>。</p>
+<p>产生浮动节点的一种常见方式是：<strong>忘记将电压接到电源输入，或假设未连接的输入与取值为</strong><code>0</code><strong>的输入相同。这种错误就可能导致当浮动值在$0 \thicksim 1$随机变化时，电路表现出不规律</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404122210693.png" alt="tristate buffer"></p>
+<p><code>三态缓冲器(tristate buffer)</code>有三种可能的输出状态：<code>HIGH(1)</code>、<code>LOW(0)</code>和<code>floating(Z)</code>。当使能$E$表现不同状态时，三态缓冲器的输出也会随之变化。三态缓冲器常用于在总线上连接多个芯片。</p>
+<p>比如说微处理器、视频控制器和以太网控制器都需要与计算机中的存储系统通信，每个芯片都可以通过使用三态缓冲器连接到一个共享内存总线上。同时，<strong>该共享总线一次性只能与一个控制器通信，因此其他控制器就必须进入浮动输出状态以免干扰通信中的控制器</strong>。不过在现代计算机中，<strong>点对点链路可以实现更高的通信速度，芯片之间直接连通，不再通过总线共享</strong>。</p>
+<h2 id="Karnaugh-Maps"><a href="#Karnaugh-Maps" class="headerlink" title="Karnaugh Maps"></a>Karnaugh Maps</h2><p>在使用布尔代数对布尔方程进行多次最小化后，你会意识到，一旦你不小心，最后就会得到一个完全不同的方程，而不是一个简化的方程。因此，<code>卡诺图(Karnaugh maps, K-maps)</code>时一种简化布尔方程的图解方法。<strong>卡诺图善于处理至多四个变量的情况</strong>。</p>
+<p>回想一下，逻辑最小化涉及到组合项：<strong>将包含一个蕴含项$P$的两项与某一变量$A$的真实形式和互补形式组合，以消除</strong>$A$，即$PA + P\overline{A} &#x3D; P$。卡诺图以图解的形式展示出来。</p>
+<p>下图展示了真值表和卡诺图。卡诺图的最上面的行给出了输入$AB$的四个可能值，左边的列给出了输入$C$的两个可能值。每一个正方形格都对应着真值表中的一行，并且包含该行的输出$Y$的值。图(c)显示了卡诺图中的每个正方形格对应的最小项。</p>
+<p>每个单元格(或最小项)因单个变量的变化而与相邻的单元格不同，<strong>意味着相邻的单元格共享除一个以外的所有相同的字面量(也就是$\overline{A}\overline{B}\overline{C} \longrightarrow \overline{A}B\overline{C}$, $\overline{A}\overline{B}\overline{C} \longrightarrow \overline{A}\overline{B}C$等等)<strong>。你或许注意到，</strong>顶部$AB$的取值是特殊的：$00,\ 01,\ 11,\ 10$，这不同于正常顺序的二进制编码</strong>，而是<code>格雷码(Gray code)</code>。也就是说，<strong>相邻元素只有单个值发生变化，不会有多个值同时变化</strong>。</p>
+<p>卡诺图是“环绕的”：<strong>最右边的列与最左边的列是有效相邻的(变化同样是单元素变化)，也就是说，可以将卡诺图卷成一个圆柱体，端点连接成为圆环，保证性质不变</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404122315476.png" alt="Three-input function"></p>
+<h3 id="Circular-Thinking"><a href="#Circular-Thinking" class="headerlink" title="Circular Thinking"></a>Circular Thinking</h3><p>在上图中，只有两个最小项，而从卡诺图中读取最小项恰好等价于直接从真值表中读取乘积和规范式。</p>
+<p>在这之前，我们可以通过布尔代数得到最小化：</p>
+<p>$$<br>    Y &#x3D; \overline{A}\overline{B}\overline{C} + \overline{A}\overline{B}C &#x3D; \overline{A}\overline{B}(\overline{C} + C) &#x3D; \overline {AB}<br>$$</p>
+<p>现在，卡诺图可以通过圈住邻近值为<code>1</code>的单元格帮助我们图像化地简化。</p>
+<p>对于每个圈，我们应该写出对应的蕴含项(重温一下，<strong>蕴含项是一个或多个字面量的组合</strong>)。但是记住<strong>真值形式和互补形式都在圈内的变量将被排除在蕴含项之外</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404122337073.png" alt="K-maps minization"></p>
+<h3 id="Logic-Minimization-with-K-Maps"><a href="#Logic-Minimization-with-K-Maps" class="headerlink" title="Logic Minimization with K-Maps"></a>Logic Minimization with K-Maps</h3><p>卡诺图提供了一种简易的可视化方法来得到最小化。只需要使用尽可能少的圆圈数，将地图中的表示<code>1</code>值的所有单元格圈出即可。更为正式地说，<strong>当一个布尔方程被写成最少的素蕴含项的和时，是最小化的；因此卡诺图上的每个圆圈代表一个蕴含项，最大可能的圆圈为素蕴含项</strong>。</p>
+<p>这里给出从卡诺图中找到最小化的规则：</p>
+<ul>
+<li>使用最少且必要的圈来覆盖所有的<code>1</code></li>
+<li>圈内的所有单元格都必须包含<code>1</code></li>
+<li>每个圈必须跨越一个矩形块(该矩形块必须是$1、2、4$个方格组成的)</li>
+<li>每个圆圈必须尽可能的大</li>
+<li>圆圈必须在卡诺图的边界内</li>
+<li>如果允许使用较少的圆，则卡诺图中的一个<code>1</code>可以被循环多次包含</li>
+</ul>
+<blockquote>
+<p>一个七段数码管解码器接受一个四位数据输入$D_{3:0}$，并产生七个输出来控制发光二极管以显示从0到9的数字。这七个输出通常称为$a$到$g$段，或者$S_a–S_g$，如下图所定义。数字如下图所示。编写输出的真值表，并使用卡诺图找到$S_a$和$S_b$的布尔方程。假设非法的输入值$(10–15)$会产生一个空白输出。</p>
+</blockquote>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404130024444.png" alt="Seven-digit truth table"></p>
+<p>其$S_a - S_g$的真值表如上图所示，而$S_a$和$S_b$的卡诺图如下所示。然后我们将所有相邻的<code>1</code>按照卡诺图的规则尽可能多的圈出来，就得到了最下方的卡诺图。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404130024417.png" alt="K-Map solution"></p>
+<p>需要注意：<strong>素蕴含项的最小化集合并不唯一</strong>。比如说，$S_a$的卡诺图中的$0000$项与$1000$项可以共同产生出$\overline{D_2}\overline{D_1}\overline{D_0}$，可也能和$0010$项产生出$\overline{D_3}\overline{D_2}\overline{D_0}$。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404131255374.png" alt="alternative K-maps for Sa"></p>
+<p>上图中的右图需要注意：<strong>这里出现了一个常见的错误，即在左上角选择了一个非素蕴含项来覆盖</strong><code>1</code>。这个最小项$\overline{D_3}\overline{D_2}\overline{D_1}\overline{D_0}$给出了一个不为最小化的乘积和规范式。该最小项可以和相邻的任意一个项组合形成一个更大的圆圈。</p>
+<h3 id="Don’t-Cares"><a href="#Don’t-Cares" class="headerlink" title="Don’t Cares"></a>Don’t Cares</h3><p>回忆我们在之前学习的$X$，即真值表的输入不被输出所关心。这一概念其实也能出现在真值表中输出不被输入所关心。因此，<strong>在卡诺图中，$X$允许进一步逻辑最小化，如果被圈出的对圈没有任何帮助，那么是可以被忽略的</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404131307082.png" alt="K-Maps with don&#39;t cares"></p>
+<h3 id="The-Big-Picture"><a href="#The-Big-Picture" class="headerlink" title="The Big Picture"></a>The Big Picture</h3><p>卡诺图和布尔代数都是为了<strong>寻找到一种低成本实现特定逻辑功能的方法</strong>。但在现代工程实践中，<strong>通过逻辑综合器的计算机程序可以从逻辑函数的描述中生成最简电路，因此对于大型问题，使用逻辑综合器更佳</strong>。我们将在后续进行学习。</p>
+<h2 id="Combinational-Building-Blocks"><a href="#Combinational-Building-Blocks" class="headerlink" title="Combinational Building Blocks"></a>Combinational Building Blocks</h2><p><strong>组合逻辑通常被组合成一个更大块来构建更为复杂的系统。这是一种抽象原则的应用，隐藏了不必要的门级细节以强调组成块的功能</strong>。本节中会介绍<code>多路复用器(multiplexer)</code>和<code>解码器(decoders)</code>。</p>
+<h3 id="Multiplexer"><a href="#Multiplexer" class="headerlink" title="Multiplexer"></a>Multiplexer</h3><p><code>多路复用器(Multiplexer)</code>是最常用的组合电路。<strong>其根据一个选择信号的值从多个可能的输入中选择一个输出</strong>。多路复用器又被称作<code>mux</code>。</p>
+<h4 id="2-1-Multiplexer"><a href="#2-1-Multiplexer" class="headerlink" title="2:1 Multiplexer"></a>2:1 Multiplexer</h4><p>下图展示了<code>2:1多路复用器</code>的原理图和真值表。其有两个输入$D_0$和$D_1$，一个选择输入$S$以及一个输出$Y$。其遵循：当$S&#x3D;0$时，$Y&#x3D;D_0$反之则$Y&#x3D;D_1$。$S$也被称为<code>控制信号(control signal)</code>。</p>
+<p>其有图展示了<code>2:1多路复用器</code>的卡诺图和逻辑电路。当然，我们还有另一种方式构建多路复用器，也就是通过三态缓冲器。<strong>三态缓冲器使得在任何时候，只有一个三态缓冲器是激活的，当$S &#x3D; 0$时激活三态$T_0$，反之激活$T_1$，就能够实现同等功能</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404131428215.png" alt="2:1 Multiplexer"></p>
+<h4 id="Wider-Multiplexer"><a href="#Wider-Multiplexer" class="headerlink" title="Wider Multiplexer"></a>Wider Multiplexer</h4><p>下图展示了<code>4:1多路复用器</code>，我们可以发现，多路复用器可以有三种构成方式：与门、三台缓冲器和多路复用器级联。我们也可以发现，如果在更大的多路复用器上，其控制信号的个数为$\log_2N$，并且依旧能使用这三种方式来构建。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404131431612.png" alt="4:1 Multiplexer"></p>
+<h4 id="Multiplexer-Logic"><a href="#Multiplexer-Logic" class="headerlink" title="Multiplexer Logic"></a>Multiplexer Logic</h4><p><strong>多路复用器可以使用</strong><code>查找表(lookup tables)</code><strong>的方式来实现逻辑功能</strong>。</p>
+<p>下图使用了<code>4:1多路复用器</code>来实现二输入与门的逻辑操作.<strong>实际上，对于任意一个$N$输入的逻辑函数，其都可以被$2^N$个输入的多路复用器来实现</strong>。<strong>其方法是：写出逻辑函数的真值表，通过真值表的值对多路复用器的输入进行连接，而对应的输入作为多路复用器的控制信号用以查找表即可</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404131443021.png" alt="multiplexer logic implement"></p>
+<h3 id="Decoders"><a href="#Decoders" class="headerlink" title="Decoders"></a>Decoders</h3><p>一个<code>解码器(decoder)</code>有$N$个输入和$2^N$个输出。<strong>它的每一位输出都依赖于输入的组合</strong>。下图是<code>2:4解码器</code>的逻辑，其输出被称为<code>独热(one-hot)</code>，因为在给定条件下一次只有一个输出为<code>hot(HIGH)</code>状态。</p>
+<blockquote>
+<p>解码器和译码器这两个术语是等同的</p>
+</blockquote>
+<p><strong>译码器的每一个输出都依赖于所有输入的真实形式或互补形式。总之，一个$N:2^N$译码器可以由$2^N$个输入与门通过接收所有输入的$TRUE$或$FALSE$的各种组合值构成</strong>。<strong>译码器的每一个输出都表示了一个最小项</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404131454667.png" alt="Decoder implement"></p>
+<h4 id="Decoder-Logic"><a href="#Decoder-Logic" class="headerlink" title="Decoder Logic"></a>Decoder Logic</h4><p><strong>译码器可以与或门一起来构建逻辑函数</strong>。如上图所示，一个<code>2:4译码器</code>与一个二输入或门构建了一个二输入同或门$Y &#x3D; AB + \overline{AB} &#x3D; \overline {A \oplus B}$。</p>
+<p><strong>使用译码器来构建逻辑电路时，很容易将函数表示成真值表或乘积和规范式。一个在真值表中有</strong>$M$个<code>1</code><strong>的$N$输入函数能够被一个$N:2^N$译码器和一个$M$个输入的或门连接所有输出</strong><code>1</code><strong>的最小项构成</strong>。这在后面的只读存储器中会被使用。</p>
+<blockquote>
+<p>这里看起来或许比较晦涩拗口，所以给出一个小例子：<br>假如你需要实现二输入的与门，我们已经知道其真值表中有一个输出为<code>1</code>。因此选择<code>2:4译码器</code>和一个一输入或门(也就是说，二输入或门的一个输入永远是<code>0</code>)，然后根据二输入与门的真值表可知，只有两个输入同时为<code>1</code>时，输出才为<code>1</code>，那么我们选择<code>2:4译码器</code>中的<code>Y_3</code>，然后连接所有最小项，可以得到其方程$Y &#x3D; Y_3 + 0 &#x3D; AB + 0 &#x3D; AB$<br>这样就得到了通过<code>2:4译码器</code>和一个一输入或门实现二输入与门的实现</p>
+</blockquote>
+<h2 id="Timing"><a href="#Timing" class="headerlink" title="Timing"></a>Timing</h2><p>在之前的几个小节中，我们主要关注<strong>理想状况下使用最少数量的门的电路工作情况</strong>。实际上，<strong>电路设计中最具挑战的问题之一是时序问题：如何使电路运行地更快</strong>。</p>
+<p><strong>一个输出需要时间来响应一个输入的变化</strong>。下图展示了缓冲器的输入变化和后续输出变化之间的<code>延迟(delay)</code>。这种图被称为$时序图(timing diagram)$；<strong>它刻画了当输入变化时缓冲电路的</strong><code>瞬态响应(transient response)</code>。从$LOW$到$HIGH$的转变被称为<code>上升沿(rising edge)</code>，当然，从$HIGH$到$LOW$的变化被称为$下降沿(falling edge)$。蓝色的箭头表示了$Y$的上升沿是由于$A$的上升沿引起的。<strong>我们在输入信号$A$的$50%$点与输出信号$Y$的$50%$点测量延迟</strong>。<code>50%点(50% point)</code><strong>是信号在转变过程中电压处于高电平和低电平之间</strong><code>中间点(half-way)</code><strong>的值</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404131523810.png" alt="Circuit delay"></p>
+<h3 id="Propagation-amd-Contamination-Delay"><a href="#Propagation-amd-Contamination-Delay" class="headerlink" title="Propagation amd Contamination Delay"></a>Propagation amd Contamination Delay</h3><p>组合逻辑电路的时序特征是<code>传播延时(Propagation Delay)</code>和<code>污染延时(Contamination Delay)</code>。传播延时$t_{pd}$<strong>是指输入发生变化直到输出或输出到达到其最终值的最长时间</strong>；而污染延时$t_{cd}$<strong>是指输入发生变化直到输出开始变化其值的最小时间</strong>。</p>
+<p>如上图所示，缓冲器的传播延时和污染延时分别由蓝色和灰色表示。上图表示了$A$的初态要么是$HIGH$要么是$LOW$，并在特定时间变化到另一种状态。我们并不关心其值，只对其发生了变化进行关注。$Y$在$A$改变一段时间后才会响应。弧线表示$Y$可能在$A$转变后$t_{cd}$时间后开始相应，在$t_{pd}$时间内会稳定到新值。</p>
+<p>电路延迟的根本原因包括<strong>电路中电容充电的所需时间和电信号以光速传播</strong>，为此，$t_{cd}$和$t_{pd}$不同的可能原因为：</p>
+<ul>
+<li>不同的上升和下降延迟</li>
+<li>多个输入和输出之间的延迟可能不同</li>
+<li>电路在冷时加速，热时减速</li>
+</ul>
+<p>想要详细准确地计算$t_{cd}$和$t_{pd}$需要深入到更低的抽象层次，这不在我们的研究范围。然而，<strong>制造商通常会提供数据表来指定每个门的延迟</strong>。</p>
+<p>如前所述，<strong>传播延时和污染延时也和信号从输入到输出的路径决定</strong>。</p>
+<p>下图展示了一个四输入逻辑电路。蓝色表示的是<code>关键路径(critical path)</code>，<strong>其是最长的同时也是最慢的一条路径，因为输入通过了三个门才传输到输出。这条路径是关键路径的原因是因为它限制了电路的运行速度</strong>。灰色表示的是<code>最短路径(short path)</code>，<strong>其只从输入到输出经过一个门，所以是最短的路径也是最快的路径</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404131633513.png" alt="Critical and short path waveforms"></p>
+<p><strong>组合逻辑电路上的传播时延是在关键路径上的每一个元件的传输延迟之和</strong>。<strong>污染时延是最短路径上每个元件的最小延迟之和</strong>。比如上图中的时延为：</p>
+<p>$$<br>    t_{pd} &#x3D; 2t_{pd_AND} + t_{pd_OR}<br>$$</p>
+<p>$$<br>    t_{cd} &#x3D; t_{cd_AND}<br>$$</p>
+<h3 id="Glitches"><a href="#Glitches" class="headerlink" title="Glitches"></a>Glitches</h3><p>至今为止，我们只讨论了单输入转换导致单输出转换的情况。<strong>然而，单个输入转换可能导致多个输出变换</strong>，这被称为<code>毛刺(glitches)</code>或<code>危险(hazards)</code>。<strong>尽管永昌毛刺不会造成问题，但是重要的是要意识到它们的存在，并在查看时序图时识别出它们</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404131645691.png" alt="Circuits with a glitch"></p>
+<p>上图表示了一个带有毛刺电路的卡诺图和电路。最短路径(用灰色表示)穿过两个门，与门和或门。关键路径(用蓝色表示)穿过三个门，非门，与门和或门。当$B$从<code>1</code>跃迁到<code>0</code>时，$n2$(在短路径上)先于$n1$(在关键路径上)下降。直到$n1$上升前，或门的两个输出都是是<code>0</code>，使得输出$Y$跌至<code>0</code>。当$n1$最终上升后，$Y$才会回到<code>1</code>。上图中也展示了该状况的时序图，$Y$从<code>1</code>开始变化，以<code>1</code>结束，但是在中间暂时产生了毛刺<code>0</code>。</p>
+<p>因此，<strong>只要我们在读取输出之前的等待时间和传输延迟一样长，毛刺的出现就不会造成问题，因为输出最终将稳定在正确的值</strong>。</p>
+<p><strong>添加另一个逻辑门可以避免这样的毛刺</strong>。下图中的卡诺图可以解释这一问题，我们发现从$ABC &#x3D; 001 \longrightarrow ABC &#x3D; 011$的过程正好是上述$B$发生变换的过程，也就是其产生了一个毛刺。因此，<strong>卡诺图中跨越两个素蕴含项边界的跃迁预示着一个可能的毛刺</strong>。</p>
+<p>由上图中的时序图可以看出，<strong>如果一个素蕴含项的电路在另一个素蕴含项的电路开启之前关闭，就会产生毛刺</strong>。为了去除毛刺，<strong>可以增加一个新的覆盖该蕴含项边缘的圆圈，根据一致性定理，新增加的项$\overline{A}C$是一致的或冗余的</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202404131703043.png" alt="Circuit without glitch"></p>
+<p>上图就表示了一个无毛刺的电路。增加了一个与门(蓝色高亮部分)，此时，$B$的跃迁不再导致输出的毛刺产生，因为这个与门在整个转移过程中输出<code>1</code>。</p>
+<p><strong>总之，当单个变量的跃迁导致卡诺图中的两个素蕴含项之间的边界被跨越时，我们能够通过在卡诺图中增加多余的蕴含项来消除毛刺</strong>。<strong>但这会带来额外的硬件成本代价</strong>。</p>
+<p><strong>然而，多个输入同时发生转换也会导致毛刺。这些毛刺无法通过添加硬件来修复</strong>。<strong>由于绝大多数“有趣的”系统在多个输入上同时(或接近同时)发生转换，”因此在大多数电路中，毛刺是’生活’中的一部分”<strong>。虽然我们已经展示了如何消除一种类型的毛刺，</strong>但讨论毛刺的重点不是为了消除它们，而是意识到它们的存在。在查看模拟器或示波器上的时序图时，这一点尤为重要</strong>。</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p><strong>数字电路是一个带离散电压值输入和输出的模块。它的规范描述了模块实现的功能和时序。这一章我们将重点放在组合电路上，其输出仅仅取决于当前的输入量</strong>。</p>
+<p><strong>下一章将介绍时序电路，它的输出取决于先前的输入和当前的输入。换句话说，时序电路对过去的状态有记忆能力</strong>。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/04/11/DDCA-The-Chapter-2-Reading/">https://chenmiaoi.github.io/2024/04/11/DDCA-The-Chapter-2-Reading/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/ysyx/"># ysyx</a>
+                    
+                        <a href="/tags/digital/"># digital</a>
+                    
+                        <a href="/tags/logic/"># logic</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/04/13/DDCA-The-Chapter-3-Reading/">DDCA: The Chapter 3 Reading</a>
+            
+            
+            <a class="next" rel="next" href="/2024/04/09/DDCA-The-Chapter-1-Reading/">DDCA: The Chapter 1 Reading</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

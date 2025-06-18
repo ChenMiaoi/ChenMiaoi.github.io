@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>CephV10.2.1: Universal Modules | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">CephV10.2.1: Universal Modules</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">October 14, 2024&nbsp;&nbsp;3:54:14</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/cephv10-2-1/">cephv10.2.1</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="CephV10-2-1-Universal-Modules"><a href="#CephV10-2-1-Universal-Modules" class="headerlink" title="CephV10.2.1: Universal Modules"></a>CephV10.2.1: Universal Modules</h1><p><strong>本章介绍Ceph源码中的一些复杂且通用的数据结构</strong>。</p>
+<h2 id="Object"><a href="#Object" class="headerlink" title="Object"></a>Object</h2><p>在Ceph中，Object通常默认是$4MB$大小的数据块，而<strong>一个对象就对应了本地文件系统中的一个文件</strong>。在具体的代码中，Object有很多不同的类型。</p>
+<h3 id="object"><a href="#object" class="headerlink" title="object"></a>object</h3><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/include/object.h#L32">object_t</a>对应本地文件系统中的一个文件，其中字段名$name$就是对象名。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">object_t</span> &#123;</span><br><span class="line">  string name;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">object_t</span>() &#123;&#125;</span><br><span class="line">  <span class="comment">// cppcheck-suppress noExplicitConstructor</span></span><br><span class="line">  <span class="built_in">object_t</span>(<span class="type">const</span> <span class="type">char</span> *s) : <span class="built_in">name</span>(s) &#123;&#125;</span><br><span class="line">  <span class="comment">// cppcheck-suppress noExplicitConstructor</span></span><br><span class="line">  <span class="built_in">object_t</span>(<span class="type">const</span> string&amp; s) : <span class="built_in">name</span>(s) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(<span class="type">object_t</span>&amp; o)</span> </span>&#123;</span><br><span class="line">    name.<span class="built_in">swap</span>(o.name);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">clear</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    name.<span class="built_in">clear</span>();</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">encode</span><span class="params">(bufferlist &amp;bl)</span> <span class="type">const</span></span>;</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">decode</span><span class="params">(bufferlist::iterator &amp;bl)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="built_in">WRITE_CLASS_ENCODER</span>(<span class="type">object_t</span>)</span><br></pre></td></tr></table></figure>
+
+<p>其中，$object_t$提供了最主要的构造方法以及<code>encode</code>和<code>decode</code>两个主要方法，同时根据<code>WRITE_CLASS_ENCODER</code>宏，实现了<code>encode</code>和<code>decode</code>的外部调用。</p>
+<p>当然，$object_t$也重载了比较运算符和输出，这样能够方便的进行比较和打印。</p>
+<h3 id="sobject-t"><a href="#sobject-t" class="headerlink" title="sobject_t"></a>sobject_t</h3><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/include/object.h#L135">sobject_t</a>在$object_t$之上增加了$snapshot$信息，<strong>用于标识其是否是快照对象</strong>。</p>
+<p>在正式介绍$sobject_t$之前，我们应该先了解一下<a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/include/object.h#L113">snapid_t</a>类型。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">snapid_t</span> &#123;</span><br><span class="line">  <span class="type">uint64_t</span> val;</span><br><span class="line">  <span class="comment">// cppcheck-suppress noExplicitConstructor</span></span><br><span class="line">  <span class="built_in">snapid_t</span>(<span class="type">uint64_t</span> v=<span class="number">0</span>) : <span class="built_in">val</span>(v) &#123;&#125;</span><br><span class="line">  <span class="type">snapid_t</span> <span class="keyword">operator</span>+=(<span class="type">snapid_t</span> o) &#123; val += o.val; <span class="keyword">return</span> *<span class="keyword">this</span>; &#125;</span><br><span class="line">  <span class="type">snapid_t</span> <span class="keyword">operator</span>++() &#123; ++val; <span class="keyword">return</span> *<span class="keyword">this</span>; &#125;</span><br><span class="line">  <span class="function"><span class="keyword">operator</span> <span class="title">uint64_t</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> val; &#125;  </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">void</span> <span class="title">encode</span><span class="params">(<span class="type">snapid_t</span> i, bufferlist &amp;bl)</span> </span>&#123; <span class="built_in">encode</span>(i.val, bl); &#125;</span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">void</span> <span class="title">decode</span><span class="params">(<span class="type">snapid_t</span> &amp;i, bufferlist::iterator &amp;p)</span> </span>&#123; <span class="built_in">decode</span>(i.val, p); &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CEPH_SNAPDIR ((__u64)(-1))  <span class="comment">/* reserved for hidden .snap dir */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CEPH_NOSNAP  ((__u64)(-2))  <span class="comment">/* &quot;head&quot;, &quot;live&quot; revision */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CEPH_MAXSNAP ((__u64)(-3))  <span class="comment">/* largest valid snapid */</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">inline</span> ostream&amp; <span class="keyword">operator</span>&lt;&lt;(ostream&amp; out, <span class="type">snapid_t</span> s) &#123;</span><br><span class="line">  <span class="keyword">if</span> (s == CEPH_NOSNAP)</span><br><span class="line">    <span class="keyword">return</span> out &lt;&lt; <span class="string">&quot;head&quot;</span>;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (s == CEPH_SNAPDIR)</span><br><span class="line">    <span class="keyword">return</span> out &lt;&lt; <span class="string">&quot;snapdir&quot;</span>;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> out &lt;&lt; hex &lt;&lt; s.val &lt;&lt; dec;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看见，$snapid_t$实际上就是对一个<code>uint64_t</code>变量的封装，我们主要关注最后重载的输出：</p>
+<ul>
+<li><code>CEPH_SNAPDIR</code>标识快照目录(一个隐藏的<code>.snap</code>目录)，用于存放快照</li>
+<li><code>CEPH_NOSNAP</code>表示没有快照，即文件或对象的最新版本(被称为$head$或$live\ revision$)</li>
+<li>否则输出快照ID的十六进制数值</li>
+</ul>
+<p>了解完$snapid_t$后，我们现在回过头看$sobject_t$的内容：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">sobject_t</span> &#123;</span><br><span class="line">  <span class="type">object_t</span> oid;</span><br><span class="line">  <span class="type">snapid_t</span> snap;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">sobject_t</span>() : <span class="built_in">snap</span>(<span class="number">0</span>) &#123;&#125;</span><br><span class="line">  <span class="built_in">sobject_t</span>(<span class="type">object_t</span> o, <span class="type">snapid_t</span> s) : <span class="built_in">oid</span>(o), <span class="built_in">snap</span>(s) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(<span class="type">sobject_t</span>&amp; o)</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">encode</span><span class="params">(bufferlist&amp; bl)</span> <span class="type">const</span> </span>&#123;&#125;</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">decode</span><span class="params">(bufferlist::iterator&amp; bl)</span> </span>&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="built_in">WRITE_CLASS_ENCODER</span>(<span class="type">sobject_t</span>)</span><br></pre></td></tr></table></figure>
+
+<p>$sobject_t$和$object_t$相差无几，只不过多了$snapid_t$信息，需要注意的是，$sobject_t$的<code>encode</code>和<code>decode</code>也需要对<code>snapshot</code>信息进行处理。</p>
+<p><strong>如果一个对象不是快照对象(也就是说该对象是$head$)，那么这个<code>snap</code>字段就应该被置为<code>CEPH_NOSNAP</code>值</strong>。</p>
+<h3 id="hobject-t"><a href="#hobject-t" class="headerlink" title="hobject_t"></a>hobject_t</h3><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/hobject.h#L37">hobject_t</a>是 Ceph 中最复杂的对象标识符结构。它不仅包含对象名称和快照信息，还包含哈希值、哈希种子、命名空间、对象在存储池中的位置等。$hobject_t$ <strong>是 Ceph 用来唯一标识和管理对象存储的核心数据结构，它直接用于 Ceph 的 $CRUSH$ 算法来决定对象的物理存储位置</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">hobject_t</span> &#123;</span><br><span class="line">  <span class="type">object_t</span> oid;</span><br><span class="line">  <span class="type">snapid_t</span> snap;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  <span class="type">uint32_t</span> hash;</span><br><span class="line">  <span class="type">bool</span> max;</span><br><span class="line">  <span class="type">uint32_t</span> nibblewise_key_cache;</span><br><span class="line">  <span class="type">uint32_t</span> hash_reverse_bits;</span><br><span class="line">  <span class="type">static</span> <span class="type">const</span> <span class="type">int64_t</span> POOL_META = <span class="number">-1</span>;</span><br><span class="line">  <span class="type">static</span> <span class="type">const</span> <span class="type">int64_t</span> POOL_TEMP_START = <span class="number">-2</span>; <span class="comment">// and then negative</span></span><br><span class="line">  <span class="keyword">friend</span> <span class="keyword">class</span> <span class="title class_">spg_t</span>;  <span class="comment">// for POOL_TEMP_START</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="type">int64_t</span> pool;</span><br><span class="line">  string nspace;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  string key;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>oid<ul>
+<li>对象的唯一标识符</li>
+</ul>
+</li>
+<li>snap<ul>
+<li>快照ID</li>
+</ul>
+</li>
+<li>hash<ul>
+<li>用于定位该对象的哈希值，结合$CRUSH$算法决定对象的存储位置</li>
+<li><strong><code>hash</code>和<code>key</code>不能同时设置，<code>hash</code>值一般设置为$PG$的ID值</strong></li>
+</ul>
+</li>
+<li>max<ul>
+<li>表示该对象是否是某种最大值</li>
+</ul>
+</li>
+<li>nibblewise_key_cache<ul>
+<li>缓存字段，可能用于加速对象定位或哈希计算中的某种优化操作</li>
+</ul>
+</li>
+<li>hash_reverse_bits<ul>
+<li>存储对象哈希值的反转版本。这可能用于某些哈希算法或排序算法中</li>
+</ul>
+</li>
+<li>pool<ul>
+<li>表示对象所属的存储池 ID。Ceph 支持多种存储池，每个池可以有不同的冗余和分布策略。该字段用来记录对象属于哪个池</li>
+</ul>
+</li>
+<li>nspace<ul>
+<li>对象的命名空间(namespace)。命名空间允许在同一个存储池内进一步细分对象，提供更细粒度的管理和隔离</li>
+<li>一般为空，用于标识特殊对象</li>
+</ul>
+</li>
+<li>key<ul>
+<li>对象的特殊标记</li>
+</ul>
+</li>
+</ul>
+<p>在$hobject_t$中，比较主要的函数为：</p>
+<ul>
+<li><code>set_hash</code></li>
+<li><code>match_hash</code></li>
+<li><code>build_hash_cache</code></li>
+<li><code>_reverse_bits</code></li>
+<li><code>_reverse_nibbles</code></li>
+<li><code>cmp_bitwise</code></li>
+<li><code>cmp_nibblewise</code></li>
+<li><code>parse</code></li>
+</ul>
+<p>在$hobject_t$中，<code>set_hash</code>会根据传入的<code>hash</code>值调用<code>build_hash_cache</code>函数，该函数会通过调用<code>_reverse_nibbles</code>和<code>_reverse_bits</code>分别计算出<code>nibblewise_key_cache</code>和<code>hash_reverse_bits</code>的值：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">uint32_t</span> _reverse_bits(<span class="type">uint32_t</span> v) &#123;</span><br><span class="line">  <span class="keyword">if</span> (v == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> v;</span><br><span class="line">  <span class="comment">// reverse bits</span></span><br><span class="line">  <span class="comment">// swap odd and even bits</span></span><br><span class="line">  v = ((v &gt;&gt; <span class="number">1</span>) &amp; <span class="number">0x55555555</span>) | ((v &amp; <span class="number">0x55555555</span>) &lt;&lt; <span class="number">1</span>);</span><br><span class="line">  <span class="comment">// swap consecutive pairs</span></span><br><span class="line">  v = ((v &gt;&gt; <span class="number">2</span>) &amp; <span class="number">0x33333333</span>) | ((v &amp; <span class="number">0x33333333</span>) &lt;&lt; <span class="number">2</span>);</span><br><span class="line">  <span class="comment">// swap nibbles ...</span></span><br><span class="line">  v = ((v &gt;&gt; <span class="number">4</span>) &amp; <span class="number">0x0F0F0F0F</span>) | ((v &amp; <span class="number">0x0F0F0F0F</span>) &lt;&lt; <span class="number">4</span>);</span><br><span class="line">  <span class="comment">// swap bytes</span></span><br><span class="line">  v = ((v &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0x00FF00FF</span>) | ((v &amp; <span class="number">0x00FF00FF</span>) &lt;&lt; <span class="number">8</span>);</span><br><span class="line">  <span class="comment">// swap 2-byte long pairs</span></span><br><span class="line">  v = ( v &gt;&gt; <span class="number">16</span>             ) | ( v               &lt;&lt; <span class="number">16</span>);</span><br><span class="line">  <span class="keyword">return</span> v;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">static</span> <span class="type">uint32_t</span> _reverse_nibbles(<span class="type">uint32_t</span> retval) &#123;</span><br><span class="line">  <span class="comment">// reverse nibbles</span></span><br><span class="line">  retval = ((retval &amp; <span class="number">0x0f0f0f0f</span>) &lt;&lt; <span class="number">4</span>) | ((retval &amp; <span class="number">0xf0f0f0f0</span>) &gt;&gt; <span class="number">4</span>);</span><br><span class="line">  retval = ((retval &amp; <span class="number">0x00ff00ff</span>) &lt;&lt; <span class="number">8</span>) | ((retval &amp; <span class="number">0xff00ff00</span>) &gt;&gt; <span class="number">8</span>);</span><br><span class="line">  retval = ((retval &amp; <span class="number">0x0000ffff</span>) &lt;&lt; <span class="number">16</span>) | ((retval &amp; <span class="number">0xffff0000</span>) &gt;&gt; <span class="number">16</span>);</span><br><span class="line">  <span class="keyword">return</span> retval;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于<code>_reverse_bits</code>而言，则是将<code>uint32_t</code>的值的执行：</p>
+<ul>
+<li>交换奇偶位</li>
+<li>交换相邻的两位</li>
+<li>交换半字节(nibble)</li>
+<li>交换每8位</li>
+<li>交换每16位</li>
+</ul>
+<p>对于<code>_reverse_nibbles</code>，则是将<code>uint32_t</code>的值执行：</p>
+<ul>
+<li>交换每半字节</li>
+<li>交换每8位</li>
+<li>交换每16位</li>
+</ul>
+<p>对于<code>match_hash</code>，主要是用于比较指定的最低<code>bits</code>位数的值是否相等：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="type">bool</span> <span class="title">match_hash</span><span class="params">(<span class="type">uint32_t</span> to_check, <span class="type">uint32_t</span> bits, <span class="type">uint32_t</span> match)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (match &amp; ~((~<span class="number">0</span>)&lt;&lt;bits)) == (to_check &amp; ~((~<span class="number">0</span>)&lt;&lt;bits));</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">match</span><span class="params">(<span class="type">uint32_t</span> bits, <span class="type">uint32_t</span> match)</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">match_hash</span>(hash, bits, match);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>cmp_nibblewise</code>用于比较两个$hobject_t$对象的<code>max</code>、<code>pool</code>、<code>nibblewise_key</code>、<code>nspace</code>、<code>key</code>、<code>oid</code>和<code>snap</code>的大小关系；而<code>cmp_bitwise</code>只是将<code>nibblewise_key</code>的比较替换为<code>bitwise_key</code>的比较。</p>
+<p>然后根据这两个函数分别实现了伪函数用作于比较器：<code>NibblewiseComparator</code>、<code>BitwiseComparator</code>和<code>Comparator</code>。</p>
+<p>对于最后的<code>parse</code>函数用于解析字符串形如下面的格式</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MIN/MAX/pool_id:hash:<span class="keyword">namespace</span>:key:object_name:snap_id</span><br></pre></td></tr></table></figure>
+
+<h3 id="ghobject-t"><a href="#ghobject-t" class="headerlink" title="ghobject_t"></a>ghobject_t</h3><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/hobject.h#L349">ghobject_t</a>是对于$hobject_t$的封装，添加了<code>generation</code>字段和<code>shard_id</code>字段：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ghobject_t</span> &#123;</span><br><span class="line">  <span class="type">hobject_t</span> hobj;</span><br><span class="line">  <span class="type">gen_t</span> generation;</span><br><span class="line">  <span class="type">shard_id_t</span> shard_id;</span><br><span class="line">  <span class="type">bool</span> max;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>$ghobject_t$主要用于$ErasureCode$模式下的$PG$</strong></li>
+<li>generation<ul>
+<li>用于记录对象的版本号。<strong>当$PG$为$EC$时，写操作需要区分写前后两个版本的$object$，写操作保存对象的上一个版本的对象，当写失败时，可以$rollback$到上一个版本</strong></li>
+</ul>
+</li>
+<li>shard_id<ul>
+<li>用于标识对象所在的$OSD$在$EC$类型的$PG$中的序号，对于$EC$来说，每个OSD在$PG$中的序号在数据恢复时非常关键。</li>
+<li>如果是$Replicated$类型的$PG$，那么字段就设置为<code>NO_SHARD</code></li>
+</ul>
+</li>
+</ul>
+<p>在$ghobject_t$中，只有两个函数需要着重注意：<code>make_pgmeta</code>和<code>parse</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="type">ghobject_t</span> <span class="title">make_pgmeta</span><span class="params">(<span class="type">int64_t</span> pool, <span class="type">uint32_t</span> hash, <span class="type">shard_id_t</span> shard)</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="type">hobject_t</span> <span class="title">h</span><span class="params">(<span class="type">object_t</span>(), string(), CEPH_NOSNAP, hash, pool, string())</span></span>;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">ghobject_t</span>(h, NO_GEN, shard);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而该<code>parse</code>用于解析这样的字符串：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GHMIN/GHMAX/shard_id#object_id:hash:<span class="keyword">namespace</span>:key:object_name:snap_id#generation_id</span><br></pre></td></tr></table></figure>
+
+<h2 id="Buffer"><a href="#Buffer" class="headerlink" title="Buffer"></a>Buffer</h2><p>在实际的Ceph源码中，Buffer就是一个命名空间，在其内部有很多相关的数据结构；最为基础的则是<code>buffer::raw</code>。</p>
+<h3 id="buffer-raw"><a href="#buffer-raw" class="headerlink" title="buffer::raw"></a>buffer::raw</h3><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/buffer.cc#L162">buffer::raw</a>用于表示和管理一个存储数据的内存块。它包含了数据的管理、复制、校验（CRC）等功能。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">buffer</span>::raw &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="type">char</span> *data;</span><br><span class="line">  <span class="type">unsigned</span> len;</span><br><span class="line">  <span class="type">atomic_t</span> nref;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">mutable</span> <span class="type">simple_spinlock_t</span> crc_spinlock;</span><br><span class="line">  map&lt;pair&lt;<span class="type">size_t</span>, <span class="type">size_t</span>&gt;, pair&lt;<span class="type">uint32_t</span>, <span class="type">uint32_t</span>&gt; &gt; crc_map;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>data<ul>
+<li>用于维护数据缓冲区</li>
+</ul>
+</li>
+<li>len<ul>
+<li>标识当前数据的长度</li>
+</ul>
+</li>
+<li>nref<ul>
+<li>引用计数</li>
+</ul>
+</li>
+<li>crc_spinlock<ul>
+<li>简单的一个$spinlock$</li>
+</ul>
+</li>
+<li>crc_map<ul>
+<li>crc校验信息，第一个<code>pair</code>为数据段的起始和结束，第二个<code>pair</code>是crc32校验码：第一个字段为$base\ crc32$校验码，第二个字段为加上数据段后计算出的crc32校验码。</li>
+</ul>
+</li>
+</ul>
+<p>需要注意的是：$buffer::raw$<strong>不允许拷贝</strong>。</p>
+<p>$buffer::raw$提供了以下函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">char</span> *<span class="title">get_data</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> data;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">virtual</span> raw* <span class="title">clone_empty</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line"><span class="function">raw *<span class="title">clone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  raw *c = <span class="built_in">clone_empty</span>();</span><br><span class="line">  <span class="built_in">memcpy</span>(c-&gt;data, data, len);</span><br><span class="line">  <span class="keyword">return</span> c;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">bool</span> <span class="title">can_zero_copy</span><span class="params">()</span> <span class="type">const</span> </span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">int</span> <span class="title">zero_copy_to_fd</span><span class="params">(<span class="type">int</span> fd, <span class="type">loff_t</span> *offset)</span> </span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">bool</span> <span class="title">is_page_aligned</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">is_n_page_sized</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">bool</span> <span class="title">is_shareable</span><span class="params">()</span> </span>&#123;&#125; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">get_crc</span><span class="params">(<span class="type">const</span> pair&lt;<span class="type">size_t</span>, <span class="type">size_t</span>&gt; &amp;fromto,</span></span></span><br><span class="line"><span class="params"><span class="function">     pair&lt;<span class="type">uint32_t</span>, <span class="type">uint32_t</span>&gt; *crc)</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">  <span class="built_in">simple_spin_lock</span>(&amp;crc_spinlock);</span><br><span class="line">  map&lt;pair&lt;<span class="type">size_t</span>, <span class="type">size_t</span>&gt;, pair&lt;<span class="type">uint32_t</span>, <span class="type">uint32_t</span>&gt; &gt;::const_iterator i =</span><br><span class="line">  crc_map.<span class="built_in">find</span>(fromto);</span><br><span class="line">  <span class="keyword">if</span> (i == crc_map.<span class="built_in">end</span>()) &#123;</span><br><span class="line">      <span class="built_in">simple_spin_unlock</span>(&amp;crc_spinlock);</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  *crc = i-&gt;second;</span><br><span class="line">  <span class="built_in">simple_spin_unlock</span>(&amp;crc_spinlock);</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">set_crc</span><span class="params">(<span class="type">const</span> pair&lt;<span class="type">size_t</span>, <span class="type">size_t</span>&gt; &amp;fromto,</span></span></span><br><span class="line"><span class="params"><span class="function">     <span class="type">const</span> pair&lt;<span class="type">uint32_t</span>, <span class="type">uint32_t</span>&gt; &amp;crc)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">simple_spin_lock</span>(&amp;crc_spinlock);</span><br><span class="line">  crc_map[fromto] = crc;</span><br><span class="line">  <span class="built_in">simple_spin_unlock</span>(&amp;crc_spinlock);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">invalidate_crc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">simple_spin_lock</span>(&amp;crc_spinlock);</span><br><span class="line">  <span class="keyword">if</span> (crc_map.<span class="built_in">size</span>() != <span class="number">0</span>) &#123;</span><br><span class="line">    crc_map.<span class="built_in">clear</span>();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">simple_spin_unlock</span>(&amp;crc_spinlock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="raw-malloc"><a href="#raw-malloc" class="headerlink" title="raw_malloc"></a>raw_malloc</h4><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/buffer.cc#L291">raw_malloc</a>是对$buffer::raw$申请缓存的封装，实际上由$buffer::raw$和三个全局变量控制。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">atomic_t</span> buffer_total_alloc;</span><br><span class="line"><span class="type">static</span> <span class="type">atomic64_t</span> buffer_history_alloc_bytes;</span><br><span class="line"><span class="type">static</span> <span class="type">atomic64_t</span> buffer_history_alloc_num;</span><br><span class="line"><span class="type">const</span> <span class="type">bool</span> buffer_track_alloc = <span class="built_in">get_env_bool</span>(<span class="string">&quot;CEPH_BUFFER_TRACK&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">buffer</span>::raw_malloc : <span class="keyword">public</span> buffer::raw &#123;&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="buffer-raw-combined"><a href="#buffer-raw-combined" class="headerlink" title="buffer::raw_combined"></a>buffer::raw_combined</h4><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/buffer.cc#L246">buffer::raw_combined</a><strong>用于在单个内存分配中同时存放数据缓冲区；其设计目的是将数据和元数据一同进行内存管理，优化内存分配和访问性能</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">buffer</span>::raw_combined : <span class="keyword">public</span> buffer::raw &#123;</span><br><span class="line">  <span class="type">size_t</span> alignment;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在某些平台上，为了提高性能或满足硬件需求，数据需要按照特定字节进行对齐。</p>
+<p>在这个结构中，最主要的函数为<code>create</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> raw_combined *<span class="title">create</span><span class="params">(<span class="type">unsigned</span> len, <span class="type">unsigned</span> align=<span class="number">0</span>)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!align)</span><br><span class="line">    align = <span class="built_in">sizeof</span>(<span class="type">size_t</span>);</span><br><span class="line">  <span class="type">size_t</span> rawlen = <span class="built_in">ROUND_UP_TO</span>(<span class="built_in">sizeof</span>(buffer::raw_combined),</span><br><span class="line">              <span class="built_in">alignof</span>(buffer::raw_combined));</span><br><span class="line">  <span class="type">size_t</span> datalen = <span class="built_in">ROUND_UP_TO</span>(len, <span class="built_in">alignof</span>(buffer::raw_combined));</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> DARWIN</span></span><br><span class="line">  <span class="type">char</span> *ptr = (<span class="type">char</span> *) <span class="built_in">valloc</span>(rawlen + datalen);</span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">  <span class="type">char</span> *ptr = <span class="number">0</span>;</span><br><span class="line">  <span class="type">int</span> r = ::<span class="built_in">posix_memalign</span>((<span class="type">void</span>**)(<span class="type">void</span>*)&amp;ptr, align, rawlen + datalen);</span><br><span class="line">  <span class="keyword">if</span> (r)</span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">bad_alloc</span>();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">/* DARWIN */</span></span></span><br><span class="line">  <span class="keyword">if</span> (!ptr)</span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">bad_alloc</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// actual data first, since it has presumably larger alignment restriction</span></span><br><span class="line">  <span class="comment">// then put the raw_combined at the end</span></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">new</span> (ptr + datalen) <span class="built_in">raw_combined</span>(ptr, len, align);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果没有指定对其字节，那么我们使用<code>sizeof(size_t)</code>作为默认对齐大小。然后通过<code>ROUND_UP_TO</code>计算出需要申请空间对齐后的大小和该数据结构元数据的大小，然后申请出对应的内存空间($rawlen+datalen$)，然后通过定位$new$，将数据结构元数据放置在缓冲区的最后。</p>
+<h4 id="buffer-raw-mmap-pages"><a href="#buffer-raw-mmap-pages" class="headerlink" title="buffer::raw_mmap_pages"></a>buffer::raw_mmap_pages</h4><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/buffer.cc#L320">buffer::raw_mmap_pages</a>通过实现<code>mmap</code>来把内存匿名映射到进程的地址空间，用于专门处理内存映射的页面。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data = (<span class="type">char</span>*)::<span class="built_in">mmap</span>(<span class="literal">NULL</span>, len, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, <span class="number">-1</span>, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>其主要核心代码就上面这一行，调用<code>mmap</code>接口，设置其权限为可读可写、私有且匿名的映射。</p>
+<h4 id="buffer-raw-posix-aligned"><a href="#buffer-raw-posix-aligned" class="headerlink" title="buffer::raw_posix_aligned"></a>buffer::raw_posix_aligned</h4><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/buffer.cc#L340">buffer::raw_posix_aligned</a>通过调用<code>posix_memalign</code>来申请内存地址对齐的内存空间。</p>
+<p>其核心代码为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">align = _align;</span><br><span class="line"><span class="built_in">assert</span>((align &gt;= <span class="built_in">sizeof</span>(<span class="type">void</span> *)) &amp;&amp; (align &amp; (align - <span class="number">1</span>)) == <span class="number">0</span>);</span><br><span class="line">::<span class="built_in">posix_memalign</span>((<span class="type">void</span>**)(<span class="type">void</span>*)&amp;data, align, len);</span><br></pre></td></tr></table></figure>
+
+<h4 id="buffer-raw-pipe"><a href="#buffer-raw-pipe" class="headerlink" title="buffer::raw_pipe"></a>buffer::raw_pipe</h4><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/buffer.cc#L402">buffer::raw_pipe</a>使用管道机制来实现内存缓冲区。</p>
+<p>这里需要注意的便是如何初始化管道以及复制管道：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">raw_pipe</span><span class="params">(<span class="type">unsigned</span> len)</span> : raw(len), source_consumed(false) &#123;</span></span><br><span class="line">  <span class="type">size_t</span> max = <span class="built_in">get_max_pipe_size</span>();</span><br><span class="line">  <span class="keyword">if</span> (len &gt; max) &#123;</span><br><span class="line">    bdout &lt;&lt; <span class="string">&quot;raw_pipe: requested length &quot;</span> &lt;&lt; len</span><br><span class="line">          &lt;&lt; <span class="string">&quot; &gt; max length &quot;</span> &lt;&lt; max &lt;&lt; bendl;</span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">malformed_input</span>(<span class="string">&quot;length larger than max pipe size&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  pipefds[<span class="number">0</span>] = <span class="number">-1</span>;</span><br><span class="line">  pipefds[<span class="number">1</span>] = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="type">int</span> r;</span><br><span class="line">  <span class="keyword">if</span> (::<span class="built_in">pipe</span>(pipefds) == <span class="number">-1</span>) &#123;</span><br><span class="line">    r = -errno;</span><br><span class="line">    bdout &lt;&lt; <span class="string">&quot;raw_pipe: error creating pipe: &quot;</span> &lt;&lt; <span class="built_in">cpp_strerror</span>(r) &lt;&lt; bendl;</span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">error_code</span>(r);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  r = <span class="built_in">set_nonblocking</span>(pipefds);</span><br><span class="line">  <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    bdout &lt;&lt; <span class="string">&quot;raw_pipe: error setting nonblocking flag on temp pipe: &quot;</span></span><br><span class="line">          &lt;&lt; <span class="built_in">cpp_strerror</span>(r) &lt;&lt; bendl;</span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">error_code</span>(r);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  r = <span class="built_in">set_pipe_size</span>(pipefds, len);</span><br><span class="line">  <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    bdout &lt;&lt; <span class="string">&quot;raw_pipe: could not set pipe size&quot;</span> &lt;&lt; bendl;</span><br><span class="line">    <span class="comment">// continue, since the pipe should become large enough as needed</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">inc_total_alloc</span>(len);</span><br><span class="line">  <span class="built_in">inc_history_alloc</span>(len);</span><br><span class="line">  bdout &lt;&lt; <span class="string">&quot;raw_pipe &quot;</span> &lt;&lt; <span class="keyword">this</span> &lt;&lt; <span class="string">&quot; alloc &quot;</span> &lt;&lt; len &lt;&lt; <span class="string">&quot; &quot;</span></span><br><span class="line">    &lt;&lt; buffer::<span class="built_in">get_total_alloc</span>() &lt;&lt; bendl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在最开始，我们需要获取管道的最大容量</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">atomic_t</span> buffer_max_pipe_size;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">update_max_pipe_size</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CEPH_HAVE_SETPIPE_SZ</span></span><br><span class="line">  <span class="type">char</span> buf[<span class="number">32</span>];</span><br><span class="line">  <span class="type">int</span> r;</span><br><span class="line">  std::string err;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">stat</span> stat_result;</span><br><span class="line">  <span class="keyword">if</span> (::<span class="built_in">stat</span>(<span class="string">&quot;/proc/sys/fs/pipe-max-size&quot;</span>, &amp;stat_result) == <span class="number">-1</span>)</span><br><span class="line">    <span class="keyword">return</span> -errno;</span><br><span class="line">  r = <span class="built_in">safe_read_file</span>(<span class="string">&quot;/proc/sys/fs/&quot;</span>, <span class="string">&quot;pipe-max-size&quot;</span>,</span><br><span class="line">             buf, <span class="built_in">sizeof</span>(buf) - <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">if</span> (r &lt; <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">  buf[r] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">  <span class="type">size_t</span> size = <span class="built_in">strict_strtol</span>(buf, <span class="number">10</span>, &amp;err);</span><br><span class="line">  <span class="keyword">if</span> (!err.<span class="built_in">empty</span>())</span><br><span class="line">    <span class="keyword">return</span> -EIO;</span><br><span class="line">  buffer_max_pipe_size.<span class="built_in">set</span>(size);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">size_t</span> <span class="title">get_max_pipe_size</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CEPH_HAVE_SETPIPE_SZ</span></span><br><span class="line">  <span class="type">size_t</span> size = buffer_max_pipe_size.<span class="built_in">read</span>();</span><br><span class="line">  <span class="keyword">if</span> (size)</span><br><span class="line">    <span class="keyword">return</span> size;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">update_max_pipe_size</span>() == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> buffer_max_pipe_size.<span class="built_in">read</span>();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">  <span class="comment">// this is the max size hardcoded in linux before 2.6.35</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">65536</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在Linux中，管道的最大容量是写在<code>/proc/sys/fs/pipe-max-size</code>中的，因此我们只需要读取这个文件并保存其数值到<code>buffer_max_pipe_size</code>中，然后通过<code>get_max_pipe_size</code>返回即可。</p>
+<p>然后我们就需要创建管道，并设置管道属性为非阻塞模式，同时尝试设置管道大小。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">set_pipe_size</span><span class="params">(<span class="type">int</span> *fds, <span class="type">long</span> length)</span> </span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CEPH_HAVE_SETPIPE_SZ</span></span><br><span class="line">  <span class="keyword">if</span> (::<span class="built_in">fcntl</span>(fds[<span class="number">1</span>], F_SETPIPE_SZ, length) == <span class="number">-1</span>) &#123;</span><br><span class="line">    <span class="type">int</span> r = -errno;</span><br><span class="line">    <span class="keyword">if</span> (r == -EPERM) &#123;</span><br><span class="line">      <span class="comment">// pipe limit must have changed - EPERM means we requested</span></span><br><span class="line">      <span class="comment">// more than the maximum size as an unprivileged user</span></span><br><span class="line">      <span class="built_in">update_max_pipe_size</span>();</span><br><span class="line">      <span class="keyword">throw</span> <span class="built_in">malformed_input</span>(<span class="string">&quot;length larger than new max pipe size&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">  &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于复制管道，我们需要做出以下操作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">char</span> *<span class="title">copy_pipe</span><span class="params">(<span class="type">int</span> *fds)</span> </span>&#123;</span><br><span class="line">  <span class="comment">/* preserve original pipe contents by copying into a temporary</span></span><br><span class="line"><span class="comment">   * pipe before reading.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="type">int</span> tmpfd[<span class="number">2</span>];</span><br><span class="line">  <span class="type">int</span> r;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">assert</span>(!source_consumed);</span><br><span class="line">  <span class="built_in">assert</span>(fds[<span class="number">0</span>] &gt;= <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (::<span class="built_in">pipe</span>(tmpfd) == <span class="number">-1</span>) &#123;</span><br><span class="line">    r = -errno;</span><br><span class="line">    bdout &lt;&lt; <span class="string">&quot;raw_pipe: error creating temp pipe: &quot;</span> &lt;&lt; <span class="built_in">cpp_strerror</span>(r)</span><br><span class="line">          &lt;&lt; bendl;</span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">error_code</span>(r);</span><br><span class="line">  &#125;</span><br><span class="line">  r = <span class="built_in">set_nonblocking</span>(tmpfd);</span><br><span class="line">  <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    bdout &lt;&lt; <span class="string">&quot;raw_pipe: error setting nonblocking flag on temp pipe: &quot;</span></span><br><span class="line">          &lt;&lt; <span class="built_in">cpp_strerror</span>(r) &lt;&lt; bendl;</span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">error_code</span>(r);</span><br><span class="line">  &#125;</span><br><span class="line">  r = <span class="built_in">set_pipe_size</span>(tmpfd, len);</span><br><span class="line">  <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    bdout &lt;&lt; <span class="string">&quot;raw_pipe: error setting pipe size on temp pipe: &quot;</span></span><br><span class="line">          &lt;&lt; <span class="built_in">cpp_strerror</span>(r) &lt;&lt; bendl;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="type">int</span> flags = SPLICE_F_NONBLOCK;</span><br><span class="line">  <span class="keyword">if</span> (::<span class="built_in">tee</span>(fds[<span class="number">0</span>], tmpfd[<span class="number">1</span>], len, flags) == <span class="number">-1</span>) &#123;</span><br><span class="line">    r = errno;</span><br><span class="line">    bdout &lt;&lt; <span class="string">&quot;raw_pipe: error tee&#x27;ing into temp pipe: &quot;</span> &lt;&lt; <span class="built_in">cpp_strerror</span>(r)</span><br><span class="line">          &lt;&lt; bendl;</span><br><span class="line">    <span class="built_in">close_pipe</span>(tmpfd);</span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">error_code</span>(r);</span><br><span class="line">  &#125;</span><br><span class="line">  data = (<span class="type">char</span> *)<span class="built_in">malloc</span>(len);</span><br><span class="line">  <span class="keyword">if</span> (!data) &#123;</span><br><span class="line">    <span class="built_in">close_pipe</span>(tmpfd);</span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">bad_alloc</span>();</span><br><span class="line">  &#125;</span><br><span class="line">  r = <span class="built_in">safe_read</span>(tmpfd[<span class="number">0</span>], data, len);</span><br><span class="line">  <span class="keyword">if</span> (r &lt; (<span class="type">ssize_t</span>)len) &#123;</span><br><span class="line">    bdout &lt;&lt; <span class="string">&quot;raw_pipe: error reading from temp pipe:&quot;</span> &lt;&lt; <span class="built_in">cpp_strerror</span>(r)</span><br><span class="line">          &lt;&lt; bendl;</span><br><span class="line">    <span class="built_in">free</span>(data);</span><br><span class="line">    data = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="built_in">close_pipe</span>(tmpfd);</span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">error_code</span>(r);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">close_pipe</span>(tmpfd);</span><br><span class="line">  <span class="keyword">return</span> data;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们需要创建一个临时管道，然后将原管道的数据复制到该临时管道中，以便读取数据。同样，我们需要将临时管道设置为非阻塞模式，然后设置管道的大小。</p>
+<p>通过<code>tee</code>系统调用，将原管道<code>fds[0]</code>中的内容复制到临时管道的写端<code>tmpfd[1]</code>中，然后再从<code>tmpfd[0]</code>中读取数据。</p>
+<h3 id="buffer-ptr"><a href="#buffer-ptr" class="headerlink" title="buffer::ptr"></a>buffer::ptr</h3><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/include/buffer.h#L164">buffer::ptr</a>是对$buffer::raw$的一种slice，其具体示意为：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202410141431478.png" alt="raw和ptr"></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">CEPH_BUFFER_API</span> ptr &#123;</span><br><span class="line">  raw *_raw;</span><br><span class="line">  <span class="type">unsigned</span> _off, _len;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>_off<ul>
+<li>该字段是对于$buffer::raw$数据指针的偏移距离</li>
+</ul>
+</li>
+<li>_len<ul>
+<li>标识其长度</li>
+</ul>
+</li>
+</ul>
+<h3 id="buffer-list"><a href="#buffer-list" class="headerlink" title="buffer::list"></a>buffer::list</h3><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/include/buffer.h#L261">buffer::list</a>是一个使用广泛的类，是多个$buffer::ptr$的列表，也是多个内存数据段的列表。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">CEPH_BUFFER_API</span> list &#123;</span><br><span class="line">  <span class="comment">// my private bits</span></span><br><span class="line">  std::list&lt;ptr&gt; _buffers;</span><br><span class="line">  <span class="type">unsigned</span> _len;</span><br><span class="line">  <span class="type">unsigned</span> _memcopy_count;    <span class="comment">//the total of memcopy using rebuild().</span></span><br><span class="line">  ptr append_buffer;          <span class="comment">// where i put small appends.</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">mutable</span> iterator last_p;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>_buffers<ul>
+<li>用于保存所有的ptr</li>
+</ul>
+</li>
+<li>_len<ul>
+<li>是所有ptr的数据总长度</li>
+</ul>
+</li>
+<li>_memcopy_count<ul>
+<li>调用函数<code>rebuild</code>用来内存对齐时，需要内存拷贝的数据量</li>
+</ul>
+</li>
+<li>append_buffer<ul>
+<li>当有小的数据就添加到这个buffer中</li>
+</ul>
+</li>
+<li>last_p<ul>
+<li>访问list的迭代器</li>
+</ul>
+</li>
+</ul>
+<p>该结构体最为主要的便是如何操作list了，因此我们主要探究</p>
+<ul>
+<li><code>push_front/back</code></li>
+<li><code>rebuld</code></li>
+<li><code>append</code></li>
+<li><code>write/read</code></li>
+</ul>
+<h4 id="push-front-back"><a href="#push-front-back" class="headerlink" title="push_front&#x2F;back"></a>push_front&#x2F;back</h4><p>对于<code>push_front</code>而言，我们只需要调用<code>vector::push_front</code>进行插入即可，如果是$buffer::raw$类型，则通过$buffer:ptr$封装后进行处理。</p>
+<p>自然，<code>push_back</code>也是同理。</p>
+<h4 id="rebuild"><a href="#rebuild" class="headerlink" title="rebuild"></a>rebuild</h4><p><code>rebuild</code>函数主要用于将内部的数据通过对齐的方式重组合并，主要依赖于<a href="#bufferraw_posix_aligned">buffer::raw_posix_aligned</a>，然后通过$buffer::ptr::copy_in$将每一个数据拷贝进去</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (std::list&lt;ptr&gt;::iterator it = _buffers.<span class="built_in">begin</span>(); it != _buffers.<span class="built_in">end</span>(); ++it) &#123;</span><br><span class="line">  nb.<span class="built_in">copy_in</span>(pos, it-&gt;<span class="built_in">length</span>(), it-&gt;<span class="built_in">c_str</span>(), <span class="literal">false</span>);</span><br><span class="line">  pos += it-&gt;<span class="built_in">length</span>();</span><br><span class="line">&#125;</span><br><span class="line">_memcopy_count += pos;</span><br><span class="line">_buffers.<span class="built_in">clear</span>();</span><br><span class="line"><span class="keyword">if</span> (nb.<span class="built_in">length</span>())</span><br><span class="line">  _buffers.<span class="built_in">push_back</span>(nb);</span><br><span class="line"><span class="built_in">invalidate_crc</span>();</span><br><span class="line">last_p = <span class="built_in">begin</span>();</span><br></pre></td></tr></table></figure>
+
+<p><code>rebuild</code>还有另一个版本<code>rebuild_aligned_size_and_memory</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> buffer::list::<span class="built_in">rebuild_aligned_size_and_memory</span>(<span class="type">unsigned</span> align_size,</span><br><span class="line">  						   <span class="type">unsigned</span> align_memory) &#123;</span><br><span class="line">  std::list&lt;ptr&gt;::iterator p = _buffers.<span class="built_in">begin</span>();</span><br><span class="line">  <span class="keyword">while</span> (p != _buffers.<span class="built_in">end</span>()) &#123;</span><br><span class="line">    <span class="comment">// keep anything that&#x27;s already align and sized aligned</span></span><br><span class="line">    <span class="keyword">if</span> (p-&gt;<span class="built_in">is_aligned</span>(align_memory) &amp;&amp; p-&gt;<span class="built_in">is_n_align_sized</span>(align_size)) &#123;</span><br><span class="line">      <span class="comment">/*cout &lt;&lt; &quot; segment &quot; &lt;&lt; (void*)p-&gt;c_str()</span></span><br><span class="line"><span class="comment">       &lt;&lt; &quot; offset &quot; &lt;&lt; ((unsigned long)p-&gt;c_str() &amp; (align - 1))</span></span><br><span class="line"><span class="comment">       &lt;&lt; &quot; length &quot; &lt;&lt; p-&gt;length()</span></span><br><span class="line"><span class="comment">       &lt;&lt; &quot; &quot; &lt;&lt; (p-&gt;length() &amp; (align - 1)) &lt;&lt; &quot; ok&quot; &lt;&lt; std::endl;</span></span><br><span class="line"><span class="comment">      */</span></span><br><span class="line">      ++p;</span><br><span class="line">      <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// consolidate unaligned items, until we get something that is sized+aligned</span></span><br><span class="line">    list unaligned;</span><br><span class="line">    <span class="type">unsigned</span> offset = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">      <span class="comment">/*cout &lt;&lt; &quot; segment &quot; &lt;&lt; (void*)p-&gt;c_str()</span></span><br><span class="line"><span class="comment">             &lt;&lt; &quot; offset &quot; &lt;&lt; ((unsigned long)p-&gt;c_str() &amp; (align - 1))</span></span><br><span class="line"><span class="comment">             &lt;&lt; &quot; length &quot; &lt;&lt; p-&gt;length() &lt;&lt; &quot; &quot; &lt;&lt; (p-&gt;length() &amp; (align - 1))</span></span><br><span class="line"><span class="comment">             &lt;&lt; &quot; overall offset &quot; &lt;&lt; offset &lt;&lt; &quot; &quot; &lt;&lt; (offset &amp; (align - 1))</span></span><br><span class="line"><span class="comment">       &lt;&lt; &quot; not ok&quot; &lt;&lt; std::endl;</span></span><br><span class="line"><span class="comment">      */</span></span><br><span class="line">      offset += p-&gt;<span class="built_in">length</span>();</span><br><span class="line">      unaligned.<span class="built_in">push_back</span>(*p);</span><br><span class="line">      _buffers.<span class="built_in">erase</span>(p++);</span><br><span class="line">    &#125; <span class="keyword">while</span> (p != _buffers.<span class="built_in">end</span>() &amp;&amp;</span><br><span class="line">       (!p-&gt;<span class="built_in">is_aligned</span>(align_memory) ||</span><br><span class="line">        !p-&gt;<span class="built_in">is_n_align_sized</span>(align_size) ||</span><br><span class="line">        (offset % align_size)));</span><br><span class="line">    <span class="keyword">if</span> (!(unaligned.<span class="built_in">is_contiguous</span>() &amp;&amp; unaligned._buffers.<span class="built_in">front</span>().<span class="built_in">is_aligned</span>(align_memory))) &#123;</span><br><span class="line">      <span class="function">ptr <span class="title">nb</span><span class="params">(buffer::create_aligned(unaligned._len, align_memory))</span></span>;</span><br><span class="line">      unaligned.<span class="built_in">rebuild</span>(nb);</span><br><span class="line">      _memcopy_count += unaligned._len;</span><br><span class="line">    &#125;</span><br><span class="line">    _buffers.<span class="built_in">insert</span>(p, unaligned._buffers.<span class="built_in">front</span>());</span><br><span class="line">  &#125;</span><br><span class="line">  last_p = <span class="built_in">begin</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>首先我们需要检查数据块是否已经对齐<ul>
+<li>内存上是否对齐<code>is_aligned</code></li>
+<li>大小上是否对齐<code>is_n_align_sized</code></li>
+</ul>
+</li>
+<li>如果其中一个数据块未对齐，则需要合并未对齐的数据块，使用<code>unaligned</code>列表存储</li>
+<li>检查合并后的数据块是否满足对齐要求，如果不满足，则需要创建新的对齐缓冲区</li>
+<li>将对齐后的数据块插回原列表</li>
+<li>更新迭代器指针位置</li>
+</ul>
+<h4 id="append"><a href="#append" class="headerlink" title="append"></a>append</h4><p><code>append</code>归根结底是在内部调用了<code>push_back</code>接口，<code>append</code>有多种重载，允许多种类型的参数传入，此处不再做过多介绍。最为重要的是，我们需要检查<code>append_buffer</code>是否有足够的空间。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> gap = append_buffer.<span class="built_in">unused_tail_length</span>();</span><br></pre></td></tr></table></figure>
+
+<h4 id="write-read"><a href="#write-read" class="headerlink" title="write&#x2F;read"></a>write&#x2F;read</h4><p>在$buffer::list$中，<code>write</code>主要有三种方式写：写入流、写入文件、写入fd；而<code>read</code>有两种方式：读取文件、读取fd。</p>
+<p>其余方法没有特别需要说明的，就是正常读写操作，但在<code>write_fd</code>中，使用了$iovec$。</p>
+<p>$iovec$ <strong>是用于描述输入&#x2F;输出操作中数据缓冲区的结构体，常用于执行分散&#x2F;聚集 I&#x2F;O(scatter&#x2F;gather I&#x2F;O）操作</strong>。在 I&#x2F;O 操作中，<strong>它允许应用程序使用多个缓冲区作为输入或输出，避免了将数据拷贝到单一的连续缓冲区</strong>。$iovec$ 结构通常用于 Linux 系统调用。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">iovec</span> &#123;</span><br><span class="line">  <span class="type">void</span>  *iov_base;  <span class="comment">// 指向数据缓冲区的指针</span></span><br><span class="line">  <span class="type">size_t</span> iov_len;   <span class="comment">// 缓冲区的长度</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>通过<code>readv</code>和<code>writev</code>实现分散度和聚集写操作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">iovec iov[IOV_MAX];</span><br><span class="line"><span class="type">int</span> iovlen = <span class="number">0</span>;</span><br><span class="line"><span class="type">ssize_t</span> bytes = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">std::list&lt;ptr&gt;::const_iterator p = _buffers.<span class="built_in">begin</span>();</span><br><span class="line"><span class="keyword">while</span> (p != _buffers.<span class="built_in">end</span>()) &#123;</span><br><span class="line">  <span class="keyword">if</span> (p-&gt;<span class="built_in">length</span>() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    iov[iovlen].iov_base = (<span class="type">void</span> *)p-&gt;<span class="built_in">c_str</span>();</span><br><span class="line">    iov[iovlen].iov_len = p-&gt;<span class="built_in">length</span>();</span><br><span class="line">    bytes += p-&gt;<span class="built_in">length</span>();</span><br><span class="line">    iovlen++;</span><br><span class="line">  &#125;</span><br><span class="line">  ++p;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (iovlen == IOV_MAX<span class="number">-1</span> || p == _buffers.<span class="built_in">end</span>()) &#123;</span><br><span class="line">    iovec *start = iov;</span><br><span class="line">    <span class="type">int</span> num = iovlen;</span><br><span class="line">    <span class="type">ssize_t</span> wrote;</span><br><span class="line">  retry:</span><br><span class="line">    wrote = ::<span class="built_in">writev</span>(fd, start, num);</span><br><span class="line">    <span class="keyword">if</span> (wrote &lt; <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="type">int</span> err = errno;</span><br><span class="line">      <span class="keyword">if</span> (err == EINTR)</span><br><span class="line">        <span class="keyword">goto</span> retry;</span><br><span class="line">      <span class="keyword">return</span> -err;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (wrote &lt; bytes) &#123;</span><br><span class="line">  <span class="comment">// partial write, recover!</span></span><br><span class="line">      <span class="keyword">while</span> ((<span class="type">size_t</span>)wrote &gt;= start[<span class="number">0</span>].iov_len) &#123;</span><br><span class="line">        wrote -= start[<span class="number">0</span>].iov_len;</span><br><span class="line">        bytes -= start[<span class="number">0</span>].iov_len;</span><br><span class="line">        start++;</span><br><span class="line">        num--;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (wrote &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        start[<span class="number">0</span>].iov_len -= wrote;</span><br><span class="line">        start[<span class="number">0</span>].iov_base = (<span class="type">char</span> *)start[<span class="number">0</span>].iov_base + wrote;</span><br><span class="line">        bytes -= wrote;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">goto</span> retry;</span><br><span class="line">    &#125;</span><br><span class="line">    iovlen = <span class="number">0</span>;</span><br><span class="line">    bytes = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ThreadPool"><a href="#ThreadPool" class="headerlink" title="ThreadPool"></a>ThreadPool</h2><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/WorkQueue.h#L28">ThreadPool</a>在Ceph中随处可见且极为重要，在介绍$ThreadPool$之前，我们需要了解一些预备知识。</p>
+<h3 id="Mutex"><a href="#Mutex" class="headerlink" title="Mutex"></a>Mutex</h3><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/Mutex.h#L34">Mutex</a>是Ceph自行实现的互斥锁：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Mutex</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  std::string name;     <span class="comment">// 锁的名字</span></span><br><span class="line">  <span class="type">int</span> id;               <span class="comment">// 锁的唯一标识符</span></span><br><span class="line">  <span class="type">bool</span> recursive;       <span class="comment">// 递归锁，允许同一线程多次获取同一锁</span></span><br><span class="line">  <span class="type">bool</span> lockdep;         <span class="comment">// 依赖检测，防止死锁</span></span><br><span class="line">  <span class="type">bool</span> backtrace;       <span class="comment">// gather backtrace on lock acquisition</span></span><br><span class="line"></span><br><span class="line">  <span class="type">pthread_mutex_t</span> _m;   <span class="comment">// POSIX MUTEX API</span></span><br><span class="line">  <span class="type">int</span> nlock;            <span class="comment">// 记录锁的嵌套次数，如果是递归锁，则会在加锁时自增</span></span><br><span class="line">  <span class="type">pthread_t</span> locked_by;  <span class="comment">// 记录当前加锁的线程TID</span></span><br><span class="line">  CephContext *cct;     <span class="comment">// Ceph上下文</span></span><br><span class="line">  PerfCounters *logger; <span class="comment">// 性能日志记录器</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>注意：$Mutex$<strong>不允许拷贝</strong>。</p>
+<h4 id="初始化锁过程"><a href="#初始化锁过程" class="headerlink" title="初始化锁过程"></a>初始化锁过程</h4><p>$Mutex$默认不允许递归锁，且开启依赖检测，不允许收集调用栈</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Mutex::<span class="built_in">Mutex</span>(<span class="type">const</span> std::string &amp;n, <span class="type">bool</span> r, <span class="type">bool</span> ld,</span><br><span class="line">	     <span class="type">bool</span> bt,</span><br><span class="line">	     CephContext *cct) :</span><br><span class="line">  <span class="built_in">name</span>(n), <span class="built_in">id</span>(<span class="number">-1</span>), <span class="built_in">recursive</span>(r), <span class="built_in">lockdep</span>(ld), <span class="built_in">backtrace</span>(bt), <span class="built_in">nlock</span>(<span class="number">0</span>),</span><br><span class="line">  <span class="built_in">locked_by</span>(<span class="number">0</span>), <span class="built_in">cct</span>(cct), <span class="built_in">logger</span>(<span class="number">0</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于Ceph是由$Valgrind$所监控的，因此我们首先需要告知$Valgrind$，我们的一些变量在多线程中的数据竞争是预期之中且安全的</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ANNOTATE_BENIGN_RACE_SIZED</span>(&amp;id, <span class="built_in">sizeof</span>(id), <span class="string">&quot;Mutex lockdep id&quot;</span>);</span><br><span class="line"><span class="built_in">ANNOTATE_BENIGN_RACE_SIZED</span>(&amp;nlock, <span class="built_in">sizeof</span>(nlock), <span class="string">&quot;Mutex nlock&quot;</span>);</span><br><span class="line"><span class="built_in">ANNOTATE_BENIGN_RACE_SIZED</span>(&amp;locked_by, <span class="built_in">sizeof</span>(locked_by), <span class="string">&quot;Mutex locked_by&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>此时我们暂时不对$CephContext$进行分析，看向下一个，如果我们开启了<code>recursive</code>功能，那么我们需要初始化一个递归类型的<code>pthread_mutex_t</code>，因此：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (recursive) &#123;</span><br><span class="line">  <span class="type">pthread_mutexattr_t</span> attr;</span><br><span class="line">  <span class="built_in">pthread_mutexattr_init</span>(&amp;attr);</span><br><span class="line">  <span class="built_in">pthread_mutexattr_settype</span>(&amp;attr, PTHREAD_MUTEX_RECURSIVE);</span><br><span class="line">  <span class="built_in">pthread_mutex_init</span>(&amp;_m,&amp;attr);</span><br><span class="line">  <span class="built_in">pthread_mutexattr_destroy</span>(&amp;attr);</span><br><span class="line">  <span class="keyword">if</span> (lockdep &amp;&amp; g_lockdep)</span><br><span class="line">    _register();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样就允许了同一线程能够被多次锁定，但必须以相同次数解锁。如果锁不是递归锁，但启用了<code>lockdep</code>，则初始化一个带有错误检查的<code>pthread_mutex_t</code>，这种类型的锁会在尝试二次锁定或解锁未锁定的情况下返回错误，从而不会导致死锁或未定义行为</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (lockdep) &#123;</span><br><span class="line">  <span class="type">pthread_mutexattr_t</span> attr;</span><br><span class="line">  <span class="built_in">pthread_mutexattr_init</span>(&amp;attr);</span><br><span class="line">  <span class="built_in">pthread_mutexattr_settype</span>(&amp;attr, PTHREAD_MUTEX_ERRORCHECK);</span><br><span class="line">  <span class="built_in">pthread_mutex_init</span>(&amp;_m, &amp;attr);</span><br><span class="line">  <span class="built_in">pthread_mutexattr_destroy</span>(&amp;attr);</span><br><span class="line">  <span class="keyword">if</span> (g_lockdep)</span><br><span class="line">    _register();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么现在我们来探究<code>lockdep</code>需要通过<code>_register</code>注册锁依赖信息：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> _register() &#123;</span><br><span class="line">  id = <span class="built_in">lockdep_register</span>(name.<span class="built_in">c_str</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先，该<code>lockdep_register</code>接受锁的名字，最终会返回一个线程的唯一标识符。在执行具体操作之前，我们需要放置并发访问导致共享数据的竞态，使用一个额外的锁来处理这部分逻辑</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># <span class="keyword">define</span> PTHREAD_MUTEX_INITIALIZER \</span></span><br><span class="line"><span class="meta">  &#123; &#123; 0, 0, 0, 0, 0, __PTHREAD_SPINS, &#123; 0, 0 &#125; &#125; &#125;</span></span><br><span class="line"><span class="type">static</span> <span class="type">pthread_mutex_t</span> lockdep_mutex = PTHREAD_MUTEX_INITIALIZER;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">lockdep_register</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *name)</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> id;</span><br><span class="line">  <span class="built_in">pthread_mutex_lock</span>(&amp;lockdep_mutex);</span><br></pre></td></tr></table></figure>
+
+<p>通过<code>PTHREAD_MUTEX_INITIALIZER</code>来初始化一个锁，比调用接口初始化更为高效。</p>
+<p>当加上锁后，我们需要检查传入的锁名是否已经在哈希表中存在，该哈希表是维护在全局中的变量</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> ceph::unordered_map&lt;std::string, <span class="type">int</span>&gt; lock_ids;</span><br><span class="line">ceph::unordered_map&lt;std::string, <span class="type">int</span>&gt;::iterator p = lock_ids.<span class="built_in">find</span>(name);</span><br><span class="line">id = p-&gt;second;</span><br></pre></td></tr></table></figure>
+
+<p>如果在哈希表中存在，那么就找到了该锁的唯一标识符；如果没有找到，那么会通过<code>free_ids</code>分配一个唯一标识符，<code>free_ids</code>是一个从$0 \sim MAX_LOCKS$的列表</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (p == lock_ids.<span class="built_in">end</span>()) &#123;</span><br><span class="line">  <span class="keyword">if</span> (free_ids.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">    <span class="built_in">lockdep_dout</span>(<span class="number">0</span>) &lt;&lt; <span class="string">&quot;ERROR OUT OF IDS .. have &quot;</span> &lt;&lt; free_ids.<span class="built_in">size</span>()</span><br><span class="line">            &lt;&lt; <span class="string">&quot; max &quot;</span> &lt;&lt; MAX_LOCKS &lt;&lt; dendl;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; p : lock_names) &#123;</span><br><span class="line">      <span class="built_in">lockdep_dout</span>(<span class="number">0</span>) &lt;&lt; <span class="string">&quot;  lock &quot;</span> &lt;&lt; p.first &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; p.second &lt;&lt; dendl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">assert</span>(free_ids.<span class="built_in">empty</span>());</span><br><span class="line">  &#125;</span><br><span class="line">  id = free_ids.<span class="built_in">front</span>();</span><br><span class="line">  free_ids.<span class="built_in">pop_front</span>();</span><br><span class="line"></span><br><span class="line">  lock_ids[name] = id;</span><br><span class="line">  lock_names[id] = name;</span><br><span class="line">  <span class="built_in">lockdep_dout</span>(<span class="number">10</span>) &lt;&lt; <span class="string">&quot;registered &#x27;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#x27; as &quot;</span> &lt;&lt; id &lt;&lt; dendl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后通过<code>lock_refs</code>维护一个引用计数，来表明一个锁注册了多少次</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> map&lt;<span class="type">int</span>, <span class="type">int</span>&gt; lock_refs;</span><br><span class="line"></span><br><span class="line">++lock_refs[id];</span><br><span class="line"><span class="built_in">pthread_mutex_unlock</span>(&amp;lockdep_mutex);</span><br><span class="line"><span class="keyword">return</span> id;</span><br></pre></td></tr></table></figure>
+
+<h4 id="销毁锁过程"><a href="#销毁锁过程" class="headerlink" title="销毁锁过程"></a>销毁锁过程</h4><p>显然的，我们在一开始需要对$Valgrind$进行声明，标识对<code>_m</code>的操作不会导致锁的竞态。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Mutex::~<span class="built_in">Mutex</span>() &#123;</span><br><span class="line">  <span class="built_in">assert</span>(nlock == <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// helgrind gets confused by condition wakeups leading to mutex destruction</span></span><br><span class="line">  <span class="built_in">ANNOTATE_BENIGN_RACE_SIZED</span>(&amp;_m, <span class="built_in">sizeof</span>(_m), <span class="string">&quot;Mutex primitive&quot;</span>);</span><br><span class="line">  <span class="built_in">pthread_mutex_destroy</span>(&amp;_m);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (cct &amp;&amp; logger) &#123;</span><br><span class="line">    cct-&gt;<span class="built_in">get_perfcounters_collection</span>()-&gt;<span class="built_in">remove</span>(logger);</span><br><span class="line">    <span class="keyword">delete</span> logger;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (lockdep &amp;&amp; g_lockdep) &#123;</span><br><span class="line">    <span class="built_in">lockdep_unregister</span>(id);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果我们在一开始启用了<code>lockdep</code>，那么在最后销毁时，需要将注册的依赖全部注销掉</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">lockdep_unregister</span><span class="params">(<span class="type">int</span> id)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (id &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">pthread_mutex_lock</span>(&amp;lockdep_mutex);</span><br><span class="line"></span><br><span class="line">  map&lt;<span class="type">int</span>, std::string&gt;::iterator p = lock_names.<span class="built_in">find</span>(id);</span><br><span class="line">  <span class="built_in">assert</span>(p != lock_names.<span class="built_in">end</span>());</span><br><span class="line"></span><br><span class="line">  <span class="type">int</span> &amp;refs = lock_refs[id];</span><br><span class="line">  <span class="keyword">if</span> (--refs == <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">lockdep_dout</span>(<span class="number">10</span>) &lt;&lt; <span class="string">&quot;unregistered &#x27;&quot;</span> &lt;&lt; p-&gt;second &lt;&lt; <span class="string">&quot;&#x27; from &quot;</span> &lt;&lt; id</span><br><span class="line">                     &lt;&lt; dendl;</span><br><span class="line">    lock_ids.<span class="built_in">erase</span>(p-&gt;second);</span><br><span class="line">    lock_names.<span class="built_in">erase</span>(id);</span><br><span class="line">    lock_refs.<span class="built_in">erase</span>(id);</span><br><span class="line">    free_ids.<span class="built_in">push_back</span>(id);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">lockdep_dout</span>(<span class="number">20</span>) &lt;&lt; <span class="string">&quot;have &quot;</span> &lt;&lt; refs &lt;&lt; <span class="string">&quot; of &#x27;&quot;</span> &lt;&lt; p-&gt;second &lt;&lt; <span class="string">&quot;&#x27; &quot;</span></span><br><span class="line">                     &lt;&lt; <span class="string">&quot;from &quot;</span> &lt;&lt; id &lt;&lt; dendl;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">pthread_mutex_unlock</span>(&amp;lockdep_mutex);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>中间有一部分是对$BackTrace$的清空，我们此处并不深究这一块，因此没有体现这一部分。</p>
+<p>我们最主要做的事情便是，如果该锁的引用计数为0后，在<code>lock_ids</code>哈希表中删除该键值对，然后删除<code>lock_names</code>和<code>lock_refs</code>中的记录，同时将空闲的锁唯一标识符追加到<code>free_ids</code>中。</p>
+<h4 id="上锁过程"><a href="#上锁过程" class="headerlink" title="上锁过程"></a>上锁过程</h4><p>在这里，我们依旧不讨论$CephContext$的情况。<code>Lock</code>函数接受一个<code>no_lockdep</code>参数，如果在开启<code>lockdep</code>的情况下，$no_lockdep&#x3D;false$就会触发<code>_will_lock</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">Mutex::Lock</span><span class="params">(<span class="type">bool</span> no_lockdep)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (lockdep &amp;&amp; g_lockdep &amp;&amp; !no_lockdep) _will_lock();</span><br></pre></td></tr></table></figure>
+
+<p><code>_will_lock</code> 函数的意义是配合锁依赖追踪机制，提前告知系统某个锁即将被获取，从而帮助 Ceph 进行锁依赖关系的管理和检测。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> _will_lock() &#123; <span class="comment">// about to lock</span></span><br><span class="line">  id = <span class="built_in">lockdep_will_lock</span>(name.<span class="built_in">c_str</span>(), id, backtrace);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该函数会将锁的名字和锁的ID传递给 <code>lockdep_will_lock</code> 函数。<code>lockdep_will_lock</code> 函数会在内部登记或更新该锁的依赖信息，表示该锁即将被某个线程尝试获取。如果启用了回溯$backtrace &#x3D; true$，Ceph 还会记录锁被获取时的调用栈信息，方便后续的调试和分析。</p>
+<p><code>lockdep_will_lock</code>会在最开始获取线程TID，以及检查传入的锁ID是否有效，如果无效，则通过<code>lockdep_register</code>注册一个有效的锁ID</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">lockdep_will_lock</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *name, <span class="type">int</span> id, <span class="type">bool</span> force_backtrace)</span> </span>&#123;</span><br><span class="line">  <span class="type">pthread_t</span> p = <span class="built_in">pthread_self</span>();</span><br><span class="line">  <span class="keyword">if</span> (id &lt; <span class="number">0</span>) id = <span class="built_in">lockdep_register</span>(name);</span><br></pre></td></tr></table></figure>
+
+<p>确认ID有效后，我们从维护的<code>held</code>表中，获取对应的依赖图，然后检查依赖</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">map&lt;<span class="type">int</span>, BackTrace *&gt; &amp;m = held[p];</span><br><span class="line"><span class="keyword">for</span> (map&lt;<span class="type">int</span>, BackTrace *&gt;::iterator p = m.<span class="built_in">begin</span>(); p != m.<span class="built_in">end</span>(); ++p) &#123;</span><br><span class="line">  <span class="keyword">if</span> (p-&gt;first == id) &#123;</span><br><span class="line">    <span class="built_in">lockdep_dout</span>(<span class="number">0</span>) &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    *_dout &lt;&lt; <span class="string">&quot;recursive lock of &quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot; (&quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&quot;)\n&quot;</span>;</span><br><span class="line">    BackTrace *bt = <span class="keyword">new</span> <span class="built_in">BackTrace</span>(BACKTRACE_SKIP);</span><br><span class="line">    bt-&gt;<span class="built_in">print</span>(*_dout);</span><br><span class="line">    <span class="keyword">if</span> (p-&gt;second) &#123;</span><br><span class="line">      *_dout &lt;&lt; <span class="string">&quot;\npreviously locked at\n&quot;</span>;</span><br><span class="line">      p-&gt;second-&gt;<span class="built_in">print</span>(*_dout);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">delete</span> bt;</span><br><span class="line">    *_dout &lt;&lt; dendl;</span><br><span class="line">    <span class="built_in">assert</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果<code>p-&gt;first == id</code>就说明发生了递归加锁，此时$BackTrace$会打印出当前发生递归的锁名和对应的锁ID，然后判断该锁之前是否有其他锁，如果有，则打印出其调用栈；如果没有发生递归锁，则需要建立新的依赖关系</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (!follows[p-&gt;first][id]) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建依赖关系时，我们需要判断是否会发生循环，<code>followers[a][b]</code>表示<code>b</code>会发生在<code>a</code>之后</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="built_in">does_follow</span>(id, p-&gt;first)) &#123;</span><br><span class="line">  BackTrace *bt = <span class="keyword">new</span> <span class="built_in">BackTrace</span>(BACKTRACE_SKIP);</span><br><span class="line">  <span class="built_in">lockdep_dout</span>(<span class="number">0</span>) &lt;&lt; <span class="string">&quot;new dependency &quot;</span> &lt;&lt; lock_names[p-&gt;first]</span><br><span class="line">      &lt;&lt; <span class="string">&quot; (&quot;</span> &lt;&lt; p-&gt;first &lt;&lt; <span class="string">&quot;) -&gt; &quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot; (&quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&quot;)&quot;</span></span><br><span class="line">      &lt;&lt; <span class="string">&quot; creates a cycle at\n&quot;</span>;</span><br><span class="line">  bt-&gt;<span class="built_in">print</span>(*_dout);</span><br><span class="line">  *_dout &lt;&lt; dendl;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">lockdep_dout</span>(<span class="number">0</span>) &lt;&lt; <span class="string">&quot;btw, i am holding these locks:&quot;</span> &lt;&lt; dendl;</span><br><span class="line">  <span class="keyword">for</span> (map&lt;<span class="type">int</span>, BackTrace *&gt;::iterator q = m.<span class="built_in">begin</span>(); q != m.<span class="built_in">end</span>(); ++q) &#123;</span><br><span class="line">    <span class="built_in">lockdep_dout</span>(<span class="number">0</span>) &lt;&lt; <span class="string">&quot;  &quot;</span> &lt;&lt; lock_names[q-&gt;first] &lt;&lt; <span class="string">&quot; (&quot;</span> &lt;&lt; q-&gt;first &lt;&lt; <span class="string">&quot;)&quot;</span> &lt;&lt; dendl;</span><br><span class="line">    <span class="keyword">if</span> (q-&gt;second) &#123;</span><br><span class="line">      <span class="built_in">lockdep_dout</span>(<span class="number">0</span>) &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">      q-&gt;second-&gt;<span class="built_in">print</span>(*_dout);</span><br><span class="line">      *_dout &lt;&lt; dendl;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">lockdep_dout</span>(<span class="number">0</span>) &lt;&lt; <span class="string">&quot;\n&quot;</span> &lt;&lt; dendl;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// don&#x27;t add this dependency, or we&#x27;ll get aMutex. cycle in the graph, and</span></span><br><span class="line">  <span class="comment">// does_follow() won&#x27;t terminate.</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">assert</span>(<span class="number">0</span>);  <span class="comment">// actually, we should just die here.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为我们一开始判断的是<code>!follower[p-&gt;first][id]</code>，也就意味着<code>p-&gt;first</code>在<code>id</code>锁之前发生，而<code>dose_follow(id, p-&gt;first)</code>为<code>True</code>又表示了<code>id</code>在<code>p-&gt;first</code>锁之前发生；这样就发生了一个循环依赖，所以最终会导致死锁。</p>
+<p>一旦上面的依赖检查无误，我们就可以正确的加入依赖关系，并且表明<code>id</code>是能够被上锁的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">  BackTrace *bt = <span class="literal">NULL</span>;</span><br><span class="line">  <span class="keyword">if</span> (force_backtrace || <span class="built_in">lockdep_force_backtrace</span>()) &#123;</span><br><span class="line">    bt = <span class="keyword">new</span> <span class="built_in">BackTrace</span>(BACKTRACE_SKIP);</span><br><span class="line">  &#125;</span><br><span class="line">  follows[p-&gt;first][id] = <span class="literal">true</span>;</span><br><span class="line">  follows_bt[p-&gt;first][id] = bt;</span><br><span class="line">  <span class="built_in">lockdep_dout</span>(<span class="number">10</span>) &lt;&lt; lock_names[p-&gt;first] &lt;&lt; <span class="string">&quot; -&gt; &quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot; at&quot;</span> &lt;&lt; dendl;</span><br><span class="line">  <span class="comment">//bt-&gt;print(*_dout);</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> id;</span><br></pre></td></tr></table></figure>
+
+<p>现在我们回到<code>Lock</code>函数中，如果<code>_will_lock</code>没有触发$BackTrace$就说明该<code>id</code>是可以正确上锁的，因此我们就可以调用上锁API</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">r = <span class="built_in">pthread_mutex_lock</span>(&amp;_m);</span><br><span class="line"><span class="built_in">assert</span>(r == <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>如果我们开启了<code>lockdep</code>功能，那么在成功上锁后，还需要进行<code>_locked</code>操作检查，记录锁的状态和相关的调试信息</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (lockdep &amp;&amp; g_lockdep) _locked();</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> _locked() &#123;    <span class="comment">// just locked</span></span><br><span class="line">  id = <span class="built_in">lockdep_locked</span>(name.<span class="built_in">c_str</span>(), id, backtrace);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要的核心操作在于更新<code>held</code>哈希表状态，如果启用了$backtrace$机制，则保存下$BackTrace$</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (force_backtrace || <span class="built_in">lockdep_force_backtrace</span>())</span><br><span class="line">  held[p][id] = <span class="keyword">new</span> <span class="built_in">BackTrace</span>(BACKTRACE_SKIP);</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">  held[p][id] = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<p>更新完锁的状态后，还需要调用<code>_post_lock</code>对锁的持有者进行更新</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> _post_lock() &#123;</span><br><span class="line">  <span class="keyword">if</span> (!recursive) &#123;</span><br><span class="line">    <span class="built_in">assert</span>(nlock == <span class="number">0</span>);</span><br><span class="line">    locked_by = <span class="built_in">pthread_self</span>();</span><br><span class="line">  &#125;;</span><br><span class="line">  nlock++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里需要注意，如果没有启用<code>recursive</code>，会对<code>nlock</code>进行断言，表示不允许获取已经持有的锁。</p>
+<h4 id="解锁过程"><a href="#解锁过程" class="headerlink" title="解锁过程"></a>解锁过程</h4><p>解锁相对于上锁而言，简单了不少，我们需要对锁的状态进行更改，然后判断是否能够解锁后，进行解锁即可</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">Mutex::Unlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  _pre_unlock();</span><br><span class="line">  <span class="keyword">if</span> (lockdep &amp;&amp; g_lockdep) _will_unlock();</span><br><span class="line">  <span class="type">int</span> r = <span class="built_in">pthread_mutex_unlock</span>(&amp;_m);</span><br><span class="line">  <span class="built_in">assert</span>(r == <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>_pre_unlock</code>会确认引用计数，如果没有启用<code>recursive</code>还会释放其持有者</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> _pre_unlock() &#123;</span><br><span class="line">  <span class="built_in">assert</span>(nlock &gt; <span class="number">0</span>);</span><br><span class="line">  --nlock;</span><br><span class="line">  <span class="keyword">if</span> (!recursive) &#123;</span><br><span class="line">    <span class="built_in">assert</span>(locked_by == <span class="built_in">pthread_self</span>());</span><br><span class="line">    locked_by = <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">assert</span>(nlock == <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>已经准备完解锁后，如果启用了<code>lockdep</code>则需要判断依赖条件是否能够解锁</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> _will_unlock() &#123;  <span class="comment">// about to unlock</span></span><br><span class="line">  id = <span class="built_in">lockdep_will_unlock</span>(name.<span class="built_in">c_str</span>(), id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>直接删除掉<code>held</code>哈希表中的记录即可</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> held[p][id];</span><br><span class="line">held[p].<span class="built_in">erase</span>(id);</span><br></pre></td></tr></table></figure>
+
+<h4 id="Locker"><a href="#Locker" class="headerlink" title="Locker"></a>Locker</h4><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/Mutex.h#L110">Locker</a>是对$Mutex$的封装，可以通过$Locker$直接调用<code>Lock</code>和<code>UnLock</code></p>
+<h3 id="Cond"><a href="#Cond" class="headerlink" title="Cond"></a>Cond</h3><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/Cond.h#L29">Cond</a>用于线程同步的封装，主要基于 POSIX 的 <code>pthread_cond_t</code> 条件变量来实现。条件变量用于在多线程编程中协调线程之间的执行顺序，与$Mutex$配合使用</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Cond</span> &#123;</span><br><span class="line">  <span class="comment">// my bits</span></span><br><span class="line">  <span class="type">pthread_cond_t</span> _c;</span><br><span class="line">  Mutex *waiter_mutex;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>_c<ul>
+<li>封装<code>pthread_cond_t</code>，用于线程之间的等待和信号传递</li>
+</ul>
+</li>
+<li>waiter_mutex<ul>
+<li>指向当前等待该条件变量的$Mutex$,<strong>确保一个条件变量只能与一个互斥锁绑定</strong></li>
+</ul>
+</li>
+</ul>
+<p>对于$Cond$的初始化和销毁操作没有特别需要说明的，当然，$Cond$<strong>仍旧不允许拷贝</strong>。</p>
+<p><strong>在进入等待时释放锁，被唤醒后重新持有锁，这样可以保证对共享资源的修改是线程安全的</strong>。这也是我们需要遵循的设计原理。</p>
+<h4 id="Wait"><a href="#Wait" class="headerlink" title="Wait"></a>Wait</h4><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/Cond.h#L48">Wait</a>在$Cond$中有多个重载，但最终的操作都是由这样的代码进行处理的</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">Wait</span><span class="params">(Mutex &amp;mutex)</span>  </span>&#123; </span><br><span class="line">  <span class="comment">// make sure this cond is used with one mutex only</span></span><br><span class="line">  <span class="built_in">assert</span>(waiter_mutex == <span class="literal">NULL</span> || waiter_mutex == &amp;mutex);</span><br><span class="line">  waiter_mutex = &amp;mutex;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">assert</span>(mutex.<span class="built_in">is_locked</span>());</span><br><span class="line"></span><br><span class="line">  mutex._pre_unlock();</span><br><span class="line">  <span class="type">int</span> r = <span class="built_in">pthread_cond_wait</span>(&amp;_c, &amp;mutex._m);</span><br><span class="line">  mutex._post_lock();</span><br><span class="line">  <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在调用<code>pthread_cond_wait</code>前，我们需要保证$Mutex$是未上锁状态，因此需要使用<code>_pre_lock</code>来保证$Mutex$维护的信息是表示解锁状态的：</p>
+<p><strong>因为一旦<code>pthread_cond_wait</code>进入<code>wait</code>状态，其会自动解锁；<code>pthread_cond_wait</code>被唤醒后，会重新获取锁，因此我们要恢复之前$Mutex$维护的信息，表示其是上锁的</strong>。</p>
+<h4 id="Signal"><a href="#Signal" class="headerlink" title="Signal"></a>Signal</h4><p>对于$Signal$，通过调用<code>pthread_cond_broadcast</code>和<code>pthread_cond_signal</code>可以选择唤醒所有等待线程，还是一个等待线程。</p>
+<h3 id="ThreadPool-Structure"><a href="#ThreadPool-Structure" class="headerlink" title="ThreadPool Structure"></a>ThreadPool Structure</h3><p>现在我们回到$ThreadPool$的代码上</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ThreadPool</span> : <span class="keyword">public</span> <span class="type">md_config_obs_t</span> &#123;</span><br><span class="line">  CephContext *cct;</span><br><span class="line">  string name;</span><br><span class="line">  string thread_name;</span><br><span class="line">  string lockname;</span><br><span class="line">  Mutex _lock;</span><br><span class="line">  Cond _cond;</span><br><span class="line">  <span class="type">bool</span> _stop;</span><br><span class="line">  <span class="type">int</span> _pause;</span><br><span class="line">  <span class="type">int</span> _draining;</span><br><span class="line">  Cond _wait_cond;</span><br><span class="line">  <span class="type">int</span> ioprio_class, ioprio_priority;</span><br><span class="line">  </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> _num_threads;</span><br><span class="line">  string _thread_num_option;</span><br><span class="line">  <span class="type">const</span> <span class="type">char</span>** _conf_keys;</span><br><span class="line">  vector&lt;WorkQueue_*&gt; work_queues;</span><br><span class="line">  <span class="type">int</span> last_work_queue;</span><br><span class="line">  set&lt;WorkThread*&gt; _threads;</span><br><span class="line">  list&lt;WorkThread*&gt; _old_threads;</span><br><span class="line">  <span class="type">int</span> processing;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>name<ul>
+<li>线程池的名字</li>
+</ul>
+</li>
+<li>lockname<ul>
+<li>锁的名字</li>
+</ul>
+</li>
+<li>_lock<ul>
+<li>线程互斥的锁，也是工作队列访问互斥的锁</li>
+</ul>
+</li>
+<li>_cond<ul>
+<li>锁对应的条件变量，用于控制并发</li>
+</ul>
+</li>
+<li>_stop<ul>
+<li>是否停止线程池</li>
+</ul>
+</li>
+<li>_pause<ul>
+<li>暂时中止线程池</li>
+</ul>
+</li>
+<li>_draining<ul>
+<li>在停止线程池前，等待已经提交的任务完成执行</li>
+</ul>
+</li>
+<li>_wait_cond<ul>
+<li>通常用于等待所有线程完成或等待任务队列清空的场景</li>
+</ul>
+</li>
+<li>ioprio_class, ioprio_priority<ul>
+<li>ioprio_class 表示 I&#x2F;O 优先级类别，比如实时优先级($IOPRIO_CLASS_RT$)、标准优先级($IOPRIO_CLASS_BE$)或空闲优先级($IOPRIO_CLASS_IDLE$)</li>
+<li>ioprio_priority 则是具体的优先级值，通常是一个整数，值越小优先级越高</li>
+</ul>
+</li>
+<li>_num_threads<ul>
+<li>表示线程池中线程的数量。这个值决定了线程池启动时会创建多少个工作线程。线程池的大小可以动态调整，也可以通过配置文件或参数设置。</li>
+</ul>
+</li>
+<li>_thread_num_option<ul>
+<li>线程数量配置选项的名称</li>
+</ul>
+</li>
+<li>_conf_keys<ul>
+<li>指向配置键的数组，可能用于监听或监控与线程池相关的配置更改</li>
+</ul>
+</li>
+<li>work_queues<ul>
+<li>任务队列的集合，每个任务队列($WorkQueue_$)通常代表一组待处理的工作项。$ThreadPool$通过这些任务队列来分发任务给线程。</li>
+</ul>
+</li>
+<li>last_work_queue<ul>
+<li>记录上一次被调度的任务队列索引。通常线程池在处理多个任务队列时，会轮询这些队列来选择下一个需要处理的队列</li>
+</ul>
+</li>
+<li>_threads<ul>
+<li>正在运行的工作线程的集合</li>
+</ul>
+</li>
+<li>_old_threads<ul>
+<li>旧线程的列表，可能用于管理即将退出或已经停止的线程</li>
+</ul>
+</li>
+<li>processing<ul>
+<li>表示当前正在处理的任务数量</li>
+</ul>
+</li>
+</ul>
+<h4 id="TPHandle"><a href="#TPHandle" class="headerlink" title="TPHandle"></a>TPHandle</h4><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/WorkQueue.h#L42">ThreadPoolHandle</a>主要用于监控和管理线程池的超时、心跳机制等功能。通过与 ThreadPool 的交互来控制线程池的超时行为，并防止线程池中的线程长时间无响应。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TPHandle</span> &#123;</span><br><span class="line">  <span class="keyword">friend</span> <span class="keyword">class</span> <span class="title class_">ThreadPool</span>;</span><br><span class="line">  CephContext *cct;       <span class="comment">// Ceph全局上下文信息</span></span><br><span class="line">  heartbeat_handle_d *hb; <span class="comment">// 心跳机制处理句柄</span></span><br><span class="line">  <span class="type">time_t</span> grace;           <span class="comment">// 表示宽限时间（grace period）的变量,用于控制线程的最大响应时间</span></span><br><span class="line">  <span class="type">time_t</span> suicide_grace;   <span class="comment">// 用于控制线程的“自杀”时间，即当线程长时间不响应时，</span></span><br><span class="line">                          <span class="comment">// 系统可能会采取强制终止的手段，确保系统的整体健康</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="heartbeat-handle-d"><a href="#heartbeat-handle-d" class="headerlink" title="heartbeat_handle_d"></a>heartbeat_handle_d</h5><p>首先我们先需要搞懂<code>heartbeat_handle_d</code>这一玩意到底做了些什么，如果我们了解过<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Raft_(algorithm)">Raft</a>的话，就理应知晓心跳机制的作用：</p>
+<p><strong>用于保持集群中的Leader和Follower之间的同步状态，并确保集群能够在一致的状态下正常运行</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">heartbeat_handle_d</span> &#123;</span><br><span class="line">  <span class="type">const</span> std::string name;</span><br><span class="line">  <span class="type">atomic_t</span> timeout, suicide_timeout;</span><br><span class="line">  <span class="type">time_t</span> grace, suicide_grace;</span><br><span class="line">  std::list&lt;heartbeat_handle_d*&gt;::iterator list_item;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">explicit</span> <span class="title">heartbeat_handle_d</span><span class="params">(<span class="type">const</span> std::string&amp; n)</span></span></span><br><span class="line"><span class="function">    : name(n), grace(<span class="number">0</span>), suicide_grace(<span class="number">0</span>)</span></span><br><span class="line"><span class="function">  &#123;</span> &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>从<code>heartbeat_handle_d</code>的结构上看，其主要是管理了一个可维护的时间序列。</p>
+<p><code>timeout</code>表示常规的心跳超时。在超时时间内，组件或线程必须发送心跳信号，否则系统将视其为不可用；而<code>grace</code>表示宽限期。宽限期是允许组件或线程在不发送心跳信号的情况下，继续运行的一段时间。在 grace 期内，即使没有收到心跳信号，系统不会立即判定线程失效。它是一种缓冲机制，防止短暂的延迟或网络波动导致不必要的超时。</p>
+<p>一旦超时后，如果组件或线程在<code>suicide_timeout</code>时间内仍未发送心跳信号，系统可能会采取更严重的措施，如强制结束线程或将其标记为失败。<code>suicide_grace</code> 是类似于 <code>grace</code> 的宽限期，但它与<code>suicide</code>相关联</p>
+<hr>
+<p>现在，我们回到$TPHandle$的实现中，这里主要给出了两个函数用于处理心跳机制：<code>reset_tp_timeout</code>和<code>suspend_tp_timeout</code></p>
+<p><code>reset_tp_timeout</code>的内部由$CephContext$调用<code>reset_timeout()</code>实现，因为$CephContext$会管理全局心跳信息，因此应该从全局上修改；该函数用于<strong>重置心跳超时时间，并且设置新的宽恕时间</strong>(如果有的话)：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cct-&gt;<span class="built_in">get_heartbeat_map</span>()-&gt;<span class="built_in">reset_timeout</span>(hb, grace, suicide_grace);</span><br></pre></td></tr></table></figure>
+
+<p>当然，<code>suspend_tp_timeout</code>也是由$CephContext$调用<code>clear_timeout()</code>实现；其作用是清空超时时间和宽恕时间</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cct-&gt;<span class="built_in">get_heartbeat_map</span>()-&gt;<span class="built_in">clear_timeout</span>(hb);</span><br></pre></td></tr></table></figure>
+
+<h4 id="WorkQueue"><a href="#WorkQueue" class="headerlink" title="WorkQueue_"></a>WorkQueue_</h4><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/WorkQueue.h#L61">WorkQueue_</a>是 Ceph 中一个工作队列的基本接口，供工作线程使用。工作队列在 Ceph 这样的分布式系统中，通常用来管理需要处理的任务。该接口定义了与队列管理、任务处理相关的核心操作和抽象方法，具体实现将由继承该接口的类来完成。</p>
+<p>其中，<code>timeout_interval</code>表示工作队列中的任务超时时间。每个任务在队列中不应停留超过这个时间，如果超时，可能会触发警告或其他恢复机制。<code>suicide_interval</code>表示自杀间隔时间。如果队列长时间处于无响应状态或任务处理过于缓慢，可能会根据这个时间采取终止处理或回收资源的措施。</p>
+<p>不论在哪一种$WorkQueue$中，我们只需要记住：</p>
+<p><strong>进队时需要加入任务并唤醒一个线程处理</strong>。</p>
+<h5 id="BatchWorkQueue"><a href="#BatchWorkQueue" class="headerlink" title="BatchWorkQueue"></a>BatchWorkQueue</h5><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/WorkQueue.h#L101">BatchWorkQueue</a>用于处理一批工作项。该类通过泛型模板来灵活适应不同类型的工作项，并提供了批量处理任务的机制</p>
+<p>对于$BatchWorkQueue$而言，实际上还是一个基类，主要用于需要进行批处理的Work去实例化。</p>
+<p>我们需要注意的函数可能是：</p>
+<ul>
+<li><code>queue</code>和<code>dequeue</code></li>
+<li>需要衍生类实现的<code>_enqueue</code>和<code>_dequeue</code></li>
+<li>需要衍生类实现的<code>_process</code>和<code>_process_finish</code></li>
+</ul>
+<h5 id="WorkQueueVal"><a href="#WorkQueueVal" class="headerlink" title="WorkQueueVal_"></a>WorkQueueVal_</h5><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/WorkQueue.h#L182">WorkQueueVal_</a>专门用于处理按值传递的任务。与其他工作队列不同，它通过模板参数来支持值类型（而非指针类型）的任务处理，适合于处理较小的、内存占用较少的任务对象。</p>
+<p>在该类型中，多出来两个成员用于管理任务队列：</p>
+<ul>
+<li><code>to_process</code>：任务处理列表，存储待处理的任务。在队列取出任务时，会将其放入 <code>to_process</code> 列表。</li>
+<li><code>to_finish</code>：任务完成列表，存储已处理但未完成的任务。任务处理完成后，会被移入此列表，以便进一步的后续处理。</li>
+</ul>
+<p>上面类似，其实这也是需要具体实现各种实际操作的，不过在入队出队时，需要根据实际情况填写<code>to_process</code>和<code>to_finish</code>逻辑。</p>
+<h5 id="WorkQueue-1"><a href="#WorkQueue-1" class="headerlink" title="WorkQueue"></a>WorkQueue</h5><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/WorkQueue.h#L266">WorkQueue</a>主要用于处理较大或包含动态分配内存的工作项。</p>
+<p><strong>该类适用于需要异步处理大量数据的场景，例如在 Ceph 中处理存储请求的后台任务，能够有效管理动态分配的内存，并确保任务的并发处理</strong>。</p>
+<h5 id="PointerWQ"><a href="#PointerWQ" class="headerlink" title="PointerWQ"></a>PointerWQ</h5><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/3a66dd4f30852819c1bdaa8ec23c795d4ad77269/src/common/WorkQueue.h#L346">PointerWQ</a>实现了一个按指针提交的工作队列。这个类的设计主要用于处理类型为 T 的工作项，适合于需要动态内存管理的场景。</p>
+<p>和上面不同的是，$PointerWQ$多了两个成员用于管理内部任务信息：</p>
+<ul>
+<li><code>m_items</code>: 存储指向工作项的指针的列表，使用双向链表方便在队列头部和尾部进行插入和删除。</li>
+<li><code>m_processing</code>: 记录当前正在处理的工作项的数量，保证线程安全。</li>
+</ul>
+<h4 id="WorkThread"><a href="#WorkThread" class="headerlink" title="WorkThread"></a>WorkThread</h4><h5 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h5><p><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph/blob/c5faa93d2696af5c9c4f130b73e6e13e30e206d7/src/common/Thread.h#L34">Thread</a>是Ceph中对于$POSIX$线程的封装。<strong>额外提供了优先级处理</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Thread</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  <span class="type">pthread_t</span> thread_id;</span><br><span class="line">  <span class="type">pid_t</span> pid;</span><br><span class="line">  <span class="type">int</span> ioprio_class, ioprio_priority;</span><br><span class="line">  <span class="type">int</span> cpuid;</span><br><span class="line">  <span class="type">const</span> <span class="type">char</span> *thread_name;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我们主要需要注意的是Ceph在创建、销毁和设置线程属性时的处理：</p>
+<p>对于创建线程，$Thread$特别提供了<code>try_create</code>用于处理创建线程的核心部分：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">stacksize &amp;= CEPH_PAGE_MASK;  <span class="comment">// must be multiple of page</span></span><br><span class="line">  <span class="keyword">if</span> (stacksize) &#123;</span><br><span class="line">    thread_attr = &amp;thread_attr_loc;</span><br><span class="line">    <span class="built_in">pthread_attr_init</span>(thread_attr);</span><br><span class="line">    <span class="built_in">pthread_attr_setstacksize</span>(thread_attr, stacksize);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们通过传入的线程栈大小与设置的页掩码比较，确定了传入的参数是合乎规范的，因此设定了线程的栈大小属性。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">sigset_t</span> old_sigset;</span><br><span class="line"><span class="keyword">if</span> (g_code_env == CODE_ENVIRONMENT_LIBRARY) &#123;</span><br><span class="line">  <span class="built_in">block_signals</span>(<span class="literal">NULL</span>, &amp;old_sigset);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="type">int</span> to_block[] = &#123; SIGPIPE , <span class="number">0</span> &#125;;</span><br><span class="line">  <span class="built_in">block_signals</span>(to_block, &amp;old_sigset);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>在 Ceph 中，许多组件都依赖于多线程来处理请求（如存储请求、数据复制等）。在创建新线程之前阻塞信号，可以确保新线程在执行关键初始化逻辑时不会意外中断，从而维护系统的稳定性</strong>。</p>
+<p>允许 Ceph 在不同的部署或运行模式下采取不同的信号处理策略。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">r = <span class="built_in">pthread_create</span>(&amp;thread_id, thread_attr, _entry_func, (<span class="type">void</span>*)<span class="keyword">this</span>);</span><br><span class="line"><span class="built_in">restore_sigset</span>(&amp;old_sigset);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (thread_attr) &#123;</span><br><span class="line">  <span class="built_in">pthread_attr_destroy</span>(thread_attr);	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当确保Ceph需要新启动的线程不会收到其他线程干扰后，就可以开始启动线程，然后恢复信号状态。如果在之前设置了线程属性，则需要销毁保证资源回收。</p>
+<p>我们发现，这里通过回调，使得线程从<code>_entry_func</code>启动，并且将自身传入作为参数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> *Thread::_entry_func(<span class="type">void</span> *arg) &#123;</span><br><span class="line">  <span class="type">void</span> *r = ((Thread*)arg)-&gt;<span class="built_in">entry_wrapper</span>();</span><br><span class="line">  <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>entry_wrapper</code>函数中，会对线程的属性进一步设置，同时调用真正线程应该执行的函数(这一点由衍生类进行实现)：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> *<span class="title">Thread::entry_wrapper</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> p = <span class="built_in">ceph_gettid</span>(); <span class="comment">// may return -ENOSYS on other platforms</span></span><br><span class="line">  <span class="keyword">if</span> (p &gt; <span class="number">0</span>)</span><br><span class="line">    pid = p;</span><br><span class="line">  <span class="keyword">if</span> (pid &amp;&amp;</span><br><span class="line">      ioprio_class &gt;= <span class="number">0</span> &amp;&amp;</span><br><span class="line">      ioprio_priority &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">ceph_ioprio_set</span>(IOPRIO_WHO_PROCESS,</span><br><span class="line">		    pid,</span><br><span class="line">		    <span class="built_in">IOPRIO_PRIO_VALUE</span>(ioprio_class, ioprio_priority));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (pid &amp;&amp; cpuid &gt;= <span class="number">0</span>)</span><br><span class="line">    _set_affinity(cpuid);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">pthread_setname_np</span>(<span class="built_in">pthread_self</span>(), thread_name);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">entry</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>ceph_gettid</code>对<code>SYS_gettid</code>进行直接调用，获取当前线程的线程ID，如果存在，那且有优先级设置，我们就需要对优先级进行设置：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">syscall</span>(SYS_ioprio_set, whence, who, ioprio);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>whence</code>指明了是用于线程还是进程</li>
+<li><code>who</code>指明用于哪一个目标</li>
+<li><code>ioprio</code>则是优先级</li>
+</ul>
+<p>设置完完优先级后，我们还需要对CPU进行处理，将特定线程绑定到特定的CPU上，提高资源利用率</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">cpu_set_t</span> cpuset;</span><br><span class="line"><span class="built_in">CPU_ZERO</span>(&amp;cpuset);</span><br><span class="line"></span><br><span class="line"><span class="built_in">CPU_SET</span>(id, &amp;cpuset);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">sched_setaffinity</span>(<span class="number">0</span>, <span class="built_in">sizeof</span>(cpuset), &amp;cpuset) &lt; <span class="number">0</span>)</span><br><span class="line">  <span class="keyword">return</span> -errno;</span><br><span class="line"><span class="comment">/* guaranteed to take effect immediately */</span></span><br><span class="line"><span class="built_in">sched_yield</span>();</span><br></pre></td></tr></table></figure>
+
+<p>最后，我们开始调用真正的线程需要执行的函数入口<code>entry</code>。</p>
+<hr>
+<p>现在我们回到$WorkThread$结构体，该结构主要针对<code>entry</code>进行实现。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> *<span class="title">entry</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  pool-&gt;<span class="built_in">worker</span>(<span class="keyword">this</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在$WorkThread$中，为了方便的共享数据，我们将$ThreadPool$作为指针成员放置在$WorkThread$中，然后通过$ThreadPool$来进行$work$(在后面详细介绍其工作原理)。</p>
+<hr>
+<h3 id="Start-Thread"><a href="#Start-Thread" class="headerlink" title="Start Thread"></a>Start Thread</h3><p>到现在为止，我们已经了解了关于$ThreadPool$的所有零碎的片段，现在，应该从$ThreadPool$会做什么事情开始进行分析了。</p>
+<p>在$ThreadPool$中会提供一个$start$函数入口作为线程池的启动函数，而该函数会简单的调用$start_thread$</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">WorkThread *wt = <span class="keyword">new</span> <span class="built_in">WorkThread</span>(<span class="keyword">this</span>);</span><br><span class="line">_threads.<span class="built_in">insert</span>(wt);</span><br><span class="line"><span class="type">int</span> r = wt-&gt;<span class="built_in">set_ioprio</span>(ioprio_class, ioprio_priority);</span><br><span class="line">wt-&gt;<span class="built_in">create</span>(thread_name.<span class="built_in">c_str</span>());</span><br></pre></td></tr></table></figure>
+
+<p><code>start_thread</code>会通过$WorkThread$创建一个工作线程，然后设置其优先级，并真正的创建一个$POSIX\ Thread$。启动的线程会自动的调用<code>worker</code>函数，对于$ThreadPool$，<code>worker</code>是主要的核心逻辑：</p>
+<ol>
+<li>将当前工作线程加入到心跳管理中</li>
+<li>检查并处理已经结束的线程，确保线程池中的线程数量在规定范围内<ol>
+<li>如果当前线程数量超过了最大线程数，则记录并将该线程移交到<code>old_thread</code>中管理</li>
+</ol>
+</li>
+<li>轮询每一个工作队列中的任务<ol>
+<li>如果正确从工作队列中得到任务，通过$TPHandle$设置心跳时间，进行处理<br>2.处理完毕后，worker需要等待下一个任务</li>
+</ol>
+</li>
+<li>当所有任务轮询完毕，将该线程的心跳管理移除</li>
+</ol>
+<h3 id="Stop-Thread"><a href="#Stop-Thread" class="headerlink" title="Stop Thread"></a>Stop Thread</h3><p><code>stop</code>函数需要做的工作很简单，只需要将自身在<code>observer</code>的监视中移除，然后唤醒所有线程，并处理完休眠的线程还未完成的任务，然后逐一清空即可。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cct-&gt;_conf-&gt;<span class="built_in">remove_observer</span>(<span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">_cond.<span class="built_in">Signal</span>();</span><br><span class="line"><span class="built_in">join_old_threads</span>();</span><br></pre></td></tr></table></figure>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/10/14/CephV10-2-1-Universal-Modules/">https://chenmiaoi.github.io/2024/10/14/CephV10-2-1-Universal-Modules/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/ceph/"># ceph</a>
+                    
+                        <a href="/tags/distribute-system/"># distribute system</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2025/02/15/STL17-New-Features/">STL17: New Features</a>
+            
+            
+            <a class="next" rel="next" href="/2024/10/12/CephV10-2-1-Overall-Architecture/">CephV10.2.1: Overall Architecture</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

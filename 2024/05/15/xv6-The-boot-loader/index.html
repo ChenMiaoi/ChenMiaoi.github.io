@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>Xv6: The Boot Loader | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Xv6: The Boot Loader</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">May 15, 2024&nbsp;&nbsp;16:16:39</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/xv6/">xv6</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="XV6-Operator-System-01-The-Boot-Loader"><a href="#XV6-Operator-System-01-The-Boot-Loader" class="headerlink" title="XV6 Operator System: 01-The Boot Loader"></a>XV6 Operator System: 01-The Boot Loader</h1><hr>
+<blockquote>
+<p>在开始讲述内容前，我必须声明的是：<strong>本系列笔记是针对于有一定操作系统基础的(包括不限于：写过简单的OS，学校课程所学的操作系统课等)，因此部分内容个人认为是读者应该知晓的知识，因此不会做过多赘述</strong>。</p>
+</blockquote>
+<h2 id="Specify-Memory-Layout"><a href="#Specify-Memory-Layout" class="headerlink" title="Specify Memory Layout"></a>Specify Memory Layout</h2><p>在我们正式介绍<code>xv6-riscv</code>源码之前，我们首先得了解一个操作系统的内存布局。也就是，<code>xv6-riscv</code>的入口点以及各个<code>section</code>的布局。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405151629479.png" alt="xv6 内存布局"></p>
+<p>我们可以看见，<code>xv6-riscv</code>操作系统的入口点，也就是<code>KERNBASE</code>位于物理内存的<code>0x8000&#39;0000</code>处，并且结束于<code>PHYSTOP</code>(也就是物理内存的<code>0x8640&#39;0000</code>)处，这样我们就得到：</p>
+<p>$$<br>    PhysicalMemory(ram) &#x3D; 0x8640’0000 - 0x8000’0000 &#x3D; 0x640’0000<br>$$</p>
+<p>现在，现在让我们根据上面的内存布局图来对照对应的<code>link-script</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">OUTPUT_ARCH( &quot;riscv&quot; )</span><br><span class="line">ENTRY( _entry )</span><br><span class="line"></span><br><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">  /*</span><br><span class="line">   * ensure that entry.S / _entry is at 0x80000000,</span><br><span class="line">   * where qemu&#x27;s -kernel jumps.</span><br><span class="line">   */</span><br><span class="line">  . = 0x80000000;</span><br><span class="line"></span><br><span class="line">  .text : &#123;</span><br><span class="line">    *(.text .text.*)</span><br><span class="line">    . = ALIGN(0x1000);</span><br><span class="line">    _trampoline = .;</span><br><span class="line">    *(trampsec)</span><br><span class="line">    . = ALIGN(0x1000);</span><br><span class="line">    ASSERT(. - _trampoline == 0x1000, &quot;error: trampoline larger than one page&quot;);</span><br><span class="line">    PROVIDE(etext = .);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  .rodata : &#123;</span><br><span class="line">    . = ALIGN(16);</span><br><span class="line">    *(.srodata .srodata.*) /* do not need to distinguish this from .rodata */</span><br><span class="line">    . = ALIGN(16);</span><br><span class="line">    *(.rodata .rodata.*)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  .data : &#123;</span><br><span class="line">    . = ALIGN(16);</span><br><span class="line">    *(.sdata .sdata.*) /* do not need to distinguish this from .data */</span><br><span class="line">    . = ALIGN(16);</span><br><span class="line">    *(.data .data.*)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  .bss : &#123;</span><br><span class="line">    . = ALIGN(16);</span><br><span class="line">    *(.sbss .sbss.*) /* do not need to distinguish this from .bss */</span><br><span class="line">    . = ALIGN(16);</span><br><span class="line">    *(.bss .bss.*)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  PROVIDE(end = .);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们逐一的来分析该<code>kernel.ld</code>文件的含义。</p>
+<p>对于<code>OUTPUT_ARCH( &quot;riscv&quot; )</code>来说，是指明我们的生成架构是<code>risc-v</code>，而<code>ENTRY( _entry )</code>指定程序的入口点为 _entry。<strong>这是一个非常重要的配置，用于确定当程序开始执行时，处理器应该跳转到哪个地址开始执行代码。在操作系统内核和许多其他类型的程序中，这个地址通常是初始化代码的起始位置</strong>。</p>
+<p>我们在上文已经知道，我们设置程序的入口地址为<code>0x8000&#39;0000</code>，也就是说，我们将<code>_entry</code>的入口地址绑定为<code>0x8000&#39;0000</code>，因此，可以看见这一语句：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">. = 0x80000000;</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，我们最终生成的镜像文件中的以下<code>section</code>会从该地址处开始。同时，这也是<code>qemu-riscv</code>默认加载内核的地址。</p>
+<p>在<a target="_blank" rel="noopener" href="https://github.com/qemu/qemu/blob/master/hw/riscv/virt.c">qemu risc-v virt.c</a>文件中，有该定义:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> MemMapEntry virt_memmap[] = &#123;</span><br><span class="line">    [VIRT_DRAM] = &#123; <span class="number">0x80000000</span>,           <span class="number">0x0</span> &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> MemMapEntry *memmap = virt_memmap;</span><br><span class="line">MachineState *machine = MACHINE(s);</span><br><span class="line">target_ulong start_addr = memmap[VIRT_DRAM].base;</span><br></pre></td></tr></table></figure>
+
+<p>具体<code>qemu-riscv</code>执行的语句为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">riscv64-linux-gnu-ld ... -T kernel.ld ... -o kernel ...</span><br><span class="line">qemu-system-riscv64 -machine virt ... kernel -m 128M ...</span><br></pre></td></tr></table></figure>
+
+<p>介绍完入口点后，我们就应该介绍各个<code>section</code>了，有关于<code>ELF Sections</code>的介绍，请读者自行查阅维基百科或<a target="_blank" rel="noopener" href="https://refspecs.linuxbase.org/elf/elf.pdf">elf file pdf</a>。</p>
+<p>根据上方的内存映射，我们可以看见，第一个应该分配的便是<code>.text section</code>，其中，在<code>Kernel text</code>的映射中，<code>Trampoline</code>被映射到<code>.text</code>中(关于<code>trampoline</code>在后续讲述，此处不做过多描述，只需要知道的是: <code>trampoline</code>的大小被分配为一个页)，因此可以看见<code>kernel.ld</code>中的语句：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">.text : &#123;</span><br><span class="line">    *(.text .text.*)</span><br><span class="line">    . = ALIGN(0x1000);</span><br><span class="line">    _trampoline = .;</span><br><span class="line">    *(trampsec)</span><br><span class="line">    . = ALIGN(0x1000);</span><br><span class="line">    ASSERT(. - _trampoline == 0x1000, &quot;error: trampoline larger than one page&quot;);</span><br><span class="line">    PROVIDE(etext = .);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关于<code>.text</code>的含义，这里做出简要介绍：<strong>This section holds the “text”, or executable instructions, of a program</strong>，也就是说，<code>.text</code>段是代码文本和指令存放的区域。现在，让我们来逐语句解释上面的语句含义：</p>
+<ul>
+<li><code>*(.text .text.*)</code>: 这一行指定了在链接时将所有以<code>.text</code>开头的段(section)和所有<code>.text.</code>后跟任意字符的段都放置到<code>.text</code>段中。</li>
+<li><code>. = ALIGN(0x1000)</code>: 这一行将当前位置(.)对齐到<code>0x1000</code>(即$4MB&#x2F;page$)字节的边界。</li>
+<li><code>_trampoline = .</code>: 这一行将当前位置(.)的值赋给名为<code>_trampoline</code>的符号，这对应了<code>Trampoline</code>的映射</li>
+<li><code>*(trampsec)</code>: 这一行将所有名为<code>trampsec</code>的段(如果有的话)添加到<code>.text</code>段中，其具体含义后续介绍</li>
+<li><code>. = ALIGN(0x1000)</code>: 再次将当前位置(.)对齐到<code>0x1000</code>字节的边界，以确保<code>.text</code>段的大小是页面大小的整数倍</li>
+<li><code>ASSERT(. - _trampoline == 0x1000, &quot;error: trampoline larger than one page&quot;)</code>: 对<code>Trampoline</code>的映射大小做出检测</li>
+<li><code>PROVIDE(etext = .)</code>: 这一行定义了一个名为<code>etext</code>的符号，并将其值设置为当前位置(.)，这定义了一个类似于<code>end_text</code>的符号标识</li>
+</ul>
+<p>第二个映射的内存布局便是<code>Kernel data</code>，一般而言，<code>data</code>是有两种的，<strong>只读数据</strong>以及<strong>可读可写数据</strong>。在<code>ELF</code>文件格式中，<code>.rodata</code>通常是放于<code>.text</code>之后，<code>.data</code>之前的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">rodata : &#123;</span><br><span class="line">    . = ALIGN(16);</span><br><span class="line">    *(.srodata .srodata.*) /* do not need to distinguish this from .rodata */</span><br><span class="line">    . = ALIGN(16);</span><br><span class="line">    *(.rodata .rodata.*)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关于<code>.rodata</code>的含义：<strong>These sections hold read-only data that typically contribute to a non-writable segment in the process image</strong>，也就是说，<code>.rodata</code>段是由只读数据构成的。现在，让我们来逐语句解释上面的语句含义:</p>
+<ul>
+<li><code>. = ALIGN(16)</code>: 这行代码将当前的地址对齐到16字节边界。</li>
+<li><code>*(.srodata .srodata.*)</code>: 表示将所有在链接时发现的<code>.srodata</code>段和以<code>.srodata.</code>开头的段放入当前段(即<code>.rodata</code>段)。这包括类似<code>.srodata</code>和<code>.srodata.foo</code>这样的段。这些段通常包含只读数据。</li>
+<li><code>*(.rodata .rodata.*)</code>: 表示将所有在链接时发现的<code>.rodata</code>段和以<code>.rodata.</code>开头的段放入当前段(即<code>.rodata</code>段)</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">.data : &#123;</span><br><span class="line">    . = ALIGN(16);</span><br><span class="line">    *(.sdata .sdata.*) /* do not need to distinguish this from .data */</span><br><span class="line">    . = ALIGN(16);</span><br><span class="line">    *(.data .data.*)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">.bss : &#123;</span><br><span class="line">    . = ALIGN(16);</span><br><span class="line">    *(.sbss .sbss.*) /* do not need to distinguish this from .bss */</span><br><span class="line">    . = ALIGN(16);</span><br><span class="line">    *(.bss .bss.*)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PROVIDE(end = .);</span><br></pre></td></tr></table></figure>
+
+<p>紧接着的分配的<code>.data</code>和<code>.bss</code>段，这里不再赘述，而<code>.data</code>的含义为: <strong>These sections hold initialized data that contribute to the program’s memory image</strong>，也就是说，<code>.data</code>段包含了初始化的数据；而<code>.bss</code>段的含义为：<strong>This section holds uninitialized data that contribute to the program’s memory image</strong>，也就是说，<code>.bss</code>包含了未初始化数据。</p>
+<p>至此，<code>xv6-riscv</code>简单的内存布局便设置好了，现在，让我们把视角从内存布局处移到内核入口点。</p>
+<h2 id="Kernel-Entry-Point"><a href="#Kernel-Entry-Point" class="headerlink" title="Kernel Entry Point"></a>Kernel Entry Point</h2><p>不用多说，我们的内核环境肯定是”裸机的”，因此，我们需要根据上面的内存布局设置的入口点，设置我们的入口函数。而如何进入我们的入口函数，就需要通过汇编直接跳转到入口地址了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">.section .text</span><br><span class="line">.global _entry</span><br><span class="line">_entry:</span><br><span class="line">        # set up a stack for C.</span><br><span class="line">        # stack0 is declared in start.c,</span><br><span class="line">        # with a 4096-byte stack per CPU.</span><br><span class="line">        # sp = stack0 + (hartid * 4096)</span><br><span class="line">        la sp, stack0</span><br><span class="line">        li a0, 1024*4</span><br><span class="line">        csrr a1, mhartid</span><br><span class="line">        addi a1, a1, 1</span><br><span class="line">        mul a0, a0, a1</span><br><span class="line">        add sp, sp, a0</span><br><span class="line">        # jump to start() in start.c</span><br><span class="line">        call start</span><br><span class="line">spin:</span><br><span class="line">        j spin</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看见一个很关键的地方：<code>.text</code>段的声明，我们在上面一节中知道，<code>Kernel text</code>也就是<code>.text</code>是从<code>0x8000&#39;0000</code>地址处开始的，并且，<code>.text</code>是存储代码文本和程序指令的地方。因此，当内核启动时，会启动<code>_entry</code>作为入口点，而该入口点，就进入了上面的这一块代码。</p>
+<p>现在，让我们来逐语句的解释其含义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#define NCPU          8  // maximum number of CPUs</span><br><span class="line">__attribute__ ((aligned (16))) char stack0[4096 * NCPU];</span><br><span class="line">la sp, stack0</span><br></pre></td></tr></table></figure>
+
+<p>我们首先要为每一个<code>hart</code>分配对应的内核栈，而有一个比较有趣的现象是，<code>__attribute__ ((aligned (16)))</code>，这与我们分配<code>.bss</code>的时候一致，需要进行十六个字节的对齐。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">li a0, 1024*4</span><br></pre></td></tr></table></figure>
+
+<p>这里是设置了每一个<code>hart</code>对应的内核栈大小。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">csrr a1, mhartid</span><br><span class="line">addi a1, a1, 1</span><br><span class="line">mul a0, a0, a1</span><br><span class="line">add sp, sp, a0</span><br></pre></td></tr></table></figure>
+
+<p>从<code>mhartid</code>寄存器中读取硬件线程<code>ID</code>，计算出每一个<code>hart</code>自身对应的内核栈的偏移量，然后设置<code>sp</code>指针指向当前<code>hart</code>的专属内核栈位置。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call start</span><br></pre></td></tr></table></figure>
+
+<p>最终转跳到<code>start</code>函数中，而<code>start</code>函数，便是整个内核的开始位置。下面给出对应的实际汇编代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">0000000080000000 &lt;_entry&gt;:</span><br><span class="line">    80000000:	00009117          	auipc	sp,0x9</span><br><span class="line">    80000004:	a1010113          	addi	sp,sp,-1520 # 80008a10 &lt;stack0&gt;</span><br><span class="line">    80000008:	6505                	lui	a0,0x1</span><br><span class="line">    8000000a:	f14025f3          	csrr	a1,mhartid</span><br><span class="line">    8000000e:	0585                	addi	a1,a1,1</span><br><span class="line">    80000010:	02b50533          	mul	a0,a0,a1</span><br><span class="line">    80000014:	912a                	add	sp,sp,a0</span><br><span class="line">    80000016:	078000ef          	jal	ra,8000008e &lt;start&gt;</span><br><span class="line">    </span><br><span class="line">000000008000008e &lt;start&gt;:</span><br><span class="line">&#123;</span><br><span class="line">    8000008e:	1141                	addi	sp,sp,-16</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>由此，可以看见，<code>_entry</code>入口点确实在<code>0x8000&#39;0000</code>地址处，而最终也会正确的转跳到<code>start</code>函数中。同时，在<code>start</code>函数中，使用的<code>sp</code>指针也是独属于当前<code>hart</code>的内核栈。</p>
+<blockquote>
+<p>RISC-V Hart  </p>
+<blockquote>
+<p>在<code>RISC-V</code>架构中，<code>hart</code>代表硬件线程(<code>hardware thread</code>), 在一个多核处理器中，每个核心可以有一个或多个<code>hart</code>。每个 hart 在系统中都有一个唯一的标识符，称为 hart ID。在<code>RISC-V</code>架构中，可以通过读取特定的<code>CSR(Control and Status Register)</code>来获取当前执行的<code>hart</code>的<code>ID</code>，通常是<code>mhartid</code>寄存器。</p>
+</blockquote>
+</blockquote>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405152046139.png" alt="hart"></p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/05/15/xv6-The-boot-loader/">https://chenmiaoi.github.io/2024/05/15/xv6-The-boot-loader/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/os/"># os</a>
+                    
+                        <a href="/tags/xv6/"># xv6</a>
+                    
+                        <a href="/tags/risc-v/"># risc-v</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/05/16/xv6-The-Starter/">Xv6: The Starter</a>
+            
+            
+            <a class="next" rel="next" href="/2024/05/10/rfc1951-DEFLATE-Compressed-Data-Format-Specification/">Rfc1951: DEFLATE Compressed Data Format Specification</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

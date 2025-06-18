@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>GSOC2025: How to Support Jump_label for OpenRISC | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">GSOC2025: How to Support Jump_label for OpenRISC</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">June 15, 2025&nbsp;&nbsp;21:00:14</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/GSOC/">GSOC</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="GSOC-2025-How-To-Support-jump-label-For-OpenRISC"><a href="#GSOC-2025-How-To-Support-jump-label-For-OpenRISC" class="headerlink" title="GSOC 2025: How To Support jump_label For OpenRISC"></a>GSOC 2025: How To Support jump_label For OpenRISC</h1><p><code>jump_label</code>是Linux内核中的一种机制，用于优化频繁切换的分支代码（如 if-else、switch 等），特别是在动态启停的调试或性能监控场景中。其核心思想是通过运行时动态修改代码，将条件分支转换为无条件跳转或直接空操作(<code>NOP</code>)，从而减少分支预测开销，提升性能(<del>By DeepSeek</del>)。</p>
+<p>在过去的几周内，我通过学习<code>jump_label</code>的各种博客，源码剖析以及对应的内核文档。了解到移植并实现<code>jump_label</code>需要的步骤。</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/latest/staging/static-keys.html">Linux Kernel Documentation about static_key</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/699724456">【Linux内核|代码技巧】ARM64 jump label源码分析</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/JiMoKuangXiangQu/articles/18812838">Linux：Jump label 实现简析 - JiMoKuangXiangQu</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/dog250/article/details/106715700">Linux内核jump label与static key的原理与示例</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.hyuuhit.com/2025/05/05/static-key-jump-label/">static key &amp; jump label | 属乌鸦的</a></li>
+</ol>
+<p>在内核的文档中，有关于最为基础的<code>jump_label</code>实现顺序：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/20250616231404.png" alt="linux documentation jump_label"></p>
+<p><code>HAVE_ARCH_JUMP_LABEL</code>是内核中决定是否开启<code>static_key</code>的第一步，这指出当前硬件架构是否实现了<code>jump_label</code>所需的底层支持。而<code>JUMP_LABEL_NOP_SIZE</code>则是为了确保后续跳转指令和NOP指令替换时，指令大小一致(如果不一致，则会导致指令撕裂等问题)。</p>
+<p>可能单单讲解概念会比较模糊，我们接下来先看看对应源码的剖析进而来分析如何移植OpenRISC的<code>jump_label</code>实现。</p>
+<h2 id="JumpLabel-Source-Code-For-RISC-V"><a href="#JumpLabel-Source-Code-For-RISC-V" class="headerlink" title="JumpLabel Source Code For RISC-V"></a>JumpLabel Source Code For RISC-V</h2><p>要了解内核中<code>jump_label</code>的整体运行流程，我们就需要找到<code>jump_label</code>的运行入口(<code>jump_label_init</code>)。但这在之前，我们还需要了解到一个概念，<code>jump_label</code>实际上是一张表格，为了实现快速跳转，内核将每一个跳转点(也就是<code>static_key</code>)的信息都记录在<code>__jump_table</code>中，分别由<code>__start___jump_table</code>和<code>__stop___jump_table</code>控制起始和结尾地址。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> JUMP_TABLE_DATA							\</span></span><br><span class="line"><span class="meta">	. = ALIGN(8);							\</span></span><br><span class="line"><span class="meta">	BOUNDED_SECTION_BY(__jump_table, ___jump_table)</span></span><br><span class="line">	</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Allow architectures to handle ro_after_init data on their</span></span><br><span class="line"><span class="comment"> * own by defining an empty RO_AFTER_INIT_DATA.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> RO_AFTER_INIT_DATA</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> RO_AFTER_INIT_DATA						\</span></span><br><span class="line"><span class="meta">	. = ALIGN(8);							\</span></span><br><span class="line"><span class="meta">	__start_ro_after_init = .;					\</span></span><br><span class="line"><span class="meta">	*(.data..ro_after_init)						\</span></span><br><span class="line"><span class="meta">	JUMP_TABLE_DATA							\</span></span><br><span class="line"><span class="meta">	STATIC_CALL_DATA						\</span></span><br><span class="line"><span class="meta">	__end_ro_after_init = .;</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>上面的代码是内核对内存布局的指示，其中就包含了<code>jump_table</code>的布局信息。我们可以看到，<code>jump_table</code>以八字节对齐在内存中，并且其中有一个关键信息<code>RO_AFTER_INIT_DATA</code>。这一点是在<code>Patch V2</code>中和Shorne一起检查出的问题。</p>
+<p>了解到这一点后(<code>__jump_table</code>)，我们现在就可以开始从<code>jump_label_init</code>开始分析了。</p>
+<h3 id="JumpLabel-Init-Stage"><a href="#JumpLabel-Init-Stage" class="headerlink" title="JumpLabel Init Stage"></a>JumpLabel Init Stage</h3><p>在<code>jump_label_init</code>函数中，我们忽视掉其他无关代码(并非说它们不重要，而是去除掉这些代码并不会影响理解)。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __init <span class="title function_">jump_label_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">jump_entry</span> *<span class="title">iter_start</span> =</span> __start___jump_table;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">jump_entry</span> *<span class="title">iter_stop</span> =</span> __stop___jump_table;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">static_key</span> *<span class="title">key</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">jump_entry</span> *<span class="title">iter</span>;</span></span><br><span class="line">	</span><br><span class="line">	jump_label_sort_entries(iter_start, iter_stop);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (iter = iter_start; iter &lt; iter_stop; iter++) &#123;</span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">static_key</span> *<span class="title">iterk</span>;</span></span><br><span class="line">		<span class="type">bool</span> in_init;</span><br><span class="line"></span><br><span class="line">		in_init = init_section_contains((<span class="type">void</span> *)jump_entry_code(iter), <span class="number">1</span>);</span><br><span class="line">		jump_entry_set_init(iter, in_init);</span><br><span class="line"></span><br><span class="line">		iterk = jump_entry_key(iter);</span><br><span class="line">		<span class="keyword">if</span> (iterk == key)</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">		key = iterk;</span><br><span class="line">		static_key_set_entries(key, iter);</span><br><span class="line">	&#125;</span><br><span class="line">	static_key_initialized = <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如上，这就是<code>jump_label_init</code>的核心代码部分。由于<code>jump_label</code>的功能是通过注入汇编实现的，因此在编译阶段<code>jump_label</code>的信息便已经写入到<code>__jump_table</code>中。这里便涉及到上面内核文档中所提到的<code>arch_static_branch</code>和<code>arch_static_branch_jump</code>的实现。(此时，<code>jump_entry</code>的信息都是乱序的)。</p>
+<p>对于一个<code>static_key</code>来说，每一个<code>static_key</code>都不止对应了一个<code>jump_entry</code>因此为了防止重复处理以及性能考虑，内核首先需要对<code>jump_entry</code>进行排序(通常是按照<code>jump_entry</code>指向<code>static_key</code>的地址按升序排列)，然后才能开始下一步操作。</p>
+<p>然后需要对该<code>jump_entry</code>的地址进行检查是否位于<code>.init</code>段内，然后通过<code>jump_entry_set_init</code>对<code>jump_entry-&gt;key</code>的倒数第二比特进行配置。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title function_">jump_entry_set_init</span><span class="params">(<span class="keyword">struct</span> jump_entry *entry, <span class="type">bool</span> <span class="built_in">set</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">set</span>)</span><br><span class="line">		entry-&gt;key |= <span class="number">2</span>; <span class="comment">// set 1</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		entry-&gt;key &amp;= ~<span class="number">2</span>; <span class="comment">// clear 1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后通过<code>static_key_set_entries</code>来确保<code>static_key</code>对应的一组<code>jump_entry</code>被关联到一起。如果想要启用<code>jump_label</code>的功能，则需要通过传入参数或其他方式，触发<code>jump_label_update</code>函数，而<code>update</code>函数则会触发上述文档中关于<code>arch_jump_label_transform</code>的实现。</p>
+<p>至此，简单的<code>jump_label</code>的原理便已经阐述完毕。接下来开始陈述我的工作以及对应处理。</p>
+<h2 id="Implement-JumpLabel-For-Or1k"><a href="#Implement-JumpLabel-For-Or1k" class="headerlink" title="Implement JumpLabel For Or1k"></a>Implement JumpLabel For Or1k</h2><h3 id="PATCH-Draft"><a href="#PATCH-Draft" class="headerlink" title="PATCH Draft"></a>PATCH Draft</h3><p>2025年5月25日凌晨，我对Shorne发送了一个名为<b>《[PATCH] openrisc: tracing: Support the jump_label draft》</b>的邮件。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/20250618163046.png" alt="openrisc: tracing: Support the jump_label draft"></p>
+<p>在这一份<code>dratf patch</code>中，我针对于OpenRISC架构的<code>jump_label</code>进行移植和实现，但始终卡在了虚拟机启动界面。其中，一开始我一直认为是<code>text_patch</code>的问题，因为当时我的<code>patch</code>看上去只有<code>text_patch</code>没有实现(因为OpenRISC目前确实还没有<code>text_patch feature</code>)。因此我还有了以下的一个提问：</p>
+<p><a target="_blank" rel="noopener" href="https://lore.kernel.org/openrisc/f5a0b134-f82b-4f97-8f31-4520055d4be2@gmail.com/T/#t">《Need help implementing text_patch for JUMP_LABEL》</a></p>
+<p>但在随后与Shorne的讨论中，发现这并不是一个重点(或许说，这不是一个关键因素)。</p>
+<blockquote>
+<p>Shorne: Note I was reading other jump_label implementation, the text patching feature seems options. but it would be good to implement a clean text patching API<br>Shorne: But not required</p>
+</blockquote>
+<p>2025年5月25日下午，Shorne对我的<code>draft patch</code>进行阅读，然后给出了许多提问：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&gt; --- a/arch/openrisc/Kconfig</span><br><span class="line">&gt; +++ b/arch/openrisc/Kconfig</span><br><span class="line">&gt; @@ -44,6 +44,7 @@ config OPENRISC</span><br><span class="line">&gt;       select GENERIC_IRQ_MULTI_HANDLER</span><br><span class="line">&gt;       select MMU_GATHER_NO_RANGE if MMU</span><br><span class="line">&gt;       select TRACE_IRQFLAGS_SUPPORT</span><br><span class="line">&gt; +     select HAVE_ARCH_JUMP_LABEL</span><br><span class="line"></span><br><span class="line">SHould this be added last?  Maybe its better to have in in the same location of</span><br><span class="line">the other &#x27;select HAVE_*&#x27; definitions.</span><br><span class="line"></span><br><span class="line">&gt; +obj-$(CONFIG_JUMP_LABEL)     += jump_label.o</span><br><span class="line">&gt; +</span><br><span class="line"></span><br><span class="line">Why have this separated out with newlines?  Can it be alphabetically sorted?</span><br></pre></td></tr></table></figure>
+
+<p>这里是关于<code>HAVE_ARCH_JUMP_LABEL</code>和<code>CONFIG_JUMP_LABEL</code>的添加位置的提问，Shorne希望我与其他内核风格保持一直，因此我立刻修改了。</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; +#define WASM(inst) &quot;l.&quot; #inst</span><br><span class="line"></span><br><span class="line">Is this needed?  Why not just write l.nop and l.j below?</span><br></pre></td></tr></table></figure>
+
+<p>针对于这个问题，实际上是我参考了<code>arm</code>的风格所导致的，因为<code>arm</code>有如下代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> WASM(instr)	#instr <span class="string">&quot;.w&quot;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>但仔细想想之后，直接硬编码进去可能更好一些。所以这一点也进行了修改。</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; +             offset = jump_entry_target(entry) - jump_entry_code(entry);</span><br><span class="line">&gt; +             WARN_ON(offset &lt; -33554432 || offset &gt; 33554428);</span><br><span class="line"></span><br><span class="line">Can we avoid using the integers here?  it is hard to read, also can you have</span><br><span class="line">some comment explaining why this check isneeded?</span><br></pre></td></tr></table></figure>
+
+<p>这里需要进行详细解释了。在一开始，我参考了<code>arm</code>架构的<code>jump_label</code>的移植实现。而<code>arm</code>架构的<code>b.w</code>的格式如下：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/477f8bc1-00e3-4281-8bfd-88e0d8b9438c.png" alt="arm b.w insn"></p>
+<p>在<code>b.w</code>中，<code>arm</code>提供了24位的立即数，也就是对应了<code>b.w label</code>。而对于<code>arm</code>架构的实际立即数计算为：<code>1 &lt;&lt; 24 &lt;&lt; 2</code>。然后换算为有符号数即为：<code>-33554432 ~ 33554428</code>。因此，我在<code>draft patch</code>中直接沿用了这一数据(因为OpenRISC的<code>l.j</code>的立即数是26位的，和<code>1 &lt;&lt; 24 &lt;&lt; 2</code>相同)。</p>
+<p>但是我忽略了一点，<code>arm</code>之所以后面需要<code>&lt;&lt; 2</code>，是因为需要扩展对齐；在OpenRISC中也是如此：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/20250618171437.png" alt="openrisc l.j insn"></p>
+<blockquote>
+<p>The immediate value is shifted left two bits, sign-extended to program counter width, and<br>then added to the address of the jump instruction. The result is the effective address of the<br>jump.</p>
+</blockquote>
+<p>因此，实际上的OpenRISC对应的数值应该按照26比特再向左位移两个比特的有符号扩展进行计算：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&gt; +               /*</span><br><span class="line">&gt; +                * The actual maximum range of the l.j instruction&#x27;s offset is -134,217,728</span><br><span class="line">&gt; +                * ~ 134,217,724 (sign 26-bit imm).</span><br><span class="line">&gt; +                * For the original jump range, we need to right-shift N by 2 to obtain the</span><br><span class="line">&gt; +                * instruction&#x27;s offset.</span><br><span class="line">&gt; +                */</span><br><span class="line">&gt; +               if (unlikely(offset &lt; -134217728 || offset &gt; 134217724)) &#123;</span><br><span class="line">&gt; +                       WARN_ON_ONCE(true);</span><br><span class="line">&gt; +               &#125;</span><br><span class="line">&gt; +               /* 26bit imm mask */</span><br><span class="line">&gt; +               offset = (offset &gt;&gt; 2) &amp; 0x03ffffff;</span><br></pre></td></tr></table></figure>
+
+<p>而最后一个问题，Shorne指出：<code>HAVE_ARCH_JUMP_LABEL_RELATIVE</code>也应被实现。</p>
+<p>我查阅了主流架构(x86、arm64、RISC-V)，发现它们确实都实现了<code>HAVE_ARCH_JUMP_LABEL_RELATIVE</code>这一个feature。因此，我在后续的<code>patch</code>中进行了添加。</p>
+<p><code>HAVE_ARCH_JUMP_LABEL_RELATIVE</code>会影响两个地方：</p>
+<ul>
+<li>struct jump_label</li>
+<li>arch_static_branch和arch_static_branch_jump</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; SHould this be added last?  Maybe its better to have in in the same location of</span><br><span class="line">&gt; the other &#x27;select HAVE_*&#x27; definitions.</span><br><span class="line"></span><br><span class="line">Additionally, I think this needs: HAVE_ARCH_JUMP_LABEL_RELATIVE</span><br><span class="line"></span><br><span class="line">Also, we should update:</span><br><span class="line"></span><br><span class="line">Documentation/features/core/jump-labels/arch-support.txt</span><br></pre></td></tr></table></figure>
+
+<p>到现在，OpenRISC的<code>jump_label</code>的实现就已经有了大致雏形了。如下是无法开机的界面：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/20250618172514.png" alt="cannot start with jump_label"></p>
+<h3 id="PATCH-V1"><a href="#PATCH-V1" class="headerlink" title="PATCH V1"></a>PATCH V1</h3><p>2025年6月6日，自<code>draft patch</code>的完成已经过去快两周，因为毕业答辩和毕业论文的事情，因此之前都没有进展。当天我突然发现一个现象：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/20250618173604.png"></p>
+<p>当我把这一段代码的<code>jump_entry</code>写入的逻辑注释掉后，我发现内核可以正常启动。我立即将这一现象告诉Shorne，但Shorne问我: “<strong>Do you understand this section of code and what it does?</strong>“</p>
+<p>当时我回答了正确了，但是后面回来一想，确实我当时对这一段代码的理解不够深入。还记得<code>HAVE_ARCH_JUMP_LABEL_RELATIVE</code>这个flag吗？<code>HAVE_ARCH_JUMP_LABEL_RELATIVE</code>在这里就起了作用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&quot;.long   1b - ., &quot; label &quot; - . \n\t&quot;</span><br><span class="line">&quot;.word   &quot; key &quot; - .           \n\t&quot;</span><br></pre></td></tr></table></figure>
+
+<p>如果没有<code>HAVE_ARCH_JUMP_LABEL_RELATIVE</code>，那么实际上就应该如同<code>arm</code>架构一样的编写格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;.word 1b, &quot; label &quot;, &quot; key &quot;\n\t&quot;</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，<code>HAVE_ARCH_JUMP_LABEL_RELATIVE</code>实际上决定了<code>jump_label</code>的所有字段是保存偏移量的，如果没有这个flag，则就会类似于<code>arm</code>这样保存绝对地址。</p>
+<p>然后我就卡在这里了，过了几天后，Shorne问我：”<strong>do you need my help to get it working?</strong>“</p>
+<p>YES, I NEED. 然后我就把第一版也就是<code>PATCH V1</code>发送给了Shorne。</p>
+<h3 id="PATCH-V2"><a href="#PATCH-V2" class="headerlink" title="PATCH V2"></a>PATCH V2</h3><p>两天后，2025年6月13日，我和Shorne开始一起调试。一开始，Shorne提供了一个关键信息：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[    0.000000] jump_label_cmp: a: c0988d24 vs b: c0988d30 keya: c09cc614 vs keyb: c09cc634</span><br><span class="line">[    0.000000] jump_label_cmp: a: c098687c vs b: c0988d30 keya: c09c7174 vs keyb: c09cc634</span><br><span class="line"></span><br><span class="line">[    0.000000] Stack: </span><br><span class="line">[    0.000000] Call trace:</span><br><span class="line">[    0.000000] [&lt;(ptrval)&gt;] __sort_r+0x2e4/0x3c0</span><br><span class="line">--Type &lt;RET&gt; for more, q to quit, c to continue without paging-- </span><br><span class="line">[    0.000000] [&lt;(ptrval)&gt;] ? start_kernel+0x0/0x770</span><br><span class="line">[    0.000000] [&lt;(ptrval)&gt;] sort+0x34/0x44</span><br><span class="line">[    0.000000] [&lt;(ptrval)&gt;] ? setup_arch+0x138/0x1b0</span><br><span class="line">[    0.000000] [&lt;(ptrval)&gt;] ? jump_label_cmp+0x0/0x84</span><br><span class="line">[    0.000000] [&lt;(ptrval)&gt;] ? jump_label_swap+0x0/0x6c</span><br><span class="line">[    0.000000] [&lt;(ptrval)&gt;] jump_label_init+0x74/0x134</span><br><span class="line">[    0.000000] [&lt;(ptrval)&gt;] ? start_kernel+0x90/0x770</span><br><span class="line">[    0.000000] [&lt;(ptrval)&gt;] ? start_kernel+0x0/0x770</span><br></pre></td></tr></table></figure>
+
+<p>貌似之前的崩溃是因为<code>jump_label_init</code>在排序时出了问题。然后Shorne指出: “<strong>Maybe this is the issue, the jump_table is stored in the .rodata section which is read only data</strong>.”</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">c00f6de8 &lt;jump_label_swap&gt;:</span><br><span class="line">c00f6de8:       <span class="number">9</span>c <span class="number">21</span> ff f8     l.addi r1,r1,<span class="number">-8</span></span><br><span class="line">c00f6dec:       e2 <span class="number">23</span> <span class="number">20</span> <span class="number">02</span>     l.sub r17,r3,r4</span><br><span class="line">c00f6df0:       <span class="number">86</span> <span class="number">64</span> <span class="number">00</span> <span class="number">00</span>     l.lwz r19,<span class="number">0</span>(r4)</span><br><span class="line">c00f6df4:       e2 <span class="number">73</span> <span class="number">88</span> <span class="number">02</span>     l.sub r19,r19,r17</span><br><span class="line">c00f6df8:       <span class="number">86</span> a3 <span class="number">00</span> <span class="number">00</span>     l.lwz r21,<span class="number">0</span>(r3)</span><br><span class="line">c00f6dfc:       d4 <span class="number">03</span> <span class="number">98</span> <span class="number">00</span>     l.sw <span class="number">0</span>(r3),r19 &lt;--- this line</span><br><span class="line">c00f6e00:       <span class="number">86</span> e4 <span class="number">00</span> <span class="number">04</span>     l.lwz r23,<span class="number">4</span>(r4)</span><br><span class="line">c00f6e04:       e2 f7 <span class="number">88</span> <span class="number">02</span>     l.sub r23,r23,r17</span><br><span class="line">c00f6e08:       <span class="number">86</span> <span class="number">63</span> <span class="number">00</span> <span class="number">04</span>     l.lwz r19,<span class="number">4</span>(r3)</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">jump_label_swap</span><span class="params">(<span class="type">void</span> *a, <span class="type">void</span> *b, <span class="type">int</span> size)</span>                        </span><br><span class="line">&#123;                                                                              </span><br><span class="line">      <span class="type">long</span> delta = (<span class="type">unsigned</span> <span class="type">long</span>)a - (<span class="type">unsigned</span> <span class="type">long</span>)b;                      </span><br><span class="line">      <span class="class"><span class="keyword">struct</span> <span class="title">jump_entry</span> *<span class="title">jea</span> =</span> a;                                            </span><br><span class="line">      <span class="class"><span class="keyword">struct</span> <span class="title">jump_entry</span> *<span class="title">jeb</span> =</span> b;                                            </span><br><span class="line">      <span class="class"><span class="keyword">struct</span> <span class="title">jump_entry</span> <span class="title">tmp</span> =</span> *jea;                                          </span><br><span class="line">                                                                             </span><br><span class="line">      jea-&gt;code       = jeb-&gt;code - delta;    &lt;---   this line                             </span><br><span class="line">      jea-&gt;target     = jeb-&gt;target - delta;                                 </span><br><span class="line">      jea-&gt;key        = jeb-&gt;key - delta;                                    </span><br><span class="line">                                                                             </span><br><span class="line">      jeb-&gt;code       = tmp.code + delta;</span><br></pre></td></tr></table></figure>
+
+<p>在这一点上，Shorne和我达成了一致：一定是因为jump_label_init在排序时，对<code>.rodata</code>的数据进行了修改。但是其他架构的排序也是发生在<code>.rodata</code>内，<strong>因此肯定有一种机制使得<code>.rodata</code>当时是允许修改的</strong>。</p>
+<p>在和Shorne的交流中，他的一句话引起了我的注意：”<strong>but according the the failure it is not, we should if the page table is marking it as read only during setup</strong>“。确实，<code>.rodata</code>按理来说是无法被修改的，但是如果在启动时，<code>.rodata</code>还未被标记为只读状态，那么是否这时候的<code>.rodata</code>是能够被修改的呢？</p>
+<p>答案是肯定的，接近二十分钟后，我找到了答案。我惊喜的和Shorne说，”wow, look this! <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/27605c8c0f69e319df156b471974e4e223035378/arch/riscv/kernel/setup.c#L312">linux kernel arch riscv setup.c#L312</a>“。在RISC-V架构中，<code>setup_arch</code>函数(每一个架构都会进行实现)中在最开始就会调用一个<code>setup_initial_init_mm</code>和<code>paging_init</code>函数。当我转过头去查看OpenRISC的对应函数时，发现了惊喜。</p>
+<p>在OpenRISC的<code>paging_init</code>中有这样的一个调用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="type">char</span> _s_kernel_ro[], _e_kernel_ro[];</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __init <span class="title function_">map_ram</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span> (v &gt;= (u32) _e_kernel_ro ||</span><br><span class="line">        v &lt; (u32) _s_kernel_ro)</span><br><span class="line">        prot = PAGE_KERNEL;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        prot = PAGE_KERNEL;</span><br><span class="line"></span><br><span class="line">    set_pte(pte, mk_pte_phys(p, prot));</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> __init <span class="title function_">paging_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    map_ram();</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当我将<code>jump_label_init</code>在<code>paging_init</code>之前进行调用时，就能够发现原本不会输出任何信息的终端开始有日志输出了。</p>
+<p>不过当时，Shorne和我说，”<strong>I don’t think so, did you see the last message I pasted about mm being null, causing the failure? it was not the read only issue.</strong>“。然后转而对<code>dtlb_miss_handler</code>和<code>itlb_miss_handler</code>进行研究。</p>
+<p>但随后，Shorne同意了我的结果：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; readelf -s vmlinux | grep -e _kernel_ro -e jump_table</span><br><span class="line">29270: c0982440     0 NOTYPE  GLOBAL DEFAULT    2 __start___jump_table</span><br><span class="line">31424: c0000000     0 NOTYPE  GLOBAL DEFAULT    1 _s_kernel_ro</span><br><span class="line">33126: c098c000     0 NOTYPE  GLOBAL DEFAULT    8 _e_kernel_ro</span><br><span class="line">37354: c0986d9c     0 NOTYPE  GLOBAL DEFAULT    2 __stop___jump_table</span><br></pre></td></tr></table></figure>
+
+<p>在这里就可以清晰的看到，<code>_s_kernel_ro</code>和<code>_e_kernel_ro</code>被写入到<code>.rodata</code>中了。但是我们发现，经过这样处理后还是会出现失败的情况，然后我对<code>jump_label_init</code>进行了分析，增加了一条测试代码：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">+       printk(&quot;static_key_initialized: %d&quot;, static_key_initialized);</span><br><span class="line">+</span><br><span class="line">        if (static_key_initialized)</span><br><span class="line">                return;</span><br></pre></td></tr></table></figure>
+
+<p>最后在日志中可以发现，<code>jump_label_init</code>实际上会调用两次，第一次在<code>setup_arch</code>中(位于<code>paging_init</code>之前)被调用，在这次调用的时候，<code>__jump_table</code>的内容是可写的，因此成功解决了<code>jump_label_sort_entries</code>的崩溃问题。需要注意，<strong>第一次运行时，如果成功了会将<code>static_key_initialized</code>设置为<code>1</code>。因此在第二次执行时，这里就直接返回，不再进行初始化</strong>。因此崩溃的实际上在另外的地方。</p>
+<p>然后，Shorne对控制台的权限进行了获取，这样能够看到更多的日志输出：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">0xefc68a77:     &quot;&quot;</span><br><span class="line">0xefc68a78:     &quot;?\377\3742printk: legacy bootconsole [ns16550a0] disableded\n&quot;</span><br><span class="line">0xefc68aaf:     &quot;&quot;</span><br><span class="line">0xefc68ab0:     &quot;?\377\3743&quot;, &#x27;[&#x27; &lt;repeats 16 times&gt;, &quot;entry wrong place&quot;, &#x27;]&#x27; &lt;repeats 20 times&gt;, &quot;40.00 BogoMIPS (lpj=200000)0)\n&quot;</span><br><span class="line">0xefc68b08:     &quot;?\377\3744pid_max: default: 32768 minimum: 30101\n&quot;</span><br><span class="line">0xefc68b34:     &quot;?\377\3745Mount-cache hash table entries: 2048 (order: 0, 8192 bytes, linear)r)\n&quot;</span><br><span class="line">0xefc68b7f:     &quot;&quot;</span><br><span class="line">0xefc68b80:     &quot;?\377\3746Mountpoint-cache hash table entries: 2048 (order: 0, 8192 bytes, linear)r)\n&quot;</span><br><span class="line">0xefc68bd0:     &quot;&quot;</span><br><span class="line">0xefc68bd1:     &quot;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>事实证明了，<code>jump_label_init</code>成功，这里是位于<code>arch_jump_label_transform_queue</code>出现了问题。当时我始终认为<code>text_patch</code>是必须的，因此在这里加了一个日志，如果运行到这里就会输出<code>entry wrong place</code>。</p>
+<p>“<strong>because missing the text_patch to flush?</strong>“，我对Shorne说，然后Shorne对这块进行了补全，并且验证了这个<code>PATCH V2</code>确实可行。</p>
+<p>最终，Shorne通过参考RISC-V架构的<code>text_patch</code>，发现RISC-V会通过<code>patch_map</code>对<code>.rodata</code>的数据进行映射，这样就不会引发<code>paging_init</code>后的<code>jump_label_update</code>的非法地址访问。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">waddr = patch_map(addr, FIX_TEXT_POKE0);</span><br><span class="line"></span><br><span class="line">	ret = copy_to_kernel_nofault(waddr, insn, len);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * We could have just patched a function that is about to be</span></span><br><span class="line"><span class="comment"> * called so make sure we don&#x27;t execute partially patched</span></span><br><span class="line"><span class="comment"> * instructions by flushing the icache as soon as possible.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">local_flush_icache_range((<span class="type">unsigned</span> <span class="type">long</span>)waddr,</span><br><span class="line">             (<span class="type">unsigned</span> <span class="type">long</span>)waddr + len);</span><br><span class="line"></span><br><span class="line">patch_unmap(FIX_TEXT_POKE0);</span><br></pre></td></tr></table></figure>
+
+<p>然后，Shorne发送了<code>PATCH V2</code>给我。</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Initial support for OpenRISC jumplabel support.  Currently causes</span><br><span class="line">crashes after jump_label is initialized.</span><br><span class="line"></span><br><span class="line">  - Need to support writing to memory by patching the page table to temporarily allow writes.</span><br><span class="line">  - Need to see what needs to be done to flush SMP pages.</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/20250618184508.png" alt="PATCH V2"></p>
+<h3 id="PATCH-V3"><a href="#PATCH-V3" class="headerlink" title="PATCH V3"></a>PATCH V3</h3><p>当天深夜，Shorne突然和我说，</p>
+<p>“<strong>I think I figured out what the failure is., it boots now. You made a basic mistake, sending patch.</strong>“</p>
+<p>我当时十分震惊，心想是什么错误。然后Shorne说，</p>
+<p>“<strong>You were missing l.nop in the branch delay slots</strong>“。</p>
+<p>是的，OpenRISC需要延迟槽。这里简单解释下延迟槽：</p>
+<p>延迟槽（Delay Slot）是RISC（精简指令集计算机）架构（如MIPS、SPARC）中的一种特殊设计，用于优化流水线执行效率。它的核心思想是：在分支指令（如跳转、调用）生效之前，允许执行紧随其后的下一条指令，从而减少流水线停顿（Pipeline Stall）—— by dpsk(deepseek)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">j    target      # jump to target</span><br><span class="line">nop              # delay slot insn (Will be executed no matter what)</span><br><span class="line"></span><br><span class="line">beq  $t0, $t1, label</span><br><span class="line">add  $t2, $t3, $t4   # delay slot insn (Will be executed even if the branch is not taken)</span><br></pre></td></tr></table></figure>
+
+<p>解决完这个问题后，Shorne给我发送了<code>PATCH V3</code>，应该说，这就是我的<code>jump_label first PATCH</code>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/20250618185504.png" alt="PATCH V3"></p>
+<p>当然，这个<code>PATCH V3</code>并没有那么完美，还有很多事情需要补充。但是，终于可以开机了！</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/20250618190005.png" alt="Start OpenRISC Linux"></p>
+<h3 id="PATCH-MORE"><a href="#PATCH-MORE" class="headerlink" title="PATCH MORE"></a>PATCH MORE</h3><p>TO BE DONE…</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2025/06/15/GSOC2025-How-To-Support-jump-label-For-OpenRISC/">https://chenmiaoi.github.io/2025/06/15/GSOC2025-How-To-Support-jump-label-For-OpenRISC/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/GSOC/"># GSOC</a>
+                    
+                        <a href="/tags/OpenRISC/"># OpenRISC</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2025/06/15/GSOC2025-How-To-Start-With-OpenRISC/">GSOC2025: How to Start With OpenRISC</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>Xv6: The Starter | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Xv6: The Starter</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">May 16, 2024&nbsp;&nbsp;2:44:23</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/xv6/">xv6</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="XV6-Operator-System-02-The-Starter"><a href="#XV6-Operator-System-02-The-Starter" class="headerlink" title="XV6 Operator System: 02-The Starter"></a>XV6 Operator System: 02-The Starter</h1><hr>
+<blockquote>
+<p>在上一节中，我们已经了解了<code>xv6-riscv</code>是如何从<code>qemu</code>中引导内核到指定入口点，并从该入口点进入转跳到特定<code>start</code>函数的。那么现在，我们就来解析<code>start</code>函数是如何工作的。</p>
+</blockquote>
+<h2 id="Start-Function"><a href="#Start-Function" class="headerlink" title="Start Function"></a>Start Function</h2><p>在开始之前，我们需要知道的是，在<code>start</code>函数中，<strong>我们并未真正地进入内核</strong>。这是什么意思呢？实际上就是，<code>start</code><strong>函数实际上还是属于引导程序的一部分，其最终的目的就是跳转到</strong><code>main</code><strong>函数中，从而进入内核态执行</strong>。同时，有一个最浅显的概念是：<code>xv6-riscv</code>的内核态是运行在<code>S</code>态的，而非<code>M</code>态，因此，我们从入口点转跳到<code>start</code>函数中时，其仍是<code>M</code>态。也就是说，<code>start</code><strong>函数的另一个目的就是需要为进入</strong><code>main</code><strong>函数设置合适的环境配置</strong>。</p>
+<p>因此，这里就很自然的引出了一个问题：<strong>如何从</strong><code>M</code><strong>态降入</strong><code>S</code><strong>态呢？</strong>现在，我们来了解一些关于<code>risc-v privilege</code>的知识。</p>
+<h3 id="mstatus-csr-Machine-Status-Register"><a href="#mstatus-csr-Machine-Status-Register" class="headerlink" title="mstatus csr(Machine Status Register)"></a>mstatus csr(Machine Status Register)</h3><p><code>mstatus</code>寄存器是一个<code>MXLEN</code>位比特的可读写的寄存器，<strong>其跟踪并控制了</strong><code>hart</code><strong>的当前运行状态</strong>。也就是说，我们可以通过修改<code>mstatus</code>的一些特定位，来使得<code>hart</code>在当前的运行状态发生变化。下面给出了<code>rv32 mstatus</code>和<code>rv64 mstatus</code>的格式：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161531613.png" alt="risc-v32 mstatus"></p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161533069.png" alt="risc-v64 mstatus"></p>
+<p>在这里，我<strong>并不打算完整的将</strong><code>mstatus</code><strong>的所有标志位介绍完，只会介绍本节中我们将涉及到的标志位</strong>。</p>
+<p>全局中断使能标志位：<code>MIE</code>和<code>SIE</code>，分别用于<code>M-mode</code>和<code>S-mode</code>。这些位主要被用于确保当前特权级模式下的中断处理程序的原子性，也就是说：<strong>设置</strong><code>xIE</code><strong>以处理</strong><code>M</code><strong>态或</strong><code>S</code><strong>态中断。并且，允许被一个单独的</strong><code>csr</code><strong>指令所设置</strong>。 </p>
+<p>当一个<code>hart</code>在$x$特权级下执行时，当$xIE &#x3D; 1$时，全局启用中断；当$xIE &#x3D; 0$时，全局关闭中断。对于低特权级的中断而言，如果$x \gt w$，那么不论低特权级设置了何种$wIE$，总是全局中断的；对于高特权级的中断而言，如果$y \ge x$，那么不论如何，总是全局开启的。如何理解呢：<strong>如果从一个高特权级的视角看待低特权级，那么低特权级的中断设置对于高特权级没有任何影响；如果从低特权级的视角看待高特权级，那么高特权级总是启用的</strong>。</p>
+<p>也就是说，实际上的<code>riscv</code>特权级有着以下规定：<strong>高特权级总是能够打断低特权级的</strong>。同时，这里也给出了一个优势，<strong>高特权级的代码能够使用单独的每个中断使能来禁用选定的高特权级中断，然后再将控制权转交给低特权级</strong>。而回忆一下我们的目标，我们需要从<code>M</code>态转变到<code>S</code>态，而内核态是常驻于<code>S</code>态的，因此，<strong>我们并不希望</strong><code>M</code><strong>态的中断被经常触发从而导致内核的任务被强行打断，使得效率变低</strong>，因此，我们需要对中断位进行设置(在后续介绍)。</p>
+<p>为了支持嵌套<code>trap</code>，每一个能够响应中断的特权级模式$x$都有一个包含中断使能位和特权级模式的两级栈。$xPIE$<strong>保存了</strong><code>trap</code><strong>发生之前激活的中断使能位的值，而$xPP$保存了上一个特权级模式</strong>。</p>
+<blockquote>
+<p>Two-level Stack<br>两级栈指的是有两个层次的栈结构，用于存储中断使能位和特权模式。第一级存储当前的中断使能位和特权模式，第二级存储在处理中断时被保存的中断使能位和特权模式。</p>
+</blockquote>
+<p>$xPP$字段最多只能包含$x$个特权级模式，因此，<code>MPP</code>有两个比特的位宽，而<code>SPP</code>只有一位。当<code>trap</code>从特权级模式$y$进入到特权级$x$时，$xPIE$被设置为$xIE$的值，而$xIE$将会被置零，与此同时，$xPP &#x3D; y$。</p>
+<p><strong>对于低特权级而言，任何</strong><code>trap</code>(<strong>同步或异步的</strong>)<strong>通常在进入时以<em>中断禁用的状态</em>进入更高特权级模式。高特权级的</strong><code>trap</code><strong>处理程序将处理该</strong><code>trap</code><strong>并使用堆栈信息返回，或者，如果不立即返回到中断的上下文，将在重新启动中断之前保存特权级堆栈，因此每个堆栈只需要一个入口</strong>。</p>
+<p>到现在我们就还剩一个问题，高特权级是如何返回到低特权级的呢？</p>
+<p><code>MRET</code>或<code>SRET</code>指令解决了这一个疑问，<code>MRET</code>或<code>SRET</code>分别被用于从一个处于<code>M</code>态或<code>S</code>态的<code>trap</code>中返回。假设$xPP &#x3D; y，当执行一条$xRET$指令时，那么$xIE &#x3D; xPIE$，特权级模式被设置为$y$，$xPIE &#x3D; 1$，$xPP$将被设置为最低特权级模式(<code>U mode</code>, 如果<code>U</code>未被实现，则设置为<code>M</code>)。并且，如果$y \ne M \rightarrow MPRV &#x3D; 0$。</p>
+<p>这里简单的解释一下上面这句话的含义：当<code>xRET</code>指令执行时，保存着上一特权级信息的<code>xPIE</code>和<code>xPP</code>就会起效，<code>xPIE</code>在赋值完成后，将被设置为<code>1</code>，这是因为<strong>高特权级的中断总是启用的</strong>。而<code>MPRV</code>表示内存访问的特权模式。如果返回的特权模式<code>y</code>不是<code>M</code>，则将<code>MPRV</code>置为<code>0</code>。这意味着内存访问将不再使用<code>M mode</code>，而是使用当前的特权模式。</p>
+<p>比较难以理解的是，为什么<code>xPP</code>会被设置为最低特权级模式。设置<code>xPP</code>为最低特权级模式<strong>有助于识别在两级特权级栈管理中的软件错误</strong>。</p>
+<p>值得注意的是，<code>xPP</code>字段是<code>WARL</code>类型字段，<strong>其只能包含</strong>$x$<strong>特权级模式或任何实现的低于</strong>$x$<strong>的特权级模式</strong>。<strong>如果特权级模式</strong>$x$<strong>未被实现</strong>，<strong>那么$xPP$字段必须被设置为只读的</strong>$0$。</p>
+<blockquote>
+<p>WARL(Write Any Values, Reads Legal Values)<br>某些读&#x2F;写<code>CSR</code>字段仅在特定的比特编码子集中定义，但允许写入任何值，同时保证在读取时返回一个合法值。假设写入<code>CSR</code>没有其他副作用，可以通过尝试写入一个期望的设置，然后读取以查看该值是否被保留，从而确定支持的值范围。这些字段在寄存器描述中标记为<code>WARL(Write-Any Read-Legal)</code>。<br>实现不会因为向<code>WARL</code>字段写入不支持的值而引发异常。当读取一个<code>WARL</code>字段时，如果上一次写入的是一个非法值，实现可以返回任何合法值，但返回的合法值应当与写入的非法值以及<code>hart</code>的架构状态有确定性的关系。</p>
+</blockquote>
+<h3 id="mepc-csr-Machine-Exception-Program-Counter"><a href="#mepc-csr-Machine-Exception-Program-Counter" class="headerlink" title="mepc csr(Machine Exception Program Counter)"></a>mepc csr(Machine Exception Program Counter)</h3><p>在这里，我并不会详细介绍<code>mepc</code>的所有用法，只会提及一点：<strong>当</strong><code>start</code><strong>函数调用</strong><code>mret</code><strong>时</strong>, <code>mepc</code><strong>的值应该被设置为</strong><code>main</code><strong>函数的地址</strong>。</p>
+<p>这里可以给出一个比较正式的用法：当<code>trap</code>进入<code>M</code>态时，<code>mepc</code>会被写入引发中断或遇到异常的指令的虚拟地址。因此，在<code>mret</code>调用时，会根据<code>mepc</code>的值进行跳转。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161703495.png" alt="mepc"></p>
+<h3 id="satp-Supervisor-Address-Translation-and-Protection-Register"><a href="#satp-Supervisor-Address-Translation-and-Protection-Register" class="headerlink" title="satp(Supervisor Address Translation and Protection Register)"></a>satp(Supervisor Address Translation and Protection Register)</h3><p><code>satp</code>寄存器是一个<code>SXLEN</code>位宽的读写寄存器，其控制了<code>S</code>模式下的地址转换和保护。<code>satp</code>有两种形式，分别为$SXLEN &#x3D; 31$或$SXLEN &#x3D; 64$：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161825930.png" alt="SXLEN = 32"></p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161826849.png" alt="SXLEN = 64"></p>
+<p><code>satp</code>寄存器包含一个根页表的物理页码(<code>PPN, Physical Page Number</code>)，该物理页码是由<code>S mode</code>的物理地址除以$4 KiB$而来；一个地址空间标识符(<code>ASID, Address Space Identify</code>)，该标识符有助于在每个地址空间执行地址转换屏障(<code>fence</code>)；以及一个模式(<code>MODE</code>)字段，其决定了当前地址的转换方法。</p>
+<p>其中，对于<code>MODE</code>字段我们需要详细介绍一下。当$MODE &#x3D; Bare$时，<code>S</code>特权级的虚拟地址直接等价于物理地址，除了物理内存保护方案外没有其他额外的内存保护。为了选择$MODE &#x3D; Bare$，软件<strong>必须</strong>将<code>satp</code>的<strong>剩余字段置零</strong>。<strong>试图在$MODE &#x3D; Bare$的情况下使用一个非零的</strong><code>satp</code><strong>将对未置零的字段的值会产生一个</strong><code>UNSPECIFIED(未指明的)</code><strong>影响，并对地址转换和保护行为产生一个</strong><code>UNSPECIFIED</code><strong>影响</strong>。</p>
+<p>对于$SXLEN &#x3D; 32$时，<code>MODE</code>的唯一一个有效设置为<code>Sv32</code>，一种虚拟内存分页策略。当$SXLEN &#x3D; 64$时，一共有三种虚拟内存分页策略可供选择：<code>Sv39</code>、<code>Sv48</code>和<code>Sv57</code>。其余的<code>MODE</code>设置保留以供将来使用，并且可以定义<code>satp</code>中其他字段的不同解释。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161850259.png" alt="satp mode"></p>
+<p><code>satp</code><strong>寄存器在</strong><code>S mode</code>和<code>U mode</code><strong>下才被认为是激活状态</strong>。地址转换算法只可能在<code>satp</code>被激活时使用一个给定的<code>satp</code>值开始执行。</p>
+<h3 id="medeleg-mideleg-csr-Machine-Trap-Delegation-Registers"><a href="#medeleg-mideleg-csr-Machine-Trap-Delegation-Registers" class="headerlink" title="medeleg &amp; mideleg csr(Machine Trap Delegation Registers)"></a>medeleg &amp; mideleg csr(Machine Trap Delegation Registers)</h3><p><strong>在默认情况下，任何特权级的所有</strong><code>trap</code><strong>都是在</strong><code>M mode</code><strong>被处理的，不过</strong><code>M mode</code><strong>的处理程序可以使用</strong><code>MRET</code><strong>指令将</strong><code>trap</code><strong>重定向到合适的特权级</strong>。</p>
+<p>为了提高性能，具体实现可以在<code>medeleg</code>和<code>mideleg</code>中通过提供单独的读写位来表明一些特定的异常和中断应该被低特权级直接处理。<code>medeleg(machine exception delegation)</code>是一个$64$位宽的读写寄存器；而<code>mideleg(machine interrupt delegation)</code>是一个<code>MXLEN</code>位宽的读写寄存器。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161903945.png" alt="medeleg"></p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161904480.png" alt="mideleg"></p>
+<p>在<code>S mode</code>下的<code>hart</code>中，<code>medeleg</code>和<code>mideleg</code><strong>必须存在，并且在</strong><code>S mode</code>或<code>U mode</code><strong>下发生对应的</strong><code>trap</code><strong>时，在</strong><code>medeleg</code>或<code>mideleg</code><strong>中设置一位把该</strong><code>trap</code><strong>委托给</strong><code>S mode</code><strong>下的</strong><code>trap handler</code>。</p>
+<p>当一个<code>trap</code>被委托给<code>S mode</code>时，会执行以下操作:</p>
+<ul>
+<li><code>scause</code>寄存器写入<code>trap</code>的原因</li>
+<li><code>sepc</code>寄存器写入引发<code>trap</code>的指令的虚拟地址</li>
+<li><code>stval</code>寄存器写入特定于异常的数据</li>
+<li><code>mstatus</code>寄存器中的<code>SPP</code>字段写入发生<code>trap</code>时激活的特权级模式</li>
+<li><code>mstatus</code>寄存器中的<code>SPIE</code>字段写入发生<code>trap</code>时的<code>SIE</code>字段的值</li>
+<li><code>mstatus.SIE</code>字段置零</li>
+<li><code>mcause</code>、<code>mepc</code>、<code>mtval</code>以及<code>mstatus.MPP</code>和<code>mstatus.MPIE</code>字段不会被写入</li>
+</ul>
+<p>值得注意的是：<code>trap</code><strong>永远不会从更高特权级转换到更低特权级，这一情况不会发生</strong>。只可能在水平上进行发生，也就是：如果<code>M mode</code>委托了一个<code>trap</code>到<code>S mode</code>，那么引发异常的<code>trap</code>能够在<code>S mode</code>下进行处理。</p>
+<h3 id="Supervisor-Interrupt-Registers-sip-and-sie"><a href="#Supervisor-Interrupt-Registers-sip-and-sie" class="headerlink" title="Supervisor Interrupt Registers(sip and sie)"></a>Supervisor Interrupt Registers(sip and sie)</h3><p>在本节中，并不会对<code>sip</code>寄存器做出介绍，因为这里的重点是<code>sie</code>寄存器。</p>
+<p><code>sie</code>寄存器是一个$SXLEN$位宽的读写寄存器，其包含了中断使能位。中断原因号与<code>sie</code>的位号相对应。比特<code>15:0</code>只分配给标准中断原因，而比特<code>16</code>及以上被指定为平台使用。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161929965.png" alt="sie"></p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161929250.png" alt="scause values"></p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161931972.png" alt="sie portion"></p>
+<ul>
+<li><code>sie.SSIE</code>是用于<code>S mode</code>外部中断的中断使能位</li>
+<li><code>sie.STIP</code>是用于<code>S mode</code>时钟中断的中断使能位</li>
+<li><code>sie.SEIE</code>是用于<code>S mode</code>软件中断的中断使能位</li>
+<li>如果实现了<code>Sscofpmf</code>扩展，<code>sie.LCOFIE</code>是本地计数器溢出中断的中断使能位。如果未实现该扩展，<code>sie.LCOFIE</code>则是只读的<code>0</code></li>
+</ul>
+<h3 id="Physical-Memory-Protection-CSRs"><a href="#Physical-Memory-Protection-CSRs" class="headerlink" title="Physical Memory Protection CSRs"></a>Physical Memory Protection CSRs</h3><p>在这里只介绍两个寄存器：<code>pmpcfg0</code>和<code>pmpaddr0</code>。</p>
+<p><code>PMP(物理内存保护)</code>条目由一个<code>8</code>位的配置寄存器和一个<code>MXLEN</code>位的地址寄存器描述。一些<code>PMP</code>设置还会使用与前一个<code>PMP</code>条目相关联的地址寄存器。最多支持<code>64</code>个<code>PMP</code>条目。实现中可以实现<code>0</code>个、<code>16</code>个或<code>64</code>个<code>PMP</code>条目；<strong>必须首先实现编号最低的</strong><code>PMP</code><strong>条目</strong>。所有<code>PMP CSR</code>字段都是<code>WARL</code>，并且可能是只读零。<code>PMP CSR</code><strong>仅在</strong><code>M mode</code><strong>下可访问</strong>。</p>
+<p><code>PMP configuration</code>寄存器被密集地打包到<code>CSRs</code>中，<strong>以最小化上下文切换时间</strong>。对于<code>RV32</code>，有十六个<code>CSRs(pmpcfg0–pmpcfg15)</code>，用于保存<code>64</code>个<code>PMP</code>条目的配置<code>(pmp0cfg–pmp63cfg)</code>。对于<code>RV64</code>，有八个偶数编号的<code>CSRs(pmpcfg0、pmpcfg2、……、pmpcfg14)</code>，用于保存<code>64</code>个<code>PMP</code>条目的配置。对于<code>RV64</code>，<strong>奇数编号的配置寄存器</strong><code>(pmpcfg1、pmpcfg3、……、pmpcfg15)</code><strong>是非法的</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161949274.png" alt="rv32 pmp configuration"></p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161950438.png" alt="rv64 pmp configuration"></p>
+<p><code>PMP address</code>寄存器是命名为<code>pmpaddr0-pmpaddr63</code>的<code>CSRs</code>。每个<code>PMP address</code>寄存器在<code>RV32</code>中编码一个<code>34</code>位物理地址的第<code>33</code>到第<code>2</code>位。对于<code>RV64</code>，每个<code>PMP address</code>寄存器编码一个<code>56</code>位物理地址的第<code>55</code>到第<code>2</code>位。<strong>并非所有物理地址位都需要实现</strong>，因此<code>pmpaddr</code>寄存器是<code>WARL</code>的。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161954317.png" alt="rv32 pmp address"></p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161954318.png" alt="rv64 pmp address"></p>
+<p>下图显示了<code>PMP configuration</code>寄存器的布局。<code>R</code>、<code>W</code>和<code>X</code>位分别表示<code>PMP</code>条目允许<strong>读</strong>、<strong>写</strong>和<strong>指令执行</strong>。<strong>当其中某一位被清除时，相应的访问类型被拒绝</strong>。<code>R</code>、<code>W</code>和<code>X</code>字段组成一个集体的<code>WARL</code>字段，其中$R &#x3D; 0$和$W &#x3D; 1$的组合是保留的。其余两个字段<code>A</code>和<code>L</code>在后续章节中描述。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161957353.png" alt="pmp configuration layout"></p>
+<h3 id="Start-Code"><a href="#Start-Code" class="headerlink" title="Start Code"></a>Start Code</h3><p>至此，关于理解<code>start</code>函数逻辑的前置知识就介绍完毕。现在就让我们来分析<code>start</code>函数中的具体内容：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> MSTATUS_MPP_MASK (3L &lt;&lt; 11)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MSTATUS_MPP_S (1L &lt;&lt; 11)</span></span><br><span class="line">r_mstatus =&gt; <span class="keyword">asm</span> <span class="keyword">volatile</span>(<span class="string">&quot;csrr %0, mstatus&quot;</span> : <span class="string">&quot;=r&quot;</span>(x));</span><br><span class="line">r_mstatus =&gt; <span class="keyword">asm</span> <span class="keyword">volatile</span>(<span class="string">&quot;csrw mstatus, %0&quot;</span> : : <span class="string">&quot;r&quot;</span>(x));</span><br><span class="line"></span><br><span class="line"><span class="type">unsigned</span> <span class="type">long</span> x = r_mstatus();</span><br><span class="line">x &amp;= ~MSTATUS_MPP_MASK;</span><br><span class="line">x |= MSTATUS_MPP_S;</span><br><span class="line">w_mstatus(x);</span><br></pre></td></tr></table></figure>
+
+<p>这是从入口点<code>_entry</code>到<code>start</code>函数的第一个操作，我们在之前已经知道：<code>start</code>函数最终目的是要转跳到<code>main</code>函数中，并在此之前进行一系列配置，然后进入内核态。那么，<code>xv6-riscv</code>的内核态是运行在<code>S mode</code>的，而从<code>_entry</code>进入到<code>start</code>的此时，是处于<code>M mode</code>的。因此，我们需要设置进入<code>main</code>函数后的特权级。</p>
+<p>而<code>r_mstatus</code>便是读取当前<code>hart</code>的运行状态，而<code>x &amp;= ~MSTATUS_MPP_MASK</code>对<code>mstatus.MPP</code>进行置零操作，然后通过<code>x |= MSTATUS_MPP_S</code>设置<code>mstatus.MPP = S</code>。这样，我们就能够在<code>mret</code>指令后，将特权级设置为<code>S</code>。</p>
+<p>但是，我们发现：<strong>我们现在只完成了设置特权级，但是并未设置到底要转跳到哪一个位置</strong>。因此：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">w_mepc((uint64)main);</span><br></pre></td></tr></table></figure>
+
+<p>在上面我们已经了解了，<code>mret</code>的返回地址是根据<code>mepc</code>寄存器而决定的，因此我们将<code>mepc</code>的值设置为<code>main</code>函数的地址，就能够在<code>mret</code>执行的时候转跳到对应的<code>main</code>函数从而进入内核态。</p>
+<p>这样，我们就完成了一个简易的内核态的入口，但是，对于一个<code>xcv6-riscv</code>来说，还需要进行一些具体的处理：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// disable paging for now.</span></span><br><span class="line">w_satp(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// delegate all interrupts and exceptions to supervisor mode.</span></span><br><span class="line">w_medeleg(<span class="number">0xffff</span>);</span><br><span class="line">w_mideleg(<span class="number">0xffff</span>);</span><br><span class="line">w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE);</span><br><span class="line"></span><br><span class="line"><span class="comment">// configure Physical Memory Protection to give supervisor mode</span></span><br><span class="line"><span class="comment">// access to all of physical memory.</span></span><br><span class="line">w_pmpaddr0(<span class="number">0x3fffffffffffff</span>ull);</span><br><span class="line">w_pmpcfg0(<span class="number">0xf</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// ask for clock interrupts.</span></span><br><span class="line">timerinit();</span><br><span class="line"></span><br><span class="line"><span class="comment">// keep each CPU&#x27;s hartid in its tp register, for cpuid().</span></span><br><span class="line"><span class="type">int</span> id = r_mhartid();</span><br><span class="line">w_tp(id);</span><br></pre></td></tr></table></figure>
+
+<p>让我们来逐行分析这些代码的含义：</p>
+<p>我们知道<code>satp</code>寄存器用于管理页表基地址、地址空间标识符以及启动或禁用分页机制。简单思考一下，<strong>操作系统初始化早期，我们并不需要启动太多的事项，而且由于有一些需要直接访问物理内存进行配置，如果启动分页机制，就需要进行页表转换，那么我们在初始化阶段就需要浪费一定的资源来额外的进行初始化操作</strong>。我们在这里设置$satp &#x3D; 0$是为了简化内存管理，并且不需要过早的进行分页管理，等到进入内核态后，再启用分页机制支持虚拟内存。</p>
+<p><code>medeleg</code>和<code>mideleg</code>是为了提高效率，因为频繁的通过<code>M mode</code>来处理<code>trap</code>会极大的影响内核的运行。因此，在此处，我们直接将所有的异常和中断都委托给了<code>S mode</code>来处理，也就是说，内核态对<code>trap</code>具有全部的处理能力，这也符合一般认知，内核会处理用户的异常和中断，而不是交由<code>M mode</code>。</p>
+<p>现在我们已经将<code>trap</code>的处理权交付给了<code>S mode</code>，但是我们需要显示开启<code>S</code>特权级下的中断使能，因此<code>w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE)</code>便是<strong>允许内核态对外部中断、时钟中断和软件中断的响应</strong>。这也对应了上面<code>M mode</code>将<code>trap</code>的处理全权委托给了内核态。</p>
+<p>当我们有了处理权限后，我们就可以考虑内存访问了，在<a href="https://chenmiaoi.github.io/2024/05/15/xv6-The-boot-loader/">上一节</a>中，我们了解到<code>xv6-riscv</code>的内存布局，而其物理地址是$56$位宽的，因此<code>w_pmpaddr0(0x3fffffffffffffull)</code>将<code>PMP</code>的第一个条目的地址寄存器设置为<code>0x3fffffffffffff</code>，刚好覆盖了整个物理地址空间，因此该条目可以匹配任何物理地址。而<code>w_pmpcfg0(0xf)</code>则是对该条目进行具体配置，允许了<code>S mode</code><strong>对整个物理地址具有读、写和执行访问权限</strong>。</p>
+<p>而<code>timerinit()</code>则是设置了时钟中断源，使得<code>xv6-riscv</code>能够获得时间片。</p>
+<p>而最后一点，便是获取当前<code>hart</code>的<code>ID</code>，写入<code>tp</code>寄存器。<code>tp</code>寄存器用于存储线程指针，即当前执行流<code>ID</code>。</p>
+<h2 id="Timer"><a href="#Timer" class="headerlink" title="Timer"></a>Timer</h2><h3 id="CLINT"><a href="#CLINT" class="headerlink" title="CLINT"></a>CLINT</h3><p>在<code>risc-v</code>中，<code>CLINT</code>的定义是由平台具体实现的，而<code>qemu virt</code>参考了<code>SIFIVE</code>的<code>CLINT</code>设计。因此，在这里我参考了<code>SiFive FE310-G000</code>型号的开发板进行分析。</p>
+<p><code>xv6-riscv</code>的<code>CLINT</code>是根据<a target="_blank" rel="noopener" href="https://github.com/qemu/qemu/blob/master/hw/riscv/virt.c">qemu virt</a>中的设置而来，因此可以看见<code>CLINT</code>的基址位于<code>0x2000&#39;0000</code>处。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> MemMapEntry virt_memmap[] = &#123;</span><br><span class="line">    [VIRT_CLINT] =        &#123;  <span class="number">0x2000000</span>,       <span class="number">0x10000</span> &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>了解到<code>CLINT</code>在实际物理地址中的基址后，我们就需要学习关于<code>CLINT</code>的一些基本概念:</p>
+<p><code>CLINT(Core Local Interruptor)</code>是一个处理器内部模块，<strong>负责处理和管理核本地的中断和定时器功能</strong>。<code>CLINT</code>的主要功能包括:</p>
+<ul>
+<li><code>本地中断管理(Local Interrupt Management)</code>：<code>CLINT</code>处理核本地的中断请求，这些中断请求通常不需要通过全局中断控制器(如<code>PLIC，Platform-Level Interrupt Controller</code>)进行处理。<code>CLINT</code><strong>管理的中断通常是核内的特殊事件</strong>，例如软件中断和定时器中断。</li>
+<li><code>定时器功能(Timer Functionality)</code>：<code>CLINT</code><strong>提供核本地的定时器功能，用于生成周期性中断</strong>。每个处理器核都有一个独立的定时器，通过编程可以设置定时器的触发时间。<strong>当定时器到达设定时间时，会触发一个中断，处理器核可以用这个中断来执行周期性任务或进行时间管理</strong>。</li>
+</ul>
+<p>在<code>risc-v</code>中，操作<code>CLINT</code>是有着专属寄存器的：</p>
+<ul>
+<li><code>msip(Machine-mode Software Interrupt Pending Register)</code>：用于管理软件中断。每个核都有各自的<code>msip</code>寄存器。写入这个寄存器会触发相应核的机器模式软件中断(<code>Machine Software Interrupt</code>)</li>
+<li>&#96;mtime(Machine Timer Register)：这是一个64位的计时器寄存器，<strong>用于跟踪时间</strong>。<strong>它通常由一个全局的、统一递增的计时器硬件单元提供时间戳</strong></li>
+<li><code>mtimecmp(Machine Timer Compare Register)</code>：每个处理器核都有一个独立的$64$位<code>mtimecmp</code>寄存器。处理器核会不断地比较<code>mtime</code>和<code>mtimecmp</code>的值，当<code>mtime</code>达到或超过<code>mtimecmp</code>的值时，会触发机器模式定时器中断(<code>Machine Timer Interrupt</code>)</li>
+</ul>
+<p>对于<code>CLINT</code>的专属寄存器，<code>risc-v</code>手册中并未给出详细定义地址，因此，我们参考<code>SiFive FE310-G000</code>能够得到其在物理地址中的映射地址：</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405171437088.png" alt="CLINT register remap"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// core local interruptor (CLINT), which contains the timer.</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CLINT 0x2000000L</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CLINT_MTIMECMP(hartid) (CLINT + 0x4000 + 8 * (hartid))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CLINT_MTIME (CLINT + 0xBFF8) <span class="comment">// cycles since boot.</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>CLINT</code>：<code>CLINT</code>的基址，即<code>CLINT</code>寄存器的起始地址。</li>
+<li><code>CLINT_MTIMECMP(hartid)</code>：用于计算给定<code>hartid</code>的<code>MTIMECMP</code>寄存器的地址。在<code>CLINT</code>中，每个<code>hart</code>都有一个<code>MTIMECMP</code>寄存器，用于设置定时器中断触发的时间比较值。</li>
+<li><code>CLINT_MTIME</code>：用于访问<code>MTIME</code>寄存器的地址。<code>MTIME</code>寄存器用于跟踪自启动以来的时钟周期数，它通常用于实现定时器。</li>
+</ul>
+<p>在正式介绍<code>Timer</code>的代码前，我们需要对一些寄存器做出了解。</p>
+<h3 id="mscratch-csr-Machine-Scratch-Register"><a href="#mscratch-csr-Machine-Scratch-Register" class="headerlink" title="mscratch csr(Machine Scratch Register)"></a>mscratch csr(Machine Scratch Register)</h3><p><code>mscratch</code>寄存器是一个$MXLEN$位宽的读写寄存器，<strong>其只能被</strong><code>M mode</code><strong>所使用</strong>。<strong>通常，它用于保存指向</strong><code>M mode</code>的<code>hart-local</code><strong>上下文空间的指针，并在进入</strong><code>M mode trap handler</code><strong>时与用户寄存器交换</strong>。</p>
+<p>当处理器进入机器模式处理中断或异常时，通常会使用<code>mscratch</code>寄存器保存上下文信息，例如保存当前的寄存器状态、程序计数器等。这样可以在处理完中断或异常后恢复处理器状态。</p>
+<h3 id="mtvec-csr-Machine-Trap-Vector-Base-Address-Register"><a href="#mtvec-csr-Machine-Trap-Vector-Base-Address-Register" class="headerlink" title="mtvec csr(Machine Trap-Vector Base-Address Register)"></a>mtvec csr(Machine Trap-Vector Base-Address Register)</h3><p><code>mtvec</code>寄存器是一个$MXLEN$位宽的读写寄存器，<strong>其保存了由一个向量基址</strong>(<code>Vector Base Address</code>)<strong>和向量模式</strong>(<code>Vector Mode</code>)<strong>组成的</strong><code>trap vector configuration</code>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405171455924.png" alt="mtvec"></p>
+<p><code>mtvec</code>总是被实现的，至少会包含一个可读的值；如果<code>mtvec</code>以可写的方式实现，那么<code>mtvec</code>所保存的值的集合根据实现的不同而不同。<code>mtvec.BASE</code>的值必须始终是四字节对齐的，而<code>mtvec.MODE</code>设置的值可能会对<code>mtvec.BASE</code>施加额外的对齐操作。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405171502892.png" alt="Encoding of mtvec MODE field"></p>
+<p><code>mtvec.MODE</code>的编码如上所示。当$mtvec.MODE &#x3D; Direct$时，所有进入到<code>M</code>态的<code>trap</code>都会导致<code>pc</code>被设置为<code>mtvec.BASE</code>字段中的值；当<code>mtvec.MODE = Vectored</code>时，所有进入到<code>M</code>态的<strong>同步异常</strong>都会导致<code>pc</code>被设置为<code>mtvec.BASE</code>字段中的值，而所有进入到<code>M</code>态的<strong>异步中断</strong>都会导致<code>pc</code>被设置为$mtvec.BASE + cause \times 4$。</p>
+<h3 id="Supervisor-Interrupt-Registers-sip-and-sie-1"><a href="#Supervisor-Interrupt-Registers-sip-and-sie-1" class="headerlink" title="Supervisor Interrupt Registers(sip and sie)"></a>Supervisor Interrupt Registers(sip and sie)</h3><p>我们在介绍<code>start</code>函数时，曾介绍过<code>sie</code>寄存器。现在，我们对<code>sip</code>寄存器做出介绍。</p>
+<p><code>sip</code>寄存器是一个$SXLEN$位宽的读写寄存器，<strong>其包含了挂起的中断的信息</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405171514872.png" alt="sip"></p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405161929250.png" alt="scause values"></p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202405171519208.png" alt="sip portion"></p>
+<ul>
+<li><code>sip.SEIP</code>用于<code>S</code>态的外部中断的中断挂起，如果实现，<code>SEIP</code>在<code>sip</code>中是<strong>只读</strong>的，并且由执行环境设置和清除，通常通过特定于平台的中断控件</li>
+<li><code>sip.STIP</code>用于<code>S</code>态的定时器中断的中断挂起，如果实现，<code>STIP</code>在<code>sip</code>中是<strong>只读</strong>的，并且由执行环境设置和清除</li>
+<li><code>sip.SSIP</code>用于<code>S</code>态的软件中断的中断挂起，如果实现，<code>SSIP</code>在<code>sip</code>中是<strong>可写</strong>的，并且可能被平台特定的中断控制器置<code>1</code></li>
+</ul>
+<h3 id="Timer-Code"><a href="#Timer-Code" class="headerlink" title="Timer Code"></a>Timer Code</h3><h4 id="Timer-Init"><a href="#Timer-Init" class="headerlink" title="Timer Init"></a>Timer Init</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// a scratch area per CPU for machine-mode timer interrupts.</span></span><br><span class="line">uint64 timer_scratch[NCPU][<span class="number">5</span>];</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">timerinit</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="comment">// each CPU has a separate source of timer interrupts.</span></span><br><span class="line">  <span class="type">int</span> id = r_mhartid();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ask the CLINT for a timer interrupt.</span></span><br><span class="line">  <span class="type">int</span> interval = <span class="number">1000000</span>; <span class="comment">// cycles; about 1/10th second in qemu.</span></span><br><span class="line">  *(uint64 *)CLINT_MTIMECMP(id) = *(uint64 *)CLINT_MTIME + interval;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// prepare information in scratch[] for timervec.</span></span><br><span class="line">  <span class="comment">// scratch[0..2] : space for timervec to save registers.</span></span><br><span class="line">  <span class="comment">// scratch[3] : address of CLINT MTIMECMP register.</span></span><br><span class="line">  <span class="comment">// scratch[4] : desired interval (in cycles) between timer interrupts.</span></span><br><span class="line">  uint64 *scratch = &amp;timer_scratch[id][<span class="number">0</span>];</span><br><span class="line">  scratch[<span class="number">3</span>] = CLINT_MTIMECMP(id);</span><br><span class="line">  scratch[<span class="number">4</span>] = interval;</span><br><span class="line">  w_mscratch((uint64)scratch);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// set the machine-mode trap handler.</span></span><br><span class="line">  w_mtvec((uint64)timervec);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// enable machine-mode interrupts.</span></span><br><span class="line">  w_mstatus(r_mstatus() | MSTATUS_MIE);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// enable machine-mode timer interrupts.</span></span><br><span class="line">  w_mie(r_mie() | MIE_MTIE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>让我们来逐行分析上述代码：首先，获取当前的<code>hartid</code>，以便于后续计算<code>CLINT</code>的相关信息；</p>
+<p>然后<code>*(uint64 *)CLINT_MTIMECMP(id) = *(uint64 *)CLINT_MTIME + interval</code>: 在<code>CLINT</code>中设置一个定时器中断。这行代码将<code>CLINT</code>的<code>MTIMECMP</code>寄存器(<strong>用于设置定时器中断触发的时间比较值</strong>)的值设置为当前的<code>MTIME</code>寄存器值加上一个指定的间隔。在这里，间隔为$100’0000$个<code>CPU</code>周期，大约相当于<code>qemu</code>中的$1&#x2F;10$秒。</p>
+<p><code>uint64 *scratch = &amp;timer_scratch[id][0]</code>: 创建一个指向<code>timer_scratch</code>数组的指针，并将其设置为当前<code>hart</code>对应的上下文的地址。这个数组用于存储一些与定时器中断相关的信息。</p>
+<p><code>scratch[3] = CLINT_MTIMECMP(id)</code>: 将<code>CLINT</code>的<code>MTIMECMP</code>寄存器的地址存储在<code>scratch</code>数组的第<code>3</code>个条目中。</p>
+<p><code>scratch[4] = interval</code>: 将定时器中断触发的时间间隔(以<code>CPU</code>周期数表示)存储在<code>scratch</code>数组的第<code>4</code>个条目中</p>
+<p><code>w_mscratch((uint64)scratch)</code>: 将<code>scratch</code>数组的地址存储在<code>MSRATCH</code>寄存器中，以便后续的处理，这里实际上就是对定时器中断的信息进行了初始化，保存在了当前<code>hart</code>的上下文中。</p>
+<p>也就是说，在<code>timer init</code>中，我们创建了一个针对于每一个<code>hart</code>单独的定时器的上下文配置，具体如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">timer scratch[<span class="number">5</span>] = &#123;</span><br><span class="line">    <span class="number">0</span>,  reserve <span class="keyword">for</span> parameters </span><br><span class="line">    <span class="number">8</span>,  reserve <span class="keyword">for</span> parameters </span><br><span class="line">    <span class="number">16</span>, reserve <span class="keyword">for</span> parameters </span><br><span class="line">    <span class="number">24</span>, address of CLINT MTIMECMP <span class="keyword">register</span></span><br><span class="line">    <span class="number">32</span>, desired interval (in cycles) between timer interrupts</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>w_mtvec((uint64)timervec)</code>: 将<code>M mode trap</code>向量基址寄存器(<code>MTVEC</code>)设置为<code>timervec</code>函数的地址。这意味着当发生<code>M mode</code>的<code>trap</code>时，处理器将跳转到<code>timervec</code>函数中执行相应的处理，而对于定时器中断，我们将其设置为<code>M mode trap handler</code>，因此只要发生定时器中断，那么就可以跳转到<code>timervec</code>中进行处理。</p>
+<p><code>w_mstatus(r_mstatus() | MSTATUS_MIE)</code>: 使能<code>M mode</code>中断(<code>MIE</code>)。这行代码将<code>MSTATUS</code>寄存器的<code>MIE</code>位设置为<code>1</code>，允许<code>M mode</code>中断。</p>
+<p><code>w_mie(r_mie() | MIE_MTIE)</code>: 使能机器模式的定时器中断(<code>MTIE</code>)。这行代码将<code>MIE</code>寄存器的<code>MTIE</code>位设置为<code>1</code>，允许机器模式的定时器中断，这里就与上述代码对应了。</p>
+<h4 id="Time-Interrupt-Handler"><a href="#Time-Interrupt-Handler" class="headerlink" title="Time Interrupt Handler"></a>Time Interrupt Handler</h4><p>实际上，我认为在这里将<code>Timer Trap Handler</code>不是太合适，因此此处仅仅列出代码，并不做任何解释。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">.globl timervec</span><br><span class="line">.align 4</span><br><span class="line">timervec:</span><br><span class="line">        csrrw a0, mscratch, a0</span><br><span class="line">        sd a1, 0(a0)</span><br><span class="line">        sd a2, 8(a0)</span><br><span class="line">        sd a3, 16(a0)</span><br><span class="line"></span><br><span class="line">        # schedule the next timer interrupt</span><br><span class="line">        # by adding interval to mtimecmp.</span><br><span class="line">        ld a1, 24(a0) # CLINT_MTIMECMP(hart)</span><br><span class="line">        ld a2, 32(a0) # interval</span><br><span class="line">        ld a3, 0(a1)</span><br><span class="line">        add a3, a3, a2</span><br><span class="line">        sd a3, 0(a1)</span><br><span class="line"></span><br><span class="line">        # arrange for a supervisor software interrupt</span><br><span class="line">        # after this handler returns.</span><br><span class="line">        li a1, 2</span><br><span class="line">        csrw sip, a1</span><br><span class="line"></span><br><span class="line">        ld a3, 16(a0)</span><br><span class="line">        ld a2, 8(a0)</span><br><span class="line">        ld a1, 0(a0)</span><br><span class="line">        csrrw a0, mscratch, a0</span><br><span class="line"></span><br><span class="line">        mret</span><br></pre></td></tr></table></figure>
+
+<p>最后，所有的准备工作完成后，我们就能够正式进入内核态进行各种初始化配置和运行了。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/05/16/xv6-The-Starter/">https://chenmiaoi.github.io/2024/05/16/xv6-The-Starter/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/os/"># os</a>
+                    
+                        <a href="/tags/xv6/"># xv6</a>
+                    
+                        <a href="/tags/risc-v/"># risc-v</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/05/17/xv6-The-Kernel-Env/">Xv6: The Kernel Env</a>
+            
+            
+            <a class="next" rel="next" href="/2024/05/15/xv6-The-boot-loader/">Xv6: The Boot Loader</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

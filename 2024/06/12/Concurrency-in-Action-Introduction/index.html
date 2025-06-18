@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en,zh,default">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Chen Miao">
+
+
+
+
+
+<title>Concurrency in Action: Introduction | Nay&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Nayy&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Nayy&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Concurrency in Action: Introduction</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Chen Miao</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">June 12, 2024&nbsp;&nbsp;14:45:12</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/books/">books</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="Hello-world-of-concurrency-in-C"><a href="#Hello-world-of-concurrency-in-C" class="headerlink" title="Hello, world of concurrency in C++!"></a>Hello, world of concurrency in C++!</h1><p>本系列笔记是关于如何使用C++写出多线程并发的应用以及关于C++对于多线程的特性、库工具做出解析。仍然需要注意的是，该系列的笔记<strong>只是个人理解下的观点，如有错误，请通过email发送信息给我</strong>(<a href="mailto:&#x63;&#x68;&#x65;&#x6e;&#x6d;&#105;&#97;&#111;&#46;&#107;&#117;&#x40;&#x67;&#109;&#97;&#105;&#108;&#x2e;&#99;&#x6f;&#109;">&#x63;&#x68;&#x65;&#x6e;&#x6d;&#105;&#97;&#111;&#46;&#107;&#117;&#x40;&#x67;&#109;&#97;&#105;&#108;&#x2e;&#99;&#x6f;&#109;</a>)。</p>
+<h2 id="What-is-concurrency"><a href="#What-is-concurrency" class="headerlink" title="What is concurrency?"></a>What is concurrency?</h2><p>在最简单、基本的感知上，<strong>并发是指两个或多个独立活动同时发生</strong>。并发在我们的日常生活中的一部分：我们可以一边走路一边说话或者是用每只手执行多个不同的行动，亦或是我们个人独立的生活着……</p>
+<h3 id="Concurrency-in-computers-systems"><a href="#Concurrency-in-computers-systems" class="headerlink" title="Concurrency in computers systems"></a>Concurrency in computers systems</h3><p>每当我们谈论计算机术语：并发时。我们指的是<strong>一个独立的系统</strong>并行的<strong>执行多个独立的活动，而不是顺序或一个接着一个地执行</strong>。</p>
+<p>从历史上看，大多数台式计算机都有一个处理器，其中只有一个处理单元或核心(当然，现在大多数计算机应该都是双核或多核)。像<strong>这样的计算机(单核)一次只能处理一个任务，但可以通过在任务之间不断切换任务。一个任务做一点，另一个任务再做一点的方式，这就看起来像任务正在发生并行</strong>。这被叫做<code>任务切换(task switching)</code>。需要注意的是，<strong>由于任务切换的速度过快，你无法判断上一个任务切换到下一个任务时，任务会在哪一个点挂起</strong>。同时，<strong>任务切换给了用户和应用一个<em>并发的假象</em>，这就使得应用的行为可能与真实在能够进行并发的计算机上运行时的有细微的不同</strong>。</p>
+<p>在以前，包含多个处理器的计算机通常被用于服务器或高性能计算任务；如今，拥有多核的台式电脑逐渐普遍。<strong>无论这些计算机拥有多个处理器还是一个处理器中有用多个处理核心，它们都能够真正的<em>并行</em>运行这些任务</strong>。我们称之为<code>硬件并发(hardware concurrency)</code>。</p>
+<p>下图展示了一个理想情况下，一个计算机刚好有两个任务，并且该两个任务刚好被切分为十个大小相等的块。在一个双核机器上，每一个任务都能够执行在自己的核心上；但在单核机器上，就需要进行任务切换，并且每一个任务块是交替的。一个系统为了交替执行任务，就必须从一个任务切换到另一个任务时执行<code>上下文切换(context switching)</code>，并花费一定的时间开销。</p>
+<p>为了执行一个上下文切换，<strong>系统不得不保存<em>当前正在运行</em>的$CPU$状态和指令指针，计算出要切换到哪一个任务，并为正在切换的任务重新加载到$CPU$状态</strong>。<strong>然后，$CPU$可能需要将新任务的指令和数据加载到缓存中，这可能阻止$CPU$执行任何指令，导致进一步的延迟</strong>。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202406121520627.png" alt="Two approaches to concurrency: parallel execution on a dual-core machine versus task switching on a single-core machine"></p>
+<blockquote>
+<p>当操作系统决定要切换到另一个任务时，CPU需要加载新任务的指令和数据到缓存中。这是因为缓存是CPU用于快速访问内存中的数据的临时存储器。如果新任务的指令和数据不在缓存中，CPU就必须从主内存中读取它们，这需要更多的时间和资源。<br>这个加载过程可能会导致CPU无法执行任何指令，因为它必须等待新任务的数据在缓存中准备好。这会导致进一步的延迟，因为CPU无法继续执行其他指令，直到新任务的数据准备就绪。<br>一旦新任务的数据加载到缓存中，CPU就可以开始执行新任务的指令。但在此过程中，由于加载数据和等待的延迟，总体上会出现额外的延迟。<br>这种延迟是任务切换过程中不可避免的，但可以通过优化缓存和内存访问策略来减少其影响，以提高系统的性能。</p>
+</blockquote>
+<p>虽然硬件中的并发性在多处理器或多核系统中最为明显，但有些处理器可以在单核上执行多个线程。<strong>需要考虑的重要因素就是</strong><code>硬件线程(hardware thread)</code><strong>的数量，这是衡量硬件可以真正并发运行多少独立任务的指标</strong>。即使系统具有真正的硬件并发性，任务数量也很容易超过硬件可以并行运行的数量，因此在这些情况下仍旧进行任务切换。如下图所示，四个任务的任务切换发生在一个双核计算机上，和先前理想的情况一样，每个任务都被均分为多个小块。</p>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202406121540787.png" alt="Task switching of four tasks on two cores"></p>
+<h3 id="Approaches-to-concurrency"><a href="#Approaches-to-concurrency" class="headerlink" title="Approaches to concurrency"></a>Approaches to concurrency</h3><p>现在举一个例子，假设一对程序员在一起做一个软件项目。如果你的开发人员在不同的办公室，他们可以和平地工作，不会被彼此打扰，并且他们每个人都有自己的一套参考手册。但显而易见的，沟通并非直截了当的；他们需要使用电话或电子邮件，或者站起来走到对方的办公室。此外，你还需要管理两个办公室，需要购买多份参考手册。</p>
+<p>现在，假如你将他们放在同一个办公室，他们现在可以随意的交流或讨论应用的设计。你只需要管理一个办公室，购买一份参考手册；但是，他们可能会发现很难集中注意力，并且出现资源问题(一份参考手册)。</p>
+<p>上述的两种方式解释了两种基本的并发实现的方式。每一位开发者就对应了一个线程，办公室就表示了一个进程，而参考手册便是资源。</p>
+<h4 id="CONCURRENCY-WITH-MULTIPLE-PROCESSORS"><a href="#CONCURRENCY-WITH-MULTIPLE-PROCESSORS" class="headerlink" title="CONCURRENCY WITH MULTIPLE PROCESSORS"></a>CONCURRENCY WITH MULTIPLE PROCESSORS</h4><p>在应用程序中使用并发的第一种方法是<strong>将应用程序划分为同时运行的多个独立的单线程进程</strong>。然后，这些独立的进程可以通过所有正常的进程间通信通道(<code>signals</code>、<code>sockets</code>、<code>files</code>…)相互传递消息。</p>
+<p>通过这种方式实现的缺点是：<strong>进程间通信要么建立起来很复杂，要么很慢，或者两者皆有；同时，运行多个进程存在固有的开销，启动一个进程需要开销，操作系统必须投入内部资源来管理这些进程</strong>。</p>
+<p>当然，也并非全是坏处：<strong>操作系统通常在进程和高级通信机制之间提供了额外的保护，这意味着使用进程而不是线程更容易编写安全的并发代码；并且，你可以在通过网络连接的不同机器上运行单独的进程。虽然这增加了通信成本，但在精心设计的系统上，它可以是增加可用并行性和提高性能的一种经济有效的方法</strong>。</p>
+<blockquote>
+<p>将多个进程通过网络分布在多个主机上，这叫做分布式计算。</p>
+</blockquote>
+<p><img src="https://hexo-pirctures.oss-cn-chengdu.aliyuncs.com/imgs202406121631041.png" alt="communicate"></p>
+<h4 id="CONCURRENCY-WITH-MULTIPLE-THREADS"><a href="#CONCURRENCY-WITH-MULTIPLE-THREADS" class="headerlink" title="CONCURRENCY WITH MULTIPLE THREADS"></a>CONCURRENCY WITH MULTIPLE THREADS</h4><p>并发的另一种方式是<strong>在单个进程中运行多个线程</strong>。<strong>线程很像<em>轻量级进程</em>：每个线程独立于其他线程运行，每个线程可以运行不同的指令序列</strong>。但是，<strong>一个进程中的所有线程共享相同的地址空间，并且大多数数据可以从所有线程直接访问————全局变量在全局保持，指针、对象或数据的引用可以在线程之间传递</strong>。尽管线程之间可以共享进程中的地址空间，但是它们的建立和管理依旧是很复杂的，<strong>因为相同数据的内存地址在不同的进程中不一定相同</strong>。</p>
+<p><strong>共享的地址空间和线程之间缺乏数据保护使得使用多个线程的开销比使用多个进程的开销要小得多</strong>。但是<strong>共享内存的灵活性也有代价：如果数据是由多个线程访问的，那么应用程序员必须<em>确认每个线程所看到的数据视图在访问数据时是一致的</em></strong>。</p>
+<p>与在多个进程之间启动和通信相比，<strong>在一个进程内的多个线程之间的启动和通信的开销较低，这意味这是主流语言中最受欢迎的并发方式，尽管共享内存会产生潜在的问题</strong>。再者，<strong>C++标准并没有为进程之间的通信提供任何内在的支持，因此<em>使用多个进程的应用程序将不得不依赖特定平台的API来实现这一点。</em></strong></p>
+<h3 id="Concurrency-vs-Parallelism"><a href="#Concurrency-vs-Parallelism" class="headerlink" title="Concurrency vs. Parallelism"></a>Concurrency vs. Parallelism</h3><p>在多线程代码上，<code>并发(Concurrency)</code>和<code>并行(Parallelism)</code>在意义上有很大部分的重叠。实际上，大多数时候它们指的就是同一件事；其区别主要在于细微差别、关注点和意图。</p>
+<p>这两个术语都与利用可用的硬件同时运行多个任务有关，但<strong>并行性更加注重性能</strong>。<strong>当人们主要关注利用可用的硬件来提高大规模数据处理的性能时，他们谈论的是并行性</strong>；<strong>而当人们主要关注关注点分离或响应性时，他们谈论的是并发性</strong>。</p>
+<ul>
+<li>并行性强调的是同时执行多个任务以提高整体性能。它关注的是如何充分利用多核处理器或分布式系统等硬件资源来同时处理多个任务，以实现更快的数据处理。并行性的目标是通过同时处理多个任务来加速计算过程。</li>
+<li>而并发性更注重任务的分离和响应性。它关注的是如何同时处理多个任务，使它们能够并发地执行，而不是简单地顺序执行。并发性的目标是实现任务的交替执行，使系统能够更好地响应用户的请求，提高系统的吞吐量和响应时间。</li>
+<li>总的来说，并行性更注重性能优化和数据处理速度，而并发性更注重任务的分离和系统的响应性能。</li>
+</ul>
+<h2 id="Why-use-concurrency"><a href="#Why-use-concurrency" class="headerlink" title="Why use concurrency?"></a>Why use concurrency?</h2><p>在应用程序中使用并发性有两个主要原因：<code>关注点分离(separation of concern)</code>和<code>性能(performance)</code>。</p>
+<ul>
+<li>关注点分离<ul>
+<li><strong>并发可以帮助将复杂的应用程序分解为更小、更独立的部分，每个部分专注于处理特定的任务或功能</strong>。通过将应用程序分成多个并发执行的部分，可以更好地组织和管理代码，提高代码的可读性和可维护性。不同的任务可以在不同的线程或进程中执行，彼此之间相互独立，从而实现了关注点分离。 </li>
+<li><strong>在这种情况下，线程的数量与可用的CPU核心数量是独立的，因为线程的划分是基于概念设计，而不是为了增加吞吐量</strong>。</li>
+</ul>
+</li>
+<li>性能优化<ul>
+<li><strong>并发还可以用于提高应用程序的性能</strong>。通过并发地执行多个任务，可以充分利用多核处理器或分布式系统的资源。这样可以加快任务的处理速度，提高系统的响应能力和吞吐量。例如，在并发地处理大量的数据或同时处理多个用户请求时，通过并行地执行任务可以显著提高应用程序的性能。</li>
+<li><strong>将单个任务分成多个部分并行运行，从而减少总运行时间</strong>，这种被称为<code>任务并行(task parallelism)</code>。<strong>每个线程对数据的不同部分执行相同的操作</strong>，这被称为<code>数据并行(data parallelism)</code>。</li>
+</ul>
+</li>
+</ul>
+<p>那些容易受到这种并行性影响的算法通常被称为<code>embarrassingly parallel(尴尬并行)</code>。尽管这个说法可能暗示你可能会为代码如此容易并行化而感到尴尬，但这是一件好事。我还遇到过其他形容这类算法的术语，如<code>naturally parallel(自然并行)</code>和<code>conveniently concurrent(方便并发)</code>。<code>Embarrassingly parallel</code>算法具有良好的可扩展性特性——随着可用的硬件线程数量增加，算法中的并行性可以增加以匹配。这样的算法完美地体现了一句格言：”人多好办事”。对于那些不是尴尬并行的算法部分，你可能可以将算法划分为固定(因此不可扩展)数量的并行任务。</p>
+<h3 id="When-not-to-use-concurrency"><a href="#When-not-to-use-concurrency" class="headerlink" title="When not to use concurrency"></a>When not to use concurrency</h3><p>知道什么时候不能使用并发和知道什么时候能使用并发同样重要。从根本上说，<strong>唯一一个不使用并发的原因是收益不值得付出其代价</strong>。</p>
+<p><strong>除非潜在的性能收益足够大或关注点的分离足够清晰，以便证明为了正确实现并行性所需的额外开发时间和维护多线程代码所需的额外成本是合理的，否则不要使用并发性</strong>。</p>
+<p>当然，使用并发的性能增益可能没有你想想中的那么大；启动线程有一个固有的开销，<strong>因为操作系统必须得去分配相关的内核资源和堆栈空间，然后将新线程添加到调度器中，所有这些都需要时间。如果在线程上运行的任务很快就完成了，那么与启动线程的开销相比，任务所花费的时间可能会相形见绌，这可能导致应用程序的整体性能比直接由生成线程执行任务时更差</strong>。</p>
+<p>此外，线程是一种有限的资源。如果同时运行太多的线程，这会消耗操作系统资源，并可能使整个系统运行速度变慢。不仅如此，使用太多的线程还会耗尽进程的可用内存或地址空间，因为每个线程都需要单独的堆栈空间。</p>
+<p>最后，运行的线程越多，操作系统必须进行的上下文切换就越多。<strong>每次上下文切换都会占用一些本来可以用来做有用工作的时间，因此在某些时候，添加一个额外的线程将降低而不是提高应用程序的整体性能</strong>。由于这个原因，如果您试图实现系统的最佳性能，就有必要调整正在运行的线程数量，以考虑到可用的硬件并发性(或缺乏并发性)。</p>
+<p>使用并发性提高性能与其他任何优化策略一样：<strong>它有可能极大地提高应用程序的性能，但也可能使代码复杂化，使其更难以理解，更容易出现bug</strong>。</p>
+<h2 id="Concurrency-and-multithreading-in-C"><a href="#Concurrency-and-multithreading-in-C" class="headerlink" title="Concurrency and multithreading in C++"></a>Concurrency and multithreading in C++</h2><p>通过多线程对并发性的标准化支持对于<code>c++</code>来说是一个相对较新的事物。只有从<code>c++11</code>标准开始，你才能够编写多线程代码，而不需要借助特定于平台的扩展。</p>
+<h3 id="Efficiency-in-the-C-Thread-Library"><a href="#Efficiency-in-the-C-Thread-Library" class="headerlink" title="Efficiency in the C++ Thread Library"></a>Efficiency in the C++ Thread Library</h3><p>如果你追求最高的性能，<strong>了解使用任何高级功能相对于直接使用底层低级功能所带来的实现成本是非常重要的</strong>。这个成本就是<code>抽象代价(abstraction penalty)</code>。</p>
+<blockquote>
+<p>Abstraction Penalty<br><strong>抽象代价是指使用高级功能相对于直接使用底层低级功能所带来的性能开销</strong>。封装的高级功能提供了更方便的接口和抽象层，但在底层实现上可能引入了额外的开销。这些开销可能包括资源消耗、额外的函数调用、内存分配和释放等。因此，在追求极致性能时，需要权衡使用高级功能所带来的便利性和抽象层与底层实现的开销之间的权衡。</p>
+</blockquote>
+<p><code>C++标准委员会</code>在设计<code>C++标准库</code>的整体以及特别是<code>标准C++线程库</code>时已经意识到了这一点。其中一个设计目标是，<strong>在提供相同功能的情况下，直接使用低级$API$应该没有或者几乎没有任何好处</strong>。因此，<strong>该库的设计旨在允许在大多数主要平台上进行高效实现</strong>(<strong>具有较低的抽象代价</strong>)。</p>
+<p><code>C++标准委员会</code>的另一个目标是<strong>确保C++为那些希望在接近硬件层面上获得最佳性能的开发人员提供足够的低级功能</strong>。为了实现这一目标，除了新的内存模型之外，还引入了一个全面的原子操作库，用于直接控制单个位和字节的操作，以及线程间同步和可见性的任何变化。<strong>这些原子类型和相应的操作现在可以用于许多开发人员之前可能选择使用特定平台汇编语言的地方</strong>。使用新的标准类型和操作的代码更具可移植性和易于维护。</p>
+<p><strong>有时，使用这些低级功能可能会带来性能成本，因为需要执行额外的代码。但是，这种性能成本并不一定意味着更高的抽象代价</strong>。如果你追求性能，而使用高级功能的成本过高，你可能更适合使用低级功能手工实现所需的功能。在绝大多数情况下，额外的复杂性和错误的机会远远超过了从微小的性能提升中可能获得的潜在好处。</p>
+<h2 id="Getting-Started"><a href="#Getting-Started" class="headerlink" title="Getting Started"></a>Getting Started</h2><p>我们从一个最基本的”Hello World”程序作为例子，下面是一个单线程的执行代码，这将作为我们后续修改为多线程的一个基准：</p>
+<figure class="highlight cc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Hello World\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面则是”Hello World”多线程的版本：</p>
+<figure class="highlight cc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">hello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Hello Concurrency World\n&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::thread t &#123; hello &#125;;</span><br><span class="line">  t.<span class="built_in">join</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们首先能够发现的是，多了一个头文件<code>&lt;thread&gt;</code>，这个头文件是管理线程的函数和类声明的文件；其他保护共享数据的函数和类则声明在其他头文件中。</p>
+<p>然后，我们的打印语句则是放在了一个单独的函数<code>hello()</code>中，这是因为<strong>每一个线程都必须有一个初始函数，线程从这个初始函数开始执行</strong>。因此，这里的<code>hello()</code>函数作为了线程<code>t</code>的初始函数。</p>
+<p>当我们的新线程启动后，初始线程(main)会继续执行。如果它没有等待新线程完成，它将继续到<code>main()</code>结束并结束程序，这会导致<strong>可能在新线程运行前，程序就已经结束</strong>。因此我们在新线程的语句下面需要调用<code>join()</code>(该函数将在第二篇笔记中解释)。</p>
+<p>至此，一个多线程的”Hello World”就完成了。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Chen Miao</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://chenmiaoi.github.io/2024/06/12/Concurrency-in-Action-Introduction/">https://chenmiaoi.github.io/2024/06/12/Concurrency-in-Action-Introduction/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2024 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/cpp/"># cpp</a>
+                    
+                        <a href="/tags/concurrency/"># concurrency</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/06/13/Concurrency-in-Action-Managing-threads/">Concurrency in Action: Managing Threads</a>
+            
+            
+            <a class="next" rel="next" href="/2024/05/17/xv6-The-Kernel-Env/">Xv6: The Kernel Env</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Chen Miao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
