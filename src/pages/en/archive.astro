@@ -1,0 +1,8 @@
+---
+import ArchivePage from "@components/pages/ArchivePage.astro";
+import { getSortedPostsList } from "@utils/content-utils";
+
+const sortedPostsList = await getSortedPostsList("en");
+---
+
+<ArchivePage sortedPosts={sortedPostsList} lang="en" />

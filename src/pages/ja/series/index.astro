@@ -1,0 +1,8 @@
+---
+import SeriesIndexPage from "@components/pages/SeriesIndexPage.astro";
+import { getSeriesMap } from "@utils/content-utils";
+
+const seriesMap = await getSeriesMap("ja");
+---
+
+<SeriesIndexPage seriesMap={seriesMap} lang="ja" />

@@ -1,0 +1,8 @@
+---
+import GraphPage from "@components/pages/GraphPage.astro";
+import { buildGraphData } from "@utils/graph-utils";
+
+const data = await buildGraphData("zh_TW");
+---
+
+<GraphPage data={data} lang="zh_TW" />

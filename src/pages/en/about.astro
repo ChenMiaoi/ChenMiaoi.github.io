@@ -1,0 +1,12 @@
+---
+import { getEntry } from "astro:content";
+import AboutPage from "@components/pages/AboutPage.astro";
+
+const aboutPost = await getEntry("spec", "about");
+
+if (!aboutPost) {
+	throw new Error("About page content not found");
+}
+---
+
+<AboutPage entry={aboutPost} lang="en" />

@@ -1,0 +1,16 @@
+---
+import SeriesDetailPage from "@components/pages/SeriesDetailPage.astro";
+import { getSeriesMap } from "@utils/content-utils";
+
+export async function getStaticPaths() {
+	const seriesMap = await getSeriesMap("en");
+	return [...seriesMap.values()].map((info) => ({
+		params: { slug: info.slug },
+		props: { info },
+	}));
+}
+
+const { info } = Astro.props;
+---
+
+<SeriesDetailPage info={info} lang="en" />

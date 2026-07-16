@@ -1,0 +1,52 @@
+---
+import PostDetailPage from "@components/pages/PostDetailPage.astro";
+import { getSeriesMap, getSortedPosts } from "@utils/content-utils";
+import { getPostUrlBySlug } from "@utils/url-utils";
+
+export async function getStaticPaths() {
+	const pad = (n: number) => String(n).padStart(2, "0");
+	const blogEntries = await getSortedPosts("zh_TW");
+	const seriesMap = await getSeriesMap("zh_TW");
+	return blogEntries.map((entry) => {
+		const d = new Date(entry.data.published);
+
+		let seriesNav = null;
+		const seriesSlug = entry.data.series;
+		const info = seriesSlug ? seriesMap.get(seriesSlug) : undefined;
+		if (info) {
+			const index = info.posts.findIndex((p) => p.slug === entry.slug);
+			if (index >= 0) {
+				const toLink = (p: (typeof info.posts)[number]) => ({
+					title: p.title,
+					url: getPostUrlBySlug(p.slug, p.published, "zh_TW"),
+				});
+				seriesNav = {
+					seriesSlug: info.slug,
+					seriesTitle: info.title,
+					index: index + 1,
+					total: info.posts.length,
+					prev: index > 0 ? toLink(info.posts[index - 1]) : null,
+					next:
+						index < info.posts.length - 1
+							? toLink(info.posts[index + 1])
+							: null,
+				};
+			}
+		}
+
+		return {
+			params: {
+				year: String(d.getUTCFullYear()),
+				month: pad(d.getUTCMonth() + 1),
+				day: pad(d.getUTCDate()),
+				slug: entry.slug,
+			},
+			props: { entry, seriesNav },
+		};
+	});
+}
+
+const { entry, seriesNav } = Astro.props;
+---
+
+<PostDetailPage entry={entry} seriesNav={seriesNav} lang="zh_TW" />

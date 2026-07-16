@@ -1,0 +1,8 @@
+---
+import GraphPage from "@components/pages/GraphPage.astro";
+import { buildGraphData } from "@utils/graph-utils";
+
+const data = await buildGraphData("en");
+---
+
+<GraphPage data={data} lang="en" />
