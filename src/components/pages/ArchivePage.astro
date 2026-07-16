@@ -1,0 +1,19 @@
+---
+import ArchivePanel from "@components/ArchivePanel.svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+
+// NOTE: no Props interface on purpose — ArchivePanel.svelte declares its own
+// Post type (`category?: string`), and PostForList's `category: string | null`
+// trips strict null checking across the svelte boundary. Untyped props match
+// the original page and behave identically at runtime. tags/categories are
+// passed as empty arrays (the panel declares them as required props); the
+// panel immediately re-reads both from the URL query on mount, exactly as in
+// the original page where they were left unset.
+const { sortedPosts, lang } = Astro.props;
+---
+
+<MainGridLayout title={i18n(I18nKey.archive, lang)} lang={lang}>
+    <ArchivePanel sortedPosts={sortedPosts} tags={[]} categories={[]} lang={lang} client:only="svelte"></ArchivePanel>
+</MainGridLayout>

@@ -101,7 +101,17 @@ export default defineConfig({
 			}
 		}),
         svelte(),
-		sitemap(),
+		sitemap({
+			i18n: {
+				defaultLocale: "zh_CN",
+				locales: {
+					zh_CN: "zh-CN",
+					en: "en-US",
+					zh_TW: "zh-TW",
+					ja: "ja",
+				},
+			},
+		}),
 	],
 	markdown: {
 		remarkPlugins: [

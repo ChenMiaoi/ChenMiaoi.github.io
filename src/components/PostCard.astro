@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content";
 import path from "node:path";
 import { Icon } from "astro-icon/components";
+import { siteConfig } from "../config";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
 import { getDir } from "../utils/url-utils";
@@ -21,6 +22,7 @@ interface Props {
 	description: string;
 	draft: boolean;
 	style: string;
+	lang?: string;
 }
 const {
 	entry,
@@ -35,6 +37,7 @@ const {
 	style,
 } = Astro.props;
 const className = Astro.props.class;
+const lang: string = Astro.props.lang ?? siteConfig.lang;
 
 const hasCover = image !== undefined && image !== null && image !== "";
 
@@ -57,7 +60,7 @@ const { remarkPluginFrontmatter } = await entry.render();
         </a>
 
         <!-- metadata -->
-        <PostMetadata published={published} updated={updated} tags={tags} category={category} hideTagsForMobile={true} hideUpdateDate={true} class="mb-4"></PostMetadata>
+        <PostMetadata published={published} updated={updated} tags={tags} category={category} hideTagsForMobile={true} hideUpdateDate={true} class="mb-4" lang={lang}></PostMetadata>
 
         <!-- description -->
         <div class:list={["transition text-75 mb-3.5 pr-4", {"line-clamp-2 md:line-clamp-1": !description}]}>
@@ -67,11 +70,11 @@ const { remarkPluginFrontmatter } = await entry.render();
         <!-- word count and read time  -->
         <div class="text-sm text-black/30 dark:text-white/30 flex gap-4 transition">
             <div>
-                {remarkPluginFrontmatter.words} {" " + i18n(remarkPluginFrontmatter.words === 1 ? I18nKey.wordCount : I18nKey.wordsCount)}
+                {remarkPluginFrontmatter.words} {" " + i18n(remarkPluginFrontmatter.words === 1 ? I18nKey.wordCount : I18nKey.wordsCount, lang)}
             </div>
             <div>|</div>
             <div>
-                {remarkPluginFrontmatter.minutes} {" " + i18n(remarkPluginFrontmatter.minutes === 1 ? I18nKey.minuteCount : I18nKey.minutesCount)}
+                {remarkPluginFrontmatter.minutes} {" " + i18n(remarkPluginFrontmatter.minutes === 1 ? I18nKey.minuteCount : I18nKey.minutesCount, lang)}
             </div>
         </div>
 

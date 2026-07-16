@@ -13,6 +13,10 @@ export const en: Translation = {
 
 	[Key.comments]: "Comments",
 
+	[Key.series]: "Series",
+	[Key.graph]: "Graph",
+	[Key.partOf]: "Part {index} of {total}",
+
 	[Key.untitled]: "Untitled",
 	[Key.uncategorized]: "Uncategorized",
 	[Key.noTags]: "No Tags",

@@ -1,15 +1,33 @@
 import { type CollectionEntry, getCollection } from "astro:content";
+import { CONTENT_LOCALE, DEFAULT_LOCALE, type Locale } from "@constants/locales";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
-import { getCategoryUrl } from "@utils/url-utils.ts";
+import { getCategoryUrl, stripEnSuffix } from "@utils/url-utils.ts";
 
-// // Retrieve posts and sort them by publication date
-async function getRawSortedPosts() {
-	const allBlogPosts = await getCollection("posts", ({ data }) => {
+// Which content variant ("zh" from *.md, "en" from *.en.md) a locale tree shows.
+function contentLocaleOf(lang?: string): "zh" | "en" {
+	return CONTENT_LOCALE[(lang as Locale) || DEFAULT_LOCALE] ?? "zh";
+}
+
+// Retrieve posts of one locale tree and sort them by publication date.
+// English variants (slugs ending in ".en") are normalized back to the base
+// slug so both languages share the same dated permalink shape.
+export async function getRawSortedPosts(lang?: string) {
+	const contentLocale = contentLocaleOf(lang);
+	const allBlogPosts = await getCollection("posts", ({ data, slug }) => {
+		const isEn = slug.endsWith(".en");
+		if (contentLocale === "en" ? !isEn : isEn) return false;
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
 
-	const sorted = allBlogPosts.sort((a, b) => {
+	const sorted = (
+		contentLocale === "en"
+			? allBlogPosts.map((entry) => ({
+					...entry,
+					slug: stripEnSuffix(entry.slug),
+				}))
+			: allBlogPosts
+	).sort((a, b) => {
 		const dateA = new Date(a.data.published);
 		const dateB = new Date(b.data.published);
 		return dateA > dateB ? -1 : 1;
@@ -17,8 +35,8 @@ async function getRawSortedPosts() {
 	return sorted;
 }
 
-export async function getSortedPosts() {
-	const sorted = await getRawSortedPosts();
+export async function getSortedPosts(lang?: string) {
+	const sorted = await getRawSortedPosts(lang);
 
 	for (let i = 1; i < sorted.length; i++) {
 		sorted[i].data.nextSlug = sorted[i - 1].slug;
@@ -37,8 +55,8 @@ export type PostForList = {
 	slug: string;
 	data: CollectionEntry<"posts">["data"];
 };
-export async function getSortedPostsList(): Promise<PostForList[]> {
-	const sortedFullPosts = await getRawSortedPosts();
+export async function getSortedPostsList(lang?: string): Promise<PostForList[]> {
+	const sortedFullPosts = await getRawSortedPosts(lang);
 
 	// delete post.body
 	const sortedPostsList = sortedFullPosts.map((post) => ({
@@ -53,13 +71,11 @@ export type Tag = {
 	count: number;
 };
 
-export async function getTagList(): Promise<Tag[]> {
-	const allBlogPosts = await getCollection<"posts">("posts", ({ data }) => {
-		return import.meta.env.PROD ? data.draft !== true : true;
-	});
+export async function getTagList(lang?: string): Promise<Tag[]> {
+	const allBlogPosts = await getRawSortedPosts(lang);
 
 	const countMap: { [key: string]: number } = {};
-	allBlogPosts.forEach((post: { data: { tags: string[] } }) => {
+	allBlogPosts.forEach((post) => {
 		post.data.tags.forEach((tag: string) => {
 			if (!countMap[tag]) countMap[tag] = 0;
 			countMap[tag]++;
@@ -67,7 +83,7 @@ export async function getTagList(): Promise<Tag[]> {
 	});
 
 	// sort tags
-	const keys: string[] = Object.keys(countMap).sort((a, b) => {
+	const keys = Object.keys(countMap).sort((a, b) => {
 		return a.toLowerCase().localeCompare(b.toLowerCase());
 	});
 
@@ -96,10 +112,8 @@ export type SeriesInfo = {
 
 // Group posts by their `series` frontmatter field. Reading order defaults to
 // publication-date ascending; a post's `seriesOrder` (if set) takes precedence.
-export async function getSeriesMap(): Promise<Map<string, SeriesInfo>> {
-	const allBlogPosts = await getCollection("posts", ({ data }) => {
-		return import.meta.env.PROD ? data.draft !== true : true;
-	});
+export async function getSeriesMap(lang?: string): Promise<Map<string, SeriesInfo>> {
+	const allBlogPosts = await getRawSortedPosts(lang);
 	const seriesEntries = await getCollection("series");
 	const meta = new Map(seriesEntries.map((entry) => [entry.slug, entry.data]));
 
@@ -140,14 +154,12 @@ export async function getSeriesMap(): Promise<Map<string, SeriesInfo>> {
 	return map;
 }
 
-export async function getCategoryList(): Promise<Category[]> {
-	const allBlogPosts = await getCollection<"posts">("posts", ({ data }) => {
-		return import.meta.env.PROD ? data.draft !== true : true;
-	});
+export async function getCategoryList(lang?: string): Promise<Category[]> {
+	const allBlogPosts = await getRawSortedPosts(lang);
 	const count: { [key: string]: number } = {};
-	allBlogPosts.forEach((post: { data: { category: string | null } }) => {
+	allBlogPosts.forEach((post) => {
 		if (!post.data.category) {
-			const ucKey = i18n(I18nKey.uncategorized);
+			const ucKey = i18n(I18nKey.uncategorized, lang);
 			count[ucKey] = count[ucKey] ? count[ucKey] + 1 : 1;
 			return;
 		}
@@ -169,7 +181,7 @@ export async function getCategoryList(): Promise<Category[]> {
 		ret.push({
 			name: c,
 			count: count[c],
-			url: getCategoryUrl(c),
+			url: getCategoryUrl(c, lang),
 		});
 	}
 	return ret;

@@ -1,31 +1,41 @@
 ---
 import { Icon } from "astro-icon/components";
+import { LOCALE_NAMES, LOCALES } from "@constants/locales";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
 import { navBarConfig, siteConfig } from "../config";
-import { LinkPresets } from "../constants/link-presets";
+import { getLinkPresets } from "../constants/link-presets";
 import { LinkPreset, type NavBarLink } from "../types/config";
-import { url } from "../utils/url-utils";
+import { switchLocalePath, url } from "../utils/url-utils";
 import LightDarkSwitch from "./LightDarkSwitch.svelte";
 import Search from "./Search.svelte";
 import DisplaySettings from "./widget/DisplaySettings.svelte";
 import NavMenuPanel from "./widget/NavMenuPanel.astro";
 
 const className = Astro.props.class;
+const lang: string = Astro.props.lang ?? siteConfig.lang;
 
+const presets = getLinkPresets(lang);
 let links: NavBarLink[] = navBarConfig.links.map(
 	(item: NavBarLink | LinkPreset): NavBarLink => {
 		if (typeof item === "number") {
-			return LinkPresets[item];
+			return presets[item];
 		}
 		return item;
 	},
 );
+
+const linkName = (l: NavBarLink) =>
+	l.i18nKey ? i18n(l.i18nKey as I18nKey, lang) : l.name;
+
+const currentPath = Astro.url.pathname;
 ---
 <div id="navbar" class="z-50 onload-animation">
     <div class="absolute h-8 left-0 right-0 -top-8 bg-[var(--card-bg)] transition"></div> <!-- used for onload animation -->
     <div class:list={[
         className,
         "card-base !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
-        <a href={url('/')} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-5 font-bold active:scale-95">
+        <a href={url('/', lang)} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-5 font-bold active:scale-95">
             <div class="flex flex-row text-[var(--primary)] items-center text-md">
                 <Icon name="material-symbols:home-outline-rounded" class="text-[1.75rem] mb-1 mr-2" />
                 {siteConfig.title}
@@ -33,11 +43,11 @@ let links: NavBarLink[] = navBarConfig.links.map(
         </a>
         <div class="hidden md:flex">
             {links.map((l) => {
-                return <a aria-label={l.name} href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
+                return <a aria-label={linkName(l)} href={l.external ? l.url : url(l.url, lang)} target={l.external ? "_blank" : null}
                           class="btn-plain scale-animation rounded-lg h-11 font-bold px-5 active:scale-95"
                 >
                     <div class="flex items-center">
-                        {l.name}
+                        {linkName(l)}
                         {l.external && <Icon name="fa6-solid:arrow-up-right-from-square" class="text-[0.875rem] transition -translate-y-[1px] ml-1 text-black/[0.2] dark:text-white/[0.2]"></Icon>}
                     </div>
                 </a>;
@@ -45,19 +55,35 @@ let links: NavBarLink[] = navBarConfig.links.map(
         </div>
         <div class="flex">
             <!--<SearchPanel client:load>-->
-            <Search client:only="svelte"></Search>
+            <Search lang={lang} client:only="svelte"></Search>
+            <button aria-label="Language" name="Language Switch" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" id="locale-switch">
+                <Icon name="material-symbols:language" class="text-[1.25rem]"></Icon>
+            </button>
             {!siteConfig.themeColor.fixed && (
                     <button aria-label="Display Settings" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" id="display-settings-switch">
                         <Icon name="material-symbols:palette-outline" class="text-[1.25rem]"></Icon>
                     </button>
             )}
-            <LightDarkSwitch client:only="svelte"></LightDarkSwitch>
+            <LightDarkSwitch lang={lang} client:only="svelte"></LightDarkSwitch>
             <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch">
                 <Icon name="material-symbols:menu-rounded" class="text-[1.25rem]"></Icon>
             </button>
         </div>
-        <NavMenuPanel links={links}></NavMenuPanel>
-        <DisplaySettings client:only="svelte"></DisplaySettings>
+        <NavMenuPanel links={links} lang={lang}></NavMenuPanel>
+        <DisplaySettings lang={lang} client:only="svelte"></DisplaySettings>
+        <div id="locale-panel" class:list={["float-panel float-panel-closed absolute transition-all fixed right-4 px-2 py-2"]}>
+            {LOCALES.map((l) => (
+                <a href={switchLocalePath(currentPath, l)} data-locale={l}
+                   class="group flex justify-between items-center py-2 pl-3 pr-4 rounded-lg gap-8
+                    hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition"
+                >
+                    <div class:list={["transition font-bold group-hover:text-[var(--primary)]",
+                        l === lang ? "text-[var(--primary)]" : "text-black/75 dark:text-white/75"]}>
+                        {LOCALE_NAMES[l]}
+                    </div>
+                </a>
+            ))}
+        </div>
     </div>
 </div>
 
@@ -70,6 +96,28 @@ function switchTheme() {
         document.documentElement.classList.add('dark');
         localStorage.theme = 'dark';
     }
+}
+
+/* Client-side mirror of switchLocalePath in url-utils: the navbar survives
+   swup navigations, so locale links must be recomputed on every page view. */
+function localePath(pathname: string, target: string): string {
+    const prefixes = ["/en", "/zh_TW", "/ja"];
+    let p = pathname;
+    for (const pre of prefixes) {
+        if (p === pre) { p = "/"; break; }
+        if (p.startsWith(pre + "/")) { p = p.slice(pre.length); break; }
+    }
+    const prefix = target === "zh_CN" ? "" : `/${target}`;
+    return (prefix + p).replace(/\/+/g, "/") || "/";
+}
+
+function updateLocaleLinks() {
+    document
+        .querySelectorAll<HTMLAnchorElement>("#locale-panel a[data-locale]")
+        .forEach((a) => {
+            const l = a.dataset.locale;
+            if (l) a.href = localePath(window.location.pathname, l);
+        });
 }
 
 function loadButtonScript() {
@@ -99,9 +147,33 @@ function loadButtonScript() {
             }
         };
     }
+
+    let localeBtn = document.getElementById("locale-switch");
+    if (localeBtn) {
+        localeBtn.onclick = function () {
+            let localePanel = document.getElementById("locale-panel");
+            if (localePanel) {
+                localePanel.classList.toggle("float-panel-closed");
+            }
+        };
+    }
 }
 
 loadButtonScript();
+updateLocaleLinks();
+
+const w = window as any;
+if (!w.__localeLinksHooked) {
+    w.__localeLinksHooked = true;
+    const tryHook = (n = 0): void => {
+        if (w.swup?.hooks) {
+            w.swup.hooks.on("page:view", updateLocaleLinks);
+        } else if (n < 50) {
+            setTimeout(() => tryHook(n + 1), 100);
+        }
+    };
+    tryHook();
+}
 </script>
 
 {import.meta.env.PROD && <script is:inline define:vars={{scriptUrl: url('/pagefind/pagefind.js')}}>

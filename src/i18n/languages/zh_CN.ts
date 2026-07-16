@@ -13,6 +13,10 @@ export const zh_CN: Translation = {
 
 	[Key.comments]: "评论",
 
+	[Key.series]: "专栏",
+	[Key.graph]: "图谱",
+	[Key.partOf]: "第 {index} 篇（共 {total} 篇）",
+
 	[Key.untitled]: "无标题",
 	[Key.uncategorized]: "未分类",
 	[Key.noTags]: "无标签",

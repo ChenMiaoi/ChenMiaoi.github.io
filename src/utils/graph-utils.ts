@@ -1,4 +1,5 @@
 import { getCollection } from "astro:content";
+import { getRawSortedPosts } from "@utils/content-utils";
 import { getPostUrlBySlug, getTagUrl, url } from "@utils/url-utils";
 
 export type GraphNode = {
@@ -13,10 +14,8 @@ export type GraphData = { nodes: GraphNode[]; links: GraphLink[] };
 // Build the knowledge graph from content collections.
 // Nodes: posts, tags, series. Links: post->tag, post->series, post->post
 // (the latter from in-content markdown links using the dated permalink form).
-export async function buildGraphData(): Promise<GraphData> {
-	const posts = await getCollection("posts", ({ data }) =>
-		import.meta.env.PROD ? data.draft !== true : true,
-	);
+export async function buildGraphData(lang?: string): Promise<GraphData> {
+	const posts = await getRawSortedPosts(lang);
 	const seriesEntries = await getCollection("series");
 	const seriesTitle = new Map(
 		seriesEntries.map((entry) => [entry.slug, entry.data.title]),
@@ -42,7 +41,7 @@ export async function buildGraphData(): Promise<GraphData> {
 			id,
 			label: post.data.title,
 			type: "post",
-			url: getPostUrlBySlug(post.slug, post.data.published),
+			url: getPostUrlBySlug(post.slug, post.data.published, lang),
 		});
 
 		for (const tag of post.data.tags) {
@@ -52,7 +51,7 @@ export async function buildGraphData(): Promise<GraphData> {
 					id: `tag:${tag}`,
 					label: `#${tag}`,
 					type: "tag",
-					url: getTagUrl(tag),
+					url: getTagUrl(tag, lang),
 				});
 			}
 			addLink(id, `tag:${tag}`);
@@ -66,15 +65,17 @@ export async function buildGraphData(): Promise<GraphData> {
 					id: `series:${s}`,
 					label: `📚 ${seriesTitle.get(s) ?? s}`,
 					type: "series",
-					url: url(`/series/${s}/`),
+					url: url(`/series/${s}/`, lang),
 				});
 			}
 			addLink(id, `series:${s}`);
 		}
 
 		// cross-links between posts, e.g. [text](/2024/05/15/xv6-The-boot-loader/)
+		// or [/en/2024/...](...) in translated posts
 		const body = post.body ?? "";
-		const linkRe = /\]\((?:https?:\/\/[^)\s]*?)?\/\d{4}\/\d{2}\/\d{2}\/([^)\s/]+)\/?\)/g;
+		const linkRe =
+			/\]\((?:https?:\/\/[^)\s]*?)?(?:\/[A-Za-z_]+)?\/\d{4}\/\d{2}\/\d{2}\/([^)\s/]+)\/?\)/g;
 		for (const match of body.matchAll(linkRe)) {
 			const targetSlug = match[1];
 			if (slugSet.has(targetSlug)) addLink(id, `post:${targetSlug}`);

@@ -1,6 +1,9 @@
 ---
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
 import { url } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
+import { siteConfig } from "../config";
 
 interface Props {
 	seriesSlug: string;
@@ -9,21 +12,23 @@ interface Props {
 	total: number;
 	prev: { title: string; url: string } | null;
 	next: { title: string; url: string } | null;
+	lang?: string;
 }
 
 const { seriesSlug, seriesTitle, index, total, prev, next } = Astro.props;
+const lang: string = Astro.props.lang ?? siteConfig.lang;
 ---
 
 <div class="relative overflow-hidden rounded-[var(--radius-large)] bg-[var(--license-block-bg)] py-4 px-6 mb-6 onload-animation">
     <div class="flex items-center justify-between gap-4">
-        <a href={url(`/series/${seriesSlug}/`)} class="group flex items-center gap-2 min-w-0">
+        <a href={url(`/series/${seriesSlug}/`, lang)} class="group flex items-center gap-2 min-w-0">
             <Icon name="material-symbols:collections-bookmark-outline-rounded" class="text-lg text-[var(--primary)] shrink-0" />
             <span class="font-bold text-black/75 dark:text-white/75 truncate group-hover:text-[var(--primary)] transition">
                 {seriesTitle}
             </span>
         </a>
         <span class="shrink-0 text-sm text-black/40 dark:text-white/40">
-            Part {index} of {total}
+            {i18n(I18nKey.partOf, lang).replace("{index}", String(index)).replace("{total}", String(total))}
         </span>
     </div>
     {(prev || next) && (

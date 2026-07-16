@@ -50,7 +50,7 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
 <slot slot="head" name="head"></slot>
 <div id="top-row" class="z-50 pointer-events-none relative transition-all duration-700 max-w-[var(--page-width)] px-0 md:px-4 mx-auto" class:list={[""]}>
     <div id="navbar-wrapper" class="pointer-events-auto sticky top-0 transition-all">
-        <Navbar></Navbar>
+        <Navbar lang={lang}></Navbar>
     </div>
 </div>
 
@@ -82,7 +82,7 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
             </a>}
 
 
-            <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings}></SideBar>
+            <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings} lang={lang}></SideBar>
 
             <main id="swup-container" class="transition-swup-fade col-span-2 lg:col-span-1 overflow-hidden">
                 <div id="content-wrapper" class="onload-animation">
@@ -90,7 +90,7 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
                     <!-- make id different from windows.swup global property -->
                     <slot></slot>
                     <div class="footer col-span-2 onload-animation hidden lg:block">
-                        <Footer></Footer>
+                        <Footer lang={lang}></Footer>
                     </div>
                 </div>
             </main>
@@ -107,7 +107,7 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
             </div>
 
             <div class="footer col-span-2 onload-animation block lg:hidden">
-                <Footer></Footer>
+                <Footer lang={lang}></Footer>
             </div>
         </div>
 
@@ -120,11 +120,11 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
 	import { siteConfig } from "../config";
 
 	const walineLangMap: Record<string, string> = {
+		"zh-CN": "zh-CN",
+		"zh-TW": "zh-TW",
 		en: "en-US",
-		zh_CN: "zh-CN",
-		zh_TW: "zh-TW",
+		ja: "jp-JP",
 	};
-	const walineLang = walineLangMap[siteConfig.lang] ?? "en-US";
 
 	async function initWaline() {
 		const el = document.getElementById("waline");
@@ -135,7 +135,7 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
 			el,
 			serverURL: siteConfig.comment.serverURL,
 			path: window.location.pathname,
-			lang: walineLang,
+			lang: walineLangMap[document.documentElement.lang] ?? "en-US",
 			dark: "html.dark",
 			reaction: true,
 		});

@@ -13,6 +13,10 @@ export const ja: Translation = {
 
 	[Key.comments]: "コメント",
 
+	[Key.series]: "シリーズ",
+	[Key.graph]: "グラフ",
+	[Key.partOf]: "第{index}回（全{total}回）",
+
 	[Key.untitled]: "タイトルなし",
 	[Key.uncategorized]: "カテゴリなし",
 	[Key.noTags]: "タグなし",

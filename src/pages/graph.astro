@@ -1,15 +1,8 @@
 ---
-import GraphView from "@components/GraphView.svelte";
-import MainGridLayout from "@layouts/MainGridLayout.astro";
+import GraphPage from "@components/pages/GraphPage.astro";
 import { buildGraphData } from "@utils/graph-utils";
 
-const data = await buildGraphData();
+const data = await buildGraphData("zh_CN");
 ---
 
-<MainGridLayout title="Graph" description="A map of posts, series and tags.">
-    <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
-        <div class="card-base z-10 px-4 py-4 relative w-full">
-            <GraphView data={data} client:only="svelte" />
-        </div>
-    </div>
-</MainGridLayout>
+<GraphPage data={data} lang="zh_CN" />

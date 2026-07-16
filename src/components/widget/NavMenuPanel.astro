@@ -1,23 +1,30 @@
 ---
 import { Icon } from "astro-icon/components";
+import { siteConfig } from "../../config";
+import type I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
 import { type NavBarLink } from "../../types/config";
 import { url } from "../../utils/url-utils";
 
 interface Props {
 	links: NavBarLink[];
+	lang?: string;
 }
 
-const links = Astro.props.links;
+const { links, lang } = Astro.props;
+const l10n = lang ?? siteConfig.lang;
+const linkName = (l: NavBarLink) =>
+	l.i18nKey ? i18n(l.i18nKey as I18nKey, l10n) : l.name;
 ---
 <div id="nav-menu-panel" class:list={["float-panel float-panel-closed absolute transition-all fixed right-4 px-2 py-2"]}>
     {links.map((link) => (
-        <a href={link.external ? link.url : url(link.url)} class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-8
+        <a href={link.external ? link.url : url(link.url, l10n)} class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-8
             hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition
         "
            target={link.external ? "_blank" : null}
         >
             <div class="transition text-black/75 dark:text-white/75 font-bold group-hover:text-[var(--primary)] group-active:text-[var(--primary)]">
-                {link.name}
+                {linkName(link)}
             </div>
             {!link.external && <Icon name="material-symbols:chevron-right-rounded"
                   class="transition text-[1.25rem] text-[var(--primary)]"

@@ -1,9 +1,10 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { siteConfig } from "../config";
 import { getPostUrlBySlug } from "@utils/url-utils";
 import PostCard from "./PostCard.astro";
 
-const { page } = Astro.props;
+const { page, lang = siteConfig.lang } = Astro.props;
 
 let delay = 0;
 const interval = 50;
@@ -17,10 +18,11 @@ const interval = 50;
                 category={entry.data.category}
                 published={entry.data.published}
                 updated={entry.data.updated}
-                url={getPostUrlBySlug(entry.slug, entry.data.published)}
+                url={getPostUrlBySlug(entry.slug, entry.data.published, lang)}
                 image={entry.data.image}
                 description={entry.data.description}
                 draft={entry.data.draft}
+                lang={lang}
                 class:list="onload-animation"
                 style={`animation-delay: calc(var(--content-delay) + ${delay++ * interval}ms);`}
         ></PostCard>

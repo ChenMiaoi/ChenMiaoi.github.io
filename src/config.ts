@@ -6,11 +6,12 @@ import type {
 	SiteConfig,
 } from "./types/config";
 import { LinkPreset } from "./types/config";
+import I18nKey from "./i18n/i18nKey";
 
 export const siteConfig: SiteConfig = {
 	title: "Nay's Blog",
 	subtitle: "Let me drive your world!",
-	lang: "en", // Language code, e.g. 'en', 'zh_CN', 'ja', etc.
+	lang: "zh_CN", // Language code, e.g. 'en', 'zh_CN', 'ja', etc.
 	themeColor: {
 		hue: 250, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
 		fixed: false, // Hide the theme color picker for visitors
@@ -50,10 +51,12 @@ export const navBarConfig: NavBarConfig = {
 		{
 			name: "Series",
 			url: "/series/",
+			i18nKey: I18nKey.series,
 		},
 		{
 			name: "Graph",
 			url: "/graph/",
+			i18nKey: I18nKey.graph,
 		},
 		LinkPreset.About,
 		{

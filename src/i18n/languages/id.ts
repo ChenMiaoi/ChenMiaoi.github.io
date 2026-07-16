@@ -13,6 +13,10 @@ export const id: Translation = {
 
 	[Key.comments]: "Komentar",
 
+	[Key.series]: "Series",
+	[Key.graph]: "Graph",
+	[Key.partOf]: "Part {index} of {total}",
+
 	[Key.untitled]: "Tanpa Judul",
 	[Key.uncategorized]: "Tanpa Kategori",
 	[Key.noTags]: "Tanpa Tag",

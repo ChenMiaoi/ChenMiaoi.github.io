@@ -1,0 +1,22 @@
+---
+import GraphView from "@components/GraphView.svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import type { GraphData } from "@utils/graph-utils";
+
+interface Props {
+	data: GraphData;
+	lang?: string;
+}
+
+const { data, lang } = Astro.props;
+---
+
+<MainGridLayout title={i18n(I18nKey.graph, lang)} description="A map of posts, series and tags." lang={lang}>
+    <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
+        <div class="card-base z-10 px-4 py-4 relative w-full">
+            <GraphView data={data} client:only="svelte" />
+        </div>
+    </div>
+</MainGridLayout>

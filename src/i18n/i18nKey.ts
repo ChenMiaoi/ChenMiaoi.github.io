@@ -10,6 +10,10 @@ enum I18nKey {
 
 	comments = "comments",
 
+	series = "series",
+	graph = "graph",
+	partOf = "partOf",
+
 	untitled = "untitled",
 	uncategorized = "uncategorized",
 	noTags = "noTags",

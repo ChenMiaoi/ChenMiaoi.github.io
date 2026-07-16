@@ -17,7 +17,7 @@ function stripInvalidXmlChars(str: string): string {
 }
 
 export async function GET(context: APIContext) {
-	const blog = await getSortedPosts();
+	const blog = await getSortedPosts("zh_CN");
 
 	return rss({
 		title: siteConfig.title,
@@ -31,12 +31,12 @@ export async function GET(context: APIContext) {
 				title: post.data.title,
 				pubDate: post.data.published,
 				description: post.data.description || "",
-				link: getPostUrlBySlug(post.slug, post.data.published),
+				link: getPostUrlBySlug(post.slug, post.data.published, "zh_CN"),
 				content: sanitizeHtml(parser.render(cleanedContent), {
 					allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
 				}),
 			};
 		}),
-		customData: `<language>${siteConfig.lang}</language>`,
+		customData: `<language>zh-cn</language>`,
 	});
 }

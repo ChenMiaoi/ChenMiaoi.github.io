@@ -13,6 +13,10 @@ export const th: Translation = {
 
 	[Key.comments]: "ความคิดเห็น",
 
+	[Key.series]: "Series",
+	[Key.graph]: "Graph",
+	[Key.partOf]: "Part {index} of {total}",
+
 	[Key.untitled]: "ไม่ได้ตั้งชื่อ",
 	[Key.uncategorized]: "ไม่ได้จัดหมวดหมู่",
 	[Key.noTags]: "ไม่มีป้ายกำกับ",

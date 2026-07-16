@@ -1,10 +1,13 @@
 <script lang="ts">
 import I18nKey from "@i18n/i18nKey";
-import { i18n } from "@i18n/translation";
+import { getTranslation } from "@i18n/translation";
 import Icon from "@iconify/svelte";
 import { url } from "@utils/url-utils.ts";
 import { onMount } from "svelte";
+import { siteConfig } from "@/config";
 import type { SearchResult } from "@/global";
+
+export let lang: string = siteConfig.lang;
 
 let keywordDesktop = "";
 let keywordMobile = "";
@@ -65,9 +68,18 @@ const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
 
 		if (import.meta.env.PROD && pagefindLoaded && window.pagefind) {
 			const response = await window.pagefind.search(keyword);
-			searchResults = await Promise.all(
+			const data = await Promise.all(
 				response.results.map((item) => item.data()),
 			);
+			// Pagefind indexes every locale tree; keep only the current tree's pages.
+			searchResults = data.filter((item) => {
+				if (lang === "en") return item.url.startsWith("/en/");
+				return (
+					!item.url.startsWith("/en/") &&
+					!item.url.startsWith("/zh_TW/") &&
+					!item.url.startsWith("/ja/")
+				);
+			});
 		} else if (import.meta.env.DEV) {
 			searchResults = fakeResult;
 		} else {
@@ -144,7 +156,7 @@ $: if (initialized && keywordMobile) {
       dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10
 ">
     <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30"></Icon>
-    <input placeholder="{i18n(I18nKey.search)}" bind:value={keywordDesktop} on:focus={() => search(keywordDesktop, true)}
+    <input placeholder="{getTranslation(lang)[I18nKey.search]}" bind:value={keywordDesktop} on:focus={() => search(keywordDesktop, true)}
            class="transition-all pl-10 text-sm bg-transparent outline-0
          h-full w-40 active:w-60 focus:w-60 text-black/50 dark:text-white/50"
     >
@@ -166,7 +178,7 @@ top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2">
       dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10
   ">
         <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30"></Icon>
-        <input placeholder="Search" bind:value={keywordMobile}
+        <input placeholder="{getTranslation(lang)[I18nKey.search]}" bind:value={keywordMobile}
                class="pl-10 absolute inset-0 text-sm bg-transparent outline-0
                focus:w-60 text-black/50 dark:text-white/50"
         >

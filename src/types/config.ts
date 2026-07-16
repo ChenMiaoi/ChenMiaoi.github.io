@@ -59,6 +59,9 @@ export type NavBarLink = {
 	name: string;
 	url: string;
 	external?: boolean;
+	// When set, the link label is resolved via i18n in the current locale
+	// instead of using `name` verbatim.
+	i18nKey?: string;
 };
 
 export type NavBarConfig = {
