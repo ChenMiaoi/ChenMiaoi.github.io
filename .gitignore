@@ -17,6 +17,9 @@ pnpm-debug.log*
 .env
 .env.production
 
+# local deploy target (server-specific, keep out of git)
+.deploy.env
+
 # macOS-specific files
 .DS_Store
 
