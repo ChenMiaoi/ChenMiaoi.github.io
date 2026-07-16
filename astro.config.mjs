@@ -21,6 +21,7 @@ import { AdmonitionComponent } from "./src/plugins/rehype-component-admonition.m
 import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.mjs";
 import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
+import { remarkGlossary } from "./src/plugins/remark-glossary.mjs";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 
@@ -109,6 +110,7 @@ export default defineConfig({
 			remarkExcerpt,
 			remarkGithubAdmonitionsToDirectives,
 			remarkDirective,
+			remarkGlossary, /* after remarkMath & remarkDirective so math nodes and directive labels can be skipped */
 			remarkSectionize,
 			parseDirectiveNode,
 		],

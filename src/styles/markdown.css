@@ -117,5 +117,44 @@
         overflow-x: auto;
         margin: 1em 0;
     }
-    
+
+    .glossary-term {
+        @apply relative font-medium text-[var(--primary)] cursor-help;
+        border-bottom: 1px dashed var(--primary);
+
+        &::before, &::after {
+            @apply absolute left-1/2 opacity-0 pointer-events-none select-none;
+            transform: translateX(-50%);
+            transition: opacity 0.15s ease;
+            z-index: 50;
+        }
+
+        /* tooltip bubble */
+        &::after {
+            content: attr(data-definition);
+            bottom: calc(100% + 8px);
+            width: max-content;
+            max-width: min(20rem, 80vw);
+            @apply px-3 py-2 rounded-lg text-left text-sm font-normal not-italic leading-relaxed whitespace-normal;
+            color: var(--deep-text);
+            background: var(--card-bg);
+            border: 1px solid var(--line-color);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        /* little arrow between term and bubble */
+        &::before {
+            content: "";
+            bottom: calc(100% + 3px);
+            border: 5px solid transparent;
+            border-top-color: var(--card-bg);
+        }
+
+        &:hover, &:focus-visible {
+            &::before, &::after {
+                @apply opacity-100;
+            }
+        }
+    }
+
 }
