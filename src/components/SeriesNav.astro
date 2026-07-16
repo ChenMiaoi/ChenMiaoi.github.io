@@ -1,0 +1,45 @@
+---
+import { url } from "@utils/url-utils";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+	seriesSlug: string;
+	seriesTitle: string;
+	index: number; // 1-based position within the series
+	total: number;
+	prev: { title: string; url: string } | null;
+	next: { title: string; url: string } | null;
+}
+
+const { seriesSlug, seriesTitle, index, total, prev, next } = Astro.props;
+---
+
+<div class="relative overflow-hidden rounded-[var(--radius-large)] bg-[var(--license-block-bg)] py-4 px-6 mb-6 onload-animation">
+    <div class="flex items-center justify-between gap-4">
+        <a href={url(`/series/${seriesSlug}/`)} class="group flex items-center gap-2 min-w-0">
+            <Icon name="material-symbols:collections-bookmark-outline-rounded" class="text-lg text-[var(--primary)] shrink-0" />
+            <span class="font-bold text-black/75 dark:text-white/75 truncate group-hover:text-[var(--primary)] transition">
+                {seriesTitle}
+            </span>
+        </a>
+        <span class="shrink-0 text-sm text-black/40 dark:text-white/40">
+            Part {index} of {total}
+        </span>
+    </div>
+    {(prev || next) && (
+        <div class="flex flex-col sm:flex-row justify-between gap-2 mt-3 pt-3 border-t border-dashed border-[var(--line-divider)] text-sm">
+            {prev ? (
+                <a href={prev.url} class="group flex items-center gap-1 min-w-0 text-black/60 dark:text-white/60 hover:text-[var(--primary)] transition">
+                    <Icon name="material-symbols:chevron-left-rounded" class="text-lg shrink-0" />
+                    <span class="truncate">{prev.title}</span>
+                </a>
+            ) : <span />}
+            {next ? (
+                <a href={next.url} class="group flex items-center gap-1 min-w-0 sm:ml-auto text-black/60 dark:text-white/60 hover:text-[var(--primary)] transition">
+                    <span class="truncate">{next.title}</span>
+                    <Icon name="material-symbols:chevron-right-rounded" class="text-lg shrink-0" />
+                </a>
+            ) : <span />}
+        </div>
+    )}
+</div>
