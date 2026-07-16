@@ -39,6 +39,9 @@ const hasBannerLink = !!siteConfig.banner.credit.url;
 const mainPanelTop = siteConfig.banner.enable
 	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
 	: "5.5rem";
+
+/* Show the TOC as a permanent third column on post pages (xl and up) */
+const showToc = siteConfig.toc.enable && headings.length > 0;
 ---
 
 <Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>
@@ -63,8 +66,7 @@ const mainPanelTop = siteConfig.banner.enable
 <div class="absolute w-full z-30 pointer-events-none" style={`top: ${mainPanelTop}`}>
     <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
     <div class="relative max-w-[var(--page-width)] mx-auto pointer-events-auto">
-        <div id="main-grid" class="transition duration-700 w-full left-0 right-0 grid grid-cols-[17.5rem_auto] grid-rows-[auto_1fr_auto] lg:grid-rows-[auto]
-    mx-auto gap-4 px-0 md:px-4"
+        <div id="main-grid" class:list={["transition duration-700 w-full left-0 right-0 grid grid-cols-[17.5rem_auto] grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4 px-0 md:px-4", {"xl:grid-cols-[17.5rem_minmax(0,1fr)_14rem]": showToc}]}
         >
             <!-- Banner image credit -->
             {hasBannerCredit && <a href={siteConfig.banner.credit.url} id="banner-credit" target="_blank" rel="noopener" aria-label="Visit image source"
@@ -93,33 +95,23 @@ const mainPanelTop = siteConfig.banner.enable
                 </div>
             </main>
 
+            <!-- TOC: permanent third column on post pages (xl and up). The wrapper must exist on
+                 every page because Swup only swaps the inner #toc element during navigation. -->
+            <div id="toc-wrapper" class:list={["hidden xl:block transition", {"toc-hide": siteConfig.banner.enable}]}>
+                <div id="toc-inner-wrapper" class="sticky top-[5.5rem] max-h-[calc(100vh-7rem)] overflow-y-auto overflow-x-hidden hide-scrollbar">
+                    {showToc && <div id="toc" class="w-full transition-swup-fade rounded-[var(--radius-large)] bg-[var(--card-bg)] p-2">
+                        <TOC headings={headings}></TOC>
+                    </div>}
+                    {!showToc && <div id="toc"></div>}
+                </div>
+            </div>
+
             <div class="footer col-span-2 onload-animation block lg:hidden">
                 <Footer></Footer>
             </div>
         </div>
 
         <BackToTop></BackToTop>
-    </div>
-</div>
-
-<!-- The things that should be under the banner, only the TOC for now -->
-<div class="absolute w-full z-0 hidden 2xl:block">
-    <div class="relative max-w-[var(--page-width)] mx-auto">
-        <!-- TOC component -->
-        {siteConfig.toc.enable && <div id="toc-wrapper" class:list={["hidden lg:block transition absolute top-0 -right-[var(--toc-width)] w-[var(--toc-width)] items-center",
-            {"toc-hide": siteConfig.banner.enable}]}
-        >
-            <div id="toc-inner-wrapper" class="fixed top-14 w-[var(--toc-width)] h-[calc(100vh_-_20rem)] overflow-y-scroll overflow-x-hidden hide-scrollbar">
-                <div id="toc" class="w-full h-full transition-swup-fade ">
-                    <div class="h-8 w-full"></div>
-                    <TOC headings={headings}></TOC>
-                    <div class="h-8 w-full"></div>
-                </div>
-            </div>
-        </div>}
-
-        <!-- #toc needs to exist for Swup to work normally -->
-        {!siteConfig.toc.enable && <div id="toc"></div>}
     </div>
 </div>
 </Layout>
