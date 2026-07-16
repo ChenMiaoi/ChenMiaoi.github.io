@@ -6,6 +6,7 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import SeriesNav from "@components/SeriesNav.astro";
+import Comment from "@components/Comment.astro";
 import { getSeriesMap, getSortedPosts } from "@utils/content-utils";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
@@ -61,6 +62,24 @@ export async function getStaticPaths() {
 const { entry, seriesNav } = Astro.props;
 const { Content, headings } = await entry.render();
 
+// Append a "Comments" entry to the TOC so readers of long posts can jump
+// straight to the comment section. Its depth must equal the post's own
+// minimum heading depth — TOC.astro recomputes minDepth from this list,
+// and a smaller value would shift the level filter and hide real headings.
+const minHeadingDepth = headings.length
+	? Math.min(...headings.map((h) => h.depth))
+	: 1;
+const tocHeadings = siteConfig.comment.enable
+	? [
+			...headings,
+			{
+				depth: minHeadingDepth,
+				slug: "comments",
+				text: i18n(I18nKey.comments),
+			},
+		]
+	: headings;
+
 const { remarkPluginFrontmatter } = await entry.render();
 
 const nextPostUrl =
@@ -90,7 +109,7 @@ const jsonLd = {
 	// TODO include cover image here
 };
 ---
-<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings}>
+<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={tocHeadings}>
     <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
     <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4">
         <div id="post-container" class:list={["card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full ",
@@ -158,6 +177,8 @@ const jsonLd = {
 
         </div>
     </div>
+
+    {siteConfig.comment.enable && <Comment />}
 
     <div class="flex flex-col md:flex-row justify-between mb-4 gap-4 overflow-hidden w-full">
         <a href={nextPostUrl || "#"}

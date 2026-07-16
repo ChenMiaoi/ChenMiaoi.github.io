@@ -115,3 +115,51 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
     </div>
 </div>
 </Layout>
+
+<script>
+	import { siteConfig } from "../config";
+
+	const walineLangMap: Record<string, string> = {
+		en: "en-US",
+		zh_CN: "zh-CN",
+		zh_TW: "zh-TW",
+	};
+	const walineLang = walineLangMap[siteConfig.lang] ?? "en-US";
+
+	async function initWaline() {
+		const el = document.getElementById("waline");
+		if (!el || !siteConfig.comment?.enable) return;
+		await import("@waline/client/style");
+		const { init } = await import("@waline/client");
+		init({
+			el,
+			serverURL: siteConfig.comment.serverURL,
+			path: window.location.pathname,
+			lang: walineLang,
+			dark: "html.dark",
+			reaction: true,
+		});
+	}
+
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", initWaline);
+	} else {
+		initWaline();
+	}
+
+	// Swup swaps only the main/#toc containers without re-running page
+	// scripts, so Waline must be re-initialized on every navigation.
+	// Register the hook exactly once and wait for window.swup if needed.
+	const w = window as any;
+	if (!w.__walineSwupHooked) {
+		w.__walineSwupHooked = true;
+		const tryHook = (n = 0): void => {
+			if (w.swup?.hooks) {
+				w.swup.hooks.on("page:view", initWaline);
+			} else if (n < 50) {
+				setTimeout(() => tryHook(n + 1), 100);
+			}
+		};
+		tryHook();
+	}
+</script>
