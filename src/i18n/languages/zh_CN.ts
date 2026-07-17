@@ -17,6 +17,9 @@ export const zh_CN: Translation = {
 	[Key.graph]: "图谱",
 	[Key.partOf]: "第 {index} 篇（共 {total} 篇）",
 
+	[Key.views]: "阅读",
+	[Key.likes]: "点赞",
+
 	[Key.untitled]: "无标题",
 	[Key.uncategorized]: "未分类",
 	[Key.noTags]: "无标签",

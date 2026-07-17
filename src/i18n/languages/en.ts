@@ -17,6 +17,9 @@ export const en: Translation = {
 	[Key.graph]: "Graph",
 	[Key.partOf]: "Part {index} of {total}",
 
+	[Key.views]: "Views",
+	[Key.likes]: "Likes",
+
 	[Key.untitled]: "Untitled",
 	[Key.uncategorized]: "Uncategorized",
 	[Key.noTags]: "No Tags",

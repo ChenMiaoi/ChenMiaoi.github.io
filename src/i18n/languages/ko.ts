@@ -17,6 +17,9 @@ export const ko: Translation = {
 	[Key.graph]: "Graph",
 	[Key.partOf]: "Part {index} of {total}",
 
+	[Key.views]: "Views",
+	[Key.likes]: "Likes",
+
 	[Key.untitled]: "제목 없음",
 	[Key.uncategorized]: "분류되지 않음",
 	[Key.noTags]: "태그 없음",

@@ -1,5 +1,7 @@
 ---
 import BackToTop from "@components/control/BackToTop.astro";
+import CardCounts from "@components/CardCounts.astro";
+import ParaComments from "@components/ParaComments.astro";
 import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
 import SideBar from "@components/widget/SideBar.astro";
@@ -114,6 +116,8 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
         <BackToTop></BackToTop>
     </div>
 </div>
+<CardCounts />
+<ParaComments />
 </Layout>
 
 <script>
@@ -130,7 +134,7 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
 		const el = document.getElementById("waline");
 		if (!el || !siteConfig.comment?.enable) return;
 		await import("@waline/client/style");
-		const { init } = await import("@waline/client");
+		const { init, pageviewCount } = await import("@waline/client");
 		init({
 			el,
 			serverURL: siteConfig.comment.serverURL,
@@ -138,6 +142,12 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
 			lang: walineLangMap[document.documentElement.lang] ?? "en-US",
 			dark: "html.dark",
 			reaction: true,
+		});
+		// Record a page view for this post (counter feeds the home cards).
+		pageviewCount({
+			serverURL: siteConfig.comment.serverURL,
+			path: window.location.pathname,
+			update: true,
 		});
 	}
 

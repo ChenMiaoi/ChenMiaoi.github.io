@@ -17,6 +17,9 @@ export const vi: Translation = {
 	[Key.graph]: "Graph",
 	[Key.partOf]: "Part {index} of {total}",
 
+	[Key.views]: "Views",
+	[Key.likes]: "Likes",
+
 	[Key.untitled]: "Không tiêu đề",
 	[Key.uncategorized]: "Chưa phân loại",
 	[Key.noTags]: "Chưa có thẻ",

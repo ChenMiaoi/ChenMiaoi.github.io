@@ -17,6 +17,9 @@ export const ja: Translation = {
 	[Key.graph]: "グラフ",
 	[Key.partOf]: "第{index}回（全{total}回）",
 
+	[Key.views]: "閲覧",
+	[Key.likes]: "いいね",
+
 	[Key.untitled]: "タイトルなし",
 	[Key.uncategorized]: "カテゴリなし",
 	[Key.noTags]: "タグなし",

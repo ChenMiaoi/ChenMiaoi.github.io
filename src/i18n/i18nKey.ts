@@ -14,6 +14,9 @@ enum I18nKey {
 	graph = "graph",
 	partOf = "partOf",
 
+	views = "views",
+	likes = "likes",
+
 	untitled = "untitled",
 	uncategorized = "uncategorized",
 	noTags = "noTags",

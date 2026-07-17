@@ -17,6 +17,9 @@ export const id: Translation = {
 	[Key.graph]: "Graph",
 	[Key.partOf]: "Part {index} of {total}",
 
+	[Key.views]: "Views",
+	[Key.likes]: "Likes",
+
 	[Key.untitled]: "Tanpa Judul",
 	[Key.uncategorized]: "Tanpa Kategori",
 	[Key.noTags]: "Tanpa Tag",

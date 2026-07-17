@@ -17,6 +17,9 @@ export const tr: Translation = {
 	[Key.graph]: "Graph",
 	[Key.partOf]: "Part {index} of {total}",
 
+	[Key.views]: "Views",
+	[Key.likes]: "Likes",
+
 	[Key.untitled]: "Başlıksız",
 	[Key.uncategorized]: "Katagorisiz",
 	[Key.noTags]: "Tag Bulunamadı",

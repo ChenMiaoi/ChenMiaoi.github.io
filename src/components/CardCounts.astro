@@ -1,0 +1,68 @@
+---
+// Loads per-card view/like/comment counts from the Waline API on list pages.
+// Mounted globally (MainGridLayout) so it also works when swup-navigating
+// from a page without cards onto the home page.
+---
+
+<script>
+	import { siteConfig } from "../config";
+
+	const API = siteConfig.comment.serverURL;
+
+	async function loadCardCounts() {
+		if (!siteConfig.comment?.enable) return;
+		const cards = document.querySelectorAll<HTMLElement>(
+			"[data-post-path]:not([data-counts-loaded])",
+		);
+		cards.forEach((el) => el.setAttribute("data-counts-loaded", "1"));
+		await Promise.allSettled(
+			Array.from(cards).map(async (el) => {
+				const path = el.dataset.postPath;
+				if (!path) return;
+				const q = `path=${encodeURIComponent(path)}`;
+				const [articleRes, commentsRes] = await Promise.all([
+					fetch(`${API}/api/article?${q}`, { credentials: "omit" }).then((r) =>
+						r.json(),
+					),
+					fetch(`${API}/api/comment?${q}&type=count`, {
+						credentials: "omit",
+					}).then((r) => r.json()),
+				]);
+				const counter = articleRes?.data?.[0] ?? {};
+				const views = counter.time ?? 0;
+				const likes = Object.keys(counter)
+					.filter((k) => k.startsWith("reaction"))
+					.reduce((sum, k) => sum + (counter[k] ?? 0), 0);
+				const comments = commentsRes?.data ?? 0;
+				const set = (key: string, val: number) => {
+					const t = el.querySelector<HTMLElement>(`[data-count="${key}"]`);
+					if (t) t.textContent = String(val);
+				};
+				set("views", views);
+				set("likes", likes);
+				set("comments", comments);
+			}),
+		);
+	}
+
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", loadCardCounts);
+	} else {
+		loadCardCounts();
+	}
+
+	// Swup swaps only the main/#toc containers without re-running page
+	// scripts, so counts must be (re)loaded on every navigation.
+	const w = window as any;
+	if (!w.__cardCountsHooked) {
+		w.__cardCountsHooked = true;
+		const tryHook = (n = 0): void => {
+			if (w.swup?.hooks) {
+				w.swup.hooks.on("page:view", loadCardCounts);
+			} else if (n < 50) {
+				setTimeout(() => tryHook(n + 1), 100);
+			}
+		};
+		tryHook();
+	}
+</script>
