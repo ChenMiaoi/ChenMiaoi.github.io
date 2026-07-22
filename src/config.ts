@@ -78,6 +78,11 @@ export const profileConfig: ProfileConfig = {
 			url: "https://github.com/ChenMiaoi",
 		},
 		{
+			name: "Zhihu",
+			icon: "fa6-brands:zhihu",
+			url: "https://www.zhihu.com/people/Pigeon/posts",
+		},
+		{
 			name: "Email",
 			icon: "fa6-solid:envelope",
 			url: "mailto:chenmiao.ku@gmail.com",
