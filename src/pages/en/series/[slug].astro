@@ -1,16 +1,22 @@
 ---
 import SeriesDetailPage from "@components/pages/SeriesDetailPage.astro";
-import { getSeriesMap } from "@utils/content-utils";
+import { getSeriesAncestors, getSeriesTree } from "@utils/content-utils";
 
 export async function getStaticPaths() {
-	const seriesMap = await getSeriesMap("en");
-	return [...seriesMap.values()].map((info) => ({
-		params: { slug: info.slug },
-		props: { info },
+	const tree = await getSeriesTree("en");
+	return [...tree.nodes.values()].map((node) => ({
+		params: { slug: node.slug },
+		props: {
+			node,
+			ancestors: getSeriesAncestors(tree, node.slug).map((n) => ({
+				slug: n.slug,
+				title: n.title,
+			})),
+		},
 	}));
 }
 
-const { info } = Astro.props;
+const { node, ancestors } = Astro.props;
 ---
 
-<SeriesDetailPage info={info} lang="en" />
+<SeriesDetailPage node={node} ancestors={ancestors} lang="en" />

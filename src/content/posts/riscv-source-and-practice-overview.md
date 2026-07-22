@@ -1,6 +1,6 @@
 ---
 title: RISC-V 学习路线：从指令集到系统实战
-published: 2026-07-22
+published: 2026-07-22T19:42:20+08:00
 description: RISC-V：从指令集到系统实战专辑的总览，建立从基础指令、特权架构到 QEMU、汇编和 xv6 实验的学习路线。
 image: ''
 tags:

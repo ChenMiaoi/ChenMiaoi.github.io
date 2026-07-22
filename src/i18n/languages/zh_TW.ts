@@ -16,6 +16,8 @@ export const zh_TW: Translation = {
 	[Key.series]: "專欄",
 	[Key.graph]: "圖譜",
 	[Key.partOf]: "第 {index} 篇（共 {total} 篇）",
+	[Key.subSeriesCount]: "子专栏",
+	[Key.subSeriesCountPlural]: "子专栏",
 
 	[Key.views]: "閱讀",
 	[Key.likes]: "點讚",

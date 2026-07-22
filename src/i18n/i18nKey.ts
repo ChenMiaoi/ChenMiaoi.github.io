@@ -13,6 +13,8 @@ enum I18nKey {
 	series = "series",
 	graph = "graph",
 	partOf = "partOf",
+	subSeriesCount = "subSeriesCount",
+	subSeriesCountPlural = "subSeriesCountPlural",
 
 	views = "views",
 	likes = "likes",

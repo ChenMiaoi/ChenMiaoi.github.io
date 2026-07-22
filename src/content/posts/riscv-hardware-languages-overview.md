@@ -1,6 +1,6 @@
 ---
 title: RISC-V 硬件设计语言总览：Verilog、Chisel 与 Bluespec SystemVerilog
-published: 2026-07-22
+published: 2026-07-22T19:43:23+08:00
 description: RISC-V 硬件设计语言专栏总览，介绍 Verilog、Chisel 与 Bluespec SystemVerilog（BSV）的定位，并规划如何用三种方式实现同一套 RISC-V CPU。
 image: ''
 tags:

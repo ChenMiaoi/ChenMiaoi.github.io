@@ -2,48 +2,59 @@
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
-import type { SeriesInfo } from "@utils/content-utils";
+import {
+	type SeriesNode,
+	flattenSeriesPosts,
+} from "@utils/content-utils";
 import { url } from "@utils/url-utils";
-import { formatDateToYYYYMMDD } from "@utils/date-utils";
+import { formatDateTime } from "@utils/date-utils";
 import { Icon } from "astro-icon/components";
 
 interface Props {
-	seriesMap: Map<string, SeriesInfo>;
+	roots: SeriesNode[]; // top-level series only
 	lang?: string;
 }
 
-const { seriesMap, lang } = Astro.props;
+const { roots, lang } = Astro.props;
 
-const latestOf = (posts: { published: Date }[]) =>
-	posts.length > 0 ? Math.max(...posts.map((p) => new Date(p.published).getTime())) : 0;
-const allSeries = [...seriesMap.values()].sort(
-	(a, b) => latestOf(b.posts) - latestOf(a.posts),
-);
+// Cards for top-level series, sorted by latest activity across the subtree.
+const allSeries = roots
+	.map((node) => ({ node, posts: flattenSeriesPosts(node) }))
+	.sort(
+		(a, b) =>
+			Math.max(...b.posts.map((p) => new Date(p.published).getTime()), 0) -
+			Math.max(...a.posts.map((p) => new Date(p.published).getTime()), 0),
+	);
 ---
 
 <MainGridLayout title={i18n(I18nKey.series, lang)} description="Curated, ordered collections of posts." lang={lang}>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {allSeries.map((s) => {
-            const first = s.posts[0];
-            const last = s.posts[s.posts.length - 1];
+        {allSeries.map(({ node, posts }) => {
+            const first = posts[0];
+            const last = posts[posts.length - 1];
             return (
-                <a href={url(`/series/${s.slug}/`, lang)}
+                <a href={url(`/series/${node.slug}/`, lang)}
                    class="card-base group flex flex-col p-6 transition hover:shadow-lg">
                     <div class="flex items-center gap-2 mb-2">
                         <Icon name="material-symbols:collections-bookmark-outline-rounded"
                               class="text-xl text-[var(--primary)]" />
                         <div class="font-bold text-lg text-black/90 dark:text-white/90 transition group-hover:text-[var(--primary)]">
-                            {s.title}
+                            {node.title}
                         </div>
                     </div>
-                    {s.description && (
+                    {node.description && (
                         <div class="text-sm text-black/50 dark:text-white/50 line-clamp-2 mb-4">
-                            {s.description}
+                            {node.description}
                         </div>
                     )}
-                    <div class="mt-auto text-sm text-black/30 dark:text-white/30">
-                        {s.posts.length} {i18n(s.posts.length === 1 ? I18nKey.postCount : I18nKey.postsCount, lang)}
-                        {first && last && ` · ${formatDateToYYYYMMDD(first.published)} ~ ${formatDateToYYYYMMDD(last.published)}`}
+                    <div class="mt-auto flex items-center gap-1 text-sm text-black/30 dark:text-white/30">
+                        {posts.length} {i18n(posts.length === 1 ? I18nKey.postCount : I18nKey.postsCount, lang)}
+                        {node.children.length > 0 && (
+                            <span class="flex items-center gap-1">
+                                {` · ${node.children.length} ${i18n(node.children.length === 1 ? I18nKey.subSeriesCount : I18nKey.subSeriesCountPlural, lang)}`}
+                            </span>
+                        )}
+                        {first && last && ` · ${formatDateTime(first.published)} ~ ${formatDateTime(last.published)}`}
                     </div>
                 </a>
             );

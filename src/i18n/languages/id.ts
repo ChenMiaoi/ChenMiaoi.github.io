@@ -16,6 +16,8 @@ export const id: Translation = {
 	[Key.series]: "Series",
 	[Key.graph]: "Graph",
 	[Key.partOf]: "Part {index} of {total}",
+	[Key.subSeriesCount]: "sub-series",
+	[Key.subSeriesCountPlural]: "sub-series",
 
 	[Key.views]: "Views",
 	[Key.likes]: "Likes",

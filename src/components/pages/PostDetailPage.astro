@@ -9,6 +9,7 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 import SeriesNav from "@components/SeriesNav.astro";
 import Comment from "@components/Comment.astro";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
+import type { SeriesNavData } from "@utils/content-utils";
 import { Icon } from "astro-icon/components";
 import { licenseConfig } from "src/config";
 import ImageWrapper from "@components/misc/ImageWrapper.astro";
@@ -16,23 +17,9 @@ import PostMetadata from "@components/PostMeta.astro";
 import { formatDateToYYYYMMDD } from "@utils/date-utils";
 import { profileConfig, siteConfig } from "src/config";
 
-interface SeriesSidebarPost {
-	title: string;
-	url: string;
-	current: boolean;
-}
-
 interface Props {
 	entry: CollectionEntry<"posts">;
-	seriesNav: {
-		seriesSlug: string;
-		seriesTitle: string;
-		index: number;
-		total: number;
-		prev: { title: string; url: string } | null;
-		next: { title: string; url: string } | null;
-		posts: SeriesSidebarPost[];
-	} | null;
+	seriesNav: SeriesNavData | null;
 	lang?: string;
 }
 

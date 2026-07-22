@@ -1,37 +1,17 @@
 ---
 import PostDetailPage from "@components/pages/PostDetailPage.astro";
-import { getSeriesMap, getSortedPosts } from "@utils/content-utils";
-import { getPostUrlBySlug } from "@utils/url-utils";
+import {
+	buildSeriesNav,
+	getSeriesTree,
+	getSortedPosts,
+} from "@utils/content-utils";
 
 export async function getStaticPaths() {
 	const pad = (n: number) => String(n).padStart(2, "0");
 	const blogEntries = await getSortedPosts("ja");
-	const seriesMap = await getSeriesMap("ja");
+	const seriesTree = await getSeriesTree("ja");
 	return blogEntries.map((entry) => {
 		const d = new Date(entry.data.published);
-
-		let seriesNav = null;
-		const seriesSlug = entry.data.series;
-		const info = seriesSlug ? seriesMap.get(seriesSlug) : undefined;
-		if (info) {
-			const index = info.posts.findIndex((p) => p.slug === entry.slug);
-			if (index >= 0) {
-				const toLink = (p: (typeof info.posts)[number]) => ({
-					title: p.title,
-					url: getPostUrlBySlug(p.slug, p.published, "ja"),
-				});
-                seriesNav = {
-                    seriesSlug: info.slug,
-                    seriesTitle: info.title,
-                    index: index + 1,
-                    total: info.posts.length,
-                    prev: index > 0 ? toLink(info.posts[index - 1]) : null,
-                    next: index < info.posts.length - 1 ? toLink(info.posts[index + 1]) : null,
-                    posts: info.posts.map((p) => ({ ...toLink(p), current: p.slug === entry.slug })),
-                };
-			}
-		}
-
 		return {
 			params: {
 				year: String(d.getUTCFullYear()),
@@ -39,7 +19,7 @@ export async function getStaticPaths() {
 				day: pad(d.getUTCDate()),
 				slug: entry.slug,
 			},
-			props: { entry, seriesNav },
+			props: { entry, seriesNav: buildSeriesNav(entry, seriesTree, "ja") },
 		};
 	});
 }

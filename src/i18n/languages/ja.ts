@@ -16,6 +16,8 @@ export const ja: Translation = {
 	[Key.series]: "シリーズ",
 	[Key.graph]: "グラフ",
 	[Key.partOf]: "第{index}回（全{total}回）",
+	[Key.subSeriesCount]: "子シリーズ",
+	[Key.subSeriesCountPlural]: "子シリーズ",
 
 	[Key.views]: "閲覧",
 	[Key.likes]: "いいね",

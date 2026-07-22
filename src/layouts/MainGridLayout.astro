@@ -10,6 +10,7 @@ import { Icon } from "astro-icon/components";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
 import TOC from "../components/widget/TOC.astro";
 import SeriesSidebar from "@components/SeriesSidebar.astro";
+import type { SeriesNavData } from "@utils/content-utils";
 import { siteConfig } from "../config";
 import {
 	BANNER_HEIGHT,
@@ -17,12 +18,6 @@ import {
 	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
 } from "../constants/constants";
 import Layout from "./Layout.astro";
-
-interface SeriesSidebarPost {
-	title: string;
-	url: string;
-	current: boolean;
-}
 
 interface Props {
 	title?: string;
@@ -32,11 +27,7 @@ interface Props {
 	setOGTypeArticle?: boolean;
 	headings?: MarkdownHeading[];
 	sidebar?: "default" | "series" | "none";
-	seriesSidebar?: {
-		seriesTitle: string;
-		seriesSlug: string;
-		posts: SeriesSidebarPost[];
-	} | null;
+	seriesSidebar?: SeriesNavData | null;
 }
 
 const {
@@ -116,7 +107,7 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
                  (empty) on sidebar-less pages. -->
             <div id="sidebar-wrapper" class="contents">
                 {showProfileSidebar && <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings} lang={lang}></SideBar>}
-                {showSeriesSidebar && seriesSidebar && <SeriesSidebar seriesTitle={seriesSidebar.seriesTitle} seriesSlug={seriesSidebar.seriesSlug} posts={seriesSidebar.posts} lang={lang} />}
+                {showSeriesSidebar && seriesSidebar && <SeriesSidebar seriesTitle={seriesSidebar.leafTitle} seriesSlug={seriesSidebar.leafSlug} ancestors={seriesSidebar.ancestors} items={seriesSidebar.items} lang={lang} />}
             </div>
 
             <main id="swup-container" class:list={["transition-swup-fade overflow-hidden", mainColClass]}>

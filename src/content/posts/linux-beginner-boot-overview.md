@@ -1,6 +1,6 @@
 ---
 title: Linux 是如何启动的：从上电到 init 进程
-published: 2026-07-22
+published: 2026-07-22T19:35:02+08:00
 description: Linux 启动链路：源码与实战专辑的开篇，以 RISC-V 为主要实验架构，从整体上认识固件、引导加载器、内核、initramfs、init 与用户空间，并建立后续 QEMU 和 Buildroot 实验的路线。
 image: ''
 tags:

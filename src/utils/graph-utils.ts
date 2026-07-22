@@ -82,5 +82,33 @@ export async function buildGraphData(lang?: string): Promise<GraphData> {
 		}
 	}
 
+	// Sub-series hierarchy: ensure every declared series has a node and
+	// link each child series to its parent.
+	for (const entry of seriesEntries) {
+		const s = entry.slug;
+		if (!seenSeries.has(s)) {
+			seenSeries.add(s);
+			nodes.push({
+				id: `series:${s}`,
+				label: `📚 ${entry.data.title}`,
+				type: "series",
+				url: url(`/series/${s}/`, lang),
+			});
+		}
+		const p = entry.data.parent;
+		if (p) {
+			if (!seenSeries.has(p)) {
+				seenSeries.add(p);
+				nodes.push({
+					id: `series:${p}`,
+					label: `📚 ${seriesTitle.get(p) ?? p}`,
+					type: "series",
+					url: url(`/series/${p}/`, lang),
+				});
+			}
+			addLink(`series:${s}`, `series:${p}`);
+		}
+	}
+
 	return { nodes, links };
 }
