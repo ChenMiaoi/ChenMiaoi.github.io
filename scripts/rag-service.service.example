@@ -1,0 +1,22 @@
+[Unit]
+Description=Nay Blog RAG API
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/rag
+EnvironmentFile=/etc/nyachen-rag.env
+ExecStart=/usr/bin/node /var/www/rag/server.mjs
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/nyachen-rag
+MemoryMax=256M
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

@@ -5,6 +5,7 @@ import ParaComments from "@components/ParaComments.astro";
 import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
 import SideBar from "@components/widget/SideBar.astro";
+import RagChat from "@components/RagChat.svelte";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
@@ -13,9 +14,9 @@ import SeriesSidebar from "@components/SeriesSidebar.astro";
 import type { SeriesNavData } from "@utils/content-utils";
 import { siteConfig } from "../config";
 import {
-	BANNER_HEIGHT,
-	BANNER_HEIGHT_EXTEND,
-	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
+  BANNER_HEIGHT,
+  BANNER_HEIGHT_EXTEND,
+  MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
 } from "../constants/constants";
 import Layout from "./Layout.astro";
 
@@ -142,6 +143,7 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
 </div>
 <CardCounts />
 <ParaComments />
+<RagChat client:only="svelte" />
 </Layout>
 
 <script>
