@@ -176,6 +176,14 @@ export default defineConfig({
 					) {
 						return;
 					}
+					// @vueuse/core ships misplaced /* #__PURE__ */ annotations
+					// that Rollup cannot interpret; harmless and not ours to fix.
+					if (
+						warning.code === "INVALID_ANNOTATION" &&
+						warning.id?.includes("node_modules")
+					) {
+						return;
+					}
 					warn(warning);
 				},
 			},

@@ -73,7 +73,10 @@ const currentPath = Astro.url.pathname;
         <DisplaySettings lang={lang} client:only="svelte"></DisplaySettings>
         <div id="locale-panel" class:list={["float-panel float-panel-closed absolute transition-all fixed right-4 px-2 py-2"]}>
             {LOCALES.map((l) => (
-                <a href={switchLocalePath(currentPath, l)} data-locale={l}
+                <!-- data-no-swup: locale switch needs a full reload; swup only
+                     swaps main/#toc, leaving the navbar, <html lang> and page
+                     <title> in the old language. -->
+                <a href={switchLocalePath(currentPath, l)} data-locale={l} data-no-swup
                    class="group flex justify-between items-center py-2 pl-3 pr-4 rounded-lg gap-8
                     hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition"
                 >
