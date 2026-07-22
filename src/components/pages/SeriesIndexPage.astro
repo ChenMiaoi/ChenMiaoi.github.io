@@ -15,7 +15,7 @@ interface Props {
 const { seriesMap, lang } = Astro.props;
 
 const latestOf = (posts: { published: Date }[]) =>
-	Math.max(...posts.map((p) => new Date(p.published).getTime()));
+	posts.length > 0 ? Math.max(...posts.map((p) => new Date(p.published).getTime())) : 0;
 const allSeries = [...seriesMap.values()].sort(
 	(a, b) => latestOf(b.posts) - latestOf(a.posts),
 );
@@ -42,7 +42,8 @@ const allSeries = [...seriesMap.values()].sort(
                         </div>
                     )}
                     <div class="mt-auto text-sm text-black/30 dark:text-white/30">
-                        {s.posts.length} {i18n(s.posts.length === 1 ? I18nKey.postCount : I18nKey.postsCount, lang)} · {formatDateToYYYYMMDD(first.published)} ~ {formatDateToYYYYMMDD(last.published)}
+                        {s.posts.length} {i18n(s.posts.length === 1 ? I18nKey.postCount : I18nKey.postsCount, lang)}
+                        {first && last && ` · ${formatDateToYYYYMMDD(first.published)} ~ ${formatDateToYYYYMMDD(last.published)}`}
                     </div>
                 </a>
             );

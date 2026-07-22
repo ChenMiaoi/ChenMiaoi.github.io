@@ -137,6 +137,17 @@ export async function getSeriesMap(lang?: string): Promise<Map<string, SeriesInf
 			published: post.data.published,
 		});
 	}
+	for (const [slug, data] of meta) {
+		if (!map.has(slug)) {
+			map.set(slug, {
+				slug,
+				title: data.title,
+				description: data.description,
+				image: data.image,
+				posts: [],
+			});
+		}
+	}
 
 	const orderOf = new Map(
 		allBlogPosts.map((p) => [p.slug, p.data.seriesOrder] as const),

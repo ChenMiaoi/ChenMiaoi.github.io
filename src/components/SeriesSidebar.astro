@@ -1,0 +1,32 @@
+---
+interface Post {
+	title: string;
+	url: string;
+	current: boolean;
+}
+
+interface Props {
+	seriesTitle: string;
+	seriesSlug: string;
+	posts: Post[];
+	lang?: string;
+}
+
+const { seriesTitle, seriesSlug, posts } = Astro.props;
+---
+<div id="series-sidebar" class="card-base p-4 w-full mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] self-start lg:sticky lg:top-4 onload-animation">
+    <a href={`/series/${seriesSlug}/`} class="block font-bold text-black/80 dark:text-white/80 hover:text-[var(--primary)] transition mb-3">
+        {seriesTitle}
+    </a>
+    <ol class="flex flex-col gap-1">
+        {posts.map((post, index) => (
+            <li>
+                <a href={post.url}
+                   aria-current={post.current ? "page" : undefined}
+                   class:list={["block rounded-lg px-3 py-2 text-sm transition", post.current ? "bg-[var(--primary)]/10 text-[var(--primary)] font-bold" : "text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5"]}>
+                    <span class="mr-2 text-xs opacity-60">{String(index + 1).padStart(2, "0")}</span>{post.title}
+                </a>
+            </li>
+        ))}
+    </ol>
+</div>

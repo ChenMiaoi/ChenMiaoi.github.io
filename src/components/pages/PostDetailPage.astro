@@ -16,6 +16,12 @@ import PostMetadata from "@components/PostMeta.astro";
 import { formatDateToYYYYMMDD } from "@utils/date-utils";
 import { profileConfig, siteConfig } from "src/config";
 
+interface SeriesSidebarPost {
+	title: string;
+	url: string;
+	current: boolean;
+}
+
 interface Props {
 	entry: CollectionEntry<"posts">;
 	seriesNav: {
@@ -25,6 +31,7 @@ interface Props {
 		total: number;
 		prev: { title: string; url: string } | null;
 		next: { title: string; url: string } | null;
+		posts: SeriesSidebarPost[];
 	} | null;
 	lang?: string;
 }
@@ -78,14 +85,12 @@ const jsonLd = {
 		: siteConfig.lang.replace("_", "-"),
 	// TODO include cover image here
 };
+const sidebar = seriesNav ? "series" : "none";
 ---
-<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={lang} setOGTypeArticle={true} headings={tocHeadings}>
+<MainGridLayout sidebar={sidebar} seriesSidebar={seriesNav} banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={lang} setOGTypeArticle={true} headings={tocHeadings}>
     <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
     <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4">
-        <div id="post-container" class:list={["card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full ",
-            {}
-        ]}>
-            <!-- word count and reading time -->
+        <div id="post-container" class:list={["card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full"]}>
             <div class="flex flex-row text-black/30 dark:text-white/30 gap-5 mb-3 transition onload-animation">
                 <div class="flex flex-row items-center">
                     <div class="transition h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2">

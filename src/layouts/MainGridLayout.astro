@@ -9,6 +9,7 @@ import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
 import TOC from "../components/widget/TOC.astro";
+import SeriesSidebar from "@components/SeriesSidebar.astro";
 import { siteConfig } from "../config";
 import {
 	BANNER_HEIGHT,
@@ -17,6 +18,12 @@ import {
 } from "../constants/constants";
 import Layout from "./Layout.astro";
 
+interface SeriesSidebarPost {
+	title: string;
+	url: string;
+	current: boolean;
+}
+
 interface Props {
 	title?: string;
 	banner?: string;
@@ -24,6 +31,12 @@ interface Props {
 	lang?: string;
 	setOGTypeArticle?: boolean;
 	headings?: MarkdownHeading[];
+	sidebar?: "default" | "series" | "none";
+	seriesSidebar?: {
+		seriesTitle: string;
+		seriesSlug: string;
+		posts: SeriesSidebarPost[];
+	} | null;
 }
 
 const {
@@ -33,21 +46,35 @@ const {
 	lang,
 	setOGTypeArticle,
 	headings = [],
+	sidebar = "default",
+	seriesSidebar,
 } = Astro.props;
 const hasBannerCredit =
 	siteConfig.banner.enable && siteConfig.banner.credit.enable;
 const hasBannerLink = !!siteConfig.banner.credit.url;
-
+const showProfileSidebar = sidebar === "default";
+const showSeriesSidebar = sidebar === "series" && !!seriesSidebar;
+const showSidebar = showProfileSidebar || showSeriesSidebar;
 const mainPanelTop = siteConfig.banner.enable
 	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
 	: "5.5rem";
 
 /* Show the TOC as a permanent third column on post pages (xl and up) */
 const showToc = siteConfig.toc.enable && headings.length > 0;
+
+// Grid column template per sidebar mode. `none` (non-series post) drops the
+// 17.5rem sidebar track so the article takes the full page width.
+const gridColClass = showSidebar
+	? showToc
+		? "grid-cols-[17.5rem_auto] xl:grid-cols-[17.5rem_minmax(0,1fr)_14rem]"
+		: "grid-cols-[17.5rem_auto]"
+	: showToc
+		? "grid-cols-1 xl:grid-cols-[minmax(0,1fr)_14rem]"
+		: "grid-cols-1";
+const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
+
 ---
-
 <Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>
-
 <!-- Navbar -->
 <slot slot="head" name="head"></slot>
 <div id="top-row" class="z-50 pointer-events-none relative transition-all duration-700 max-w-[var(--page-width)] px-0 md:px-4 mx-auto" class:list={[""]}>
@@ -68,7 +95,7 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
 <div class="absolute w-full z-30 pointer-events-none" style={`top: ${mainPanelTop}`}>
     <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
     <div class="relative max-w-[var(--page-width)] mx-auto pointer-events-auto">
-        <div id="main-grid" class:list={["transition duration-700 w-full left-0 right-0 grid grid-cols-[17.5rem_auto] grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4 px-0 md:px-4", {"xl:grid-cols-[17.5rem_minmax(0,1fr)_14rem]": showToc}]}
+        <div id="main-grid" class:list={["transition duration-700 w-full left-0 right-0 grid grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4 px-0 md:px-4", gridColClass]}
         >
             <!-- Banner image credit -->
             {hasBannerCredit && <a href={siteConfig.banner.credit.url} id="banner-credit" target="_blank" rel="noopener" aria-label="Visit image source"
@@ -84,10 +111,16 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
             </a>}
 
 
-            <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings} lang={lang}></SideBar>
+            <!-- Swapped by Swup on navigation: display:contents keeps the
+                 sidebar as a direct grid item while letting the wrapper exist
+                 (empty) on sidebar-less pages. -->
+            <div id="sidebar-wrapper" class="contents">
+                {showProfileSidebar && <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings} lang={lang}></SideBar>}
+                {showSeriesSidebar && seriesSidebar && <SeriesSidebar seriesTitle={seriesSidebar.seriesTitle} seriesSlug={seriesSidebar.seriesSlug} posts={seriesSidebar.posts} lang={lang} />}
+            </div>
 
-            <main id="swup-container" class="transition-swup-fade col-span-2 lg:col-span-1 overflow-hidden">
-                <div id="content-wrapper" class="onload-animation">
+            <main id="swup-container" class:list={["transition-swup-fade overflow-hidden", mainColClass]}>
+                <div id="content-wrapper" class="onload-animation" data-sidebar-mode={sidebar} data-show-toc={showToc ? "1" : "0"}>
                     <!-- the overflow-hidden here prevent long text break the layout-->
                     <!-- make id different from windows.swup global property -->
                     <slot></slot>
@@ -157,6 +190,26 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
 		initWaline();
 	}
 
+	// Swup swaps only main/#toc/#sidebar-wrapper, so the sidebar region and
+	// #main-grid's column template must be re-derived on every navigation.
+	// The target page's mode travels on the swapped #content-wrapper.
+	const GRID_BASE =
+		"transition duration-700 w-full left-0 right-0 grid grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4 px-0 md:px-4";
+	const gridCols = (mode: string, toc: boolean): string =>
+		mode === "none"
+			? toc
+				? "grid-cols-1 xl:grid-cols-[minmax(0,1fr)_14rem]"
+				: "grid-cols-1"
+			: toc
+				? "grid-cols-[17.5rem_auto] xl:grid-cols-[17.5rem_minmax(0,1fr)_14rem]"
+				: "grid-cols-[17.5rem_auto]";
+	function syncMainGrid(): void {
+		const grid = document.getElementById("main-grid");
+		const cw = document.getElementById("content-wrapper");
+		if (!grid || !cw) return;
+		grid.className = `${GRID_BASE} ${gridCols(cw.dataset.sidebarMode ?? "default", cw.dataset.showToc === "1")}`;
+	}
+
 	// Swup swaps only the main/#toc containers without re-running page
 	// scripts, so Waline must be re-initialized on every navigation.
 	// Register the hook exactly once and wait for window.swup if needed.
@@ -166,6 +219,7 @@ const showToc = siteConfig.toc.enable && headings.length > 0;
 		const tryHook = (n = 0): void => {
 			if (w.swup?.hooks) {
 				w.swup.hooks.on("page:view", initWaline);
+				w.swup.hooks.on("page:view", syncMainGrid);
 			} else if (n < 50) {
 				setTimeout(() => tryHook(n + 1), 100);
 			}

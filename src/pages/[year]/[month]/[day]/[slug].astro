@@ -20,17 +20,21 @@ export async function getStaticPaths() {
 					title: p.title,
 					url: getPostUrlBySlug(p.slug, p.published, "zh_CN"),
 				});
-				seriesNav = {
-					seriesSlug: info.slug,
-					seriesTitle: info.title,
-					index: index + 1,
-					total: info.posts.length,
-					prev: index > 0 ? toLink(info.posts[index - 1]) : null,
-					next:
-						index < info.posts.length - 1
-							? toLink(info.posts[index + 1])
-							: null,
-				};
+                seriesNav = {
+                    seriesSlug: info.slug,
+                    seriesTitle: info.title,
+                    index: index + 1,
+                    total: info.posts.length,
+                    prev: index > 0 ? toLink(info.posts[index - 1]) : null,
+                    next:
+                        index < info.posts.length - 1
+                            ? toLink(info.posts[index + 1])
+                            : null,
+                    posts: info.posts.map((p) => ({
+                        ...toLink(p),
+                        current: p.slug === entry.slug,
+                    })),
+                };
 			}
 		}
 
