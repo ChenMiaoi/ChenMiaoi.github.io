@@ -68,6 +68,27 @@ export type NavBarConfig = {
 	links: (NavBarLink | LinkPreset)[];
 };
 
+export type ContributionItem = {
+	sha: string;
+	date: string;
+	title: string;
+	mailingListLabel: string;
+	mailingListUrl: string;
+	patch?: string;
+};
+
+export type ContributionProject = {
+	id: string;
+	name: string;
+	icon: string;
+	repository?: string;
+	items: ContributionItem[];
+};
+
+export type ContributionConfig = {
+	projects: ContributionProject[];
+};
+
 export type ProfileConfig = {
 	avatar?: string;
 	name: string;

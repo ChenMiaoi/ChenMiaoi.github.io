@@ -203,6 +203,38 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
 		grid.className = `${GRID_BASE} ${gridCols(cw.dataset.sidebarMode ?? "default", cw.dataset.showToc === "1")}`;
 	}
 
+	function initContributionTabs(): void {
+		const root = document.querySelector<HTMLElement>("[data-contribution-tabs]");
+		if (!root) return;
+
+		const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-project-tab]"));
+		const panels = Array.from(root.querySelectorAll<HTMLElement>("[data-project-panel]"));
+		const activate = (projectId: string): void => {
+			buttons.forEach((button) => {
+				const active = button.dataset.projectTab === projectId;
+				button.setAttribute("aria-selected", String(active));
+				button.classList.toggle("current-theme-btn", active);
+			});
+			panels.forEach((panel) => {
+				panel.hidden = panel.dataset.projectPanel !== projectId;
+			});
+		};
+
+		if (root.dataset.tabsInitialized !== "true") {
+			root.dataset.tabsInitialized = "true";
+			root.addEventListener("click", (event) => {
+				const target = event.target as Element;
+				const button = target.closest<HTMLButtonElement>("[data-project-tab]");
+				if (button?.dataset.projectTab) activate(button.dataset.projectTab);
+			});
+		}
+
+		const selected = buttons.find((button) => button.getAttribute("aria-selected") === "true");
+		if (selected?.dataset.projectTab) activate(selected.dataset.projectTab);
+	}
+
+	initContributionTabs();
+
 	// Swup swaps only the main/#toc containers without re-running page
 	// scripts, so Waline must be re-initialized on every navigation.
 	// Register the hook exactly once and wait for window.swup if needed.
@@ -213,6 +245,7 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
 			if (w.swup?.hooks) {
 				w.swup.hooks.on("page:view", initWaline);
 				w.swup.hooks.on("page:view", syncMainGrid);
+				w.swup.hooks.on("page:view", initContributionTabs);
 			} else if (n < 50) {
 				setTimeout(() => tryHook(n + 1), 100);
 			}

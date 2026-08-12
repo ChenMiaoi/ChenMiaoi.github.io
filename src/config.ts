@@ -1,4 +1,6 @@
+import I18nKey from "./i18n/i18nKey";
 import type {
+	ContributionConfig,
 	ExpressiveCodeConfig,
 	LicenseConfig,
 	NavBarConfig,
@@ -6,7 +8,6 @@ import type {
 	SiteConfig,
 } from "./types/config";
 import { LinkPreset } from "./types/config";
-import I18nKey from "./i18n/i18nKey";
 
 export const siteConfig: SiteConfig = {
 	title: "Nay's Blog",
@@ -58,11 +59,67 @@ export const navBarConfig: NavBarConfig = {
 			url: "/graph/",
 			i18nKey: I18nKey.graph,
 		},
+		{
+			name: "Contribution",
+			url: "/contribution/",
+			i18nKey: I18nKey.contribution,
+		},
 		LinkPreset.About,
 		{
 			name: "GitHub",
 			url: "https://github.com/ChenMiaoi", // Internal links should not include the base path, as it is automatically added
 			external: true, // Show an external link icon and will open in a new tab
+		},
+	],
+};
+
+// Add projects and contribution entries here. The Contribution page only
+// renders this data, so new projects do not require any page or component changes.
+export const contributionConfig: ContributionConfig = {
+	projects: [
+		{
+			id: "linux",
+			name: "Linux",
+			icon: "fa6-brands:linux",
+			repository: "https://github.com/torvalds/linux",
+			items: [
+				{
+					sha: "a44bfed9df8",
+					date: "2026-01-23",
+					title: "kbuild: rust: clean libpin_init_internal in mrproper",
+					mailingListLabel: "PATCH v2",
+					mailingListUrl:
+						"https://lore.kernel.org/rust-for-linux/71ff222b8731e63e06059c5d8566434e508baf2b.1761876365.git.chenmiao@openatom.club/",
+				},
+				{
+					sha: "4735037b5d9",
+					date: "2025-09-11",
+					title: "openrisc: Add text patching API support",
+					mailingListLabel: "PATCH v5 1/4",
+					mailingListUrl: "https://lore.kernel.org/openrisc/20250905181258.9430-2-chenmiao.ku@gmail.com/",
+				},
+				{
+					sha: "9d0cb6d00be",
+					date: "2025-09-11",
+					title: "openrisc: Add R_OR1K_32_PCREL relocation type module support",
+					mailingListLabel: "PATCH v5 2/4",
+					mailingListUrl: "https://lore.kernel.org/openrisc/20250905181258.9430-3-chenmiao.ku@gmail.com/",
+				},
+				{
+					sha: "09a27fc32e3",
+					date: "2025-09-11",
+					title: "openrisc: Regenerate defconfigs.",
+					mailingListLabel: "PATCH v5 3/4",
+					mailingListUrl: "https://lore.kernel.org/openrisc/20250905181258.9430-4-chenmiao.ku@gmail.com/",
+				},
+				{
+					sha: "8c30b0018f9",
+					date: "2025-09-11",
+					title: "openrisc: Add jump label support",
+					mailingListLabel: "PATCH v5 4/4",
+					mailingListUrl: "https://lore.kernel.org/openrisc/20250905181258.9430-5-chenmiao.ku@gmail.com/",
+				},
+			],
 		},
 	],
 };

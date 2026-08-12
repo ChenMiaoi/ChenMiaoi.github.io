@@ -56,9 +56,15 @@ export default defineConfig({
 				"fa6-solid": ["*"],
 			},
 		}),
-		expressiveCode({
-			themes: [expressiveCodeConfig.theme, expressiveCodeConfig.theme],
-			plugins: [
+expressiveCode({
+    themes: [expressiveCodeConfig.theme, expressiveCodeConfig.theme],
+    shiki: {
+        langAlias: {
+            systemverilog: "system-verilog",
+            bsv: "system-verilog",
+        },
+    },
+    plugins: [
 				pluginCollapsibleSections(),
 				pluginLineNumbers(),
 				pluginLanguageBadge(),

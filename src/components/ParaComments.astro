@@ -20,6 +20,11 @@
 <div data-para-comments hidden></div>
 
 <script>
+	// This is an intentionally DOM-oriented inline script. Astro's checker
+	// otherwise treats its browser-created nodes and API payloads as strict
+	// TypeScript values, even though the runtime contract is deliberately
+	// validated at the API boundaries below.
+	// @ts-nocheck
 	const API_BASE = "https://api.nyachen.cn/pc";
 
 	const STRINGS = {

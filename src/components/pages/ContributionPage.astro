@@ -1,0 +1,217 @@
+---
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { Icon } from "astro-icon/components";
+import { contributionConfig } from "../../config";
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+import { resolveContributionProjects } from "../../utils/contribution";
+
+interface Props {
+	lang?: string;
+}
+
+const { lang } = Astro.props;
+const projects = await resolveContributionProjects(contributionConfig.projects);
+
+function t(key: I18nKey, replacements: Record<string, string> = {}) {
+	return Object.entries(replacements).reduce(
+		(text, [name, value]) => text.replaceAll(`{${name}}`, value),
+		i18n(key, lang),
+	);
+}
+
+function getPatchLineClass(line: string) {
+	if (line.startsWith("diff --git ")) return "patch-line-file";
+	if (line.startsWith("@@")) return "patch-line-hunk";
+	if (line.startsWith("+++ ") || line.startsWith("--- "))
+		return "patch-line-path";
+	if (line.startsWith("+")) return "patch-line-add";
+	if (line.startsWith("-")) return "patch-line-delete";
+	if (
+		line.startsWith("index ") ||
+		line.startsWith("new file mode ") ||
+		line.startsWith("deleted file mode ") ||
+		line.startsWith("\\ No newline")
+	) {
+		return "patch-line-meta";
+	}
+
+	return "patch-line-context";
+}
+---
+<MainGridLayout title={t(I18nKey.contribution)} description={t(I18nKey.contributionDescription)} lang={lang}>
+    <section class="card-base overflow-visible" data-contribution-tabs>
+        <div class="px-6 pt-7 pb-5 md:px-8">
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--btn-regular-bg)] text-[var(--primary)]">
+                    <Icon name="material-symbols:code-rounded" class="text-[1.4rem]" />
+                </span>
+                <div>
+                    <p class="m-0 text-xs font-bold uppercase tracking-[0.18em] text-[var(--primary)]">{t(I18nKey.openSource)}</p>
+                    <h1 class="m-0 mt-1 text-2xl font-bold text-90 md:text-3xl">{t(I18nKey.contribution)}</h1>
+                </div>
+            </div>
+            <p class="mt-5 mb-0 max-w-2xl text-sm leading-7 text-50 md:text-base">
+                {t(I18nKey.contributionDescription)}
+            </p>
+        </div>
+
+        {projects.length > 0 && <>
+            <div class="border-t border-black/5 px-4 py-3 dark:border-white/10 md:px-6" role="tablist" aria-label={t(I18nKey.openSourceProjects)}>
+                <div class="flex flex-wrap gap-2">
+                    {projects.map((project, index) => (
+                        <button
+                            id={`contribution-tab-${project.id}`}
+                            type="button"
+                            role="tab"
+                            aria-selected={index === 0 ? "true" : "false"}
+                            aria-controls={`contribution-panel-${project.id}`}
+                            data-project-tab={project.id}
+                            class:list={["btn-plain scale-animation rounded-xl px-4 py-2.5 text-sm font-bold active:scale-95", { "current-theme-btn": index === 0 }]}
+                        >
+                            <Icon name={project.icon} class="mr-2 text-[1.1rem]" />
+                            {project.name}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div class="px-6 pb-7 pt-5 md:px-8">
+                {projects.map((project, index) => (
+                    <article
+                        id={`contribution-panel-${project.id}`}
+                        role="tabpanel"
+                        aria-labelledby={`contribution-tab-${project.id}`}
+                        data-project-panel={project.id}
+                        hidden={index !== 0}
+                    >
+                        <div class="flex items-center gap-3">
+                            <Icon name={project.icon} class="text-[1.7rem] text-[var(--primary)]" />
+                            <h2 class="m-0 text-xl font-bold text-90">{project.name}</h2>
+                        </div>
+
+                        <div class="mt-5">
+                            <div class="hidden grid-cols-[8rem_7rem_minmax(0,1fr)_10rem] gap-4 px-4 pb-2 text-xs font-bold uppercase tracking-[0.08em] text-30 md:grid">
+                                <span>{t(I18nKey.contributionCommit)}</span>
+                                <span>{t(I18nKey.contributionDate)}</span>
+                                <span>{t(I18nKey.contributionTitle)}</span>
+                                <span>{t(I18nKey.contributionMailingList)}</span>
+                            </div>
+                            <div class="grid gap-2">
+                                {project.items.length === 0 && <div class="rounded-2xl border border-dashed border-black/10 px-4 py-5 text-sm text-50 dark:border-white/10">{t(I18nKey.contributionNoCommit, { project: project.name })}</div>}
+                                {project.items.map((item) => (
+                                    <div class="grid gap-3 rounded-2xl border border-black/5 bg-black/[0.025] p-3 dark:border-white/10 dark:bg-white/[0.035] md:grid-cols-[8rem_7rem_minmax(0,1fr)_10rem] md:items-start md:gap-4 md:p-4">
+                                        <details class="group min-w-0 md:col-span-3">
+                                            <summary class="grid cursor-pointer list-none grid-cols-[minmax(7rem,8rem)_7rem_minmax(0,1fr)] items-start gap-3 rounded-xl px-1 py-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
+                                                <code class="rounded-md bg-[var(--btn-regular-bg)] px-2 py-1 font-mono text-xs text-75">{item.sha}</code>
+                                                <time datetime={item.date} class="pt-1 text-xs text-50">{item.date}</time>
+                                                    <span class="flex min-w-0 items-start gap-2 text-sm font-bold text-90">
+                                                        <span class="min-w-0">{item.title}</span>
+                                                        <Icon name="material-symbols:chevron-right-rounded" class="mt-0.5 shrink-0 text-[1.1rem] text-50 transition-transform group-open:rotate-90" />
+                                                        <span class="sr-only">{t(I18nKey.contributionViewPatch)}</span>
+                                                    </span>
+                                            </summary>
+                                            <div class="mt-3 min-w-0 border-t border-black/5 pt-3 dark:border-white/10">
+                                                {item.patch ? (
+                                                    <pre class="patch-preview block max-h-[32rem] w-full min-w-0 max-w-full overflow-y-auto rounded-xl bg-[var(--codeblock-bg)] p-3 font-mono text-xs leading-6 whitespace-pre-wrap break-words"><code class="block min-w-0">{item.patch.split("\n").map((line) => <span class:list={["patch-line", getPatchLineClass(line)]}>{line || " "}</span>)}</code></pre>
+                                                ) : (
+                                                    <p class="m-0 rounded-xl bg-[var(--btn-regular-bg)] px-4 py-3 text-sm text-50">{t(I18nKey.contributionNoPatch)}</p>
+                                                )}
+                                            </div>
+                                        </details>
+                                        <a
+                                            href={item.mailingListUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            title={item.mailingListUrl}
+                                            class="link inline-flex min-w-0 items-center gap-1 text-xs font-bold text-[var(--primary)] md:pt-1"
+                                        >
+                                            <span class="truncate">{t(I18nKey.contributionMailingListLabel, { label: item.mailingListLabel })}</span>
+                                            <Icon name="fa6-solid:arrow-up-right-from-square" class="shrink-0 text-[0.65rem]" />
+                                        </a>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </article>
+                ))}
+            </div>
+        </>}
+
+        {projects.length === 0 && <div class="px-6 pb-7 pt-5 text-sm text-50 md:px-8">{t(I18nKey.contributionNoProjects)}</div>}
+    </section>
+</MainGridLayout>
+
+<style>
+    .patch-preview {
+        scrollbar-color: var(--primary) var(--codeblock-bg);
+        scrollbar-width: thin;
+    }
+
+    .patch-preview::-webkit-scrollbar {
+        width: 0.55rem;
+        height: 0.55rem;
+    }
+
+    .patch-preview::-webkit-scrollbar-track {
+        background: var(--codeblock-bg);
+    }
+
+    .patch-preview::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--primary) 62%, var(--codeblock-bg));
+        border: 2px solid var(--codeblock-bg);
+        border-radius: 9999px;
+    }
+
+    .patch-preview::-webkit-scrollbar-thumb:hover {
+        background: var(--primary);
+    }
+
+    .patch-line {
+        display: block;
+        min-height: 1.5rem;
+        padding-inline: 0.5rem;
+        border-inline-start: 2px solid transparent;
+    }
+
+    .patch-line-file {
+        color: #bae6fd;
+        font-weight: 700;
+        background: rgb(14 116 144 / 0.14);
+        border-inline-start-color: #38bdf8;
+    }
+
+    .patch-line-path {
+        color: #c4b5fd;
+        font-weight: 600;
+    }
+
+    .patch-line-hunk {
+        margin-block: 0.35rem;
+        color: color-mix(in srgb, var(--primary) 88%, white);
+        font-weight: 700;
+        background: color-mix(in srgb, var(--primary) 14%, transparent);
+        border-inline-start-color: var(--primary);
+        border-radius: 0.35rem;
+    }
+
+    .patch-line-add {
+        color: #bbf7d0;
+        background: rgb(22 163 74 / 0.14);
+        border-inline-start-color: #4ade80;
+    }
+
+    .patch-line-delete {
+        color: #fecaca;
+        background: rgb(220 38 38 / 0.14);
+        border-inline-start-color: #f87171;
+    }
+
+    .patch-line-meta {
+        color: rgb(255 255 255 / 0.48);
+    }
+
+    .patch-line-context {
+        color: rgb(255 255 255 / 0.72);
+    }
+</style>

@@ -15,6 +15,21 @@ export const ja: Translation = {
 
 	[Key.series]: "シリーズ",
 	[Key.graph]: "グラフ",
+	[Key.contribution]: "コントリビューション",
+	[Key.openSource]: "オープンソース",
+	[Key.contributionDescription]:
+		"各記録には commit、日付、メインラインのタイトル、メーリングリスト URL を表示します。記録を開くと、このページでパッチを確認できます。",
+	[Key.openSourceProjects]: "オープンソースプロジェクト",
+	[Key.contributionCommit]: "Commit",
+	[Key.contributionDate]: "日付",
+	[Key.contributionTitle]: "メインラインタイトル",
+	[Key.contributionMailingList]: "メーリングリスト URL",
+	[Key.contributionMailingListLabel]: "[{label} メール]",
+	[Key.contributionViewPatch]: "パッチを表示",
+	[Key.contributionNoCommit]: "{project} の commit はまだ追加されていません。",
+	[Key.contributionNoPatch]: "パッチ内容はまだ追加されていません。",
+	[Key.contributionNoProjects]:
+		"オープンソースプロジェクトはまだ追加されていません。",
 	[Key.partOf]: "第{index}回（全{total}回）",
 	[Key.subSeriesCount]: "子シリーズ",
 	[Key.subSeriesCountPlural]: "子シリーズ",
