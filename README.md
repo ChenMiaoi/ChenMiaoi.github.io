@@ -20,7 +20,7 @@ I'm a programmer fascinated by operating systems and low-level architecture. I e
 
 ## Technical notes
 
-[Nay's Blog](https://nyachen.cn/) is where I collect notes from reading source code, learning, and experimenting. I aim to trace a question from its observable behavior to the implementation: which paths it takes, which structures it relies on, and why it was designed that way.
+[Miao's Blog](https://nyachen.cn/) is where I collect notes from reading source code, learning, and experimenting. I aim to trace a question from its observable behavior to the implementation: which paths it takes, which structures it relies on, and why it was designed that way.
 
 These articles offer a starting point for the topics I study and write about. The articles are in Chinese.
 

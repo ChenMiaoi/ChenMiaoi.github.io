@@ -1,7 +1,7 @@
 import type { ExpressiveCodeConfig, LicenseConfig, ProfileConfig } from "./types/config";
 
 export const siteConfig = {
-    title: "Nay's Blog",
+    title: "Miao's Blog",
     subtitle: "Let me drive your world!",
     lang: "zh_CN",
 };

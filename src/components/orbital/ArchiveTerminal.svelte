@@ -63,7 +63,7 @@
     section = next;
     const path = localePrefix + sectionPaths[next];
     if (window.location.pathname !== path || (!preserveQuery && window.location.search) || window.location.hash) history.pushState(null, "", path);
-    document.title = `${navigation.find((item) => item.id === next)?.title} · Nay's Blog`;
+    document.title = `${navigation.find((item) => item.id === next)?.title} · Miao's Blog`;
   }
 
   function navigate(next: Section) {
@@ -113,7 +113,7 @@
     resetFilters();
     seriesFilter = slug;
     history.pushState(null, "", `${localePrefix}/series/${encodeURIComponent(slug)}/`);
-    document.title = `${series.find((item) => item.slug === slug)?.title} · Nay's Blog`;
+    document.title = `${series.find((item) => item.slug === slug)?.title} · Miao's Blog`;
   }
 
   function search() {
@@ -129,7 +129,7 @@
     if (!readerOpen) returnPath = window.location.pathname + window.location.search;
     const path = post.url + (heading ? `#${encodeURIComponent(heading)}` : "");
     if (window.location.pathname + window.location.hash !== path) history.pushState(null, "", path);
-    document.title = `${post.title} · Nay's Blog`;
+    document.title = `${post.title} · Miao's Blog`;
     void reader.open(post, heading);
   }
   function readerClosed() {
@@ -159,7 +159,7 @@
   function restoreLocation() {
       const target = resolveOrbitalLocation(window.location.pathname, posts, localePrefix);
       if (target.post) {
-        document.title = `${target.post.title} · Nay's Blog`;
+        document.title = `${target.post.title} · Miao's Blog`;
         let heading: string | undefined;
         try { heading = decodeURIComponent(window.location.hash.slice(1)) || undefined; } catch { /* Ignore malformed fragments. */ }
         void reader.open(target.post as ArchivePost, heading);
@@ -170,7 +170,7 @@
         query = params.get("q") || params.get("tag") || "";
         category = params.get("category") || "all";
         if (readerOpen) reader.close(false);
-        document.title = `${series.find((item) => item.slug === seriesFilter)?.title || navigation.find((item) => item.id === section)?.title} · Nay's Blog`;
+        document.title = `${series.find((item) => item.slug === seriesFilter)?.title || navigation.find((item) => item.id === section)?.title} · Miao's Blog`;
       }
   }
 
@@ -214,9 +214,9 @@
 <div class="terminal-shell" class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:ambient-paused={ambientPaused} class:archive-view={section === 'articles'} class:series-view={section === 'series'} class:graph-view={section === 'graph'} class:source-view={section === 'code'} class:about-view={section === 'about'}>
   <svg class="terminal-orbit" viewBox="0 0 1600 1000" preserveAspectRatio="none" aria-hidden="true"><path d="M136 123C38 280 20 705 143 902"/><path d="M127 121C24 305 17 716 137 907"/><path class="orbit-transmission" d="M136 123C38 280 20 705 143 902" pathLength="1"/><circle cx="136" cy="123" r="5"/><circle cx="143" cy="902" r="5"/><path class="orbit-ground" d="M215 950H1450l75-75"/></svg>
   <header class="terminal-header">
-    <button class="brand" aria-label="Nay's Blog，返回文章档案" onclick={() => navigate("articles")}>
+    <button class="brand" aria-label="Miao's Blog，返回文章档案" onclick={() => navigate("articles")}>
       <svg class="brand-mark" viewBox="0 0 52 52" aria-hidden="true"><path d="M35 4h10L17 36H7zM19 30h9L12 48H2z" fill="currentColor"/><path d="M34 29h12L31 47H19z" fill="#f3dc26"/></svg>
-      <span><strong>Nay's Blog</strong><small>SYSTEMS & NOTES</small></span>
+      <span><strong>Miao's Blog</strong><small>SYSTEMS & NOTES</small></span>
     </button>
     <span class="header-hairline" aria-hidden="true"><i></i><span>PERSONAL ARCHIVE</span></span>
     <div class="header-tools">
@@ -259,7 +259,7 @@
               <button class:active={category === tab.value} aria-pressed={category === tab.value} onclick={() => { category = tab.value; seriesFilter = ""; setSection("articles"); storeFilters(); }}>{#if tab.value !== 'all'}<BrandIcon name={tab.value === 'linux' ? 'linux' : 'chip'} size={15} framed={false}/>{/if}{tab.label}</button>
             {/each}
           </div>
-        {:else}<span class="section-coordinate">NAY'S PERSONAL ARCHIVE</span>{/if}
+        {:else}<span class="section-coordinate">MIAO'S PERSONAL ARCHIVE</span>{/if}
       </div>
       {/key}
 
@@ -277,7 +277,7 @@
     </main>
   </div>
 
-  <footer class="terminal-footer"><span>Nay's Blog <i>·</i> Chen Miao</span><span class="footer-line" aria-hidden="true"></span><button class="motion-control" aria-label={systemReducedMotion ? '系统已减少动态效果' : effectsEnabled ? '暂停页面动效' : '开启页面动效'} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion} title={systemReducedMotion ? '跟随系统的减少动态效果设置' : '切换页面动效'}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? '动效暂停' : '动效开启'}</span></button><a class="feed-link" href={localePrefix === '/en' ? '/en/rss.xml' : '/rss.xml'}>RSS</a><span class="footer-words">文章 <i>/</i> 系列 <i>/</i> 关联</span></footer>
+  <footer class="terminal-footer"><span>Miao's Blog <i>·</i> Chen Miao</span><span class="footer-line" aria-hidden="true"></span><button class="motion-control" aria-label={systemReducedMotion ? '系统已减少动态效果' : effectsEnabled ? '暂停页面动效' : '开启页面动效'} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion} title={systemReducedMotion ? '跟随系统的减少动态效果设置' : '切换页面动效'}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? '动效暂停' : '动效开启'}</span></button><a class="feed-link" href={localePrefix === '/en' ? '/en/rss.xml' : '/rss.xml'}>RSS</a><span class="footer-words">文章 <i>/</i> 系列 <i>/</i> 关联</span></footer>
 </div>
 
 <ArticleReader bind:this={reader} {reducedMotion} bind:readerOpen onClosed={readerClosed}/>
