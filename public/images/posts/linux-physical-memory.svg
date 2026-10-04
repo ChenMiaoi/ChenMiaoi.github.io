@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="850" viewBox="0 0 1120 850" role="img" aria-labelledby="title desc">
+  <title id="title">Linux 物理内存：节点、区域、页块与页</title>
+  <desc id="desc">简化的双节点物理内存布局。每个节点包含自己的区域，放大一个区域可见页块，再放大一个页块可见基础页。以四 KiB 页和九阶页块为例，一个页块有五百一十二页，共二 MiB；三阶分配占连续八页，共三十二 KiB。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#64748b" stroke-width="1.5"/></marker>
+    <style>
+      text { font-family: 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif; fill: #172b43; font-size: 18px; }
+      .title { font-size: 30px; font-weight: 700; }
+      .head { font-size: 22px; font-weight: 700; }
+      .small { font-size: 16px; fill: #475569; }
+      .mono { font-family: Consolas, 'Microsoft YaHei', monospace; }
+      .line { fill: none; stroke: #64748b; stroke-width: 2; }
+    </style>
+  </defs>
+  <rect width="1120" height="850" rx="20" fill="#f8fafc"/>
+  <text x="40" y="54" class="title">Linux 物理内存布局</text>
+  <text x="40" y="84" class="small">从 NUMA 节点到基础页 · 简化示例，非按容量比例绘制</text>
+
+  <text x="40" y="129" class="small">低物理地址</text>
+  <path d="M155 123H965" class="line" marker-end="url(#arrow)"/>
+  <text x="980" y="129" class="small">高物理地址</text>
+
+  <rect x="40" y="151" width="504" height="180" rx="12" fill="#eaf2ff" stroke="#6b9bdd" stroke-width="2"/>
+  <text x="60" y="184" class="head">Node 0</text>
+  <text x="524" y="183" text-anchor="end" class="small">本节点的物理内存</text>
+  <rect x="60" y="208" width="145" height="70" rx="8" fill="#fff" stroke="#6b9bdd"/>
+  <text x="132" y="249" text-anchor="middle" class="mono">ZONE_DMA32</text>
+  <rect x="217" y="208" width="307" height="70" rx="8" fill="#d3e4ff" stroke="#3977c5" stroke-width="2"/>
+  <text x="370" y="249" text-anchor="middle" class="mono">ZONE_NORMAL</text>
+  <text x="60" y="308" class="small">每个具体 zone 只属于一个 node</text>
+
+  <rect x="568" y="151" width="512" height="180" rx="12" fill="#edf8f3" stroke="#69a88a" stroke-width="2"/>
+  <text x="588" y="184" class="head">Node 1</text>
+  <text x="1060" y="183" text-anchor="end" class="small">本节点的物理内存</text>
+  <rect x="588" y="208" width="472" height="70" rx="8" fill="#d4eee1" stroke="#69a88a"/>
+  <text x="824" y="249" text-anchor="middle" class="mono">ZONE_NORMAL</text>
+  <text x="588" y="308" class="small">同名 zone 在不同 node 中是不同实例</text>
+
+  <path d="M370 332V358H290V382" class="line" marker-end="url(#arrow)"/>
+  <text x="390" y="365" class="small">放大 Node 0 的 ZONE_NORMAL</text>
+
+  <rect x="40" y="392" width="1040" height="139" rx="12" fill="#fff" stroke="#94a3b8"/>
+  <text x="60" y="424" class="head">Zone 内：按页块组织迁移类型</text>
+  <rect x="60" y="445" width="242" height="60" rx="7" fill="#fff0cd" stroke="#c99732" stroke-width="2"/>
+  <text x="181" y="482" text-anchor="middle">页块 0 · pageblock</text>
+  <rect x="314" y="445" width="242" height="60" rx="7" fill="#f1f5f9" stroke="#94a3b8"/>
+  <text x="435" y="482" text-anchor="middle">页块 1</text>
+  <text x="642" y="482" text-anchor="middle">···</text>
+  <rect x="746" y="445" width="314" height="60" rx="7" fill="#f1f5f9" stroke="#94a3b8"/>
+  <text x="903" y="482" text-anchor="middle">页块 n</text>
+
+  <path d="M181 532V577" class="line" marker-end="url(#arrow)"/>
+  <text x="205" y="561" class="small">放大一个页块：pageblock_order = 9 → 512 个基础页</text>
+
+  <rect x="40" y="588" width="1040" height="178" rx="12" fill="#fff" stroke="#c99732"/>
+  <text x="60" y="622" class="head">Pageblock 内：连续的基础页</text>
+  <text x="1060" y="622" text-anchor="end" class="small">示例 PAGE_SIZE = 4 KiB</text>
+  <g fill="#d3e4ff" stroke="#3977c5">
+    <rect x="60" y="645" width="78" height="52"/><rect x="138" y="645" width="78" height="52"/>
+    <rect x="216" y="645" width="78" height="52"/><rect x="294" y="645" width="78" height="52"/>
+    <rect x="372" y="645" width="78" height="52"/><rect x="450" y="645" width="78" height="52"/>
+    <rect x="528" y="645" width="78" height="52"/><rect x="606" y="645" width="78" height="52"/>
+  </g>
+  <g text-anchor="middle" class="mono">
+    <text x="99" y="678">0</text><text x="177" y="678">1</text><text x="255" y="678">2</text><text x="333" y="678">3</text>
+    <text x="411" y="678">4</text><text x="489" y="678">5</text><text x="567" y="678">6</text><text x="645" y="678">7</text>
+  </g>
+  <rect x="684" y="645" width="78" height="52" fill="#fff8e8" stroke="#c99732"/>
+  <text x="723" y="678" text-anchor="middle">8</text>
+  <text x="838" y="678" text-anchor="middle">···</text>
+  <rect x="932" y="645" width="128" height="52" fill="#fff8e8" stroke="#c99732"/>
+  <text x="996" y="678" text-anchor="middle">511</text>
+  <path d="M60 705V715H684V705" fill="none" stroke="#3977c5" stroke-width="2"/>
+  <text x="372" y="744" text-anchor="middle">order = 3：连续 2³ = 8 页 = 32 KiB</text>
+  <text x="1060" y="744" text-anchor="end" class="small">整个页块 = 2 MiB</text>
+  <text x="40" y="805" class="small">注：节点可含不连续的物理地址范围；图中省略内存空洞与保留区域。</text>
+  <text x="40" y="832" class="small">zone 类型与边界、基础页大小及 pageblock_order 均取决于体系结构和内核配置。</text>
+</svg>
