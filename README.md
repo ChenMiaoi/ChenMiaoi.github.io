@@ -1,72 +1,52 @@
-# Nay's Blog
+**English** · [简体中文](docs/README.zh-CN.md) · [日本語](docs/README.ja.md)
 
-My personal blog about operating systems, kernels, drivers and low-level engineering.
+<img align="right" src="public/avatar.jpg" width="112" alt="Chen Miao's avatar" />
 
-**Live at <https://chenmiaoi.github.io>**
+# Hi, I'm Chen Miao
 
-Built with [Astro](https://astro.build) and the [Fuwari](https://github.com/saicaca/fuwari) theme,
-deployed to GitHub Pages via GitHub Actions.
+**Operating Systems · Kernel · Drivers · Low-level Engineering**
 
-## Writing
+I'm a programmer fascinated by operating systems and low-level architecture. I enjoy writing code close to the hardware, working with C/C++, Rust, and Linux. I'm interested in performance, reliability, and the details at the boundary between software and hardware.
 
-- New post: `pnpm new-post <name>`, then edit `src/content/posts/<name>.md`
-- Frontmatter: `title` / `published` / `tags` / `category` / `series` (+ optional `seriesOrder`)
-- Series metadata (title & description shown on `/series/`): `src/content/series/<slug>.md`
-- Post URLs keep the old Hexo permalink format: `/:year/:month/:day/:slug/`
-- Code blocks preserve line breaks and scroll horizontally by default, keeping source code and text diagrams aligned. Use the `text` language for plain-text diagrams. Add `wrap` after the language in a fence only when soft wrapping is appropriate (for example, `sh wrap`).
-- The article template renders the page title as `h1`. Start article sections with `##`; older posts using `#` are normalized during rendering, with their heading text and link anchors preserved. A non-empty `description` also appears as the article's introduction.
+**Let me drive your world.**
 
-## Developing
+[Blog](https://nyachen.cn/) · [GitHub](https://github.com/ChenMiaoi) · [Zhihu](https://www.zhihu.com/people/Pigeon/posts) · [Email](mailto:chenmiao.ku@gmail.com)
 
-Use Node.js 24 or newer and pnpm 9.15.9 (pinned in `package.json`). CI uses
-Node.js 24 as well. Install from the lockfile with `pnpm install --frozen-lockfile`.
+## What I explore
 
-Astro 7 content collections are configured in `src/content.config.ts`; collection
-IDs preserve existing article and series permalinks. Markdown uses the unified
-processor for the site's remark/rehype plugins and Expressive Code. Tailwind 3
-runs through `postcss.config.mjs`, with its base styles imported explicitly, so
-the production theme and orbital preview keep their existing design.
+- **Linux and operating systems**: boot sequences, memory management, filesystems, and device drivers. I follow concrete execution paths to understand how the subsystems work together.
+- **Computer architecture and hardware design**: RISC-V, CPU microarchitecture, Verilog, Chisel, and Bluespec SystemVerilog. I explore how instructions and pipelines translate into hardware descriptions.
+- **Systems programming and toolchains**: C/C++, Rust, kernel builds, and low-level debugging. I'm interested in how code behaves in real systems and the constraints that shape its implementation.
 
-The `serialize-javascript` override is scoped to Swup's transitive
-`rollup-plugin-terser@7.0.2` dependency. It replaces the vulnerable 4.x release
-with 7.1.2; the plugin's worker/minification path was checked with the new version.
-Keep pnpm at the pinned version when installing this lockfile.
+## Technical notes
 
-As of 2026-10-04, the remaining audit finding is
-[GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
-in `braces@3.0.3`, used by build/watch tooling. Upstream has no patched version.
-Do not suppress it in the audit configuration. Recheck with
-`pnpm audit --registry=https://registry.npmjs.org` (the configured mirror does not
-provide an audit endpoint).
+[Nay's Blog](https://nyachen.cn/) is where I collect notes from reading source code, learning, and experimenting. I aim to trace a question from its observable behavior to the implementation: which paths it takes, which structures it relies on, and why it was designed that way.
 
-The Observatory design lives in `src/styles/observatory.css`. Its home page combines
-`ObservatoryHero.astro`, a locally drawn `OrbitalScene.astro`, article records, and
-series links generated from the content collections. New interface copy for the
-four locale trees lives in `src/i18n/observatory.ts`. Dark mode is the default for
-new visitors; saved theme preferences are respected. The orbital animation stops
-offscreen and follows the visitor's reduced-motion preference.
+These articles offer a starting point for the topics I study and write about. The articles are in Chinese.
 
-Run `pnpm sync:contributions` after `gh auth login` to refresh open GitHub issues and PRs. The account and projects share `src/data/contribution-projects.json`; the repository allowlist is derived from it. The command searches both authored and assigned records, follows pagination, deduplicates overlaps, and saves a timestamped public snapshot to `src/data/contribution-activity.json`. Failed or incomplete searches leave the previous snapshot intact. Builds read this snapshot without invoking `gh` or exposing credentials. Refresh before publishing to update statuses: closed or merged PRs disappear from the open list, while verified merged commits are maintained separately below. Mailing-list patches and comment/review-only participation are not included.
+- [How Linux Boots: From Power-On to the init Process](https://nyachen.cn/2026/07/22/linux-beginner-boot-overview/): following the handoff between hardware, the kernel, and userspace.
+- [The Six Core Objects of VFS](https://nyachen.cn/2026/08/26/linux-modern-vfs-six-core-objects/): understanding Linux's shared filesystem abstractions through their object relationships.
+- [Hardware Description Languages for RISC-V: Verilog, Chisel, and Bluespec SystemVerilog](https://nyachen.cn/2026/07/22/riscv-hardware-languages-overview/): an overview of different ways to describe hardware and how to approach learning them.
 
-For quick ad hoc lookup: `gh search prs --repo llvm/llvm-project --author ChenMiaoi --state open` or `gh search issues --repo llvm/llvm-project --assignee ChenMiaoi --state open`. Use `--repo rust-lang/cargo` for Cargo.
+More writing is available in the [archive](https://nyachen.cn/archive/) and [topic series](https://nyachen.cn/series/).
 
-Contribution projects live in `src/data/contribution-projects.json` (re-exported by `src/config.ts`). Linux records use `mailingListLabel` and `mailingListUrl`; llvm-project and Cargo use `reviewType: "pull-request"` and each record's `pullRequest: { number, url }`. Add only verified merged records, with their upstream commit SHA, date and title. Run `pnpm sync:contribution-details` after activity synchronization to save validated detail snapshots. Both views render patches from those snapshots, or an explicit `patch` value; builds do not download contribution patches. An empty list means no records have been added, not that the author has no contributions.
+## Open-source work
 
-```bash
-pnpm install
-pnpm dev       # local dev server
-pnpm build     # build to dist/ + Pagefind + RAG indexes
-pnpm preview   # preview the production build (search works here)
-pnpm check     # Astro, Svelte and TypeScript diagnostics
-pnpm test:contribution-reader # Markdown safety and lossless patch rendering
-```
+My contributions to the Linux kernel include:
 
-## Publishing
+- **OpenRISC**: adding support for the [text patching API](https://github.com/torvalds/linux/commit/4735037b5d9), [PC-relative relocations in kernel modules](https://github.com/torvalds/linux/commit/9d0cb6d00be), and [jump labels](https://github.com/torvalds/linux/commit/8c30b0018f9).
+- **Rust for Linux / kbuild**: fixing [cleanup of libpin_init_internal by mrproper](https://github.com/torvalds/linux/commit/a44bfed9df8).
 
-Push to `main` — the workflow in `.github/workflows/deploy.yml` builds and deploys automatically.
+Commits, patch discussions, and other open-source activity are collected on my [contributions page](https://nyachen.cn/contribution/).
 
-## Architecture and verification
+## Get in touch
 
-See [architecture.md](docs/architecture.md) for module ownership, data flow and build boundaries.
-Run `pnpm verify` before publishing. It checks types, lint, domain formatting, tests, both builds and generated links.
-Use `pnpm dev:design --port 4332` or `pnpm build:design` followed by `pnpm preview:design --port 4332` for the Orbital preview. Production builds exclude preview routes.
+If you read kernels, write drivers, or explore the boundary between software and hardware, I'd be glad to exchange ideas. Corrections and different perspectives on my articles are welcome too.
+
+- **Email**: [chenmiao.ku@gmail.com](mailto:chenmiao.ku@gmail.com)
+- **GitHub**: [@ChenMiaoi](https://github.com/ChenMiaoi)
+- **Zhihu**: [My articles](https://www.zhihu.com/people/Pigeon/posts)
+
+---
+
+This repository contains my blog's source code. Development, writing, and deployment instructions are in the [maintenance guide](docs/development.md) (Chinese).
