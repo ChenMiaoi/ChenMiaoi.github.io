@@ -132,6 +132,9 @@ importers:
       autoprefixer:
         specifier: ^10.6.1
         version: 10.6.1(postcss@8.5.28)
+      esbuild:
+        specifier: 0.28.2
+        version: 0.28.2
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3

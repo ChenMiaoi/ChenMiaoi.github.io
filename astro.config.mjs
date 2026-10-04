@@ -151,6 +151,11 @@ expressiveCode({
 	},
 	devToolbar: { enabled: false },
 	vite: {
+		server: {
+			proxy: process.env.CONTRIBUTION_API_ORIGIN ? {
+				"/contributions.json": { target: process.env.CONTRIBUTION_API_ORIGIN },
+			} : undefined,
+		},
 		build: {
 			rollupOptions: {
 				onwarn(warning, warn) {

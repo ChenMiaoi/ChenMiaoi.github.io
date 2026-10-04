@@ -1,5 +1,7 @@
 # build output
 dist/
+.output/
+.runtime-data/
 
 # generated types
 .astro/

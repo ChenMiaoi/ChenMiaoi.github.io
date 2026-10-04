@@ -38,7 +38,8 @@ class DeploymentTests(unittest.TestCase):
             (self.root / directory).mkdir(parents=True, exist_ok=True)
         (self.root / 'current').symlink_to('releases/empty', target_is_directory=True)
         self.checks = []
-        self.deployer = receive.Deployer(self.root, self.checks.append)
+        self.activations = []
+        self.deployer = receive.Deployer(self.root, self.checks.append, self.activations.append)
 
     def upload(self, number=1, data=None, **kwargs):
         data = archive() if data is None else data
@@ -89,6 +90,26 @@ class DeploymentTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.deployer.rollback()
         self.assertEqual(self.deployer.target('current').name, release(2))
+
+    def test_runtime_failure_restarts_previous_release_and_preserves_data(self):
+        self.upload(1)
+        data = self.root / 'shared/contributions.json'
+        data.write_text('independent persistent data')
+        attempts = []
+        def activate(site):
+            attempts.append(site.name)
+            if site.name == release(2):
+                raise RuntimeError('runtime failed')
+        self.deployer.activate = activate
+        with self.assertRaisesRegex(RuntimeError, 'runtime failed'):
+            self.upload(2)
+        self.assertEqual(attempts, [release(2), release(1)])
+        self.assertEqual(data.read_text(), 'independent persistent data')
+        self.assertEqual(self.deployer.target('current').name, release(1))
+
+    def test_validation_never_restarts_service(self):
+        self.upload(validate=True)
+        self.assertEqual(self.activations, [])
 
     def test_rejects_invalid_archive_paths(self):
         for name in ('../escape', '/etc/escape', 'a/../../escape', '.env', '.well-known/token', 'deployment.json', 'a\\b'):

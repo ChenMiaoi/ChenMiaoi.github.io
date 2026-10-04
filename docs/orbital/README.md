@@ -59,7 +59,11 @@ rail can filter PRs and issues, and the inspector distinguishes draft/open statu
 authorship/assignment, record numbers, update dates and the original URLs. These
 records are not presented as merged commits. The snapshot time is shown in Beijing
 time. Refresh with `pnpm sync:contributions`; the site itself uses no credentials
-and does not make live GitHub requests.
+and does not make live GitHub requests from the browser. On the VPS, a separate
+service refreshes persistent snapshots every 15 minutes and serves the same
+`/contributions.json` URL. GitHub Pages keeps the build snapshot. Previously
+tracked PRs/issues remain visible when merged or closed. See
+[deployment](../deployment.md) for setup, data retention and rate limits.
 
 Refresh the reading content with `pnpm sync:contribution-details` after refreshing
 activity. This reads commit references from the shared `src/data/contribution-projects.json` and public activity from the existing snapshot. It writes

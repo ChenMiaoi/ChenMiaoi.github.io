@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
   import { projectRecords } from "../../lib/contributions/projects";
-  import { loadJson } from "../../lib/content/client-cache";
+  import { contributionStateLabel, type ContributionFeed } from "../../lib/contributions/types";
   import { fly } from "svelte/transition";
   import TerminalIcon from "./TerminalIcon.svelte";
   import BrandIcon from "./BrandIcon.svelte";
@@ -16,6 +16,9 @@
   let details: ContributionDetailsSnapshot = { syncedAt: activity.syncedAt, records: [] };
   let detailsError = false;
   let loadingDetails = true;
+  let refreshFailed = false;
+  let pending: AbortController | undefined;
+  let disposed = false;
   export let projectId: string | undefined;
   export let reducedMotion = false;
   let selectedId = "";
@@ -89,13 +92,35 @@
     return { destroy() { observer.disconnect(); node.removeEventListener('scroll', updateTether, true); } };
   }
   async function loadDetails() {
+    if (pending || disposed) return;
+    const controller = new AbortController();
+    pending = controller;
     detailsError = false;
-    loadingDetails = true;
-    try { details = await loadJson<ContributionDetailsSnapshot>(detailsUrl); }
-    catch { detailsError = true; }
-    finally { loadingDetails = false; }
+    loadingDetails = !details.records.length;
+    try {
+      const response = await fetch(detailsUrl, { cache: 'no-cache', signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]) });
+      if (!response.ok) throw new Error('Contribution data unavailable');
+      const next = await response.json() as ContributionFeed;
+      if (!Array.isArray(next.records) || !next.syncedAt || (next.version === 1 && !Array.isArray(next.activity?.items))) throw new Error('Invalid contribution data');
+      if (!disposed) {
+        // Update list and details together so record selection never mixes generations.
+        if (selected) selectedId = selected.id;
+        details = next;
+        if (next.version === 1) activity = next.activity;
+        refreshFailed = false;
+      }
+    } catch {
+      if (!disposed) { detailsError = !details.records.length; refreshFailed = true; }
+    } finally { pending = undefined; if (!disposed) loadingDetails = false; }
   }
-  onMount(() => { void loadDetails(); });
+  onMount(() => {
+    disposed = false;
+    void loadDetails();
+    const refresh = () => { if (document.visibilityState === 'visible') void loadDetails(); };
+    const timer = window.setInterval(refresh, 60000);
+    document.addEventListener('visibilitychange', refresh);
+    return () => { disposed = true; pending?.abort(); clearInterval(timer); document.removeEventListener('visibilitychange', refresh); };
+  });
 </script>
 
 <section class="source-dock" aria-label="开源贡献接入站">
@@ -144,7 +169,7 @@
             {#each records as record, index}
               <button class="contribution-record" class:active={selected?.id === record.id} aria-pressed={selected?.id === record.id} aria-label={`查看${kindName(record.kind)}：${record.title}`} onclick={() => { selectedId = record.id; }}>
                 <span class="record-point" aria-hidden="true">{number(index + 1)}</span>
-                <span class="record-text"><span class="record-date"><time datetime={record.date}>{record.date.slice(0, 10)}</time>{#if record.kind !== 'commit'}<span class="collaboration-state" class:draft={record.draft}>{record.draft ? '草稿' : '进行中'}</span>{/if}</span><strong>{record.title}</strong><code>{record.reference}</code></span>
+                <span class="record-text"><span class="record-date"><time datetime={record.date}>{record.date.slice(0, 10)}</time>{#if record.kind !== 'commit'}<span class="collaboration-state" class:draft={record.draft} class:merged={record.state === 'merged'} class:closed={record.state === 'closed'}>{contributionStateLabel(record.state, record.draft)}</span>{/if}</span><strong>{record.title}</strong><code>{record.reference}</code></span>
                 <TerminalIcon name="arrow" size={13}/>
               </button>
             {/each}
@@ -182,6 +207,6 @@
     </div>
   {:else}<p class="dock-note">尚未配置开源项目。</p>{/if}
   {#if allRecords.some((item) => item.kind !== 'commit')}
-    <p class="dock-note"><span aria-hidden="true"></span>收录 {activity.account} 发起或被指派的未关闭 Issue / PR。状态同步于 {syncDate}（北京时间）。</p>
+    <p class="dock-note" role="status"><span aria-hidden="true"></span>状态同步于 {syncDate}（北京时间）。{#if refreshFailed}暂时无法刷新，正在显示上次记录。{/if}</p>
   {/if}
 </section>

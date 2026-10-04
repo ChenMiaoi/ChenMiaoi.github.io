@@ -81,7 +81,7 @@ try {
 			if (process.platform === "win32") await run("cmd.exe", ["/d", "/s", "/c", "pnpm.cmd verify"]);
 			else await run("pnpm", ["verify"]);
 			artifact = join(temporary, "site.tar.gz");
-			await run("tar", ["-czf", artifact, "-C", "dist", "."]);
+			await run("tar", ["-czf", artifact, "-C", ".output/vps", "."]);
 		}
 		const digest = createHash("sha256").update(await readFile(artifact)).digest("hex");
 		const child = spawn("ssh", [...sshArgs, `${command} ${release} ${digest}`], { stdio: ["pipe", "inherit", "inherit"] });

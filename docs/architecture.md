@@ -31,7 +31,9 @@ rag/                           可选问答后端及生成的本地索引
 
 项目配置唯一来源是 `src/data/contribution-projects.json`。`pnpm sync:contributions` 同步进行中的 Issue / PR，`pnpm sync:contribution-details` 保存已验证的记录详情。同步失败保留旧快照。
 
-页面只读取已提交的本地快照；构建不临时下载补丁。进入开源页后，从 `/contributions.json` 按需加载已清理的 Markdown 详情。
+构建不联系 GitHub。GitHub Pages 从 `/contributions.json` 读取打包的快照；VPS 的同一路径由独立 Node 服务提供，活动列表和清理后的 Markdown 详情来自同一代数据。页面打开时、重新可见时及可见期间每分钟检查更新，保留当前项目、类型筛选和记录选择。
+
+`server/contributions/` 每 15 分钟发现配置项目中由作者发起或被指派的未关闭 PR / Issue，并继续跟踪已收录记录的关闭、合并和重开。不会自动回填全部历史，也不自动发现 Linux 已合并提交；提交清单仍由项目配置维护。详情没有变化时复用上次结果。GitHub 限流时按响应头退避；所有请求和校验成功后，才原子替换 `/var/lib/nyachen-contributions/snapshot.json`。数据目录独立于发布目录，首次启动才导入内置快照，升级、回滚和重启不会重置记录。
 
 ## 组件与样式
 
@@ -50,6 +52,6 @@ pnpm preview
 pnpm verify
 ```
 
-只有一套构建，输出到 `dist/`。构建检查确保每个 HTML 页面使用 Orbital、文章正文与永久链接完整、贡献详情可用、问答引用有效。CI 对 PR 运行检查，仅 `main` 将同一构建发布到 VPS 和 GitHub Pages。服务器也会拒绝缺少 Orbital 标识的首页。
+前端构建输出到 `dist/`，供 GitHub Pages 使用。`pnpm build:vps` 以该前端为基础，将独立贡献服务打包到 `.output/vps/runtime/server.mjs`，无需服务器安装 npm 依赖。`pnpm verify` 同时验证前端、服务并生成两种产物。构建检查确保每个 HTML 页面使用 Orbital、文章正文与永久链接完整、贡献详情可用、问答引用有效。CI 只负责测试和发布代码，定时数据同步由 VPS 服务承担。服务器也会拒绝缺少 Orbital 标识的首页。
 
 涉及交互或布局时，实际检查五个板块、阅读器、历史导航、直接访问和刷新，以及桌面、平板、手机尺寸。部署与回滚见 [部署文档](deployment.md)。

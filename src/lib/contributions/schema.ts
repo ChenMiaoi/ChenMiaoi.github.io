@@ -15,6 +15,7 @@ export const activitySchema = z.object({
 			url,
 			kind: z.enum(["pr", "issue"]),
 			draft: z.boolean(),
+			state: z.enum(["open", "draft", "merged", "closed"]).optional(),
 			updatedAt: date,
 			relations: z.array(z.enum(["author", "assignee"])),
 		}),

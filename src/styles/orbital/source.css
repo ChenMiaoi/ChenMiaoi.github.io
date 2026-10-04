@@ -497,6 +497,9 @@
 	color: #aebabe;
 }
 
+.collaboration-state.merged { color: #bf9ce9; }
+.collaboration-state.closed { color: #9dada8; }
+
 .collaboration-state.draft::before {
 	background: transparent;
 	border: 1px solid #aebabe;

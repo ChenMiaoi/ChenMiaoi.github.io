@@ -41,7 +41,7 @@ jobs:
 
       - name: Package production site
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        run: tar -czf site.tar.gz -C dist .
+        run: tar -czf site.tar.gz -C .output/vps .
 
       - name: Save verified production artifact
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'

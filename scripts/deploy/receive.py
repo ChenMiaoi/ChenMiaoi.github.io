@@ -16,12 +16,36 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 
 ROOT = Path('/var/www/nyachen-deploy')
 RELEASE_ID = re.compile(r'[0-9a-f]{40}-[1-9][0-9]*-[1-9][0-9]*\Z')
 MAX_ARCHIVE = 256 * 1024 * 1024
 MAX_EXPANDED = 512 * 1024 * 1024
 REQUIRED = ('index.html', 'content-index.json', 'sitemap-index.xml', 'pagefind/pagefind.js')
+
+
+def activate_runtime(site):
+    unit = Path('/etc/systemd/system/nyachen-contributions.service')
+    dynamic = (site / 'runtime/server.mjs').is_file()
+    if not unit.is_file():
+        if dynamic:
+            raise RuntimeError('Install the contribution service with setup-runtime.sh first')
+        return
+    subprocess.run(['sudo', '-n', '/usr/bin/systemctl', 'restart' if dynamic else 'stop',
+                    'nyachen-contributions.service'], check=True, timeout=40)
+    if dynamic:
+        release = json.loads((site / 'deployment.json').read_text())['release']
+        for _ in range(30):
+            try:
+                result = subprocess.check_output(['curl', '-fsS', '--max-time', '1',
+                    'http://127.0.0.1:4336/api/contributions/health'], stderr=subprocess.DEVNULL)
+                if json.loads(result)['release'] == release:
+                    return
+            except (subprocess.SubprocessError, ValueError, KeyError):
+                pass
+            time.sleep(0.5)
+        raise RuntimeError('Contribution service did not become ready')
 
 
 def check_origin(release):
@@ -39,12 +63,20 @@ def check_origin(release):
         raise RuntimeError('Origin is serving a different release')
     for path in ('/', '/en/', '/pagefind/pagefind.js'):
         fetch(path)
+    if metadata.get('runtime'):
+        health = json.loads(fetch('/api/contributions/health'))
+        if health.get('release') != release or not health.get('ok'):
+            raise RuntimeError('Origin contribution service is serving a different release')
+        feed = json.loads(fetch('/contributions.json'))
+        if feed.get('version') != 1 or not feed.get('activity'):
+            raise RuntimeError('Origin contribution feed is unavailable')
 
 
 class Deployer:
-    def __init__(self, root=ROOT, healthcheck=check_origin):
+    def __init__(self, root=ROOT, healthcheck=check_origin, activate=activate_runtime):
         self.root = Path(root)
         self.healthcheck = healthcheck
+        self.activate = activate
 
     @contextlib.contextmanager
     def locked(self):
@@ -114,6 +146,8 @@ class Deployer:
                 raise ValueError(f'Missing required build output: {filename}')
         if 'class="orbital-site"' not in (site / 'index.html').read_text():
             raise ValueError('Production homepage must be Orbital')
+        if (site / 'runtime').exists() and not (site / 'runtime/server.mjs').is_file():
+            raise ValueError('Missing contribution runtime entrypoint')
         return site
 
     def upload(self, release, digest, stream, validate=False):
@@ -128,6 +162,7 @@ class Deployer:
             metadata = {
                 'release': release, 'commit': release.split('-')[0],
                 'deployedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                'runtime': (site / 'runtime/server.mjs').is_file(),
             }
             (site / 'deployment.json').write_text(json.dumps(metadata) + '\n')
             # ACME challenges survive every version switch without Nginx edits.
@@ -137,9 +172,11 @@ class Deployer:
             site.rename(destination)
             try:
                 self.point('current', destination)
+                self.activate(destination)
                 self.healthcheck(release)
             except BaseException:
                 self.point('current', previous)
+                self.activate(previous)
                 shutil.rmtree(destination)
                 raise
             self.point('previous', previous)
@@ -158,9 +195,11 @@ class Deployer:
                 raise ValueError('No previously deployed site to roll back to')
             try:
                 self.point('current', previous)
+                self.activate(previous)
                 self.healthcheck(previous.name)
             except BaseException:
                 self.point('current', old)
+                self.activate(old)
                 raise
             self.point('previous', old)
             return {'rolledBackTo': previous.name}

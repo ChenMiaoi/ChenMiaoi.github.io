@@ -38,6 +38,8 @@ for (const prefix of ["", "en/", "ja/", "zh_TW/"]) {
 }
 await access(resolve(production, "pagefind/pagefind.js"));
 const details = JSON.parse(await readFile(resolve(production, "contributions.json"), "utf8"));
+assert.equal(details.version, 1);
+assert.ok(details.activity.items.every((item) => details.records.some((record) => record.url === item.url)), "Activity and details must form a complete snapshot");
 assert.ok(details.records.length > 0, "Contribution details must be available in production");
 const { records } = JSON.parse(await readFile("rag/index.json", "utf8"));
 const urls = new Set(documents.map((p) => p.url));

@@ -1,0 +1,35 @@
+[Unit]
+Description=Miao Blog contribution data service
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=nyachen-contributions
+Group=nyachen-contributions
+WorkingDirectory=/var/www/nyachen-deploy/current
+Environment=NODE_ENV=production
+Environment=CONTRIBUTION_DATA_DIR=/var/lib/nyachen-contributions
+Environment=CONTRIBUTION_PORT=4336
+Environment=CONTRIBUTION_SYNC_SECONDS=900
+EnvironmentFile=-/etc/nyachen-contributions.env
+ExecStart=/usr/bin/node /var/www/nyachen-deploy/current/runtime/server.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=25
+StateDirectory=nyachen-contributions
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+ReadWritePaths=/var/lib/nyachen-contributions
+
+[Install]
+WantedBy=multi-user.target

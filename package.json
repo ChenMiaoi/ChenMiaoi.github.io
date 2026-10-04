@@ -8,6 +8,8 @@
     "check": "astro check",
     "build": "astro build && pagefind --site dist && node scripts/build-rag-index.mjs",
     "build:rag": "pnpm build",
+    "build:vps": "node scripts/build-vps.mjs",
+    "test:server": "node --test server/contributions/*.test.mjs",
     "sync:contributions": "node scripts/sync-contribution-activity.mjs",
     "sync:contribution-details": "node scripts/sync-contribution-details.mjs",
     "start:rag": "node rag/server.mjs",
@@ -24,7 +26,7 @@
     "format:check": "biome format ./src/lib",
     "test": "node --test scripts/architecture.test.mjs scripts/test-contribution-reader.mjs src/plugins/remark-post-headings.test.mjs",
     "test:build": "node scripts/check-build.mjs",
-    "verify": "pnpm lint && pnpm format:check && pnpm check && pnpm test && pnpm build && pnpm test:build"
+    "verify": "pnpm lint && pnpm format:check && pnpm check && pnpm test && pnpm test:server && pnpm build && pnpm test:build && pnpm build:vps"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
@@ -70,6 +72,7 @@
     "@types/mdast": "^4.0.4",
     "@types/sanitize-html": "^2.16.2",
     "autoprefixer": "^10.6.1",
+    "esbuild": "0.28.2",
     "gray-matter": "^4.0.3",
     "postcss-import": "^16.2.0",
     "postcss-nesting": "^13.0.2"

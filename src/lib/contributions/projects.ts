@@ -31,6 +31,7 @@ export function projectRecords(
 			number: entry.number,
 			url: entry.url,
 			draft: entry.draft,
+			state: entry.state,
 			relations: entry.relations,
 		}));
 	return [...commits, ...collaboration].sort((a, b) =>

@@ -1,4 +1,4 @@
-// Public snapshot produced by sync-contribution-activity.mjs (open records only).
+// Build-time fallback or the last complete snapshot served by the VPS.
 export type ContributionActivitySnapshot = {
 	account: string;
 	syncedAt: string;
@@ -9,6 +9,7 @@ export type ContributionActivitySnapshot = {
 		url: string;
 		kind: string;
 		draft: boolean;
+		state?: "open" | "draft" | "merged" | "closed";
 		updatedAt: string;
 		relations: string[];
 	}[];
@@ -24,6 +25,7 @@ export type SourceRecord = {
 	number?: number;
 	url?: string;
 	draft?: boolean;
+	state?: "open" | "draft" | "merged" | "closed";
 	relations?: string[];
 	discussionUrl?: string;
 	discussionLabel?: string;
@@ -74,3 +76,21 @@ export type ContributionDetailsSnapshot = {
 	syncedAt: string;
 	records: ContributionDetail[];
 };
+
+export type ContributionFeed = ContributionDetailsSnapshot & {
+	version: 1;
+	activity: ContributionActivitySnapshot;
+};
+
+export function contributionStateLabel(state?: string, draft = false) {
+	return (
+		(
+			{
+				open: "进行中",
+				draft: "草稿",
+				merged: "已合并",
+				closed: "已关闭",
+			} as Record<string, string>
+		)[state ?? (draft ? "draft" : "open")] ?? ""
+	);
+}

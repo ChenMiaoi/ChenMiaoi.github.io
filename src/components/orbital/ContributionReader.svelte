@@ -10,7 +10,7 @@
   let copyState = "";
   let copyAttempt = 0;
   $: kind = record.kind === "commit" ? "提交" : record.kind === "pr" ? "PR" : "Issue";
-  $: state = detail?.state ?? (record.draft ? "draft" : "open");
+  $: state = detail?.state ?? record.state ?? (record.draft ? "draft" : "open");
   $: stateLabel = ({ open: "进行中", draft: "草稿", merged: "已合并", closed: "已关闭", commit: "提交记录" } as Record<string, string>)[state] ?? "";
   $: reference = detail?.sha ?? record.sha ?? String(record.number ?? record.reference);
   const date = (value: string) => value.slice(0, 10).replaceAll("-", "/");
@@ -28,7 +28,7 @@
 
 <article class="contribution-reader" aria-label={`${kind}内容阅读器`}>
   <header class="contribution-reader-heading">
-    <div class="reader-record-topline"><span class="reader-record-type">{kind} / 原始记录</span>{#if record.kind !== 'commit'}<span class="collaboration-state" class:draft={state === 'draft'}>{stateLabel}</span>{/if}<button class="record-copy" aria-label={`复制${kind}${record.kind === 'commit' ? ' SHA' : '编号'}`} onclick={copyReference}><code>{record.reference}</code><span>{copyState || '复制'}</span></button><span class="copy-feedback" role="status">{copyState}</span></div>
+    <div class="reader-record-topline"><span class="reader-record-type">{kind} / 原始记录</span>{#if record.kind !== 'commit'}<span class="collaboration-state" class:draft={state === 'draft'} class:merged={state === 'merged'} class:closed={state === 'closed'}>{stateLabel}</span>{/if}<button class="record-copy" aria-label={`复制${kind}${record.kind === 'commit' ? ' SHA' : '编号'}`} onclick={copyReference}><code>{record.reference}</code><span>{copyState || '复制'}</span></button><span class="copy-feedback" role="status">{copyState}</span></div>
     <h2>{detail?.title ?? record.title}</h2>
     <div class="reader-record-footer"><div class="reader-record-attribution">{#if detail}<span>原文作者 <b>{detail.author}</b></span>{/if}{#if record.relations?.length}<span>{record.relations.map((relation) => relation === 'author' ? '我发起' : relation === 'assignee' ? '指派给我' : '').filter(Boolean).join(' · ')}</span>{/if}<time datetime={detail?.updatedAt ?? record.date}>{record.kind === 'commit' ? '提交于' : '更新于'} {date(detail?.updatedAt ?? record.date)}</time></div>
     <div class="reader-source-links">{#if record.url}<a href={record.url} target="_blank" rel="noreferrer"><BrandIcon name="github" size={14} framed={false}/>在 GitHub 查看<TerminalIcon name="external" size={14}/></a>{/if}{#if record.discussionUrl}<a href={record.discussionUrl} target="_blank" rel="noreferrer">{record.discussionLabel?.startsWith('PR #') ? record.discussionLabel : '邮件讨论'}<TerminalIcon name="external" size={14}/></a>{/if}</div></div>

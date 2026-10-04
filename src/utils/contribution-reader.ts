@@ -5,7 +5,7 @@ import type { ContributionDetail } from "../lib/contributions/types";
 const markdown = new MarkdownIt({ html: true, linkify: true });
 
 export function renderContributionMarkdown(body: string, sourceUrl: string) {
-	// External content is rendered at build time. No raw GitHub HTML or event
+	// External content is rendered on the server or at build time. No raw GitHub HTML or event
 	// attributes reach {@html}, and embedded media become explicit source links.
 	return sanitizeHtml(markdown.render(body), {
 		allowedTags: [
