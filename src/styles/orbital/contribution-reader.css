@@ -1,4 +1,13 @@
 /* contribution-reader: owns the final orbital contribution-reader rules, including responsive states. */
+.reader-commits { margin-block: 24px; }
+.reader-commit { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(184, 204, 190, .16); color: inherit; text-decoration: none; }
+.reader-commit > code { font-size: 11px; color: #d3df99; flex: 0 0 auto; }
+.reader-commit > span { flex: 1; min-width: 0; }
+.reader-commit strong { display: block; font-size: 13px; overflow-wrap: anywhere; }
+.reader-commit small { display: block; margin-top: 4px; color: #99aca4; font-size: 10px; }
+.reader-commit:hover strong { color: #f2f038; }
+.reader-diff-version { margin: 8px 0 14px; font-size: 11px; color: #99aca4; }
+.comment-kind { margin-left: 8px; font-size: 10px; color: #bbc890; }
 
 .contribution-reader {
 	min-width: 0;

@@ -16,8 +16,9 @@ let release = 'local';
 try { release = JSON.parse(await readFile(new URL('../deployment.json', import.meta.url), 'utf8')).release; }
 catch (error) { if (error.code !== 'ENOENT') throw error; }
 const api = createGitHubApi({ token: process.env.GITHUB_TOKEN });
+const detailCache = new Map(contributionDetails.records.map((record) => [record.url, record]));
 const service = createContributionService({ store, release, intervalMs,
-  sync: (previous) => syncContributions({ previous, api, config: contributionSyncConfig, projects: contributionConfig.projects }) });
+  sync: (previous) => syncContributions({ previous, api, detailCache, config: contributionSyncConfig, projects: contributionConfig.projects }) });
 service.server.listen(port, '127.0.0.1', () => {
   console.info(`Contribution service ready on 127.0.0.1:${port}`);
   if (process.env.CONTRIBUTION_SYNC_DISABLED !== '1') service.startSync();

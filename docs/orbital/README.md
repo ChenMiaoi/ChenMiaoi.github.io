@@ -69,8 +69,12 @@ Refresh the reading content with `pnpm sync:contribution-details` after refreshi
 activity. This reads commit references from the shared `src/data/contribution-projects.json` and public activity from the existing snapshot. It writes
 `src/data/contribution-details.json` only after all required requests succeed.
 Repositories are checked against the activity allowlist. The details snapshot
-includes the latest five non-bot discussion/review comments and actual references
-from record bodies or issue timeline cross-references; these are not inferred fixes.
+includes all paginated discussion comments, inline replies and published review
+conclusions (including approvals without body text). Bot records are retained and
+labelled. Empty COMMENTED review envelopes are represented by their inline comments;
+unsubmitted PENDING reviews are excluded. PR commit history and current head/base
+SHAs identify the version of the aggregate file diff. References come from record
+bodies or issue timeline cross-references; these are not inferred fixes.
 Builds sanitize Markdown server-side, discard unsafe HTML and convert embedded
 images into source links. Run `node scripts/test-contribution-reader.mjs` (Node 24)
 to check HTML safety, patch classification and lossless text handling. No network access or GitHub

@@ -1,7 +1,7 @@
 import { activitySchema, detailsSchema } from '../../src/lib/contributions/schema.ts';
 import { createDetailReader } from './details.mjs';
 
-export async function syncContributions({ config, projects, previous, api, now = () => new Date().toISOString() }) {
+export async function syncContributions({ config, projects, previous, api, detailCache = new Map(), now = () => new Date().toISOString() }) {
   const items = new Map();
   for (const repository of config.repositories) {
     const metadata = await api(`repos/${repository}`);
@@ -24,7 +24,6 @@ export async function syncContributions({ config, projects, previous, api, now =
       }
     }
   }
-  const discovered = new Set(items.keys());
   // Keep previously tracked records after merge/closure or reassignment. Discovery
   // still targets open work, rather than importing an unbounded account history.
   for (const item of previous.activity.items) {
@@ -32,6 +31,12 @@ export async function syncContributions({ config, projects, previous, api, now =
   }
   const readDetail = createDetailReader(api, config.repositories);
   const oldDetails = new Map(previous.details.records.map((record) => [record.url, record]));
+  // Completed per-record reads survive a failed batch without exposing a partial
+  // feed. Bundled richer snapshots can also upgrade old persisted detail formats.
+  for (const [url, candidate] of detailCache) {
+    const old = oldDetails.get(url);
+    if (!old || (candidate.fetchedAt ?? '') > (old.fetchedAt ?? '')) oldDetails.set(url, candidate);
+  }
   const records = [];
   for (const project of projects) {
     const repository = project.repository.replace('https://github.com/', '').replace(/\/$/, '');
@@ -42,18 +47,17 @@ export async function syncContributions({ config, projects, previous, api, now =
   }
   for (const item of items.values()) {
     const old = oldDetails.get(item.url);
-    // Search supplies updated_at for open work. Unchanged records reuse their
-    // validated details; disappeared records are read directly to resolve closure.
-    if (discovered.has(item.url) && old?.updatedAt === item.updatedAt && old.state === (item.draft ? 'draft' : 'open')) {
-      item.state = old.state;
-      records.push(old);
-      continue;
-    }
+    // A search timestamp alone cannot identify the current PR diff. Read the
+    // authoritative head/base on every cycle, including rebases and force-pushes.
     const path = `repos/${item.repository}/${item.kind === 'pr' ? 'pulls' : 'issues'}/${item.number}`;
     const record = await api(path);
     if (record.html_url !== item.url || record.repository?.private || record.base?.repo?.private) throw new Error('Record is no longer public at the expected URL');
     const state = record.merged_at ? 'merged' : record.state === 'closed' ? 'closed' : record.draft ? 'draft' : 'open';
-    const detail = old && old.updatedAt === record.updated_at && old.state === state ? old : await readDetail(item, record);
+    const recent = old?.fetchedAt && Date.parse(now()) - Date.parse(old.fetchedAt) < 24 * 60 * 60 * 1000;
+    const reusable = recent && old.detailVersion === 2 && old.updatedAt === record.updated_at && old.state === state &&
+      (item.kind !== 'pr' || (old.headSha === record.head.sha && old.baseSha === record.base.sha));
+    const detail = detailsSchema.shape.records.element.parse(reusable ? old : await readDetail(item, record));
+    detailCache.set(item.url, detail);
     Object.assign(item, { state, title: record.title, draft: state === 'draft', updatedAt: record.updated_at });
     records.push(detail);
   }

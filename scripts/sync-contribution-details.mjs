@@ -81,7 +81,7 @@ const records = [];
 // Keep GitHub requests bounded while independent records are downloaded.
 for (let index = 0; index < descriptors.length; index += 2) {
 	const batch = await Promise.all(
-		descriptors.slice(index, index + 2).map(fetchDetails),
+		descriptors.slice(index, index + 2).map((descriptor) => fetchDetails(descriptor)),
 	);
 	records.push(...batch);
 	console.log(

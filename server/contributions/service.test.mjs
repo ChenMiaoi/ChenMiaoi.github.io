@@ -46,10 +46,11 @@ test('tracked PR remains after merge and unchanged detail is not downloaded agai
     calls.push(path);
     if (path === 'repos/example/public') return { private: false };
     if (path.startsWith('search/')) return { total_count: 0, incomplete_results: false, items: [] };
-    if (path.includes('/files')) return [[]];
+    if (path.includes('/files') || path.includes('/reviews?') || path.includes('/commits?')) return [[]];
     if (path.endsWith('/pulls/1')) return { html_url: url, number: 1, title: detail.title,
       updated_at: nextDate, state: 'closed', merged_at: nextDate, body: '', user: { login: 'writer' },
-      changed_files: 0, additions: 0, deletions: 0, comments: 0, review_comments: 0 };
+      changed_files: 0, additions: 0, deletions: 0, comments: 0, review_comments: 0, commits: 0,
+      head: { sha: 'a'.repeat(40) }, base: { sha: 'b'.repeat(40) } };
     throw new Error(`Unexpected endpoint ${path}`);
   };
   const before = JSON.stringify(seed);
@@ -75,14 +76,18 @@ test('partial search, private repositories and failed detail requests preserve p
   }
 });
 
-test('unchanged open work reuses details without consuming per-record requests', async () => {
+test('unchanged open work validates head/base but reuses full details', async () => {
+  const upgraded = structuredClone(seed);
+  Object.assign(upgraded.details.records[0], { detailVersion: 2, fetchedAt: new Date().toISOString(), headSha: 'a'.repeat(40), baseSha: 'b'.repeat(40) });
   const api = async (path) => {
     if (path === 'repos/example/public') return { private: false };
     if (path.startsWith('search/')) return { total_count: 1, incomplete_results: false,
       items: [{ number: 1, html_url: url, title: detail.title, updated_at: date, pull_request: {}, draft: false }] };
+    if (path.endsWith('/pulls/1')) return { html_url: url, updated_at: date, state: 'open', title: detail.title,
+      head: { sha: 'a'.repeat(40) }, base: { sha: 'b'.repeat(40) } };
     throw new Error(`Unnecessary request ${path}`);
   };
-  const result = await syncContributions({ config, projects: [], previous: seed, api });
+  const result = await syncContributions({ config, projects: [], previous: upgraded, api });
   assert.equal(result.activity.items[0].state, 'open');
   assert.equal(result.details.records[0].body, detail.body);
 });

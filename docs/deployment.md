@@ -113,6 +113,15 @@ and receiver readiness probe. Initial historical backfill is not performed:
 new open authored/assigned work is discovered, previously tracked work is retained
 after closure/merge, and configured commit references remain curated.
 
+PR freshness is checked against the current head/base SHAs as well as record
+timestamps. The reader collects all discussion pages, review conclusions and
+commit history; concurrent pushes abort the candidate snapshot to avoid mixed
+versions. Older detail formats are refreshed even if timestamps are unchanged.
+Unchanged details are fully revisited at least daily after successful syncs.
+Completed record reads are cached across failed batches; only a complete feed is
+published. Bundled newer detail records can upgrade the old format without
+discarding independently persisted activity/history.
+
 ```sh
 systemctl status nyachen-contributions
 journalctl -u nyachen-contributions -n 50
@@ -127,6 +136,10 @@ pointing to an ignored local directory, then start Astro dev with
 `CONTRIBUTION_API_ORIGIN=http://127.0.0.1:4336`. The dev proxy serves the real feed
 at the same URL as production. `CONTRIBUTION_SYNC_DISABLED=1` serves existing data
 without contacting GitHub (for offline tests only).
+
+`astro preview` serves only the build snapshot. To preview live production data,
+stop that preview and run `astro dev` with `CONTRIBUTION_API_ORIGIN=https://nyachen.cn`
+on the desired local port. This changes only the local preview; Pages remains static.
 
 Before a receiver upgrade, run its tests in a temporary directory:
 

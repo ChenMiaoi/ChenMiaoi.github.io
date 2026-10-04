@@ -96,7 +96,7 @@ async function fetchDetails(descriptor, existingRecord) {
 	const record = existingRecord ?? await api(
 		`${base}/${kind === "pr" ? "pulls" : "issues"}/${descriptor.number}`,
 	);
-	const [filePages, commentPages, reviewPages, timelinePages] =
+	const [filePages, commentPages, reviewCommentPages, timelinePages, reviewPages, commitPages] =
 		await Promise.all([
 			kind === "pr"
 				? api(`${base}/pulls/${descriptor.number}/files?per_page=100`, true)
@@ -110,24 +110,44 @@ async function fetchDetails(descriptor, existingRecord) {
 			kind === "issue"
 				? api(`${base}/issues/${descriptor.number}/timeline?per_page=100`, true)
 				: [],
+			kind === "pr" ? api(`${base}/pulls/${descriptor.number}/reviews?per_page=100`, true) : [],
+			kind === "pr" ? api(`${base}/pulls/${descriptor.number}/commits?per_page=100`, true) : [],
 		]);
 	const files = filePages.flat().map(fileRecord);
-	const humanComments = [...commentPages.flat(), ...reviewPages.flat()]
-		.filter(
-			(comment) =>
-				comment.user?.type !== "Bot" &&
-				!/(?:\[bot\]$|^rustbot$)/i.test(comment.user?.login ?? "") &&
-				comment.body?.trim(),
-		)
+	const discussion = [
+		...commentPages.flat().map((comment) => ({ ...comment, kind: 'comment' })),
+		...reviewCommentPages.flat().map((comment) => ({ ...comment, kind: 'review-comment' })),
+		...reviewPages.flat().filter((review) => review.state !== 'PENDING' && review.submitted_at &&
+			(review.body?.trim() || ['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'].includes(review.state)))
+			.map((review) => ({ ...review, kind: 'review', created_at: review.submitted_at })),
+	].filter((comment) => comment.body?.trim() || comment.kind === 'review')
 		.sort((a, b) => b.created_at.localeCompare(a.created_at));
-	const comments = humanComments.slice(0, 5).map((comment) => ({
-		author: comment.user.login,
+	const comments = discussion.map((comment) => ({
+		author: comment.user?.login ?? 'ghost',
 		url: comment.html_url,
-		body: comment.body,
+		body: comment.body ?? '',
 		createdAt: comment.created_at,
+		updatedAt: comment.updated_at ?? comment.created_at,
+		kind: comment.kind,
+		bot: comment.user?.type === 'Bot' || /(?:\[bot\]$|^rustbot$)/i.test(comment.user?.login ?? ''),
+		reviewState: comment.kind === 'review' ? comment.state : null,
+		commitSha: comment.original_commit_id ?? comment.commit_id ?? null,
+		replyToUrl: comment.in_reply_to_id ? `${url}#discussion_r${comment.in_reply_to_id}` : null,
 		path: comment.path ?? null,
 	}));
+	const commits = commitPages.flat().map((commit) => ({
+		sha: commit.sha, url: commit.html_url, title: commit.commit.message.split('\n')[0],
+		author: commit.author?.login ?? commit.commit.author?.name ?? 'ghost',
+		date: commit.commit.committer.date,
+	}));
+	if (kind === 'pr') {
+		const latest = await api(`${base}/pulls/${descriptor.number}`);
+		if (latest.head.sha !== record.head.sha || latest.base.sha !== record.base.sha || latest.updated_at !== record.updated_at)
+			throw new Error(`PR #${descriptor.number} changed during synchronization; previous snapshot retained`);
+	}
 	return {
+		detailVersion: 2,
+		fetchedAt: new Date().toISOString(),
 		url,
 		kind,
 		title: record.title,
@@ -151,8 +171,13 @@ async function fetchDetails(descriptor, existingRecord) {
 					}
 				: null,
 		filesComplete: kind !== "pr" || files.length === record.changed_files,
+		headSha: record.head?.sha ?? null,
+		baseSha: record.base?.sha ?? null,
+		commits,
+		commitsTotal: kind === 'pr' ? record.commits : 0,
+		commitsComplete: kind !== 'pr' || (commits.length === record.commits && commits.at(-1)?.sha === record.head.sha),
 		comments,
-		commentsTotal: humanComments.length,
+		commentsTotal: comments.length,
 		references: await relatedRecords(
 			record.body ?? "",
 			repository,

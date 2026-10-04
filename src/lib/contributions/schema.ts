@@ -28,6 +28,23 @@ export const detailsSchema = z.object({
 		z.object({
 			url,
 			kind: z.enum(["commit", "pr", "issue"]),
+			detailVersion: z.number().int().optional(),
+			fetchedAt: date.optional(),
+			headSha: z.string().nullable().optional(),
+			baseSha: z.string().nullable().optional(),
+			commitsTotal: count.optional(),
+			commitsComplete: z.boolean().optional(),
+			commits: z
+				.array(
+					z.object({
+						sha: z.string(),
+						url,
+						title: z.string(),
+						author: z.string(),
+						date,
+					}),
+				)
+				.optional(),
 			title: z.string(),
 			body: z.string(),
 			author: z.string(),
@@ -56,6 +73,12 @@ export const detailsSchema = z.object({
 					url,
 					body: z.string(),
 					createdAt: date,
+					updatedAt: date.optional(),
+					kind: z.enum(["comment", "review-comment", "review"]).optional(),
+					bot: z.boolean().optional(),
+					reviewState: z.string().nullable().optional(),
+					commitSha: z.string().nullable().optional(),
+					replyToUrl: url.nullable().optional(),
 					path: z.string().nullable(),
 				}),
 			),

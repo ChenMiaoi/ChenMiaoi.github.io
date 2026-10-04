@@ -42,6 +42,19 @@ export type ContributionFile = {
 };
 
 export type ContributionDetail = {
+	detailVersion?: number;
+	fetchedAt?: string;
+	headSha?: string | null;
+	baseSha?: string | null;
+	commitsTotal?: number;
+	commitsComplete?: boolean;
+	commits?: {
+		sha: string;
+		url: string;
+		title: string;
+		author: string;
+		date: string;
+	}[];
 	url: string;
 	kind: string;
 	title: string;
@@ -60,6 +73,12 @@ export type ContributionDetail = {
 		bodyHtml: string;
 		excerpt: string;
 		createdAt: string;
+		updatedAt?: string;
+		kind?: "comment" | "review-comment" | "review";
+		bot?: boolean;
+		reviewState?: string | null;
+		commitSha?: string | null;
+		replyToUrl?: string | null;
 		path: string | null;
 	}[];
 	commentsTotal: number;
