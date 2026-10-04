@@ -9,24 +9,25 @@ function contentLocaleOf(lang?: string): "zh" | "en" {
 	return CONTENT_LOCALE[(lang as Locale) || DEFAULT_LOCALE] ?? "zh";
 }
 
+export type PostEntry = CollectionEntry<"posts"> & { slug: string };
+
 // Retrieve posts of one locale tree and sort them by publication date.
 // English variants (slugs ending in ".en") are normalized back to the base
 // slug so both languages share the same dated permalink shape.
-export async function getRawSortedPosts(lang?: string) {
+export async function getRawSortedPosts(lang?: string): Promise<PostEntry[]> {
 	const contentLocale = contentLocaleOf(lang);
-	const allBlogPosts = await getCollection("posts", ({ data, slug }) => {
-		const isEn = slug.endsWith(".en");
+	const allBlogPosts = await getCollection("posts", ({ data, id }) => {
+		const isEn = id.endsWith(".en");
 		if (contentLocale === "en" ? !isEn : isEn) return false;
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
 
-	const sorted = (contentLocale === "en"
-		? allBlogPosts.map((entry) => ({
-				...entry,
-				slug: stripEnSuffix(entry.slug),
-			}))
-		: allBlogPosts
-	).sort((a, b) => {
+	// Keep the collection ID intact for render(entry), and expose the existing
+	// locale-independent permalink slug to the archive and navigation.
+	const sorted = allBlogPosts.map((entry) => ({
+		...entry,
+		slug: contentLocale === "en" ? stripEnSuffix(entry.id) : entry.id,
+	})).sort((a, b) => {
 		const timeA = new Date(a.data.published).getTime();
 		const timeB = new Date(b.data.published).getTime();
 		return timeB - timeA;
@@ -115,7 +116,7 @@ export type SeriesInfo = {
 export async function getSeriesMap(lang?: string): Promise<Map<string, SeriesInfo>> {
 	const allBlogPosts = await getRawSortedPosts(lang);
 	const seriesEntries = await getCollection("series");
-	const meta = new Map(seriesEntries.map((entry) => [entry.slug, entry.data]));
+	const meta = new Map(seriesEntries.map((entry) => [entry.id, entry.data]));
 
 	const map = new Map<string, SeriesInfo>();
 	for (const post of allBlogPosts) {
@@ -246,7 +247,7 @@ export function getSeriesRoot(tree: SeriesTree, slug: string): SeriesNode {
 export async function getSeriesTree(lang?: string): Promise<SeriesTree> {
 	const map = await getSeriesMap(lang);
 	const seriesEntries = await getCollection("series");
-	const meta = new Map(seriesEntries.map((entry) => [entry.slug, entry.data]));
+	const meta = new Map(seriesEntries.map((entry) => [entry.id, entry.data]));
 
 	const nodes = new Map<string, SeriesNode>();
 	for (const [slug, info] of map) {

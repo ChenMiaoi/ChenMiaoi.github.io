@@ -18,7 +18,7 @@ export async function buildGraphData(lang?: string): Promise<GraphData> {
 	const posts = await getRawSortedPosts(lang);
 	const seriesEntries = await getCollection("series");
 	const seriesTitle = new Map(
-		seriesEntries.map((entry) => [entry.slug, entry.data.title]),
+		seriesEntries.map((entry) => [entry.id, entry.data.title]),
 	);
 
 	const nodes: GraphNode[] = [];
@@ -85,7 +85,7 @@ export async function buildGraphData(lang?: string): Promise<GraphData> {
 	// Sub-series hierarchy: ensure every declared series has a node and
 	// link each child series to its parent.
 	for (const entry of seriesEntries) {
-		const s = entry.slug;
+		const s = entry.id;
 		if (!seenSeries.has(s)) {
 			seenSeries.add(s);
 			nodes.push({

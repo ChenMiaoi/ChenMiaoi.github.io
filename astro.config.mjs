@@ -1,6 +1,6 @@
 import sitemap from "@astrojs/sitemap";
 import svelte from "@astrojs/svelte";
-import tailwind from "@astrojs/tailwind";
+import { unified } from "@astrojs/markdown-remark";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import swup from "@swup/astro";
@@ -31,10 +31,8 @@ export default defineConfig({
 	site: "https://nyachen.cn",
 	base: "/",
 	trailingSlash: "always",
+	compressHTML: true,
 	integrations: [
-		tailwind({
-			nesting: true,
-		}),
 		swup({
 			theme: false,
 			animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
@@ -121,6 +119,7 @@ expressiveCode({
 		}),
 	],
 	markdown: {
+		processor: unified({
 		remarkPlugins: [
 			remarkMath,
 			remarkReadingTime,
@@ -172,6 +171,7 @@ expressiveCode({
 				},
 			],
 		],
+		}),
 	},
 	vite: {
 		build: {

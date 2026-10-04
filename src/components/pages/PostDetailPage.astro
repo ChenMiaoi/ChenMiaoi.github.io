@@ -1,6 +1,6 @@
 ---
 import path from "node:path";
-import type { CollectionEntry } from "astro:content";
+import { render } from "astro:content";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
 import I18nKey from "@i18n/i18nKey";
@@ -8,7 +8,7 @@ import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import SeriesNav from "@components/SeriesNav.astro";
 import { getCategoryUrl, getDir, getPostUrlBySlug, getTagUrl, url } from "@utils/url-utils";
-import type { SeriesNavData } from "@utils/content-utils";
+import type { PostEntry, SeriesNavData } from "@utils/content-utils";
 import { Icon } from "astro-icon/components";
 import { licenseConfig } from "src/config";
 import ImageWrapper from "@components/misc/ImageWrapper.astro";
@@ -16,13 +16,13 @@ import { formatDateToYYYYMMDD, formatDisplayDate, formatDateTime } from "@utils/
 import { profileConfig, siteConfig } from "src/config";
 
 interface Props {
-	entry: CollectionEntry<"posts">;
+	entry: PostEntry;
 	seriesNav: SeriesNavData | null;
 	lang?: string;
 }
 
 const { entry, seriesNav, lang } = Astro.props;
-const { Content, headings, remarkPluginFrontmatter } = await entry.render();
+const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 
 const nextPostUrl =
 	entry.data.nextSlug && entry.data.nextPublished
