@@ -1,0 +1,33 @@
+export type Section = "articles" | "series" | "graph" | "code" | "about";
+
+export const sectionPaths: Record<Section, string> = {
+	articles: "/",
+	series: "/series/",
+	graph: "/graph/",
+	code: "/contribution/",
+	about: "/about/",
+};
+
+export function resolveOrbitalLocation(
+	pathname: string,
+	posts: { slug: string; url: string }[],
+	prefix = "",
+) {
+	let path = pathname;
+	try {
+		path = decodeURI(pathname);
+	} catch {
+		/* Keep malformed paths harmless. */
+	}
+	const post = posts.find((item) => item.url === path);
+	const localPath =
+		prefix && path.startsWith(`${prefix}/`) ? path.slice(prefix.length) : path;
+	const section =
+		(Object.keys(sectionPaths) as Section[]).find(
+			(key) => sectionPaths[key] === localPath,
+		) ?? "articles";
+	const series = localPath.startsWith("/series/")
+		? localPath.slice(8).replace(/\/$/, "")
+		: "";
+	return { section: series ? ("articles" as const) : section, series, post };
+}

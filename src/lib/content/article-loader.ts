@@ -40,6 +40,14 @@ const loadStylesheet = createResourceCache<void>(
 // Only the dedicated, locally rendered article route's styles are adopted.
 // Scripts never execute; the reader owns copy, scrolling and navigation.
 export const loadArticle = createResourceCache(async (url) => {
+	const source = document.querySelector<HTMLElement>(
+		".article-document [data-reader-content]",
+	);
+	if (
+		source &&
+		new URL(url, location.origin).pathname === document.body.dataset.articlePath
+	)
+		return source.innerHTML;
 	const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
 	if (!response.ok)
 		throw new Error(`Unable to load article: ${response.status}`);

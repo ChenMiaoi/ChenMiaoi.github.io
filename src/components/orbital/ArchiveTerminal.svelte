@@ -19,7 +19,11 @@
   export let detailsUrl: string;
   export let profile: ProfileConfig;
 
-  type Section = "articles" | "series" | "graph" | "code" | "about";
+  import { sectionPaths, resolveOrbitalLocation, type Section } from "../../lib/content/navigation";
+  export let initialSection: Section = "articles";
+  export let initialSeries = "";
+  export let localePrefix = "";
+  export let notFound = false;
   const navigation: { id: Section; label: string; icon: string; kicker: string; title: string }[] = [
     { id: "articles", label: "文章", icon: "article", kicker: "WRITING / ARCHIVE", title: "文章档案" },
     { id: "series", label: "系列", icon: "series", kicker: "COLLECTIONS / DIRECTORY", title: "探索路径" },
@@ -27,10 +31,11 @@
     { id: "code", label: "开源", icon: "code", kicker: "SOURCE / OPEN", title: "代码与实践" },
     { id: "about", label: "关于", icon: "about", kicker: "PROFILE / CHEN MIAO", title: "关于我" },
   ];
-  let section: Section = "articles";
+  let section: Section = initialSection;
   let query = "";
   let category = "all";
-  let seriesFilter = "";
+  let seriesFilter = initialSeries;
+  let returnPath = `${localePrefix}/`;
   let resetKey = 0;
   let reader: ArticleReader;
   let sourceProject = projects[0]?.id;
@@ -54,9 +59,11 @@
     code: '代码里的思考与实践，留下公开的记录。',
     about: '记录系统的内部世界。',
   };
-  function setSection(next: Section) {
+  function setSection(next: Section, preserveQuery = false) {
     section = next;
-    if (window.location.hash !== `#${next}`) history.pushState(null, "", `#${next}`);
+    const path = localePrefix + sectionPaths[next];
+    if (window.location.pathname !== path || (!preserveQuery && window.location.search) || window.location.hash) history.pushState(null, "", path);
+    document.title = `${navigation.find((item) => item.id === next)?.title} · Nay's Blog`;
   }
 
   function navigate(next: Section) {
@@ -102,20 +109,45 @@
   }
 
   function filterSeries(slug: string) {
-    setSection("articles");
+    section = "articles";
     resetFilters();
     seriesFilter = slug;
+    history.pushState(null, "", `${localePrefix}/series/${encodeURIComponent(slug)}/`);
+    document.title = `${series.find((item) => item.slug === slug)?.title} · Nay's Blog`;
   }
 
   function search() {
     if (section !== "articles") {
       category = "all";
-      seriesFilter = "";
     }
+    seriesFilter = "";
+    setSection("articles", true);
+    storeFilters();
+  }
+
+  function openReader(post: ArchivePost, heading?: string) {
+    if (!readerOpen) returnPath = window.location.pathname + window.location.search;
+    const path = post.url + (heading ? `#${encodeURIComponent(heading)}` : "");
+    if (window.location.pathname + window.location.hash !== path) history.pushState(null, "", path);
+    document.title = `${post.title} · Nay's Blog`;
+    void reader.open(post, heading);
+  }
+  function readerClosed() {
+    history.pushState(null, "", returnPath);
+    restoreLocation();
+  }
+
+  function clearFilters() {
+    resetFilters();
     setSection("articles");
   }
 
-  function openReader(post: ArchivePost, heading?: string) { void reader.open(post, heading); }
+  function storeFilters() {
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    if (category !== "all") params.set("category", category);
+    history.replaceState(null, "", `${localePrefix}/${params.size ? `?${params}` : ""}`);
+  }
 
   function shortcuts(event: KeyboardEvent) {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !readerOpen) {
@@ -124,14 +156,28 @@
     }
   }
 
+  function restoreLocation() {
+      const target = resolveOrbitalLocation(window.location.pathname, posts, localePrefix);
+      if (target.post) {
+        document.title = `${target.post.title} · Nay's Blog`;
+        let heading: string | undefined;
+        try { heading = decodeURIComponent(window.location.hash.slice(1)) || undefined; } catch { /* Ignore malformed fragments. */ }
+        void reader.open(target.post as ArchivePost, heading);
+      } else {
+        section = target.section;
+        seriesFilter = target.series;
+        const params = new URLSearchParams(window.location.search);
+        query = params.get("q") || params.get("tag") || "";
+        category = params.get("category") || "all";
+        if (readerOpen) reader.close(false);
+        document.title = `${series.find((item) => item.slug === seriesFilter)?.title || navigation.find((item) => item.id === section)?.title} · Nay's Blog`;
+      }
+  }
+
   onMount(() => {
-    const restoreSection = () => {
-      const target = navigation.find((item) => item.id === window.location.hash.slice(1));
-      section = target?.id ?? "articles";
-      if (readerOpen) reader.close();
-    };
-    restoreSection();
-    window.addEventListener("popstate", restoreSection);
+    document.body.classList.add("orbital-ready");
+    restoreLocation();
+    window.addEventListener("popstate", restoreLocation);
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const updatePointer = () => { finePointer = pointer.matches; };
@@ -146,7 +192,7 @@
     pointer.addEventListener("change", updatePointer);
     document.addEventListener("visibilitychange", updateVisibility);
     return () => {
-      window.removeEventListener("popstate", restoreSection);
+      window.removeEventListener("popstate", restoreLocation);
       media.removeEventListener("change", updateMotion);
       pointer.removeEventListener("change", updatePointer);
       cancelAnimationFrame(cameraFrame);
@@ -189,9 +235,9 @@
       <nav class="primary-nav" aria-label="主导航" use:navigationBeacon={section}>
         <span class="nav-tracer" aria-hidden="true"></span>
         {#each navigation as item, index}
-          <button class:active={section === item.id} style={`--nav-offset:${[17,4,0,4,17][index]}px`} aria-current={section === item.id ? "page" : undefined} onclick={() => navigate(item.id)}>
+          <a href={localePrefix + sectionPaths[item.id]} class:active={section === item.id} style={`--nav-offset:${[17,4,0,4,17][index]}px`} aria-current={section === item.id ? "page" : undefined} onclick={(event) => { if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); navigate(item.id); }}>
             <TerminalIcon name={item.icon} size={20}/><span>{item.label}</span><small aria-hidden="true">{String(index + 1).padStart(2, "0")}</small>
-          </button>
+          </a>
         {/each}
       </nav>
       <button class="sidebar-note author-entry" aria-label={`关于作者：${profile.name}`} onclick={openAuthor}>
@@ -203,13 +249,14 @@
     </aside>
 
     <main id="terminal-main" class="terminal-main">
+      {#if notFound}<p class="route-notice" role="status">没有找到这个页面。你可以从文章档案继续探索。</p>{/if}
       {#key section}
       <div class="archive-heading">
         <div><p class="terminal-kicker"><span></span>{activeSection.kicker}</p><h1>{activeSection.title}<span class="heading-mark" aria-hidden="true">/</span></h1><p class="heading-description">{descriptions[section]}</p></div>
         {#if section === "articles"}
           <div class="category-tabs" aria-label="文章分类">
             {#each [{ value: "all", label: "全部" }, { value: "linux", label: "Linux" }, { value: "hardware", label: "硬件设计" }] as tab}
-              <button class:active={category === tab.value} aria-pressed={category === tab.value} onclick={() => { category = tab.value; seriesFilter = ""; }}>{#if tab.value !== 'all'}<BrandIcon name={tab.value === 'linux' ? 'linux' : 'chip'} size={15} framed={false}/>{/if}{tab.label}</button>
+              <button class:active={category === tab.value} aria-pressed={category === tab.value} onclick={() => { category = tab.value; seriesFilter = ""; setSection("articles"); storeFilters(); }}>{#if tab.value !== 'all'}<BrandIcon name={tab.value === 'linux' ? 'linux' : 'chip'} size={15} framed={false}/>{/if}{tab.label}</button>
             {/each}
           </div>
         {:else}<span class="section-coordinate">NAY'S PERSONAL ARCHIVE</span>{/if}
@@ -217,7 +264,7 @@
       {/key}
 
       {#if section === "articles"}
-        <ArticleArchive {posts} {series} {category} {query} {seriesFilter} {reducedMotion} {motionReady} {resetKey} {openReader} {resetFilters}/>
+        <ArticleArchive {posts} {series} {category} {query} {seriesFilter} {reducedMotion} {motionReady} {resetKey} {openReader} resetFilters={clearFilters}/>
       {:else if section === "series"}
         <SeriesExplorer {posts} {series} {reducedMotion} onRead={openReader} onBrowse={filterSeries}/>
       {:else if section === "graph"}
@@ -225,12 +272,12 @@
       {:else if section === "code"}
         <SourceDock {projects} {activity} {detailsUrl} {reducedMotion} bind:projectId={sourceProject}/>
       {:else}
-        <ProfileDossier {profile} onNavigate={navigate} onExplore={(nextCategory) => { navigate('articles'); category = nextCategory; }}/>
+        <ProfileDossier {profile} onNavigate={navigate} onExplore={(nextCategory) => { navigate('articles'); category = nextCategory; storeFilters(); }}/>
       {/if}
     </main>
   </div>
 
-  <footer class="terminal-footer"><span>Nay's Blog <i>·</i> Chen Miao</span><span class="footer-line" aria-hidden="true"></span><button class="motion-control" aria-label={systemReducedMotion ? '系统已减少动态效果' : effectsEnabled ? '暂停页面动效' : '开启页面动效'} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion} title={systemReducedMotion ? '跟随系统的减少动态效果设置' : '切换页面动效'}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? '动效暂停' : '动效开启'}</span></button><span class="preview-badge">设计预览</span><span class="footer-words">文章 <i>/</i> 系列 <i>/</i> 关联</span></footer>
+  <footer class="terminal-footer"><span>Nay's Blog <i>·</i> Chen Miao</span><span class="footer-line" aria-hidden="true"></span><button class="motion-control" aria-label={systemReducedMotion ? '系统已减少动态效果' : effectsEnabled ? '暂停页面动效' : '开启页面动效'} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion} title={systemReducedMotion ? '跟随系统的减少动态效果设置' : '切换页面动效'}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? '动效暂停' : '动效开启'}</span></button><a class="feed-link" href={localePrefix === '/en' ? '/en/rss.xml' : '/rss.xml'}>RSS</a><span class="footer-words">文章 <i>/</i> 系列 <i>/</i> 关联</span></footer>
 </div>
 
-<ArticleReader bind:this={reader} {reducedMotion} bind:readerOpen/>
+<ArticleReader bind:this={reader} {reducedMotion} bind:readerOpen onClosed={readerClosed}/>

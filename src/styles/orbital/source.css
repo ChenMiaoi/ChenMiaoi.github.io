@@ -126,7 +126,7 @@
 	max-width: 820px;
 }
 
-.orbital-preview .project-port {
+.orbital-site .project-port {
 	position: relative;
 	display: flex;
 	align-items: center;
@@ -169,7 +169,7 @@
 	opacity: 0;
 }
 
-.orbital-preview .project-port.active {
+.orbital-site .project-port.active {
 	color: #eff1d1;
 	transform: translateY(-5px);
 }
@@ -228,7 +228,7 @@
 	background: #adb65710;
 }
 
-.orbital-preview .project-port:hover {
+.orbital-site .project-port:hover {
 	color: #eff4d9;
 }
 
@@ -304,7 +304,7 @@
 	flex: 0 0 auto;
 }
 
-.orbital-preview .contribution-kind-filter button {
+.orbital-site .contribution-kind-filter button {
 	padding: 6px 9px;
 	color: #aabeb2;
 	font-size: 12px;
@@ -312,7 +312,7 @@
 	background: #17272b80;
 }
 
-.orbital-preview .contribution-kind-filter button.active {
+.orbital-site .contribution-kind-filter button.active {
 	color: #eef0b7;
 	border-color: #c7d58680;
 	background: #8192511a;
@@ -346,7 +346,7 @@
 	background: linear-gradient(#c4d39266, #8fa88922);
 }
 
-.orbital-preview .contribution-record {
+.orbital-site .contribution-record {
 	position: relative;
 	display: grid;
 	grid-template-columns: 29px minmax(0, 1fr) 9px;
@@ -458,7 +458,7 @@
 	opacity: 1;
 }
 
-.orbital-preview .contribution-record.active {
+.orbital-site .contribution-record.active {
 	color: #eef1da;
 }
 
@@ -670,7 +670,7 @@
 	margin-inline: 8px;
 }
 
-.orbital-preview .chamber-footer button {
+.orbital-site .chamber-footer button {
 	display: grid;
 	place-items: center;
 	width: 32px;
@@ -680,12 +680,12 @@
 	background: #c0cb9a05;
 }
 
-.orbital-preview .chamber-footer button:disabled {
+.orbital-site .chamber-footer button:disabled {
 	opacity: 0.25;
 	cursor: default;
 }
 
-.orbital-preview .chamber-footer button:hover:enabled {
+.orbital-site .chamber-footer button:hover:enabled {
 	color: var(--signal);
 	border-color: var(--signal);
 }
@@ -759,7 +759,7 @@
 	margin: 20px 0 25px;
 }
 
-.orbital-preview .patch-primary {
+.orbital-site .patch-primary {
 	display: inline-flex;
 	gap: 20px;
 	align-items: center;
@@ -777,7 +777,7 @@
 }
 
 @media (min-width: 1000px) {
-	.orbital-preview .source-view .heading-mark {
+	.orbital-site .source-view .heading-mark {
 		font-size: 34px;
 	}
 	.source-view .source-dock {
@@ -790,7 +790,7 @@
 		padding-right: 17px;
 		gap: 13px;
 	}
-	.orbital-preview .project-port {
+	.orbital-site .project-port {
 		padding-inline: 12px;
 		gap: 9px;
 	}
@@ -833,7 +833,7 @@
 		flex: 1;
 		gap: 8px;
 	}
-	.orbital-preview .project-port {
+	.orbital-site .project-port {
 		padding: 16px 12px;
 		gap: 9px;
 		flex: 1;
@@ -873,7 +873,7 @@
 		height: 1px;
 		bottom: auto;
 	}
-	.orbital-preview .contribution-record {
+	.orbital-site .contribution-record {
 		flex: 0 0 264px;
 		width: 264px;
 		min-height: 144px;
@@ -901,7 +901,7 @@
 		grid-template-columns: 1fr 1.35fr 1fr;
 		gap: 2px;
 	}
-	.orbital-preview .project-port {
+	.orbital-site .project-port {
 		padding: 13px 5px;
 		gap: 5px;
 		flex-direction: column;
@@ -954,19 +954,19 @@
 	.selection-tether .tether-arrival {
 		display: none;
 	}
-	.orbital-preview .project-port,
+	.orbital-site .project-port,
 .project-port::before,
 .contribution-record::before {
 		transition: none;
 	}
 }
 
-.orbital-preview .project-port {
+.orbital-site .project-port {
 	background: var(--archive-surface);
 	border-color: var(--archive-rule);
 }
 
-.orbital-preview .project-port.active {
+.orbital-site .project-port.active {
 	background: var(--archive-selected);
 	border-top-color: #e1e87985;
 }

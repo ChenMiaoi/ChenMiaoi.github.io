@@ -3,9 +3,7 @@ import svelte from "@astrojs/svelte";
 import { unified } from "@astrojs/markdown-remark";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
-import swup from "@swup/astro";
 import expressiveCode from "astro-expressive-code";
-import icon from "astro-icon";
 import { defineConfig } from "astro/config";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeComponents from "rehype-components"; /* Render the custom directive content */
@@ -27,35 +25,12 @@ import { remarkPostHeadings } from "./src/plugins/remark-post-headings.mjs";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 
 // https://astro.build/config
-export function createSiteConfig({ preview = false } = {}) {
-return defineConfig({
+export default defineConfig({
 	site: "https://nyachen.cn",
 	base: "/",
 	trailingSlash: "always",
 	compressHTML: true,
 	integrations: [
-		...(!preview ? [swup({
-			theme: false,
-			animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
-			// the default value `transition-` cause transition delay
-			// when the Tailwind class `transition-all` is used
-			containers: ["main", "#toc", "#sidebar-wrapper", "#mobile-post-nav"],
-			smoothScrolling: true,
-			cache: true,
-			preload: true,
-			accessibility: true,
-			updateHead: true,
-			updateBodyClass: false,
-			globalInstance: true,
-		})] : []),
-		icon({
-			include: {
-				"preprocess: vitePreprocess(),": ["*"],
-				"fa6-brands": ["*"],
-				"fa6-regular": ["*"],
-				"fa6-solid": ["*"],
-			},
-		}),
 expressiveCode({
     themes: [expressiveCodeConfig.theme, expressiveCodeConfig.theme],
     shiki: {
@@ -107,7 +82,7 @@ expressiveCode({
 			}
 		}),
         svelte(),
-		...(!preview ? [sitemap({
+		sitemap({
 			i18n: {
 				defaultLocale: "zh_CN",
 				locales: {
@@ -117,7 +92,7 @@ expressiveCode({
 					ja: "ja",
 				},
 			},
-		})] : []),
+		}),
 	],
 	markdown: {
 		processor: unified({
@@ -174,6 +149,7 @@ expressiveCode({
 		],
 		}),
 	},
+	devToolbar: { enabled: false },
 	vite: {
 		build: {
 			rollupOptions: {
@@ -199,6 +175,3 @@ expressiveCode({
 		},
 	},
 });
-
-}
-export default createSiteConfig();

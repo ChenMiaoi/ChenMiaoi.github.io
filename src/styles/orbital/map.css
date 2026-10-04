@@ -51,7 +51,7 @@
 	white-space: nowrap;
 }
 
-.orbital-preview .topology-scope select {
+.orbital-site .topology-scope select {
 	appearance: none;
 	background: #14212bb0;
 	color: #e3e8e3;
@@ -114,7 +114,7 @@
 	gap: 5px;
 }
 
-.orbital-preview .topology-tools button {
+.orbital-site .topology-tools button {
 	display: grid;
 	place-items: center;
 	width: 28px;
@@ -132,7 +132,7 @@
 	text-align: center;
 }
 
-.orbital-preview .topology-tools .topology-reset {
+.orbital-site .topology-tools .topology-reset {
 	font: 10px "Microsoft YaHei",
 		sans-serif;
 	width: auto;
@@ -140,12 +140,12 @@
 	margin-left: 6px;
 }
 
-.orbital-preview .topology-tools button:hover:enabled {
+.orbital-site .topology-tools button:hover:enabled {
 	color: var(--signal);
 	border-color: var(--signal);
 }
 
-.orbital-preview .topology-tools button:disabled {
+.orbital-site .topology-tools button:disabled {
 	opacity: 0.3;
 	cursor: default;
 }
@@ -281,7 +281,7 @@
 	filter: drop-shadow(0 0 4px #edf05555);
 }
 
-.orbital-preview .topology-node {
+.orbital-site .topology-node {
 	position: absolute;
 	color: #dce4df;
 	border: 0;
@@ -292,12 +292,12 @@
 	transition: opacity 0.2s;
 }
 
-.orbital-preview .topology-node:focus-visible {
+.orbital-site .topology-node:focus-visible {
 	outline: 1px solid var(--signal);
 	outline-offset: 5px;
 }
 
-.orbital-preview .root-node {
+.orbital-site .root-node {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -335,7 +335,7 @@
 	border: 1px dashed #b3c5aa31;
 }
 
-.orbital-preview .root-node.on-path::before {
+.orbital-site .root-node.on-path::before {
 	border-color: #e7e8669c;
 	box-shadow: 0 0 30px #e4e76712,
 		inset 0 0 30px #e4e7670b;
@@ -561,7 +561,7 @@
 	min-width: 0;
 }
 
-.orbital-preview .topology-selection-meta {
+.orbital-site .topology-selection-meta {
 	display: flex;
 	align-items: center;
 	gap: 10px;
@@ -575,7 +575,7 @@
 	color: #738b80;
 }
 
-.orbital-preview .topology-selection-content h2 {
+.orbital-site .topology-selection-content h2 {
 	color: #e7eee6;
 	font-size: 19px;
 	line-height: 1.55;
@@ -583,7 +583,7 @@
 	text-wrap: pretty;
 }
 
-.orbital-preview .topology-selection-description {
+.orbital-site .topology-selection-description {
 	color: #a5b6ad;
 	line-height: 1.85;
 	margin-top: 9px;
@@ -601,7 +601,7 @@
 	margin-top: 7px;
 }
 
-.orbital-preview .topology-open {
+.orbital-site .topology-open {
 	display: flex;
 	gap: 25px;
 	align-items: center;
@@ -621,7 +621,7 @@
 	);
 }
 
-.orbital-preview .topology-open:hover {
+.orbital-site .topology-open:hover {
 	background: #fff58a;
 }
 
@@ -658,14 +658,14 @@
 	.topology-scope > span {
 		display: none;
 	}
-	.orbital-preview .topology-scope select {
+	.orbital-site .topology-scope select {
 		width: 206px;
 	}
 	.topology-inspector {
 		padding: 22px;
 		gap: 16px;
 	}
-	.orbital-preview .topology-selection-content h2 {
+	.orbital-site .topology-selection-content h2 {
 		font-size: 18px;
 	}
 }
@@ -691,7 +691,7 @@
 		width: 32px;
 		height: 38px;
 	}
-	.orbital-preview .topology-open {
+	.orbital-site .topology-open {
 		grid-column: 2;
 		justify-self: start;
 	}
@@ -703,7 +703,7 @@
 		gap: 12px;
 	}
 	.topology-scope,
-.orbital-preview .topology-scope select {
+.orbital-site .topology-scope select {
 		width: 100%;
 	}
 	.topology-key {
@@ -713,7 +713,7 @@
 	.topology-tools {
 		gap: 3px;
 	}
-	.orbital-preview .topology-tools .topology-reset {
+	.orbital-site .topology-tools .topology-reset {
 		padding-inline: 8px;
 		margin-left: 2px;
 		font-size: 9px;
@@ -746,15 +746,15 @@
 	.topology-selection-mark {
 		display: none;
 	}
-	.orbital-preview .topology-open {
+	.orbital-site .topology-open {
 		grid-column: 1;
 		width: 100%;
 		justify-content: space-between;
 	}
-	.orbital-preview .topology-selection-content h2 {
+	.orbital-site .topology-selection-content h2 {
 		font-size: 19px;
 	}
-	.orbital-preview .topology-selection-description {
+	.orbital-site .topology-selection-description {
 		font-size: 12px;
 	}
 }
@@ -785,6 +785,6 @@
 	border-color: var(--archive-rule);
 }
 
-.orbital-preview .topology-selection-description {
+.orbital-site .topology-selection-description {
 	font-size: 13px;
 }

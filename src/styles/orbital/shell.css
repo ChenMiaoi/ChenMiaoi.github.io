@@ -1,22 +1,22 @@
 /* shell: owns the final orbital shell rules, including responsive states. */
 
-.orbital-preview p,
-.orbital-preview h1,
-.orbital-preview h2,
-.orbital-preview h3 {
+.orbital-site p,
+.orbital-site h1,
+.orbital-site h2,
+.orbital-site h3 {
 	margin: 0;
 }
 
-.orbital-preview svg {
+.orbital-site svg {
 	flex-shrink: 0;
 }
 
-.orbital-preview ::selection {
+.orbital-site ::selection {
 	color: var(--ink);
 	background: var(--signal);
 }
 
-.orbital-preview :focus-visible {
+.orbital-site :focus-visible {
 	outline: 2px solid var(--signal);
 	outline-offset: 5px;
 }
@@ -158,7 +158,7 @@
 	border-right: 1px solid #ffffff0e;
 }
 
-.orbital-preview .sidebar-label {
+.orbital-site .sidebar-label {
 	font: 8px var(--mono);
 	letter-spacing: 2px;
 }
@@ -169,7 +169,7 @@
 	gap: 10px;
 }
 
-.terminal-sidebar nav button {
+.terminal-sidebar nav a {
 	position: relative;
 	display: flex;
 	align-items: center;
@@ -183,18 +183,18 @@
 	white-space: nowrap;
 }
 
-.terminal-sidebar nav button small {
+.terminal-sidebar nav a small {
 	margin-left: auto;
 	font: 8px var(--mono);
 	opacity: 0.5;
 }
 
-.terminal-sidebar nav button.active {
+.terminal-sidebar nav a.active {
 	background: #ecdf3810;
 	color: var(--signal);
 }
 
-.terminal-sidebar nav button.active::before {
+.terminal-sidebar nav a.active::before {
 	content: "";
 	position: absolute;
 	left: -1px;
@@ -204,7 +204,7 @@
 	background: var(--signal);
 }
 
-.terminal-sidebar nav button:hover {
+.terminal-sidebar nav a:hover {
 	color: #f3f4e9;
 	background: #ffffff07;
 }
@@ -247,7 +247,7 @@
 	background: var(--signal);
 }
 
-.orbital-preview .archive-heading h1 {
+.orbital-site .archive-heading h1 {
 	line-height: 1.2;
 	display: flex;
 	gap: 14px;
@@ -262,7 +262,7 @@
 	transform: skew(-12deg);
 }
 
-.orbital-preview .heading-description {
+.orbital-site .heading-description {
 	margin-top: 14px;
 	letter-spacing: 0.5px;
 }
@@ -307,7 +307,7 @@
 	padding-bottom: 4px;
 }
 
-.orbital-preview .signal-button {
+.orbital-site .signal-button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -322,7 +322,7 @@
 		transform 0.2s;
 }
 
-.orbital-preview .signal-button:hover {
+.orbital-site .signal-button:hover {
 	background: #fff17a;
 	transform: translateY(-2px);
 }
@@ -348,7 +348,7 @@
 	flex: 1;
 }
 
-.preview-badge {
+.feed-link {
 	font-size: 9px;
 	color: #868887;
 }
@@ -395,13 +395,13 @@
 	.terminal-sidebar {
 		padding-right: 16px;
 	}
-	.terminal-sidebar nav button {
+	.terminal-sidebar nav a {
 		padding-left: 8px;
 		padding-right: 8px;
 		gap: 10px;
 		font-size: 13px;
 	}
-	.terminal-sidebar nav button small {
+	.terminal-sidebar nav a small {
 		display: none;
 	}
 	.sidebar-note {
@@ -426,14 +426,14 @@
 		grid-template-columns: 108px minmax(0, 1fr);
 		gap: 27px;
 	}
-	.terminal-sidebar nav button {
+	.terminal-sidebar nav a {
 		font-size: 12px;
 		gap: 8px;
 	}
 	.terminal-sidebar nav svg {
 		width: 17px;
 	}
-	.orbital-preview .sidebar-label {
+	.orbital-site .sidebar-label {
 		font-size: 7px;
 		letter-spacing: 1px;
 		margin-left: 8px;
@@ -489,7 +489,7 @@
 		padding: 12px 0;
 		border-bottom: 1px solid #ffffff12;
 	}
-	.terminal-sidebar nav button {
+	.terminal-sidebar nav a {
 		flex-direction: column;
 		justify-content: center;
 		gap: 8px;
@@ -497,7 +497,7 @@
 		padding: 9px 3px;
 		font-size: 11px;
 	}
-	.terminal-sidebar nav button.active::before {
+	.terminal-sidebar nav a.active::before {
 		inset: auto 18px 0;
 		width: auto;
 		height: 2px;
@@ -516,7 +516,7 @@
 	.heading-mark {
 		font-size: 37px;
 	}
-	.orbital-preview .heading-description {
+	.orbital-site .heading-description {
 		margin-top: 12px;
 	}
 	.category-tabs {
@@ -537,7 +537,7 @@
 	}
 }
 
-.orbital-preview .station-scene {
+.orbital-site .station-scene {
 	opacity: 0.64;
 	filter: saturate(0.22);
 	background-position: center top;
@@ -545,12 +545,12 @@
 	mask-image: none;
 }
 
-.orbital-preview .station-shade {
+.orbital-site .station-shade {
 	background: linear-gradient(90deg, #0b1014a8, #0c101566 45%, #090d1030),
 		linear-gradient(0deg, #0c1115e8, #10141818 70%);
 }
 
-.orbital-preview .terminal-shell {
+.orbital-site .terminal-shell {
 	position: relative;
 	max-width: 1700px;
 	padding: 0 48px;
@@ -579,27 +579,27 @@
 	stroke: #c3ccca22;
 }
 
-.orbital-preview .terminal-header {
+.orbital-site .terminal-header {
 	height: 106px;
 	border-color: #ccd8d221;
 	gap: 46px;
 }
 
-.orbital-preview .brand {
+.orbital-site .brand {
 	gap: 16px;
 }
 
-.orbital-preview .brand strong {
+.orbital-site .brand strong {
 	font-size: 25px;
 	letter-spacing: -0.6px;
 }
 
-.orbital-preview .brand small {
+.orbital-site .brand small {
 	font-size: 8px;
 	color: #b5bdbe;
 }
 
-.orbital-preview .header-hairline {
+.orbital-site .header-hairline {
 	display: flex;
 	align-items: center;
 	flex: 1;
@@ -631,7 +631,7 @@
 	white-space: nowrap;
 }
 
-.orbital-preview .search-frame {
+.orbital-site .search-frame {
 	width: 255px;
 	padding: 13px 17px;
 	border: 1px solid #b5c0bd70;
@@ -647,31 +647,31 @@
 	);
 }
 
-.orbital-preview .search-frame:focus-within {
+.orbital-site .search-frame:focus-within {
 	border-color: var(--signal);
 }
 
-.orbital-preview .terminal-workspace {
+.orbital-site .terminal-workspace {
 	grid-template-columns: 174px minmax(0, 1fr);
 	gap: 58px;
 }
 
-.orbital-preview .terminal-sidebar {
+.orbital-site .terminal-sidebar {
 	padding: 108px 0 0;
 	border: 0;
 }
 
-.orbital-preview .sidebar-label {
+.orbital-site .sidebar-label {
 	margin: 0 0 25px 28px;
 	color: #a1abaa;
 	font-size: 8px;
 }
 
-.orbital-preview .terminal-sidebar nav {
+.orbital-site .terminal-sidebar nav {
 	gap: 18px;
 }
 
-.orbital-preview .terminal-sidebar nav button {
+.orbital-site .terminal-sidebar nav a {
 	margin-left: var(--nav-offset);
 	padding: 17px 17px;
 	min-height: 58px;
@@ -692,155 +692,155 @@
 		transform 0.2s;
 }
 
-.orbital-preview .terminal-sidebar nav button.active {
+.orbital-site .terminal-sidebar nav a.active {
 	color: #191e1d;
 	background: var(--signal);
 	font-weight: 700;
 	border-color: var(--signal);
 }
 
-.orbital-preview .terminal-sidebar nav button.active::before {
+.orbital-site .terminal-sidebar nav a.active::before {
 	inset: 9px auto 9px 4px;
 	width: 2px;
 	height: auto;
 	background: #474912;
 }
 
-.orbital-preview .terminal-sidebar nav button:hover {
+.orbital-site .terminal-sidebar nav a:hover {
 	background: #596064c9;
 	transform: translateX(3px);
 	color: white;
 }
 
-.orbital-preview .terminal-sidebar nav button.active:hover {
+.orbital-site .terminal-sidebar nav a.active:hover {
 	background: #fff566;
 	color: #151b1a;
 }
 
-.orbital-preview .sidebar-note {
+.orbital-site .sidebar-note {
 	padding-left: 20px;
 	margin-bottom: 38px;
 }
 
-.orbital-preview .terminal-main {
+.orbital-site .terminal-main {
 	padding-top: 42px;
 	padding-bottom: 46px;
 }
 
-.orbital-preview .archive-heading {
+.orbital-site .archive-heading {
 	margin-bottom: 31px;
 }
 
-.orbital-preview .terminal-kicker {
+.orbital-site .terminal-kicker {
 	color: #b9c0bf;
 	font-size: 9px;
 	letter-spacing: 3px;
 }
 
-.orbital-preview .archive-heading h1 {
+.orbital-site .archive-heading h1 {
 	font-weight: 700;
 	font-size: clamp(36px, 3.2vw, 48px);
 	margin-top: 16px;
 	letter-spacing: 1px;
 }
 
-.orbital-preview .heading-mark {
+.orbital-site .heading-mark {
 	font-size: 45px;
 	margin-left: 5px;
 }
 
-.orbital-preview .heading-description {
+.orbital-site .heading-description {
 	color: #aeb8b8;
 	font-size: 12px;
 }
 
-.orbital-preview .category-tabs {
+.orbital-site .category-tabs {
 	gap: 27px;
 	padding-bottom: 5px;
 }
 
-.orbital-preview .category-tabs button {
+.orbital-site .category-tabs button {
 	color: #c2c9c7;
 	font-size: 13px;
 }
 
-.orbital-preview .category-tabs button.active {
+.orbital-site .category-tabs button.active {
 	color: #fff;
 }
 
-.orbital-preview .category-tabs button.active::after {
+.orbital-site .category-tabs button.active::after {
 	height: 4px;
 	transform: skew(-28deg);
 	background: var(--signal);
 }
 
-.orbital-preview .archive-view .terminal-main {
+.orbital-site .archive-view .terminal-main {
 	padding-bottom: 30px;
 }
 
-.orbital-preview .terminal-footer {
+.orbital-site .terminal-footer {
 	min-height: 66px;
 	border-color: #b6c6b22d;
 	color: #bec8bf;
 }
 
-.orbital-preview .footer-line {
+.orbital-site .footer-line {
 	background: #a3b09c38;
 }
 
 @media (min-width: 1450px) {
-	.orbital-preview .terminal-shell {
+	.orbital-site .terminal-shell {
 		padding: 0 58px;
 	}
-	.orbital-preview .terminal-workspace {
+	.orbital-site .terminal-workspace {
 		grid-template-columns: 195px minmax(0, 1fr);
 		gap: 64px;
 	}
-	.orbital-preview .terminal-sidebar nav button {
+	.orbital-site .terminal-sidebar nav a {
 		font-size: 16px;
 		padding-left: 22px;
 	}
-	.orbital-preview .terminal-main {
+	.orbital-site .terminal-main {
 		padding-top: 52px;
 	}
 }
 
 @media (max-width: 1190px) {
-	.orbital-preview .terminal-shell {
+	.orbital-site .terminal-shell {
 		padding: 0 28px;
 	}
-	.orbital-preview .terminal-workspace {
+	.orbital-site .terminal-workspace {
 		grid-template-columns: 135px minmax(0, 1fr);
 		gap: 35px;
 	}
-	.orbital-preview .terminal-sidebar nav button {
+	.orbital-site .terminal-sidebar nav a {
 		padding: 15px 13px;
 		gap: 10px;
 		font-size: 13px;
 	}
-	.orbital-preview .terminal-sidebar nav button small {
+	.orbital-site .terminal-sidebar nav a small {
 		display: none;
 	}
-	.orbital-preview .sidebar-label {
+	.orbital-site .sidebar-label {
 		margin-left: 16px;
 	}
-	.orbital-preview .header-hairline > span {
+	.orbital-site .header-hairline > span {
 		display: none;
 	}
-	.orbital-preview .archive-heading {
+	.orbital-site .archive-heading {
 		gap: 25px;
 	}
-	.orbital-preview .category-tabs {
+	.orbital-site .category-tabs {
 		gap: 22px;
 	}
 }
 
 @media (max-width: 920px) {
-	.orbital-preview .terminal-workspace {
+	.orbital-site .terminal-workspace {
 		grid-template-columns: 120px minmax(0, 1fr);
 		gap: 33px;
 	}
-	.orbital-preview .terminal-sidebar nav button {
+	.orbital-site .terminal-sidebar nav a {
 		padding-left: 11px;
 		gap: 9px;
 		font-size: 12px;
@@ -848,46 +848,46 @@
 }
 
 @media (max-width: 650px) {
-	.orbital-preview .terminal-shell {
+	.orbital-site .terminal-shell {
 		padding: 0 20px;
 	}
-	.orbital-preview .terminal-orbit {
+	.orbital-site .terminal-orbit {
 		display: none;
 	}
-	.orbital-preview .station-scene {
+	.orbital-site .station-scene {
 		opacity: 0.46;
 		background-position: 65% top;
 	}
-	.orbital-preview .station-shade {
+	.orbital-site .station-shade {
 		background: linear-gradient(90deg, #0c1217a0, #0c121755),
 			linear-gradient(0deg, #0c1115d9, transparent);
 	}
-	.orbital-preview .terminal-header {
+	.orbital-site .terminal-header {
 		height: auto;
 		padding: 22px 0 19px;
 		gap: 22px;
 	}
-	.orbital-preview .brand strong {
+	.orbital-site .brand strong {
 		font-size: 23px;
 	}
-	.orbital-preview .header-hairline {
+	.orbital-site .header-hairline {
 		display: none;
 	}
-	.orbital-preview .header-tools {
+	.orbital-site .header-tools {
 		gap: 18px;
 	}
-	.orbital-preview .search-frame {
+	.orbital-site .search-frame {
 		width: auto;
 		padding: 10px 13px;
 	}
-	.orbital-preview .terminal-sidebar {
+	.orbital-site .terminal-sidebar {
 		padding: 0;
 	}
-	.orbital-preview .terminal-sidebar nav {
+	.orbital-site .terminal-sidebar nav {
 		gap: 5px;
 		padding: 14px 0;
 	}
-	.orbital-preview .terminal-sidebar nav button {
+	.orbital-site .terminal-sidebar nav a {
 		margin: 0;
 		padding: 10px 2px;
 		gap: 8px;
@@ -902,71 +902,71 @@
 			0 5px
 		);
 	}
-	.orbital-preview .terminal-sidebar nav button.active::before {
+	.orbital-site .terminal-sidebar nav a.active::before {
 		display: none;
 	}
-	.orbital-preview .terminal-sidebar nav button:hover {
+	.orbital-site .terminal-sidebar nav a:hover {
 		transform: none;
 	}
-	.orbital-preview .terminal-main {
+	.orbital-site .terminal-main {
 		padding-top: 30px;
 		padding-bottom: 30px;
 	}
-	.orbital-preview .archive-heading {
+	.orbital-site .archive-heading {
 		gap: 23px;
 		margin-bottom: 24px;
 	}
-	.orbital-preview .archive-heading h1 {
+	.orbital-site .archive-heading h1 {
 		font-size: 34px;
 		margin-top: 14px;
 	}
-	.orbital-preview .heading-mark {
+	.orbital-site .heading-mark {
 		font-size: 37px;
 	}
-	.orbital-preview .terminal-kicker {
+	.orbital-site .terminal-kicker {
 		font-size: 8px;
 		letter-spacing: 2px;
 	}
-	.orbital-preview .heading-description {
+	.orbital-site .heading-description {
 		font-size: 11px;
 		line-height: 1.9;
 	}
-	.orbital-preview .category-tabs {
+	.orbital-site .category-tabs {
 		gap: 28px;
 		padding: 0;
 	}
-	.orbital-preview .category-tabs button {
+	.orbital-site .category-tabs button {
 		font-size: 12px;
 	}
-	.orbital-preview .terminal-footer {
+	.orbital-site .terminal-footer {
 		min-height: 65px;
 	}
 }
 
-.orbital-preview .series-view .terminal-main {
+.orbital-site .series-view .terminal-main {
 	padding-bottom: 24px;
 }
 
 @media (min-width: 1000px) {
-	.orbital-preview .series-view.terminal-shell {
+	.orbital-site .series-view.terminal-shell {
 		height: 100svh;
 		min-height: 760px;
 	}
-	.orbital-preview .series-view .terminal-header {
+	.orbital-site .series-view .terminal-header {
 		height: 84px;
 		flex: 0 0 84px;
 	}
-	.orbital-preview .series-view .terminal-workspace {
+	.orbital-site .series-view .terminal-workspace {
 		min-height: 0;
 		grid-template-rows: minmax(0, 1fr);
 	}
-	.orbital-preview .series-view .terminal-main {
+	.orbital-site .series-view .terminal-main {
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
 		padding: 24px 0 18px;
 	}
-	.orbital-preview .series-view .archive-heading {
+	.orbital-site .series-view .archive-heading {
 		flex: 0 0 auto;
 		margin-bottom: 23px;
 	}
@@ -980,12 +980,12 @@
 		grid-column: 1 / -1;
 		font-size: 8px;
 	}
-	.orbital-preview .series-view .archive-heading h1 {
+	.orbital-site .series-view .archive-heading h1 {
 		font-size: clamp(30px, 2.4vw, 36px);
 		margin-top: 10px;
 		gap: 8px;
 	}
-	.orbital-preview .series-view .heading-description {
+	.orbital-site .series-view .heading-description {
 		margin: 0 0 3px;
 		padding: 0;
 		border: 0;
@@ -995,18 +995,18 @@
 	.series-view .section-coordinate {
 		display: none;
 	}
-	.orbital-preview .series-view .terminal-sidebar {
+	.orbital-site .series-view .terminal-sidebar {
 		min-height: 0;
 		padding-top: 100px;
 	}
-	.orbital-preview .series-view .terminal-sidebar nav {
+	.orbital-site .series-view .terminal-sidebar nav {
 		gap: 14px;
 	}
-	.orbital-preview .series-view .sidebar-note {
+	.orbital-site .series-view .sidebar-note {
 		margin-bottom: 20px;
 		padding-top: 15px;
 	}
-	.orbital-preview .series-view .terminal-footer {
+	.orbital-site .series-view .terminal-footer {
 		height: 38px;
 		min-height: 38px;
 		flex: 0 0 38px;
@@ -1014,20 +1014,20 @@
 }
 
 @media (max-width: 999px) {
-	.orbital-preview .series-view .terminal-main {
+	.orbital-site .series-view .terminal-main {
 		padding-top: 26px;
 	}
-	.orbital-preview .series-view .archive-heading {
+	.orbital-site .series-view .archive-heading {
 		margin-bottom: 22px;
 	}
 }
 
-.orbital-preview .graph-view .terminal-main {
+.orbital-site .graph-view .terminal-main {
 	padding-top: 32px;
 	padding-bottom: 25px;
 }
 
-.orbital-preview .graph-view .archive-heading {
+.orbital-site .graph-view .archive-heading {
 	margin-bottom: 25px;
 }
 
@@ -1038,7 +1038,7 @@
 }
 
 @media (max-width: 650px) {
-	.orbital-preview .graph-view .terminal-main {
+	.orbital-site .graph-view .terminal-main {
 		padding-top: 30px;
 	}
 }
@@ -1064,25 +1064,25 @@
 }
 
 @media (min-width: 1000px) {
-	.orbital-preview .source-view.terminal-shell {
+	.orbital-site .source-view.terminal-shell {
 		height: 100svh;
 		min-height: 760px;
 	}
-	.orbital-preview .source-view .terminal-header {
+	.orbital-site .source-view .terminal-header {
 		height: 84px;
 		flex: 0 0 84px;
 	}
-	.orbital-preview .source-view .terminal-workspace {
+	.orbital-site .source-view .terminal-workspace {
 		min-height: 0;
 		grid-template-rows: minmax(0, 1fr);
 	}
-	.orbital-preview .source-view .terminal-main {
+	.orbital-site .source-view .terminal-main {
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
 		padding: 24px 0 18px;
 	}
-	.orbital-preview .source-view .archive-heading {
+	.orbital-site .source-view .archive-heading {
 		flex: 0 0 auto;
 		margin-bottom: 23px;
 	}
@@ -1096,12 +1096,12 @@
 		grid-column: 1 / -1;
 		font-size: 8px;
 	}
-	.orbital-preview .source-view .archive-heading h1 {
+	.orbital-site .source-view .archive-heading h1 {
 		font-size: clamp(30px, 2.4vw, 36px);
 		margin-top: 10px;
 		gap: 8px;
 	}
-	.orbital-preview .source-view .heading-description {
+	.orbital-site .source-view .heading-description {
 		margin: 0 0 3px;
 		padding: 0;
 		border: 0;
@@ -1112,18 +1112,18 @@
 	.source-view .section-coordinate {
 		display: none;
 	}
-	.orbital-preview .source-view .terminal-sidebar {
+	.orbital-site .source-view .terminal-sidebar {
 		min-height: 0;
 		padding-top: 100px;
 	}
-	.orbital-preview .source-view .terminal-sidebar nav {
+	.orbital-site .source-view .terminal-sidebar nav {
 		gap: 14px;
 	}
-	.orbital-preview .source-view .sidebar-note {
+	.orbital-site .source-view .sidebar-note {
 		margin-bottom: 20px;
 		padding-top: 15px;
 	}
-	.orbital-preview .source-view .terminal-footer {
+	.orbital-site .source-view .terminal-footer {
 		height: 38px;
 		min-height: 38px;
 		flex: 0 0 38px;
@@ -1131,11 +1131,11 @@
 }
 
 @media (max-width: 999px) {
-	.orbital-preview .source-view .terminal-main {
+	.orbital-site .source-view .terminal-main {
 		padding-top: 30px;
 		padding-bottom: 25px;
 	}
-	.orbital-preview .source-view .archive-heading {
+	.orbital-site .source-view .archive-heading {
 		margin-bottom: 24px;
 	}
 }
@@ -1147,14 +1147,14 @@
 }
 
 @media (min-width: 1000px) {
-	.orbital-preview .about-view .terminal-header {
+	.orbital-site .about-view .terminal-header {
 		height: 84px;
 		flex: 0 0 84px;
 	}
-	.orbital-preview .about-view .terminal-main {
+	.orbital-site .about-view .terminal-main {
 		padding: 24px 0 14px;
 	}
-	.orbital-preview .about-view .archive-heading {
+	.orbital-site .about-view .archive-heading {
 		margin-bottom: 23px;
 	}
 	.about-view .archive-heading > div {
@@ -1167,26 +1167,26 @@
 		grid-column: 1 / -1;
 		font-size: 8px;
 	}
-	.orbital-preview .about-view .archive-heading h1 {
+	.orbital-site .about-view .archive-heading h1 {
 		font-size: clamp(30px, 2.4vw, 36px);
 		margin-top: 10px;
 		gap: 8px;
 	}
-	.orbital-preview .about-view .heading-description,
+	.orbital-site .about-view .heading-description,
 .about-view .section-coordinate {
 		display: none;
 	}
-	.orbital-preview .about-view .terminal-sidebar {
+	.orbital-site .about-view .terminal-sidebar {
 		padding-top: 100px;
 	}
-	.orbital-preview .about-view .terminal-sidebar nav {
+	.orbital-site .about-view .terminal-sidebar nav {
 		gap: 14px;
 	}
-	.orbital-preview .about-view .sidebar-note {
+	.orbital-site .about-view .sidebar-note {
 		margin-bottom: 20px;
 		padding-top: 15px;
 	}
-	.orbital-preview .about-view .terminal-footer {
+	.orbital-site .about-view .terminal-footer {
 		height: 38px;
 		min-height: 38px;
 		flex: 0 0 38px;
@@ -1194,18 +1194,18 @@
 }
 
 @media (max-width: 650px) {
-	.orbital-preview .about-view .terminal-main {
+	.orbital-site .about-view .terminal-main {
 		padding-top: 26px;
 	}
-	.orbital-preview .about-view .archive-heading {
+	.orbital-site .about-view .archive-heading {
 		margin-bottom: 22px;
 	}
-	.orbital-preview .about-view .heading-description {
+	.orbital-site .about-view .heading-description {
 		display: none;
 	}
 }
 
-.orbital-preview .terminal-sidebar .author-entry {
+.orbital-site .terminal-sidebar .author-entry {
 	display: grid;
 	grid-template-columns: 36px minmax(0, 1fr);
 	align-items: center;
@@ -1293,35 +1293,35 @@
 }
 
 @media (min-width: 1000px) {
-	.orbital-preview .terminal-header {
+	.orbital-site .terminal-header {
 		height: 84px;
 		flex: 0 0 84px;
 	}
-	.orbital-preview .terminal-main {
+	.orbital-site .terminal-main {
 		padding-top: 24px;
 	}
-	.orbital-preview .archive-heading {
+	.orbital-site .archive-heading {
 		margin-bottom: 23px;
 	}
-	.orbital-preview .archive-heading h1 {
+	.orbital-site .archive-heading h1 {
 		font-size: clamp(30px, 2.4vw, 36px);
 		margin-top: 10px;
 	}
-	.orbital-preview .heading-mark {
+	.orbital-site .heading-mark {
 		font-size: 34px;
 	}
-	.orbital-preview .terminal-sidebar {
+	.orbital-site .terminal-sidebar {
 		padding-top: 100px;
 	}
-	.orbital-preview .terminal-sidebar nav {
+	.orbital-site .terminal-sidebar nav {
 		gap: 14px;
 	}
-	.orbital-preview .terminal-footer {
+	.orbital-site .terminal-footer {
 		height: 38px;
 		min-height: 38px;
 		flex: 0 0 38px;
 	}
-	.orbital-preview .archive-view.terminal-shell {
+	.orbital-site .archive-view.terminal-shell {
 		height: 100svh;
 		min-height: 760px;
 	}
@@ -1329,7 +1329,7 @@
 		min-height: 0;
 		grid-template-rows: minmax(0, 1fr);
 	}
-	.orbital-preview .archive-view .terminal-main {
+	.orbital-site .archive-view .terminal-main {
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
@@ -1341,7 +1341,7 @@
 	.archive-view .sidebar-note {
 		margin-bottom: 20px;
 	}
-	.orbital-preview .graph-view .terminal-main {
+	.orbital-site .graph-view .terminal-main {
 		padding-top: 24px;
 	}
 	.graph-view .archive-heading > div {
@@ -1353,7 +1353,7 @@
 	.graph-view .terminal-kicker {
 		grid-column: 1 / -1;
 	}
-	.orbital-preview .graph-view .heading-description {
+	.orbital-site .graph-view .heading-description {
 		margin: 0 0 3px;
 		padding: 0;
 		border: 0;
@@ -1366,7 +1366,7 @@
 }
 
 @media (max-width: 650px) {
-	.orbital-preview .terminal-sidebar .author-entry {
+	.orbital-site .terminal-sidebar .author-entry {
 		display: none;
 	}
 }

@@ -1,8 +1,0 @@
----
-import SeriesIndexPage from "@components/pages/SeriesIndexPage.astro";
-import { getSeriesTree } from "@utils/content-utils";
-
-const tree = await getSeriesTree("ja");
----
-
-<SeriesIndexPage roots={tree.roots} lang="ja" />

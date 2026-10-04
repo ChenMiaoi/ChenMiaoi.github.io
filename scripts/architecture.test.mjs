@@ -8,7 +8,7 @@ import { contributionConfig, contributionSyncConfig } from "../src/lib/contribut
 import { contributionActivity, contributionDetails } from "../src/lib/contributions/snapshots.ts";
 import { detailsSchema } from "../src/lib/contributions/schema.ts";
 import { resolveContributionProjects, projectRecords } from "../src/lib/contributions/projects.ts";
-import { registerPageLifecycle } from "../src/scripts/lifecycle.ts";
+import { resolveOrbitalLocation, sectionPaths } from "../src/lib/content/navigation.ts";
 
 test("permalinks preserve UTC dates, leap days and nested slugs", () => {
 	assert.equal(postPath("kernel/memory", new Date("2024-02-29")), "/2024/02/29/kernel/memory/");
@@ -48,27 +48,18 @@ test("content cache shares in-flight reads and allows retry after failure", asyn
 	assert.equal(await load("article"), "article");
 	assert.equal(calls, 2);
 });
-test("page resources dispose before replacement and mount once per new view", () => {
-	const savedWindow = globalThis.window;
-	const savedDocument = globalThis.document;
-	const hooks = new Map();
-	const events = [];
-	let ready;
-	globalThis.window = {};
-	globalThis.document = { addEventListener: (name, callback, options) => { assert.equal(name, "swup:enable"); assert.equal(options.once, true); ready = callback; } };
-	try {
-		registerPageLifecycle(() => { events.push("mount"); return () => events.push("dispose"); });
-		globalThis.window.swup = { hooks: { on: (name, callback, options) => { hooks.set(name, callback); if (name === "content:replace") assert.equal(options.before, true); } } };
-		ready();
-		hooks.get("content:replace")();
-		hooks.get("page:view")();
-		hooks.get("content:replace")();
-		assert.deepEqual(events, ["mount", "dispose", "mount", "dispose"]);
-	} finally {
-		if (savedWindow === undefined) delete globalThis.window; else globalThis.window = savedWindow;
-		if (savedDocument === undefined) delete globalThis.document; else globalThis.document = savedDocument;
-	}
+test("Orbital restores public sections, series and dated articles from the URL", () => {
+    const posts = [{ slug: "memory", url: "/2026/09/20/memory/" }];
+    assert.equal(resolveOrbitalLocation("/contribution/", posts).section, "code");
+    assert.equal(resolveOrbitalLocation("/series/linux-memory/", posts).series, "linux-memory");
+    assert.equal(resolveOrbitalLocation("/series/", posts).section, "series");
+    assert.equal(resolveOrbitalLocation(posts[0].url, posts).post, posts[0]);
+    assert.equal(resolveOrbitalLocation("/en/about/", [], "/en").section, "about");
+    assert.equal(resolveOrbitalLocation("/archive/", []).section, "articles");
+    assert.equal(resolveOrbitalLocation("/en/series/test/", [], "/en").series, "test");
+    assert.equal(sectionPaths.articles, "/");
 });
+
 test("both contribution views resolve every configured record from validated snapshots", () => {
 	const projects = resolveContributionProjects(contributionConfig.projects, contributionDetails);
 	for (const project of projects) {

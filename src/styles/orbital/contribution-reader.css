@@ -39,7 +39,7 @@
 	letter-spacing: 1px;
 }
 
-.orbital-preview .record-copy {
+.orbital-site .record-copy {
 	display: inline-flex;
 	align-items: center;
 	gap: 9px;
@@ -59,7 +59,7 @@
 	color: #9bafa1;
 }
 
-.orbital-preview .record-copy:hover {
+.orbital-site .record-copy:hover {
 	color: var(--signal);
 	border-color: #e9e878aa;
 }
@@ -74,7 +74,7 @@
 	white-space: nowrap;
 }
 
-.orbital-preview .contribution-reader-heading h2 {
+.orbital-site .contribution-reader-heading h2 {
 	font-size: 22px;
 	font-weight: 550;
 	line-height: 1.5;
@@ -639,7 +639,7 @@
 	.contribution-reader-scroll {
 		padding: 23px 20px;
 	}
-	.orbital-preview .contribution-reader-heading h2 {
+	.orbital-site .contribution-reader-heading h2 {
 		font-size: 21px;
 	}
 	.reader-record-topline {

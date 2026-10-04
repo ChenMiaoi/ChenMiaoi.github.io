@@ -1,6 +1,9 @@
 /* tokens: owns the final orbital tokens rules, including responsive states. */
 
-.orbital-preview {
+.orbital-site {
+	--codeblock-bg: #152123;
+	--codeblock-topbar-bg: #1d2d2e;
+	--primary: #f0e433;
 	--signal: #f0e433;
 	--paper: #eceee8;
 	--ink: #17191b;

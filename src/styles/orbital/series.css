@@ -40,7 +40,7 @@
 	padding-left: 8px;
 }
 
-.orbital-preview .path-toolbar button {
+.orbital-site .path-toolbar button {
 	display: flex;
 	align-items: center;
 	gap: 9px;
@@ -129,7 +129,7 @@
 	background: #b4c9b733;
 }
 
-.orbital-preview .path-option {
+.orbital-site .path-option {
 	position: relative;
 	display: grid;
 	grid-template-columns: 27px minmax(0, 1fr) 15px;
@@ -256,7 +256,7 @@
 	pointer-events: none;
 }
 
-.orbital-preview .path-hero h2 {
+.orbital-site .path-hero h2 {
 	position: relative;
 	margin-top: 12px;
 	font-size: clamp(26px, 2.1vw, 31px);
@@ -267,7 +267,7 @@
 	text-wrap: pretty;
 }
 
-.orbital-preview .path-subtitle {
+.orbital-site .path-subtitle {
 	position: relative;
 	font-size: 13px;
 	color: #d0dcca;
@@ -282,7 +282,7 @@
 	margin-top: 12px;
 }
 
-.orbital-preview .path-description {
+.orbital-site .path-description {
 	color: #b8c8ba;
 	font-size: 12px;
 	line-height: 1.85;
@@ -300,7 +300,7 @@
 	flex: 0 0 auto;
 }
 
-.orbital-preview .path-start {
+.orbital-site .path-start {
 	display: inline-flex;
 	align-items: center;
 	justify-content: space-between;
@@ -321,7 +321,7 @@
 	transition: background 0.18s;
 }
 
-.orbital-preview .path-start:hover {
+.orbital-site .path-start:hover {
 	background: #fff776;
 }
 
@@ -356,7 +356,7 @@
 	background: #b3c88145;
 }
 
-.orbital-preview .path-branch-shortcuts button {
+.orbital-site .path-branch-shortcuts button {
 	display: flex;
 	align-items: center;
 	gap: 9px;
@@ -393,7 +393,7 @@
 	font-size: 8px;
 }
 
-.orbital-preview .path-branch-shortcuts button:hover {
+.orbital-site .path-branch-shortcuts button:hover {
 	color: var(--signal);
 }
 
@@ -421,7 +421,7 @@
 	flex: 0 0 auto;
 }
 
-.orbital-preview .path-outline-heading h3 {
+.orbital-site .path-outline-heading h3 {
 	font-size: 12px;
 	font-weight: 500;
 	color: #c5d4c1;
@@ -508,7 +508,7 @@
 	margin-bottom: 6px;
 }
 
-.orbital-preview .path-branch-heading h4 {
+.orbital-site .path-branch-heading h4 {
 	margin: 0;
 	color: #e4ecdb;
 	font-size: 15px;
@@ -516,7 +516,7 @@
 	font-weight: 600;
 }
 
-.orbital-preview .path-branch-heading button {
+.orbital-site .path-branch-heading button {
 	display: flex;
 	align-items: center;
 	gap: 10px;
@@ -526,7 +526,7 @@
 	padding: 8px 0 8px 8px;
 }
 
-.orbital-preview .path-branch-heading button:hover {
+.orbital-site .path-branch-heading button:hover {
 	color: var(--signal);
 }
 
@@ -540,7 +540,7 @@
 	border-top: 1px solid #b2c7ad1d;
 }
 
-.orbital-preview .path-reading-list button {
+.orbital-site .path-reading-list button {
 	display: grid;
 	grid-template-columns: 20px minmax(0, 1fr) 13px;
 	align-items: start;
@@ -554,7 +554,7 @@
 	transition: color 0.18s;
 }
 
-.orbital-preview .path-reading-list button:hover {
+.orbital-site .path-reading-list button:hover {
 	color: var(--signal);
 }
 
@@ -586,7 +586,7 @@
 	background: #afc3a522;
 }
 
-.orbital-preview .path-empty {
+.orbital-site .path-empty {
 	color: #9bb294;
 	font-size: 12px;
 	line-height: 1.8;
@@ -594,7 +594,7 @@
 }
 
 @media (min-width: 1000px) {
-	.orbital-preview .series-view .heading-mark {
+	.orbital-site .series-view .heading-mark {
 		font-size: 34px;
 	}
 	.series-view .path-explorer {
@@ -607,7 +607,7 @@
 		grid-template-columns: 260px minmax(0, 1fr);
 		gap: 40px;
 	}
-	.orbital-preview .path-option {
+	.orbital-site .path-option {
 		min-height: 85px;
 		padding-inline: 17px;
 	}
@@ -627,7 +627,7 @@
 		grid-template-columns: 195px minmax(0, 1fr);
 		gap: 24px;
 	}
-	.orbital-preview .path-option {
+	.orbital-site .path-option {
 		grid-template-columns: 21px minmax(0, 1fr) 12px;
 		gap: 8px;
 		padding-inline: 11px;
@@ -638,7 +638,7 @@
 	.path-hero {
 		padding: 20px 24px;
 	}
-	.orbital-preview .path-hero h2 {
+	.orbital-site .path-hero h2 {
 		font-size: 28px;
 	}
 	.path-outline {
@@ -667,7 +667,7 @@
 .path-directory-caption {
 		display: none;
 	}
-	.orbital-preview .path-option {
+	.orbital-site .path-option {
 		grid-template-columns: 21px minmax(0, 1fr);
 		min-height: 75px;
 		flex: 0 0 215px;
@@ -703,14 +703,14 @@
 		font-size: 7px;
 		padding-left: 2px;
 	}
-	.orbital-preview .path-toolbar button {
+	.orbital-site .path-toolbar button {
 		font-size: 10px;
 		gap: 7px;
 	}
 	.path-options {
 		gap: 7px;
 	}
-	.orbital-preview .path-option {
+	.orbital-site .path-option {
 		min-height: 76px;
 		padding: 11px;
 		grid-template-columns: 19px minmax(0, 1fr);
@@ -738,12 +738,12 @@
 	.path-watermark {
 		font-size: 120px;
 	}
-	.orbital-preview .path-hero h2 {
+	.orbital-site .path-hero h2 {
 		font-size: 26px;
 		margin-top: 15px;
 	}
-	.orbital-preview .path-subtitle,
-.orbital-preview .path-description {
+	.orbital-site .path-subtitle,
+.orbital-site .path-description {
 		font-size: 12px;
 	}
 	.path-hero-actions {
@@ -758,7 +758,7 @@
 		font-size: 9px;
 		gap: 7px;
 	}
-	.orbital-preview .path-start {
+	.orbital-site .path-start {
 		padding-inline: 14px;
 		gap: 22px;
 		font-size: 11px;
@@ -775,7 +775,7 @@
 	.path-branch-heading {
 		gap: 8px;
 	}
-	.orbital-preview .path-branch-heading h4 {
+	.orbital-site .path-branch-heading h4 {
 		font-size: 14px;
 	}
 	.path-branch-node {
@@ -786,7 +786,7 @@
 		padding-inline: 17px;
 		gap: 10px;
 	}
-	.orbital-preview .path-branch-shortcuts button {
+	.orbital-site .path-branch-shortcuts button {
 		font-size: 10px;
 		flex-direction: column;
 		align-items: flex-start;
@@ -794,7 +794,7 @@
 	.path-branch::before {
 		left: 12px;
 	}
-	.orbital-preview .path-reading-list button {
+	.orbital-site .path-reading-list button {
 		grid-template-columns: 16px minmax(0, 1fr) 12px;
 		gap: 6px;
 		padding-block: 15px;
@@ -815,18 +815,18 @@
 	color: #e8ed99;
 }
 
-.orbital-preview .path-option {
+.orbital-site .path-option {
 	background: var(--archive-surface);
 	border-color: transparent;
 	border-bottom-color: var(--archive-rule);
 	clip-path: none;
 }
 
-.orbital-preview .path-option:hover {
+.orbital-site .path-option:hover {
 	background: #b5c7a712;
 }
 
-.orbital-preview .path-option.active {
+.orbital-site .path-option.active {
 	color: #eff1e8;
 	background: var(--archive-selected);
 	border-color: transparent;

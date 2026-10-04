@@ -5,6 +5,8 @@
   import { loadArticle } from "../../lib/content/article-loader";
   export let reducedMotion = false;
   export let readerOpen = false;
+  export let onClosed: () => void = () => {};
+  let notifyOnClose = true;
   let dialog: HTMLDialogElement;
   let readerScroll: HTMLDivElement;
   let readerPost: ArchivePost | null = null;
@@ -17,6 +19,7 @@
   let requestedHeading: string | undefined;
 
   export async function open(post: ArchivePost, heading?: string) {
+    notifyOnClose = true;
     const currentRequest = ++requestId;
     requestedHeading = heading;
     readerExit?.cancel();
@@ -45,8 +48,9 @@
     }
   }
 
-  export function close() { closeReader(); }
-  function closeReader() {
+  export function close(notify = true) { closeReader(notify); }
+  function closeReader(notify = true) {
+    notifyOnClose = notify;
     if (!dialog.open || readerExit) return;
     if (reducedMotion) { dialog.close(); return; }
     const animation = dialog.animate([{ opacity: 1, transform: "translateY(0) scale(1)" }, { opacity: 0, transform: "translateY(16px) scale(.985)" }], { duration: 180, easing: "ease-in", fill: "forwards" });
@@ -58,7 +62,7 @@
       dialog.close();
     }).catch(() => {});
   }
-  function readerClosed() { requestId++; readerExit?.cancel(); readerExit = null; readerOpen = false; document.body.classList.remove("reader-open"); }
+  function readerClosed() { requestId++; readerExit?.cancel(); readerExit = null; readerOpen = false; document.body.classList.remove("reader-open"); if (notifyOnClose) onClosed(); }
 
   function jumpToHeading(slug: string) {
     const heading = readerScroll?.querySelector(`[id="${CSS.escape(slug)}"]`);
@@ -101,11 +105,11 @@
 <svelte:document onclick={readerAction} />
 <dialog bind:this={dialog} class="reading-dialog" class:motion-paused={reducedMotion} onclose={readerClosed} oncancel={(event) => { event.preventDefault(); closeReader(); }} aria-labelledby="reader-title">
   {#if readerPost}
-    <header class="reader-header"><button onclick={closeReader}><TerminalIcon name="back" size={19}/><span>返回档案</span></button><span class="reader-status">READING / {readerPost.seriesTitle}</span><button class="reader-close" onclick={closeReader} aria-label="关闭阅读面板"><TerminalIcon name="close" size={21}/></button></header>
+    <header class="reader-header"><button onclick={() => closeReader()}><TerminalIcon name="back" size={19}/><span>返回档案</span></button><span class="reader-status">READING / {readerPost.seriesTitle}</span><button class="reader-close" onclick={() => closeReader()} aria-label="关闭阅读面板"><TerminalIcon name="close" size={21}/></button></header>
     <div class="reading-meter" aria-hidden="true"><span style={`width:${readingProgress}%`}></span></div>
     <div class="reader-layout"><aside class="reader-toc"><p class="terminal-kicker">CONTENTS</p><h2>文内导航</h2>{#each readerPost.headings.filter((heading) => heading.depth <= 3) as heading}<button class:subheading={heading.depth > 1} onclick={() => jumpToHeading(heading.slug)}>{heading.text}</button>{/each}</aside>
       <div class="reader-scroll" bind:this={readerScroll} onscroll={updateProgress}>
-        <article class="reader-article"><div class="reader-article-meta">{readerPost.date} <span>/</span> {readerPost.seriesTitle}</div><h1 id="reader-title">{readerPost.title}</h1><div class="reader-body" aria-busy={loading}>{#if loading}<p role="status">正在载入文章…</p>{:else if failed}<div role="alert"><p>文章暂时无法载入。</p><button class="signal-button" onclick={() => readerPost && open(readerPost, requestedHeading)}>重新加载</button><p><a href={readerPost.url}>打开文章页面 ↗</a></p></div>{:else}{@html readerHtml}{/if}</div><div class="reader-end"><span>END OF DOCUMENT</span><button onclick={closeReader}>返回文章档案 <TerminalIcon name="back" size={17}/></button></div></article>
+        <article class="reader-article"><div class="reader-article-meta">{readerPost.date} <span>/</span> {readerPost.seriesTitle}</div><h1 id="reader-title">{readerPost.title}</h1><div class="reader-body" aria-busy={loading}>{#if loading}<p role="status">正在载入文章…</p>{:else if failed}<div role="alert"><p>文章暂时无法载入。</p><button class="signal-button" onclick={() => readerPost && open(readerPost, requestedHeading)}>重新加载</button><p><a href={readerPost.url}>打开文章页面 ↗</a></p></div>{:else}{@html readerHtml}{/if}</div><div class="reader-end"><span>END OF DOCUMENT</span><button onclick={() => closeReader()}>返回文章档案 <TerminalIcon name="back" size={17}/></button></div></article>
       </div>
     </div>
   {/if}

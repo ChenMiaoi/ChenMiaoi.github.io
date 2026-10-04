@@ -1,0 +1,60 @@
+---
+import { render } from "astro:content";
+import ArchiveTerminal from "@components/orbital/ArchiveTerminal.svelte";
+import { getOrbitalData } from "./data";
+import { contributionConfig, profileConfig, siteConfig, licenseConfig } from "../../config";
+import { contributionActivity } from "../../lib/contributions/snapshots";
+import { LOCALE_PREFIX, htmlLang, type Locale } from "../../constants/locales";
+import type { Section } from "../../lib/content/navigation";
+import "../../styles/tailwind.css";
+import "../../styles/orbital/index.css";
+import "@fontsource-variable/jetbrains-mono";
+import "katex/dist/katex.min.css";
+
+interface Props { lang?: Locale; section?: Section; seriesSlug?: string; postSlug?: string; notFound?: boolean }
+const { lang = "zh_CN", section = "articles", seriesSlug = "", postSlug, notFound = false } = Astro.props;
+const { entries, posts, series } = await getOrbitalData(lang);
+const post = entries.find((entry) => entry.slug === postSlug);
+const rendered = post ? await render(post) : null;
+const Content = rendered?.Content;
+const prefix = LOCALE_PREFIX[lang];
+const heading = post?.data.title || series.find((entry) => entry.slug === seriesSlug)?.title
+  || ({ articles: "文章档案", series: "探索路径", graph: "知识地图", code: "代码与实践", about: "关于我" })[section];
+const title = notFound ? `页面未找到 · ${siteConfig.title}` : `${heading} · ${siteConfig.title}`;
+const description = post?.data.description || "操作系统、Linux 内核、驱动、RISC-V 与底层工程的探索记录。";
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang={htmlLang(lang)}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {notFound && <meta name="robots" content="noindex" />}
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#17191b" />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content={post ? "article" : "website"} />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon/favicon-dark-32.png" />
+    <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={lang === "en" ? "/en/rss.xml" : "/rss.xml"} />
+    <link rel="preload" as="image" href="/images/orbital/station.webp" />
+    <noscript><style is:global>.terminal-shell, .skip-link { display: none !important; }</style></noscript>
+  </head>
+  <body class="orbital-site" data-article-path={post ? Astro.url.pathname : undefined}>
+    <ArchiveTerminal client:load {posts} {series} projects={contributionConfig.projects}
+      activity={contributionActivity} detailsUrl="/contributions.json" profile={profileConfig}
+      initialSection={section} initialSeries={seriesSlug} localePrefix={prefix} {notFound} />
+    {post && Content && <section class="article-document">
+      <header><a href={`${prefix}/`}>← 返回文章档案</a><h1 data-pagefind-meta="title">{post.data.title}</h1></header>
+      <article class="reader-body" data-reader-content data-pagefind-body><Content /></article>
+      <footer>本文采用 <a href={licenseConfig.url}>{licenseConfig.name}</a> 许可。</footer>
+    </section>}
+    <noscript><nav class="static-archive" aria-label="文章永久链接">
+      <p>启用 JavaScript 可使用 Orbital 的交互阅读器；也可以直接阅读以下文章。</p>
+      {posts.map((entry) => <a href={entry.url}>{entry.title}</a>)}
+    </nav></noscript>
+  </body>
+</html>

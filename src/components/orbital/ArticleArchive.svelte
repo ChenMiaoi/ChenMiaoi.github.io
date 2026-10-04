@@ -29,7 +29,7 @@
 
   $: filteredPosts = posts.filter((post) => {
     const text = `${post.title} ${post.description} ${post.tags.join(" ")} ${post.seriesTitle}`.toLowerCase();
-    const categoryMatch = category === "all" || (category === "linux" ? post.category.toLowerCase() === "linux" : /riscv|硬件/i.test(post.series + post.category));
+    const categoryMatch = category === "all" || (category === "hardware" ? /riscv|硬件/i.test(post.series + post.category) : post.category.toLowerCase() === category.toLowerCase());
     const seriesMatch = !seriesFilter || series.find((item) => item.slug === seriesFilter)?.posts.includes(post.slug);
     return categoryMatch && seriesMatch && text.includes(query.trim().toLowerCase());
   }).sort((a, b) => descending ? b.timestamp - a.timestamp : a.timestamp - b.timestamp);

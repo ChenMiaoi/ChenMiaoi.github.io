@@ -75,7 +75,7 @@ export function navigationBeacon(node: HTMLElement, _section: string) {
 		cancelAnimationFrame(frame);
 		frame = requestAnimationFrame(() => {
 			const active = node.querySelector<HTMLElement>(
-				'button[aria-current="page"]',
+				'a[aria-current="page"]',
 			);
 			const beacon = node.querySelector<HTMLElement>(".nav-tracer");
 			if (!active || !beacon) return;

@@ -4,18 +4,13 @@
 
 [返回个人介绍](README.zh-CN.md) · [本地开发](#本地开发) · [写作指南](#写作指南) · [项目结构](#项目结构) · [贡献数据](#贡献数据) · [验证与发布](#验证与发布)
 
-## 正式站与设计预览
+## Orbital 正式站
 
-仓库同时维护正式博客和独立的交互设计预览，共享文章、系列与贡献数据。
+Orbital 是唯一的网站界面。文章档案、系列、知识地图、开源贡献、关于和文章阅读都使用同一套轨道空间设计。
 
-| | Observatory 正式博客 | Orbital 设计预览 |
-| --- | --- | --- |
-| 侧重点 | 长文阅读、专题导航与日常访问 | 轨道空间中的档案浏览、知识地图和阅读面板 |
-| 页面实现 | Astro 页面、Svelte 交互组件、Swup | 独立的 Svelte 交互外壳 |
-| 开发入口 | `pnpm dev` | `pnpm dev:design --port 4332` |
-| 构建产物 | `dist/` | `.astro/orbital-build/` |
+`pnpm dev` 开发本站，`pnpm build` 生成唯一的 `dist/`，`pnpm preview` 查看正式构建。首页为 `/`，已有文章永久链接保留。
 
-Orbital 从真实内容集合读取数据，文章正文按需加载，贡献详情使用本地快照。它的 `/design-preview/` 路由仅由预览配置注入，正式构建不包含这些路由。设计与交互说明见 [Orbital 文档](orbital/README.md)。
+页面和交互说明见 [Orbital 文档](orbital/README.md)。
 
 ## 本地开发
 
@@ -36,24 +31,11 @@ pnpm dev
 
 打开 [localhost:4321](http://localhost:4321/)。Windows PowerShell 如果限制执行 `pnpm.ps1`，可将命令中的 `pnpm` 换成 `pnpm.cmd`。
 
-正式站搜索依赖构建后生成的 Pagefind 索引；开发模式使用占位搜索结果。检查真实搜索时运行：
+文章档案的搜索直接筛选标题、摘要、标签和系列，在开发和正式构建中均可使用。构建还生成 Pagefind 全文索引和独立问答服务使用的内容索引。查看正式产物：
 
 ```sh
 pnpm build
 pnpm preview
-```
-
-### 打开 Orbital 预览
-
-```sh
-pnpm dev:design --port 4332
-```
-
-访问 [localhost:4332/design-preview/](http://localhost:4332/design-preview/)。如需检查预览的静态产物：
-
-```sh
-pnpm build:design
-pnpm preview:design --port 4332
 ```
 
 ## 写作指南
@@ -140,12 +122,10 @@ src/
 ├── data/                   贡献项目配置与公开数据快照
 ├── lib/                    内容组织、永久链接、系列树和贡献数据模型
 ├── pages/                  正式站路由及公开内容索引
-├── layouts/                正式站布局
 ├── components/             页面组件、阅读器与交互组件
-├── features/orbital/        设计预览入口及静态内容端点
-├── scripts/                页面生命周期、滚动条与图片预览
-├── styles/                 正式站与 Orbital 样式
-└── i18n/                   界面翻译
+├── features/orbital/        Orbital 页面、数据转换与贡献端点
+├── styles/                 Orbital 样式
+└── constants/              内容语言与路径前缀
 public/                     图片、头像与图标等静态资源
 scripts/                    新建文章、同步、构建验证与部署工具
 rag/                        可选的文章问答服务
@@ -157,9 +137,8 @@ docs/                       架构、设计与维护文档
 
 | 想修改的内容 | 文件或目录 |
 | --- | --- |
-| 站点名称、导航、头像、简介 | [src/config.ts](../src/config.ts) |
+| 站点名称、头像、简介 | [src/config.ts](../src/config.ts) |
 | 正式域名、Markdown 插件和构建集成 | [astro.config.mjs](../astro.config.mjs) |
-| 正式站视觉 | [src/styles/observatory.css](../src/styles/observatory.css) |
 | Orbital 视觉 | [src/styles/orbital/](../src/styles/orbital/) |
 | 开源项目、账号和已确认提交 | [src/data/contribution-projects.json](../src/data/contribution-projects.json) |
 
@@ -200,11 +179,10 @@ pnpm sync:contribution-details
 | `pnpm format:check` | 检查公共模块与客户端脚本的格式 |
 | `pnpm test` | 内容规则、系列树、贡献阅读器与标题处理测试 |
 | `pnpm build` | 生成正式站、Pagefind 搜索索引和本地问答索引 |
-| `pnpm build:design` | 生成独立设计预览 |
-| `pnpm test:build` | 检查两套构建产物、文章链接、问答引用与预览隔离 |
-| `pnpm verify` | 依次运行上述 lint、格式、类型、测试、两套构建和产物检查 |
+| `pnpm test:build` | 检查 Orbital 构建、文章正文、永久链接、贡献详情和问答引用 |
+| `pnpm verify` | 依次运行上述 lint、格式、类型、测试、正式构建和产物检查 |
 
-`pnpm test:build` 需要先完成两套构建。发布前运行 `pnpm verify`；涉及布局或交互时，还应在浏览器检查桌面和移动端的页面、阅读器及导航。
+`pnpm test:build` 需要先完成 `pnpm build`。发布前运行 `pnpm verify`；涉及布局或交互时，还应在浏览器检查桌面和移动端的页面、阅读器及导航。
 
 需要自动修复时使用 `pnpm lint:fix` 或 `pnpm format`。后者会格式化整个 `src/`，提交前应检查修改范围。
 
@@ -235,7 +213,7 @@ pnpm audit --registry=https://registry.npmjs.org
 
 此前维护记录在 2026-10-04 标记了构建工具依赖 `braces@3.0.3` 的 [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)；当前状态应以重新审计结果为准，不在审计配置中忽略该项。
 
-`package.json` 中的 `serialize-javascript` override 仅作用于 Swup 间接依赖的 `rollup-plugin-terser@7.0.2`。调整这一覆盖规则时，需要检查插件的 worker 与压缩路径。
+依赖已随唯一 Orbital 界面精简，锁文件是构建依赖的唯一依据。
 
 </details>
 

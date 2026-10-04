@@ -139,7 +139,7 @@
 .reading-dialog:not(.motion-paused)[open] {
 	animation: reader-arrive 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-.orbital-preview .reading-meter span {
+.orbital-site .reading-meter span {
 	position: relative;
 }
 .reading-meter span::after {
@@ -317,7 +317,7 @@
 .motion-ready:not(.motion-paused) .dossier-hit:hover::after {
 	opacity: 1;
 }
-.orbital-preview .motion-control {
+.orbital-site .motion-control {
 	display: inline-flex;
 	align-items: center;
 	gap: 7px;
@@ -330,10 +330,10 @@
 .motion-control[aria-pressed="true"] > svg {
 	color: #dce695;
 }
-.orbital-preview .motion-control:hover:enabled {
+.orbital-site .motion-control:hover:enabled {
 	color: var(--signal);
 }
-.orbital-preview .motion-control:disabled {
+.orbital-site .motion-control:disabled {
 	cursor: default;
 }
 .ambient-paused
@@ -567,7 +567,7 @@
 	.station-atmosphere > span:nth-child(n + 3) {
 		display: none;
 	}
-	.terminal-footer .preview-badge {
+	.terminal-footer .feed-link {
 		display: none;
 	}
 }
