@@ -57,10 +57,10 @@
   $: ambientPaused = readerOpen || !pageVisible;
   $: activeSection = navigation.find((item) => item.id === section) ?? navigation[0];
   const descriptions: Record<Section, string> = {
-    articles: '操作系统、硬件与底层世界的探索记录。',
-    series: '沿一条路径，读懂一个系统。',
-    graph: '把独立的笔记，连接成可探索的知识路径。',
-    code: '代码里的思考与实践，留下公开的记录。',
+    articles: '',
+    series: '',
+    graph: '',
+    code: '',
     about: '记录系统的内部世界。',
   };
   function setSection(next: Section, preserveQuery = false) {
@@ -273,7 +273,7 @@
       {#if notFound}<p class="route-notice" role="status">没有找到这个页面。你可以从文章档案继续探索。</p>{/if}
       {#key section}
       <div class="archive-heading">
-        <div><p class="terminal-kicker"><span></span>{activeSection.kicker}</p><h1>{activeSection.title}<span class="heading-mark" aria-hidden="true">/</span></h1><p class="heading-description">{descriptions[section]}</p></div>
+        <div><p class="terminal-kicker"><span></span>{activeSection.kicker}</p><h1>{activeSection.title}<span class="heading-mark" aria-hidden="true">/</span></h1>{#if descriptions[section]}<p class="heading-description">{descriptions[section]}</p>{/if}</div>
         {#if section === "articles"}
           <div class="category-tabs" aria-label="文章分类">
             {#each [{ value: "all", label: "全部" }, { value: "linux", label: "Linux" }, { value: "hardware", label: "硬件设计" }] as tab}

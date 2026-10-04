@@ -181,5 +181,7 @@
       </div>
     </div>
   {:else}<p class="dock-note">尚未配置开源项目。</p>{/if}
-  <p class="dock-note"><span aria-hidden="true"></span>{#if allRecords.some((item) => item.kind !== 'commit')}收录 {activity.account} 发起或被指派的未关闭 Issue / PR。状态同步于 {syncDate}（北京时间）。{:else}仅展示博客已收录的贡献记录。提交与讨论链接指向各项目的公开页面。{/if}</p>
+  {#if allRecords.some((item) => item.kind !== 'commit')}
+    <p class="dock-note"><span aria-hidden="true"></span>收录 {activity.account} 发起或被指派的未关闭 Issue / PR。状态同步于 {syncDate}（北京时间）。</p>
+  {/if}
 </section>
