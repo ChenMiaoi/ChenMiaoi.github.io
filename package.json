@@ -15,7 +15,7 @@
     "astro": "astro",
     "type-check": "pnpm check",
     "new-post": "node scripts/new-post.js",
-    "deploy:site": "bash scripts/deploy.sh",
+    "deploy:site": "node scripts/deploy.mjs",
     "format": "biome format --write ./src",
     "lint": "biome lint ./src",
     "preinstall": "npx only-allow pnpm",
