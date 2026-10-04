@@ -8,7 +8,7 @@ import { contributionConfig, contributionSyncConfig } from "../src/lib/contribut
 import { contributionActivity, contributionDetails } from "../src/lib/contributions/snapshots.ts";
 import { detailsSchema } from "../src/lib/contributions/schema.ts";
 import { resolveContributionProjects, projectRecords } from "../src/lib/contributions/projects.ts";
-import { resolveOrbitalLocation, sectionPaths } from "../src/lib/content/navigation.ts";
+import { isWelcomeLocation, resolveOrbitalLocation, sectionPaths } from "../src/lib/content/navigation.ts";
 
 test("permalinks preserve UTC dates, leap days and nested slugs", () => {
 	assert.equal(postPath("kernel/memory", new Date("2024-02-29")), "/2024/02/29/kernel/memory/");
@@ -57,7 +57,22 @@ test("Orbital restores public sections, series and dated articles from the URL",
     assert.equal(resolveOrbitalLocation("/en/about/", [], "/en").section, "about");
     assert.equal(resolveOrbitalLocation("/archive/", []).section, "articles");
     assert.equal(resolveOrbitalLocation("/en/series/test/", [], "/en").series, "test");
-    assert.equal(sectionPaths.articles, "/");
+    assert.equal(sectionPaths.articles, "/archive/");
+});
+
+test("welcome entrances preserve deep links and legacy search URLs", () => {
+    for (const prefix of ["", "/en", "/ja", "/zh_TW"]) {
+        assert.equal(isWelcomeLocation(`${prefix}/`, "", prefix), true);
+        assert.equal(isWelcomeLocation(`${prefix}/`, "?utm_source=link", prefix), true);
+        for (const search of ["?q=linux", "?tag=Rust", "?category=hardware", "?q="]) {
+            assert.equal(isWelcomeLocation(`${prefix}/`, search, prefix), false);
+        }
+        for (const path of ["/archive/", "/contribution/", "/series/", "/graph/", "/about/", "/2026/09/20/memory/"]) {
+            assert.equal(isWelcomeLocation(prefix + path, "", prefix), false);
+        }
+    }
+    assert.equal(isWelcomeLocation("/en", "", "/en"), true);
+    assert.equal(isWelcomeLocation("/enough/", "", "/en"), false);
 });
 
 test("both contribution views resolve every configured record from validated snapshots", () => {

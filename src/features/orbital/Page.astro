@@ -5,7 +5,7 @@ import { getOrbitalData } from "./data";
 import { contributionConfig, profileConfig, siteConfig, licenseConfig } from "../../config";
 import { contributionActivity } from "../../lib/contributions/snapshots";
 import { LOCALE_PREFIX, htmlLang, type Locale } from "../../constants/locales";
-import type { Section } from "../../lib/content/navigation";
+import { isWelcomeLocation, type Section } from "../../lib/content/navigation";
 import "../../styles/tailwind.css";
 import "../../styles/orbital/index.css";
 import "@fontsource-variable/jetbrains-mono";
@@ -18,9 +18,10 @@ const post = entries.find((entry) => entry.slug === postSlug);
 const rendered = post ? await render(post) : null;
 const Content = rendered?.Content;
 const prefix = LOCALE_PREFIX[lang];
+const initialWelcome = !notFound && isWelcomeLocation(Astro.url.pathname, "", prefix);
 const heading = post?.data.title || series.find((entry) => entry.slug === seriesSlug)?.title
   || ({ articles: "文章档案", series: "探索路径", graph: "知识地图", code: "代码与实践", about: "关于我" })[section];
-const title = notFound ? `页面未找到 · ${siteConfig.title}` : `${heading} · ${siteConfig.title}`;
+const title = notFound ? `页面未找到 · ${siteConfig.title}` : initialWelcome ? `欢迎登站 · ${siteConfig.title}` : `${heading} · ${siteConfig.title}`;
 const description = post?.data.description || "操作系统、Linux 内核、驱动、RISC-V 与底层工程的探索记录。";
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -46,9 +47,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <body class="orbital-site" data-article-path={post ? Astro.url.pathname : undefined}>
     <ArchiveTerminal client:load {posts} {series} projects={contributionConfig.projects}
       activity={contributionActivity} detailsUrl="/contributions.json" profile={profileConfig}
-      initialSection={section} initialSeries={seriesSlug} localePrefix={prefix} {notFound} />
+      initialSection={section} initialSeries={seriesSlug} localePrefix={prefix} {notFound} {initialWelcome} />
     {post && Content && <section class="article-document">
-      <header><a href={`${prefix}/`}>← 返回文章档案</a><h1 data-pagefind-meta="title">{post.data.title}</h1></header>
+      <header><a href={`${prefix}/archive/`}>← 返回文章档案</a><h1 data-pagefind-meta="title">{post.data.title}</h1></header>
       <article class="reader-body" data-reader-content data-pagefind-body><Content /></article>
       <footer>本文采用 <a href={licenseConfig.url}>{licenseConfig.name}</a> 许可。</footer>
     </section>}

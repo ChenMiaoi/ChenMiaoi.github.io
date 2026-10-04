@@ -1,7 +1,7 @@
 export type Section = "articles" | "series" | "graph" | "code" | "about";
 
 export const sectionPaths: Record<Section, string> = {
-	articles: "/",
+	articles: "/archive/",
 	series: "/series/",
 	graph: "/graph/",
 	code: "/contribution/",
@@ -30,4 +30,12 @@ export function resolveOrbitalLocation(
 		? localPath.slice(8).replace(/\/$/, "")
 		: "";
 	return { section: series ? ("articles" as const) : section, series, post };
+}
+
+export function isWelcomeLocation(pathname: string, search = "", prefix = "") {
+	const params = new URLSearchParams(search);
+	return (
+		(pathname === `${prefix}/` || (prefix !== "" && pathname === prefix)) &&
+		!["q", "tag", "category"].some((key) => params.has(key))
+	);
 }

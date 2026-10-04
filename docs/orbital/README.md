@@ -8,6 +8,14 @@ pnpm.cmd dev --host 127.0.0.1 --port 4321
 
 Open <http://127.0.0.1:4321/>.
 
+The home route now opens the orbital welcome portal. Enter the archive to reach
+`/archive/`. The entrance focuses on the welcome message and entry action. A restrained
+orbital instrument, staggered copy and a short departure share the site's existing
+scenery and motion preference. Direct section/article links bypass the welcome
+screen, as do legacy home URLs containing search or category filters. Back/forward
+restore the entrance and archive by URL; reduced motion and the direct-entry link
+skip the departure animation. The welcome screen remains usable without JavaScript.
+
 Orbital is the only production interface. It reads published
 Chinese posts and series from the existing Astro content collections. The reader
 uses the same rendered Markdown as the blog. Search, category and series filters,

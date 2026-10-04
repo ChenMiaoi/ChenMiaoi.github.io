@@ -28,6 +28,14 @@ for (const file of htmlFiles) {
 for (const path of ["", "en/", "ja/", "zh_TW/", "archive/", "series/", "graph/", "contribution/", "about/"]) {
 	await access(resolve(production, path, "index.html"));
 }
+for (const prefix of ["", "en/", "ja/", "zh_TW/"]) {
+	const welcome = await readFile(resolve(production, prefix, "index.html"), "utf8");
+	assert.match(welcome, /class="welcome-portal/, `Welcome missing: ${prefix}`);
+	assert.ok(welcome.includes(`href="/${prefix}archive/"`));
+	const archive = await readFile(resolve(production, prefix, "archive/index.html"), "utf8");
+	assert.match(archive, /class="terminal-shell/);
+	assert.doesNotMatch(archive, /class="welcome-portal/);
+}
 await access(resolve(production, "pagefind/pagefind.js"));
 const details = JSON.parse(await readFile(resolve(production, "contributions.json"), "utf8"));
 assert.ok(details.records.length > 0, "Contribution details must be available in production");

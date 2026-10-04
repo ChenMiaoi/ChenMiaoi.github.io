@@ -19,7 +19,7 @@ rag/                           可选问答后端及生成的本地索引
 
 ## 页面与阅读
 
-首页为 `/`；板块使用 `/series/`、`/graph/`、`/contribution/` 和 `/about/`。`/archive/` 和原分页地址仍进入 Orbital 文章档案。内容语言前缀保留，英文仅显示实际维护的英文文章。
+首页 `/` 是轨道入口欢迎页，点击“进入档案”到 `/archive/`；板块使用 `/series/`、`/graph/`、`/contribution/` 和 `/about/`。原分页地址仍进入 Orbital 文章档案。内容语言前缀保留，英文仅显示实际维护的英文文章。旧首页的 `q`、`tag`、`category` 查询链接直接进入筛选后的档案；文章和板块直达链接不经过欢迎页。
 
 文章沿用 `/:year/:month/:day/:slug/`。直接访问时，Astro 输出标题、元信息与完整正文；启用交互后打开 Orbital 阅读器。站内阅读通过同一永久链接按需获取正文，不依赖第二套文章地址。禁用 JavaScript 时仍可查看静态正文及文章链接。
 
@@ -36,6 +36,8 @@ rag/                           可选问答后端及生成的本地索引
 ## 组件与样式
 
 `ArchiveTerminal` 管理正式导航和历史记录。`ArticleArchive` 管理搜索、分类、排序与选择；`ArticleReader` 管理正文、目录、阅读进度和面板生命周期。系列规则和路线解析放在可独立验证的纯数据模块中。
+
+`WelcomePortal` 和 `styles/orbital/welcome.css` 管理入口画面，复用空间站背景与全站动效开关。轨道仪是装饰，不代表实时遥测。进入动画持续 520ms，可直接跳过；减少动态效果时立即进入。欢迎页、档案之间的前进后退遵循 URL，不依赖访问次数或本地存储标记。无 JavaScript 时入口仍是普通链接。
 
 `styles/orbital/index.css` 依次加载 tokens、base、shell、功能样式和 motion。组件自己的响应式规则与主样式保存在同一文件，动态效果尊重系统偏好和用户设置。
 

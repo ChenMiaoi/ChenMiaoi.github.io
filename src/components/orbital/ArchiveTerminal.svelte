@@ -8,6 +8,7 @@
   import KnowledgeAtlas from "./KnowledgeAtlas.svelte";
   import SourceDock from "./SourceDock.svelte";
   import ProfileDossier from "./ProfileDossier.svelte";
+  import WelcomePortal from "./WelcomePortal.svelte";
   import { navigationBeacon } from "./motion";
   import type { ArchivePost, ArchiveSeries, ContributionActivitySnapshot } from "./types";
   import type { ContributionProject, ProfileConfig } from "../../types/config";
@@ -19,11 +20,14 @@
   export let detailsUrl: string;
   export let profile: ProfileConfig;
 
-  import { sectionPaths, resolveOrbitalLocation, type Section } from "../../lib/content/navigation";
+  import { sectionPaths, resolveOrbitalLocation, isWelcomeLocation, type Section } from "../../lib/content/navigation";
   export let initialSection: Section = "articles";
   export let initialSeries = "";
   export let localePrefix = "";
   export let notFound = false;
+  export let initialWelcome = false;
+  let welcome = initialWelcome;
+  let mainElement: HTMLElement;
   const navigation: { id: Section; label: string; icon: string; kicker: string; title: string }[] = [
     { id: "articles", label: "文章", icon: "article", kicker: "WRITING / ARCHIVE", title: "文章档案" },
     { id: "series", label: "系列", icon: "series", kicker: "COLLECTIONS / DIRECTORY", title: "探索路径" },
@@ -35,7 +39,7 @@
   let query = "";
   let category = "all";
   let seriesFilter = initialSeries;
-  let returnPath = `${localePrefix}/`;
+  let returnPath = `${localePrefix}${sectionPaths.articles}`;
   let resetKey = 0;
   let reader: ArticleReader;
   let sourceProject = projects[0]?.id;
@@ -60,6 +64,7 @@
     about: '记录系统的内部世界。',
   };
   function setSection(next: Section, preserveQuery = false) {
+    welcome = false;
     section = next;
     const path = localePrefix + sectionPaths[next];
     if (window.location.pathname !== path || (!preserveQuery && window.location.search) || window.location.hash) history.pushState(null, "", path);
@@ -69,6 +74,13 @@
   function navigate(next: Section) {
     setSection(next);
     if (next === "articles") resetFilters();
+  }
+
+  async function enterArchive() {
+    navigate("articles");
+    await tick();
+    window.scrollTo({ top: 0, behavior: "instant" });
+    mainElement?.focus({ preventScroll: true });
   }
 
   async function openAuthor() {
@@ -146,17 +158,23 @@
     const params = new URLSearchParams();
     if (query) params.set("q", query);
     if (category !== "all") params.set("category", category);
-    history.replaceState(null, "", `${localePrefix}/${params.size ? `?${params}` : ""}`);
+    history.replaceState(null, "", `${localePrefix}${sectionPaths.articles}${params.size ? `?${params}` : ""}`);
   }
 
   function shortcuts(event: KeyboardEvent) {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !readerOpen) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !readerOpen && !welcome) {
       event.preventDefault();
       searchInput?.focus();
     }
   }
 
   function restoreLocation() {
+      welcome = !notFound && isWelcomeLocation(window.location.pathname, window.location.search, localePrefix);
+      if (welcome) {
+        if (readerOpen) reader.close(false);
+        document.title = "欢迎登站 · Miao's Blog";
+        return;
+      }
       const target = resolveOrbitalLocation(window.location.pathname, posts, localePrefix);
       if (target.post) {
         document.title = `${target.post.title} · Miao's Blog`;
@@ -204,11 +222,14 @@
 
 <svelte:window onkeydown={shortcuts} onpointermove={moveCamera} onblur={resetCamera} onresize={resetCamera}/>
 
-<div class="station-scene" class:motion-running={motionReady && !reducedMotion} class:motion-idle={ambientPaused} style={`--camera-x:${cameraX}px;--camera-y:${cameraY}px`} aria-hidden="true"></div>
-<div class="station-shade" aria-hidden="true"></div>
+<div class="station-scene" class:welcome-scene={welcome} class:motion-running={motionReady && !reducedMotion} class:motion-idle={ambientPaused} style={`--camera-x:${cameraX}px;--camera-y:${cameraY}px`} aria-hidden="true"></div>
+<div class="station-shade" class:welcome-shade={welcome} aria-hidden="true"></div>
 <div class="station-atmosphere" class:motion-running={motionReady && !reducedMotion} class:motion-idle={ambientPaused} aria-hidden="true">
   {#each [0, 1, 2, 3, 4] as mote}<span style={`--mote-x:${[19,39,66,83,94][mote]}%;--mote-y:${[73,40,83,33,65][mote]}%;--mote-time:${[13,17,19,15,21][mote]}s;--mote-delay:${mote * -3}s`}></span>{/each}
 </div>
+{#if welcome}
+  <WelcomePortal {localePrefix} {reducedMotion} {motionReady} {ambientPaused} {systemReducedMotion} {toggleMotion} onEnter={enterArchive} author={profile.name}/>
+{:else}
 <a class="skip-link" href="#terminal-main">跳到文章</a>
 
 <div class="terminal-shell" class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:ambient-paused={ambientPaused} class:archive-view={section === 'articles'} class:series-view={section === 'series'} class:graph-view={section === 'graph'} class:source-view={section === 'code'} class:about-view={section === 'about'}>
@@ -248,7 +269,7 @@
       </button>
     </aside>
 
-    <main id="terminal-main" class="terminal-main">
+    <main id="terminal-main" class="terminal-main" bind:this={mainElement} tabindex="-1">
       {#if notFound}<p class="route-notice" role="status">没有找到这个页面。你可以从文章档案继续探索。</p>{/if}
       {#key section}
       <div class="archive-heading">
@@ -279,5 +300,7 @@
 
   <footer class="terminal-footer"><span>Miao's Blog <i>·</i> Chen Miao</span><span class="footer-line" aria-hidden="true"></span><button class="motion-control" aria-label={systemReducedMotion ? '系统已减少动态效果' : effectsEnabled ? '暂停页面动效' : '开启页面动效'} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion} title={systemReducedMotion ? '跟随系统的减少动态效果设置' : '切换页面动效'}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? '动效暂停' : '动效开启'}</span></button><a class="feed-link" href={localePrefix === '/en' ? '/en/rss.xml' : '/rss.xml'}>RSS</a><span class="footer-words">文章 <i>/</i> 系列 <i>/</i> 关联</span></footer>
 </div>
+
+{/if}
 
 <ArticleReader bind:this={reader} {reducedMotion} bind:readerOpen onClosed={readerClosed}/>
