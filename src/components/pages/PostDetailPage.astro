@@ -8,13 +8,12 @@ import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import SeriesNav from "@components/SeriesNav.astro";
 import Comment from "@components/Comment.astro";
-import { getDir, getPostUrlBySlug } from "@utils/url-utils";
+import { getCategoryUrl, getDir, getPostUrlBySlug, getTagUrl, url } from "@utils/url-utils";
 import type { SeriesNavData } from "@utils/content-utils";
 import { Icon } from "astro-icon/components";
 import { licenseConfig } from "src/config";
 import ImageWrapper from "@components/misc/ImageWrapper.astro";
-import PostMetadata from "@components/PostMeta.astro";
-import { formatDateToYYYYMMDD } from "@utils/date-utils";
+import { formatDateToYYYYMMDD, formatDisplayDate, formatDateTime } from "@utils/date-utils";
 import { profileConfig, siteConfig } from "src/config";
 
 interface Props {
@@ -24,7 +23,7 @@ interface Props {
 }
 
 const { entry, seriesNav, lang } = Astro.props;
-const { Content, headings } = await entry.render();
+const { Content, headings, remarkPluginFrontmatter } = await entry.render();
 
 // Append a "Comments" entry to the TOC so readers of long posts can jump
 // straight to the comment section. Its depth must equal the post's own
@@ -43,8 +42,6 @@ const tocHeadings = siteConfig.comment.enable
 			},
 		]
 	: headings;
-
-const { remarkPluginFrontmatter } = await entry.render();
 
 const nextPostUrl =
 	entry.data.nextSlug && entry.data.nextPublished
@@ -72,58 +69,39 @@ const jsonLd = {
 		: siteConfig.lang.replace("_", "-"),
 	// TODO include cover image here
 };
-const sidebar = seriesNav ? "series" : "none";
+const showSeriesSidebar = !!seriesNav && seriesNav.items.length > 1;
+const sidebar = showSeriesSidebar ? "series" : "none";
+const description = entry.data.description.trim();
 ---
 <MainGridLayout sidebar={sidebar} seriesSidebar={seriesNav} banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={lang} setOGTypeArticle={true} headings={tocHeadings}>
     <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
+    <div class="post-reading-column">
     <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4">
-        <div id="post-container" class:list={["card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full"]}>
-            <div class="flex flex-row text-black/30 dark:text-white/30 gap-5 mb-3 transition onload-animation">
-                <div class="flex flex-row items-center">
-                    <div class="transition h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2">
-                        <Icon name="material-symbols:notes-rounded"></Icon>
-                    </div>
-                    <div class="text-sm">{remarkPluginFrontmatter.words} {" " + i18n(I18nKey.wordsCount, lang)}</div>
-                </div>
-                <div class="flex flex-row items-center">
-                    <div class="transition h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2">
-                        <Icon name="material-symbols:schedule-outline-rounded"></Icon>
-                    </div>
-                    <div class="text-sm">
-                        {remarkPluginFrontmatter.minutes} {" " + i18n(remarkPluginFrontmatter.minutes === 1 ? I18nKey.minuteCount : I18nKey.minutesCount, lang)}
-                    </div>
-                </div>
-            </div>
-
-            <!-- title -->
-            <div class="relative onload-animation">
-                <div
-                    data-pagefind-body data-pagefind-weight="10" data-pagefind-meta="title"
-                    class="transition w-full block font-bold mb-3
-                    text-3xl md:text-[2.25rem]/[2.75rem]
-                    text-black/90 dark:text-white/90
-                    md:before:w-1 before:h-5 before:rounded-md before:bg-[var(--primary)]
-                    before:absolute before:top-[0.75rem] before:left-[-1.125rem]
-                ">
+        <article id="post-container" aria-labelledby="post-title" class="card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full">
+            <header class="post-header onload-animation">
+                <h1 id="post-title" data-pagefind-body data-pagefind-weight="10" data-pagefind-meta="title" class="text-90">
                     {entry.data.title}
+                </h1>
+                {description && <p class="post-description text-75">{description}</p>}
+                <div class="post-details text-75">
+                    <time datetime={entry.data.published.toISOString()} title={formatDateTime(entry.data.published)}>
+                        {i18n(I18nKey.publishedAt, lang)} {formatDisplayDate(entry.data.published)}
+                    </time>
+                    {entry.data.updated && entry.data.updated.getTime() !== entry.data.published.getTime() && <time datetime={entry.data.updated.toISOString()} title={formatDateTime(entry.data.updated)}>
+                        {i18n(I18nKey.updatedAt, lang)} {formatDisplayDate(entry.data.updated)}
+                    </time>}
+                    <span>{remarkPluginFrontmatter.minutes} {i18n(remarkPluginFrontmatter.minutes === 1 ? I18nKey.minuteCount : I18nKey.minutesCount, lang)}</span>
+                    <span>{remarkPluginFrontmatter.words} {i18n(I18nKey.wordsCount, lang)}</span>
                 </div>
-            </div>
-
-            <!-- metadata -->
-            <div class="onload-animation">
-                <PostMetadata
-                        class="mb-5"
-                        published={entry.data.published}
-                        updated={entry.data.updated}
-                        tags={entry.data.tags}
-                        category={entry.data.category}
-                        lang={lang}
-                ></PostMetadata>
-                {!entry.data.image && <div class="border-[var(--line-divider)] border-dashed border-b-[1px] mb-5"></div>}
-            </div>
-
-            <!-- series navigation (Part X of N) -->
-            {seriesNav && <SeriesNav {...seriesNav} lang={lang} />}
+                <div class="post-taxonomy text-75">
+                    {entry.data.category && <a href={getCategoryUrl(entry.data.category, lang)} aria-label={`${i18n(I18nKey.categories, lang)}: ${entry.data.category}`}>{entry.data.category}</a>}
+                    {entry.data.tags.map((tag) => <a href={getTagUrl(tag, lang)} aria-label={`${i18n(I18nKey.tags, lang)}: ${tag}`}>#{tag}</a>)}
+                </div>
+                {seriesNav && <div class:list={["post-series-context", {"lg:hidden": showSeriesSidebar}]}>
+                    <span>{i18n(I18nKey.series, lang)}</span>
+                    <a href={url(`/series/${seriesNav.leafSlug}/`, lang)}>{seriesNav.leafTitle}</a>
+                </div>}
+            </header>
 
             <!-- always show cover as long as it has one -->
 
@@ -136,9 +114,11 @@ const sidebar = seriesNav ? "series" : "none";
                 <Content />
             </Markdown>
 
+            {seriesNav && (seriesNav.prev || seriesNav.next) && <SeriesNav {...seriesNav} lang={lang} />}
+
             {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} lang={lang} class="mb-6 rounded-xl license-container onload-animation"></License>}
 
-        </div>
+        </article>
     </div>
 
     {siteConfig.comment.enable && <Comment lang={lang} />}
@@ -164,5 +144,26 @@ const sidebar = seriesNav ? "series" : "none";
             </div>}
         </a>
     </div>
+    </div>
 
 </MainGridLayout>
+
+<style>
+    .post-reading-column { width: 100%; max-width: 52rem; margin-inline: auto; }
+    .post-header { border-bottom: 1px solid var(--line-divider); margin-bottom: 24px; padding-bottom: 20px; }
+    #post-title { font-size: 28px; font-weight: 700; line-height: 1.35; margin: 0; overflow-wrap: anywhere; }
+    .post-description { font-size: 16px; line-height: 1.8; margin: 16px 0 0; }
+    .post-details, .post-taxonomy { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+    .post-details { font-size: 14px; line-height: 1.6; margin-top: 16px; }
+    .post-taxonomy { font-size: 13px; line-height: 1.7; margin-top: 8px; }
+    .post-taxonomy a:hover { color: var(--btn-content); }
+    .post-series-context { font-size: 14px; line-height: 1.7; margin-top: 12px; }
+    .post-series-context span { color: var(--btn-content); margin-right: 8px; }
+    .post-series-context a { color: var(--btn-content); text-decoration: underline; text-underline-offset: 3px; }
+    .post-header a:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+    .post-reading-column :global(.markdown-content) { font-size: 16px; line-height: 1.8; }
+    .post-reading-column :global(.markdown-content h2) { font-size: 24px; line-height: 1.4; }
+    .post-reading-column :global(.markdown-content h3) { font-size: 20px; line-height: 1.5; }
+    .post-reading-column :global(.markdown-content h4) { font-size: 18px; line-height: 1.5; }
+    @media (min-width: 768px) { #post-title { font-size: 36px; } }
+</style>

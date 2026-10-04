@@ -68,6 +68,7 @@ export const navBarConfig: NavBarConfig = {
 		{
 			name: "GitHub",
 			url: "https://github.com/ChenMiaoi", // Internal links should not include the base path, as it is automatically added
+			icon: "fa6-brands:github",
 			external: true, // Show an external link icon and will open in a new tab
 		},
 	],

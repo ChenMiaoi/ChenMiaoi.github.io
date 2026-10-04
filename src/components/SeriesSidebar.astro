@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import { url } from "@utils/url-utils";
 
 interface SidebarItem {
 	kind: "post" | "series";
@@ -17,7 +18,7 @@ interface Props {
 	lang?: string;
 }
 
-const { seriesTitle, seriesSlug, ancestors = [], items } = Astro.props;
+const { seriesTitle, seriesSlug, ancestors = [], items, lang } = Astro.props;
 // Only posts get sequence numbers; sub-series rows show a bookmark icon.
 let postNo = 0;
 const numbered = items.map((item) => ({
@@ -25,12 +26,12 @@ const numbered = items.map((item) => ({
 	no: item.kind === "post" ? ++postNo : 0,
 }));
 ---
-<div id="series-sidebar" class="card-base p-4 w-full mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] self-start lg:sticky lg:top-4 onload-animation">
+<div id="series-sidebar" class="hidden lg:block card-base p-4 w-full mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] self-start lg:sticky lg:top-4 onload-animation">
     {ancestors.length > 0 && (
         <nav class="mb-2 flex flex-wrap items-center gap-1 text-xs text-black/40 dark:text-white/40">
             {ancestors.map((a) => (
                 <>
-                    <a href={`/series/${a.slug}/`} class="hover:text-[var(--primary)] transition truncate max-w-full">
+                    <a href={url(`/series/${a.slug}/`, lang)} class="hover:text-[var(--primary)] transition truncate max-w-full">
                         {a.title}
                     </a>
                     <Icon name="material-symbols:chevron-right-rounded" class="text-sm shrink-0" />
@@ -38,7 +39,7 @@ const numbered = items.map((item) => ({
             ))}
         </nav>
     )}
-    <a href={`/series/${seriesSlug}/`} class="block font-bold text-black/80 dark:text-white/80 hover:text-[var(--primary)] transition mb-3">
+    <a href={url(`/series/${seriesSlug}/`, lang)} class="block font-bold text-black/80 dark:text-white/80 hover:text-[var(--primary)] transition mb-3">
         {seriesTitle}
     </a>
     <ol class="flex flex-col gap-1">

@@ -11,6 +11,7 @@ import { Icon } from "astro-icon/components";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
 import TOC from "../components/widget/TOC.astro";
 import SeriesSidebar from "@components/SeriesSidebar.astro";
+import MobilePostNav from "@components/MobilePostNav.astro";
 import type { SeriesNavData } from "@utils/content-utils";
 import { siteConfig } from "../config";
 import {
@@ -116,7 +117,7 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
                     <!-- the overflow-hidden here prevent long text break the layout-->
                     <!-- make id different from windows.swup global property -->
                     <slot></slot>
-                    <div class="footer col-span-2 onload-animation hidden lg:block">
+                    <div class="footer col-span-full onload-animation hidden lg:block">
                         <Footer lang={lang}></Footer>
                     </div>
                 </div>
@@ -133,7 +134,7 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
                 </div>
             </div>
 
-            <div class="footer col-span-2 onload-animation block lg:hidden">
+            <div class="footer col-span-full onload-animation block lg:hidden">
                 <Footer lang={lang}></Footer>
             </div>
         </div>
@@ -144,6 +145,11 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
 <CardCounts />
 <ParaComments />
 <RagChat client:only="svelte" />
+<!-- Keep this outside animated ancestors so its fixed panel stays viewport-relative.
+     The persistent wrapper is also a Swup container, including on non-post pages. -->
+<div id="mobile-post-nav">
+    {setOGTypeArticle && (showToc || seriesSidebar) && <MobilePostNav headings={showToc ? headings : []} series={seriesSidebar} lang={lang} />}
+</div>
 </Layout>
 
 <script>

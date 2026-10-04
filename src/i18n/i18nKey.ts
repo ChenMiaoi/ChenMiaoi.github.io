@@ -9,6 +9,8 @@ enum I18nKey {
 	recentPosts = "recentPosts",
 
 	comments = "comments",
+	tableOfContents = "tableOfContents",
+	articleNavigation = "articleNavigation",
 
 	series = "series",
 	graph = "graph",
@@ -53,6 +55,7 @@ enum I18nKey {
 
 	author = "author",
 	publishedAt = "publishedAt",
+	updatedAt = "updatedAt",
 	license = "license",
 }
 

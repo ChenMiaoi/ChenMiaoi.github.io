@@ -2,6 +2,9 @@ import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const ja: Translation = {
+	[Key.updatedAt]: "更新日",
+	[Key.tableOfContents]: "目次",
+	[Key.articleNavigation]: "記事ナビゲーション",
 	[Key.home]: "Home",
 	[Key.about]: "About",
 	[Key.archive]: "Archive",

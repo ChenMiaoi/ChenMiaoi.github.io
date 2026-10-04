@@ -2,6 +2,9 @@ import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const vi: Translation = {
+	[Key.updatedAt]: "Cập nhật",
+	[Key.tableOfContents]: "Mục lục",
+	[Key.articleNavigation]: "Điều hướng bài viết",
 	[Key.home]: "Trang chủ",
 	[Key.about]: "Giới thiệu",
 	[Key.archive]: "Kho bài",

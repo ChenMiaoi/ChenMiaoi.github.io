@@ -58,6 +58,8 @@ export enum LinkPreset {
 export type NavBarLink = {
 	name: string;
 	url: string;
+	// Render icon links in the navbar's right-hand action area.
+	icon?: string;
 	external?: boolean;
 	// When set, the link label is resolved via i18n in the current locale
 	// instead of using `name` verbatim.

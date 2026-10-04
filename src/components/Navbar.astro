@@ -29,22 +29,24 @@ const linkName = (l: NavBarLink) =>
 	l.i18nKey ? i18n(l.i18nKey as I18nKey, lang) : l.name;
 
 const currentPath = Astro.url.pathname;
+const navigationLinks = links.filter((link) => !link.icon);
+const iconLinks = links.filter((link) => link.icon);
 ---
 <div id="navbar" class="z-50 onload-animation">
     <div class="absolute h-8 left-0 right-0 -top-8 bg-[var(--card-bg)] transition"></div> <!-- used for onload animation -->
     <div class:list={[
         className,
         "card-base !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
-        <a href={url('/', lang)} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-5 font-bold active:scale-95">
+        <a href={url('/', lang)} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-2 sm:px-5 shrink-0 whitespace-nowrap font-bold active:scale-95">
             <div class="flex flex-row text-[var(--primary)] items-center text-md">
-                <Icon name="material-symbols:home-outline-rounded" class="text-[1.75rem] mb-1 mr-2" />
+                <Icon name="material-symbols:home-outline-rounded" class="hidden sm:block text-[1.75rem] mb-1 mr-2" />
                 {siteConfig.title}
             </div>
         </a>
-        <div class="hidden md:flex">
-            {links.map((l) => {
+        <div class="hidden xl:flex shrink-0">
+            {navigationLinks.map((l) => {
                 return <a aria-label={linkName(l)} href={l.external ? l.url : url(l.url, lang)} target={l.external ? "_blank" : null}
-                          class="btn-plain scale-animation rounded-lg h-11 font-bold px-5 active:scale-95"
+                          class="btn-plain scale-animation rounded-lg h-11 font-bold px-3 whitespace-nowrap active:scale-95"
                 >
                     <div class="flex items-center">
                         {linkName(l)}
@@ -53,7 +55,7 @@ const currentPath = Astro.url.pathname;
                 </a>;
             })}
         </div>
-        <div class="flex">
+        <div class="navbar-actions flex shrink-0">
             <!--<SearchPanel client:load>-->
             <Search lang={lang} client:only="svelte"></Search>
             <button aria-label="Language" name="Language Switch" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" id="locale-switch">
@@ -65,11 +67,20 @@ const currentPath = Astro.url.pathname;
                     </button>
             )}
             <LightDarkSwitch lang={lang} client:only="svelte"></LightDarkSwitch>
-            <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch">
+            {iconLinks.map((link) => <a
+                href={link.external ? link.url : url(link.url, lang)}
+                aria-label={linkName(link)} title={linkName(link)}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noopener noreferrer" : undefined}
+                class="navbar-icon-link btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90"
+            >
+                <Icon name={link.icon!} class="text-[1.25rem]" />
+            </a>)}
+            <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 xl:!hidden" id="nav-menu-switch">
                 <Icon name="material-symbols:menu-rounded" class="text-[1.25rem]"></Icon>
             </button>
         </div>
-        <NavMenuPanel links={links} lang={lang}></NavMenuPanel>
+        <NavMenuPanel links={navigationLinks} lang={lang}></NavMenuPanel>
         <DisplaySettings lang={lang} client:only="svelte"></DisplaySettings>
         <div id="locale-panel" class:list={["float-panel float-panel-closed absolute transition-all fixed right-4 px-2 py-2"]}>
             {LOCALES.map((l) => (
@@ -89,6 +100,28 @@ const currentPath = Astro.url.pathname;
         </div>
     </div>
 </div>
+
+<style>
+    .navbar-icon-link:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+    @media (max-width: 639px) {
+        .navbar-actions > :global(button),
+        .navbar-actions > a,
+        .navbar-actions :global(#scheme-switch) {
+            width: 36px;
+            height: 44px;
+        }
+    }
+    @media (max-width: 359px) {
+        .navbar-actions > :global(button),
+        .navbar-actions > a,
+        .navbar-actions :global(#scheme-switch) {
+            width: 32px;
+        }
+    }
+</style>
 
 <script>
 function switchTheme() {
@@ -150,6 +183,13 @@ function loadButtonScript() {
             }
         };
     }
+
+    const menuPanel = document.getElementById("nav-menu-panel");
+    menuPanel?.addEventListener("click", (event) => {
+        if (event.target instanceof Element && event.target.closest("a")) {
+            menuPanel.classList.add("float-panel-closed");
+        }
+    });
 
     let localeBtn = document.getElementById("locale-switch");
     if (localeBtn) {

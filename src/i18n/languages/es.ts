@@ -2,6 +2,9 @@ import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const es: Translation = {
+	[Key.updatedAt]: "Actualizado",
+	[Key.tableOfContents]: "En esta página",
+	[Key.articleNavigation]: "Navegación del artículo",
 	[Key.home]: "Inicio",
 	[Key.about]: "Sobre mí",
 	[Key.archive]: "Archivo",

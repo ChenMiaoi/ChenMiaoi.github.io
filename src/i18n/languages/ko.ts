@@ -2,6 +2,9 @@ import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const ko: Translation = {
+	[Key.updatedAt]: "수정일",
+	[Key.tableOfContents]: "목차",
+	[Key.articleNavigation]: "문서 탐색",
 	[Key.home]: "홈",
 	[Key.about]: "소개",
 	[Key.archive]: "아카이브",

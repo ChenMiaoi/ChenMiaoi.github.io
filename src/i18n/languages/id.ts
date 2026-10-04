@@ -2,6 +2,9 @@ import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const id: Translation = {
+	[Key.updatedAt]: "Diperbarui",
+	[Key.tableOfContents]: "Daftar isi",
+	[Key.articleNavigation]: "Navigasi artikel",
 	[Key.home]: "Beranda",
 	[Key.about]: "Tentang",
 	[Key.archive]: "Arsip",

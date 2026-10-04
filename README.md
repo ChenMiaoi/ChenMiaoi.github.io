@@ -13,6 +13,8 @@ deployed to GitHub Pages via GitHub Actions.
 - Frontmatter: `title` / `published` / `tags` / `category` / `series` (+ optional `seriesOrder`)
 - Series metadata (title & description shown on `/series/`): `src/content/series/<slug>.md`
 - Post URLs keep the old Hexo permalink format: `/:year/:month/:day/:slug/`
+- Code blocks preserve line breaks and scroll horizontally by default, keeping source code and text diagrams aligned. Use the `text` language for plain-text diagrams. Add `wrap` after the language in a fence only when soft wrapping is appropriate (for example, `sh wrap`).
+- The article template renders the page title as `h1`. Start article sections with `##`; older posts using `#` are normalized during rendering, with their heading text and link anchors preserved. A non-empty `description` also appears as the article's introduction.
 
 ## Developing
 

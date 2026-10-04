@@ -23,6 +23,7 @@ import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
 import { remarkGlossary } from "./src/plugins/remark-glossary.mjs";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
+import { remarkPostHeadings } from "./src/plugins/remark-post-headings.mjs";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 
 // https://astro.build/config
@@ -39,7 +40,7 @@ export default defineConfig({
 			animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
 			// the default value `transition-` cause transition delay
 			// when the Tailwind class `transition-all` is used
-			containers: ["main", "#toc", "#sidebar-wrapper"],
+			containers: ["main", "#toc", "#sidebar-wrapper", "#mobile-post-nav"],
 			smoothScrolling: true,
 			cache: true,
 			preload: true,
@@ -71,7 +72,7 @@ expressiveCode({
 				pluginCustomCopyButton()
 			],
 			defaultProps: {
-				wrap: true,
+				wrap: false,
 				overridesByLang: {
 					'shellsession': {
 						showLineNumbers: false,
@@ -82,9 +83,9 @@ expressiveCode({
 				codeBackground: "var(--codeblock-bg)",
 				borderRadius: "0.75rem",
 				borderColor: "none",
-				codeFontSize: "0.875rem",
+				codeFontSize: "14px",
 				codeFontFamily: "'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-				codeLineHeight: "1.5rem",
+				codeLineHeight: "24px",
 				frames: {
 					editorBackground: "var(--codeblock-bg)",
 					terminalBackground: "var(--codeblock-bg)",
@@ -127,6 +128,7 @@ expressiveCode({
 			remarkGithubAdmonitionsToDirectives,
 			remarkDirective,
 			remarkGlossary, /* after remarkMath & remarkDirective so math nodes and directive labels can be skipped */
+			remarkPostHeadings,
 			remarkSectionize,
 			parseDirectiveNode,
 		],

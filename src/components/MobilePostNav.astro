@@ -1,0 +1,167 @@
+---
+import type { MarkdownHeading } from "astro";
+import { Icon } from "astro-icon/components";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import type { SeriesNavData } from "@utils/content-utils";
+import { url } from "@utils/url-utils";
+import { siteConfig } from "../config";
+
+interface Props {
+	headings: MarkdownHeading[];
+	series?: SeriesNavData | null;
+	lang?: string;
+}
+
+const { headings, series, lang = siteConfig.lang } = Astro.props;
+const minDepth = Math.min(...headings.map((heading) => heading.depth));
+const entries = headings.filter((heading) => heading.depth < minDepth + siteConfig.toc.depth);
+---
+
+<mobile-post-navigation>
+    <details>
+        <summary>
+            <Icon name="material-symbols:format-list-bulleted-rounded" />
+            <span>{i18n(I18nKey.articleNavigation, lang)}</span>
+        </summary>
+        <div class="post-nav-panel">
+            {entries.length > 0 && <nav aria-label={i18n(I18nKey.tableOfContents, lang)}>
+                <h2>{i18n(I18nKey.tableOfContents, lang)}</h2>
+                <ol>
+                    {entries.map((heading) => <li>
+                        <a href={`#${heading.slug}`} style={`padding-inline-start: ${0.75 + (heading.depth - minDepth)}rem`}>
+                            {heading.text.replace(/#$/, "")}
+                        </a>
+                    </li>)}
+                </ol>
+            </nav>}
+            {series && <nav class="post-nav-series" aria-label={i18n(I18nKey.series, lang)}>
+                <h2>{i18n(I18nKey.series, lang)}</h2>
+                {series.ancestors.map((ancestor) => <a class="post-nav-ancestor" href={url(`/series/${ancestor.slug}/`, lang)}>{ancestor.title}</a>)}
+                <a class="post-nav-series-title" href={url(`/series/${series.leafSlug}/`, lang)}>{series.leafTitle}</a>
+                <ol>
+                    {series.items.map((item) => <li>
+                        <a href={item.url} aria-current={item.kind === "post" && item.current ? "page" : undefined}>
+                            {item.title}
+                        </a>
+                    </li>)}
+                </ol>
+            </nav>}
+        </div>
+    </details>
+</mobile-post-navigation>
+
+<style>
+    mobile-post-navigation {
+        position: fixed;
+        left: max(1rem, env(safe-area-inset-left));
+        bottom: calc(1rem + env(safe-area-inset-bottom));
+        z-index: 50;
+        font-size: 1rem;
+        color: var(--btn-content);
+    }
+    summary {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 44px;
+        padding: 0.6rem 0.9rem;
+        list-style: none;
+        cursor: pointer;
+        font-weight: 600;
+        background: var(--card-bg);
+        border: 1px solid var(--line-color);
+        border-radius: 0.75rem;
+        box-shadow: 0 3px 16px rgb(0 0 0 / 0.12);
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary:hover, details[open] summary { background: var(--btn-regular-bg); }
+    summary :global(svg) { width: 1.25rem; height: 1.25rem; }
+    summary:focus-visible, a:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+    .post-nav-panel {
+        position: absolute;
+        bottom: calc(100% + 0.6rem);
+        left: 0;
+        width: min(24rem, calc(100vw - 2rem));
+        max-height: min(65dvh, 36rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: var(--btn-content) transparent;
+        padding: 1rem;
+        background: var(--card-bg);
+        color: var(--btn-content);
+        border: 1px solid var(--line-color);
+        border-radius: 0.75rem;
+        box-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
+    }
+    h2 { font-size: 0.875rem; font-weight: 700; margin: 0 0 0.5rem; }
+    ol { list-style: none; margin: 0; padding: 0; }
+    a {
+        display: block;
+        padding: 0.65rem 0.75rem;
+        min-height: 44px;
+        line-height: 1.5;
+        color: inherit;
+        overflow-wrap: anywhere;
+        border-radius: 0.5rem;
+    }
+    a:hover, a[aria-current="page"] { background: var(--btn-regular-bg); }
+    a[aria-current="page"], .post-nav-series-title { font-weight: 700; }
+    nav + nav { border-top: 1px solid var(--line-color); margin-top: 1rem; padding-top: 1rem; }
+    .post-nav-ancestor { font-size: 0.875rem; }
+    @media (min-width: 1280px) { mobile-post-navigation { display: none; } }
+</style>
+
+<script>
+    class MobilePostNavigation extends HTMLElement {
+        private controller?: AbortController;
+        private desktop = window.matchMedia("(min-width: 1280px)");
+
+        connectedCallback() {
+            this.controller?.abort();
+            this.controller = new AbortController();
+            const { signal } = this.controller;
+            const details = this.querySelector("details");
+            const summary = this.querySelector("summary");
+            if (!details || !summary) return;
+
+            this.addEventListener("click", (event) => {
+                const anchor = (event.target as Element).closest("a");
+                if (!anchor) return;
+                details.open = false;
+                if (anchor.pathname === window.location.pathname && anchor.hash) {
+                    const heading = document.getElementById(decodeURIComponent(anchor.hash.slice(1)));
+                    heading?.setAttribute("tabindex", "-1");
+                    heading?.focus({ preventScroll: true });
+                }
+            }, { signal });
+
+            document.addEventListener("pointerdown", (event) => {
+                if (!this.contains(event.target as Node)) details.open = false;
+            }, { signal });
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape" && details.open) {
+                    details.open = false;
+                    summary.focus();
+                }
+            }, { signal });
+
+            this.desktop.addEventListener("change", () => {
+                details.open = false;
+            }, { signal });
+        }
+
+        disconnectedCallback() {
+            this.controller?.abort();
+        }
+    }
+
+    if (!customElements.get("mobile-post-navigation")) {
+        customElements.define("mobile-post-navigation", MobilePostNavigation);
+    }
+</script>
