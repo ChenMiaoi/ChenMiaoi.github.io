@@ -27,8 +27,6 @@ export const vi: Translation = {
 	[Key.categories]: "Danh mục",
 	[Key.recentPosts]: "Bài viết mới nhất",
 
-	[Key.comments]: "Bình luận",
-
 	[Key.series]: "Series",
 	[Key.graph]: "Graph",
 	[Key.contribution]: "Contribution",

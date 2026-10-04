@@ -27,8 +27,6 @@ export const tr: Translation = {
 	[Key.categories]: "Katagoriler",
 	[Key.recentPosts]: "Son Paylaşımlar",
 
-	[Key.comments]: "Yorumlar",
-
 	[Key.series]: "Series",
 	[Key.graph]: "Graph",
 	[Key.contribution]: "Contribution",

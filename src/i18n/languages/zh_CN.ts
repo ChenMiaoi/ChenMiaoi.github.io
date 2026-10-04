@@ -26,8 +26,6 @@ export const zh_CN: Translation = {
 	[Key.categories]: "分类",
 	[Key.recentPosts]: "最新文章",
 
-	[Key.comments]: "评论",
-
 	[Key.series]: "专栏",
 	[Key.graph]: "图谱",
 	[Key.contribution]: "贡献",

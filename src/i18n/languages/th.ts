@@ -27,8 +27,6 @@ export const th: Translation = {
 	[Key.categories]: "หมวดหมู่",
 	[Key.recentPosts]: "โพสต์ล่าสุด",
 
-	[Key.comments]: "ความคิดเห็น",
-
 	[Key.series]: "Series",
 	[Key.graph]: "Graph",
 	[Key.contribution]: "Contribution",

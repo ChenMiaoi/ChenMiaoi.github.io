@@ -17,7 +17,6 @@ enum I18nKey {
 	categories = "categories",
 	recentPosts = "recentPosts",
 
-	comments = "comments",
 	tableOfContents = "tableOfContents",
 	articleNavigation = "articleNavigation",
 

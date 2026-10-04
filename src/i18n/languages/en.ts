@@ -27,8 +27,6 @@ export const en: Translation = {
 	[Key.categories]: "Categories",
 	[Key.recentPosts]: "Recent Posts",
 
-	[Key.comments]: "Comments",
-
 	[Key.series]: "Series",
 	[Key.graph]: "Graph",
 	[Key.contribution]: "Contribution",

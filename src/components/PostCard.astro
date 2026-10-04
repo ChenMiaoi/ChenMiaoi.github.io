@@ -78,7 +78,7 @@ const { remarkPluginFrontmatter } = await entry.render();
             </div>
         </div>
 
-        <!-- view / like / comment counts (filled client-side from the Waline API) -->
+        <!-- view / like counts (filled client-side from the article statistics API) -->
         <div class="text-sm text-black/30 dark:text-white/30 flex gap-4 transition mt-1 items-center">
             <span class="inline-flex items-center gap-1" title={i18n(I18nKey.views, lang)}>
                 <Icon name="material-symbols:visibility-outline-rounded" class="text-base" />
@@ -87,10 +87,6 @@ const { remarkPluginFrontmatter } = await entry.render();
             <span class="inline-flex items-center gap-1" title={i18n(I18nKey.likes, lang)}>
                 <Icon name="material-symbols:favorite-outline-rounded" class="text-base" />
                 <span data-count="likes">-</span>
-            </span>
-            <span class="inline-flex items-center gap-1" title={i18n(I18nKey.comments, lang)}>
-                <Icon name="material-symbols:mode-comment-outline-rounded" class="text-base" />
-                <span data-count="comments">-</span>
             </span>
         </div>
 

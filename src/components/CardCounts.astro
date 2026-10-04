@@ -1,5 +1,5 @@
 ---
-// Loads per-card view/like/comment counts from the Waline API on list pages.
+// Loads per-card view/like counts from the article statistics API on list pages.
 // Mounted globally (MainGridLayout) so it also works when swup-navigating
 // from a page without cards onto the home page.
 ---
@@ -7,10 +7,10 @@
 <script>
 	import { siteConfig } from "../config";
 
-	const API = siteConfig.comment.serverURL;
+	const API = siteConfig.stats.serverURL;
 
 	async function loadCardCounts() {
-		if (!siteConfig.comment?.enable) return;
+		if (!siteConfig.stats.enable) return;
 		const cards = document.querySelectorAll<HTMLElement>(
 			"[data-post-path]:not([data-counts-loaded])",
 		);
@@ -20,27 +20,20 @@
 				const path = el.dataset.postPath;
 				if (!path) return;
 				const q = `path=${encodeURIComponent(path)}`;
-				const [articleRes, commentsRes] = await Promise.all([
-					fetch(`${API}/api/article?${q}`, { credentials: "omit" }).then((r) =>
-						r.json(),
-					),
-					fetch(`${API}/api/comment?${q}&type=count`, {
-						credentials: "omit",
-					}).then((r) => r.json()),
-				]);
+				const articleRes = await fetch(`${API}/api/article?${q}`, {
+					credentials: "omit",
+				}).then((r) => r.json());
 				const counter = articleRes?.data?.[0] ?? {};
 				const views = counter.time ?? 0;
 				const likes = Object.keys(counter)
 					.filter((k) => k.startsWith("reaction"))
 					.reduce((sum, k) => sum + (counter[k] ?? 0), 0);
-				const comments = commentsRes?.data ?? 0;
 				const set = (key: string, val: number) => {
 					const t = el.querySelector<HTMLElement>(`[data-count="${key}"]`);
 					if (t) t.textContent = String(val);
 				};
 				set("views", views);
 				set("likes", likes);
-				set("comments", comments);
 			}),
 		);
 	}

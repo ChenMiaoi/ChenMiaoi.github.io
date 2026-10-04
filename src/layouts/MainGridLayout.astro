@@ -1,7 +1,6 @@
 ---
 import BackToTop from "@components/control/BackToTop.astro";
 import CardCounts from "@components/CardCounts.astro";
-import ParaComments from "@components/ParaComments.astro";
 import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
 import SideBar from "@components/widget/SideBar.astro";
@@ -143,7 +142,6 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
     </div>
 </div>
 <CardCounts />
-<ParaComments />
 <RagChat client:only="svelte" />
 <!-- Keep this outside animated ancestors so its fixed panel stays viewport-relative.
      The persistent wrapper is also a Swup container, including on non-post pages. -->
@@ -155,38 +153,23 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
 <script>
 	import { siteConfig } from "../config";
 
-	const walineLangMap: Record<string, string> = {
-		"zh-CN": "zh-CN",
-		"zh-TW": "zh-TW",
-		en: "en-US",
-		ja: "jp-JP",
-	};
-
-	async function initWaline() {
-		const el = document.getElementById("waline");
-		if (!el || !siteConfig.comment?.enable) return;
-		await import("@waline/client/style");
-		const { init, pageviewCount } = await import("@waline/client");
-		init({
-			el,
-			serverURL: siteConfig.comment.serverURL,
-			path: window.location.pathname,
-			lang: walineLangMap[document.documentElement.lang] ?? "en-US",
-			dark: "html.dark",
-			reaction: true,
-		});
+	async function initPageviews() {
+		if (!siteConfig.stats.enable || !document.getElementById("post-container")) return;
+		const path = window.location.pathname;
+		const { pageviewCount } = await import("@waline/client/pageview");
+		if (path !== window.location.pathname) return;
 		// Record a page view for this post (counter feeds the home cards).
 		pageviewCount({
-			serverURL: siteConfig.comment.serverURL,
-			path: window.location.pathname,
+			serverURL: siteConfig.stats.serverURL,
+			path,
 			update: true,
 		});
 	}
 
 	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", initWaline);
+		document.addEventListener("DOMContentLoaded", initPageviews);
 	} else {
-		initWaline();
+		initPageviews();
 	}
 
 	// Swup swaps only main/#toc/#sidebar-wrapper, so the sidebar region and
@@ -258,14 +241,14 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
 	initContributionTabs();
 
 	// Swup swaps only the main/#toc containers without re-running page
-	// scripts, so Waline must be re-initialized on every navigation.
+	// scripts, so page views and layout state must be refreshed on navigation.
 	// Register the hook exactly once and wait for window.swup if needed.
 	const w = window as any;
-	if (!w.__walineSwupHooked) {
-		w.__walineSwupHooked = true;
+	if (!w.__mainGridSwupHooked) {
+		w.__mainGridSwupHooked = true;
 		const tryHook = (n = 0): void => {
 			if (w.swup?.hooks) {
-				w.swup.hooks.on("page:view", initWaline);
+				w.swup.hooks.on("page:view", initPageviews);
 				w.swup.hooks.on("page:view", syncMainGrid);
 				w.swup.hooks.on("page:view", initContributionTabs);
 			} else if (n < 50) {

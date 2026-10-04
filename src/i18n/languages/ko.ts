@@ -27,8 +27,6 @@ export const ko: Translation = {
 	[Key.categories]: "카테고리",
 	[Key.recentPosts]: "최근 게시물",
 
-	[Key.comments]: "댓글",
-
 	[Key.series]: "Series",
 	[Key.graph]: "Graph",
 	[Key.contribution]: "Contribution",
