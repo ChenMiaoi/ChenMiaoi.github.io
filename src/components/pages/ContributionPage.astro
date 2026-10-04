@@ -2,6 +2,8 @@
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { Icon } from "astro-icon/components";
 import { contributionConfig } from "../../config";
+import activity from "../../data/contribution-activity.json";
+import { formatDisplayDate, formatDateTime } from "../../utils/date-utils";
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
 import { resolveContributionProjects } from "../../utils/contribution";
@@ -40,8 +42,8 @@ function getPatchLineClass(line: string) {
 }
 ---
 <MainGridLayout title={t(I18nKey.contribution)} description={t(I18nKey.contributionDescription)} lang={lang}>
-    <section class="card-base overflow-visible" data-contribution-tabs>
-        <div class="px-6 pt-7 pb-5 md:px-8">
+    <section class="contribution-page card-base overflow-visible" data-contribution-tabs>
+        <div class="contribution-hero px-6 pt-7 pb-5 md:px-8">
             <div class="flex flex-wrap items-center gap-3">
                 <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--btn-regular-bg)] text-[var(--primary)]">
                     <Icon name="material-symbols:code-rounded" class="text-[1.4rem]" />
@@ -54,6 +56,11 @@ function getPatchLineClass(line: string) {
             <p class="mt-5 mb-0 max-w-2xl text-sm leading-7 text-50 md:text-base">
                 {t(I18nKey.contributionDescription)}
             </p>
+            <div class="contribution-overview">
+                <div><strong>{projects.length}</strong><span>{t(I18nKey.openSourceProjects)}</span></div>
+                <div><strong>{activity.items.length}</strong><span>{t(I18nKey.contributionInProgress)}</span></div>
+                <div><strong>{projects.reduce((total, project) => total + project.items.length, 0)}</strong><span>{t(I18nKey.contributionMerged)}</span></div>
+            </div>
         </div>
 
         {projects.length > 0 && <>
@@ -65,9 +72,10 @@ function getPatchLineClass(line: string) {
                             type="button"
                             role="tab"
                             aria-selected={index === 0 ? "true" : "false"}
+                            tabindex={index === 0 ? 0 : -1}
                             aria-controls={`contribution-panel-${project.id}`}
                             data-project-tab={project.id}
-                            class:list={["btn-plain scale-animation rounded-xl px-4 py-2.5 text-sm font-bold active:scale-95", { "current-theme-btn": index === 0 }]}
+                            class:list={["project-tab btn-plain rounded-xl px-4 py-2.5 text-sm font-bold", { "current-theme-btn": index === 0 }]}
                         >
                             <Icon name={project.icon} class="mr-2 text-[1.1rem]" />
                             {project.name}
@@ -76,7 +84,7 @@ function getPatchLineClass(line: string) {
                 </div>
             </div>
 
-            <div class="px-6 pb-7 pt-5 md:px-8">
+            <div class="contribution-panels px-6 pt-5 md:px-8">
                 {projects.map((project, index) => (
                     <article
                         id={`contribution-panel-${project.id}`}
@@ -88,19 +96,47 @@ function getPatchLineClass(line: string) {
                         <div class="flex items-center gap-3">
                             <Icon name={project.icon} class="text-[1.7rem] text-[var(--primary)]" />
                             <h2 class="m-0 text-xl font-bold text-90">{project.name}</h2>
+                            {project.repository && <a href={project.repository} target="_blank" rel="noopener noreferrer" class="link ml-auto inline-flex items-center gap-2 text-sm text-[var(--btn-content)]">
+                                {t(I18nKey.contributionRepository)}
+                                <Icon name="fa6-solid:arrow-up-right-from-square" class="text-xs" />
+                            </a>}
                         </div>
 
-                        <div class="mt-5">
-                            <div class="hidden grid-cols-[8rem_7rem_minmax(0,1fr)_10rem] gap-4 px-4 pb-2 text-xs font-bold uppercase tracking-[0.08em] text-30 md:grid">
+                        <div class="contribution-entries" tabindex="0" role="region" aria-label={`${project.name} · ${t(I18nKey.contribution)}`}>
+                        <section class="mt-6" aria-label={t(I18nKey.contributionInProgress)}>
+                            <h3 class="section-label mb-3 text-sm font-bold text-75">{t(I18nKey.contributionInProgress)} <span class="section-count">{activity.items.filter(item => project.repository === `https://github.com/${item.repository}`).length}</span></h3>
+                            <div class="activity-list">
+                                {activity.items.filter(item => project.repository === `https://github.com/${item.repository}`).map(item => (
+                                    <a href={item.url} target="_blank" rel="noopener noreferrer" class:list={["activity-item", { "is-draft": item.draft, "is-issue": item.kind === "issue" }]}>
+                                        <span class="activity-icon"><Icon name={item.kind === "pr" ? "fa6-solid:code-pull-request" : "fa6-regular:circle-dot"} /></span>
+                                        <div class="activity-body">
+                                        <div class="activity-meta flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                                            <span class="font-mono font-bold text-[var(--primary)]">{item.kind === "pr" ? "PR" : "Issue"} #{item.number}</span>
+                                            <span class="status-badge">{t(item.draft ? I18nKey.contributionDraft : I18nKey.contributionOpen)}</span>
+                                            <span class="text-50">{item.relations.map(relation => t(relation === "author" ? I18nKey.contributionAuthored : I18nKey.contributionAssigned)).join(" · ")}</span>
+                                            <span class="text-50 sm:ml-auto">{t(I18nKey.updatedAt)} <time datetime={item.updatedAt}>{formatDisplayDate(new Date(item.updatedAt))}</time></span>
+                                        </div>
+                                        <p class="activity-title">{item.title}</p>
+                                        </div>
+                                        <Icon name="fa6-solid:arrow-up-right-from-square" class="activity-arrow" />
+                                    </a>
+                                ))}
+                                {!activity.items.some(item => project.repository === `https://github.com/${item.repository}`) && <p class="m-0 text-sm leading-6 text-50">{t(I18nKey.contributionNoActivity)}</p>}
+                            </div>
+                        </section>
+
+                        <div class="mt-7">
+                            <h3 class="section-label mb-3 text-sm font-bold text-75">{t(I18nKey.contributionMerged)} <span class="section-count">{project.items.length}</span></h3>
+                            {project.items.length > 0 && <div class="hidden grid-cols-[8rem_7rem_minmax(0,1fr)_10rem] gap-4 px-4 pb-2 text-xs font-bold uppercase tracking-[0.08em] text-30 md:grid">
                                 <span>{t(I18nKey.contributionCommit)}</span>
                                 <span>{t(I18nKey.contributionDate)}</span>
                                 <span>{t(I18nKey.contributionTitle)}</span>
-                                <span>{t(I18nKey.contributionMailingList)}</span>
-                            </div>
+                                <span>{t(project.reviewType === "pull-request" ? I18nKey.contributionPullRequest : I18nKey.contributionMailingList)}</span>
+                            </div>}
                             <div class="grid gap-2">
                                 {project.items.length === 0 && <div class="rounded-2xl border border-dashed border-black/10 px-4 py-5 text-sm text-50 dark:border-white/10">{t(I18nKey.contributionNoCommit, { project: project.name })}</div>}
                                 {project.items.map((item) => (
-                                    <div class="grid gap-3 rounded-2xl border border-black/5 bg-black/[0.025] p-3 dark:border-white/10 dark:bg-white/[0.035] md:grid-cols-[8rem_7rem_minmax(0,1fr)_10rem] md:items-start md:gap-4 md:p-4">
+                                    <div class="commit-row grid gap-3 rounded-2xl border border-black/5 bg-black/[0.025] p-3 dark:border-white/10 dark:bg-white/[0.035] md:grid-cols-[8rem_7rem_minmax(0,1fr)_10rem] md:items-start md:gap-4 md:p-4">
                                         <details class="group min-w-0 md:col-span-3">
                                             <summary class="grid cursor-pointer list-none grid-cols-[minmax(7rem,8rem)_7rem_minmax(0,1fr)] items-start gap-3 rounded-xl px-1 py-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
                                                 <code class="rounded-md bg-[var(--btn-regular-bg)] px-2 py-1 font-mono text-xs text-75">{item.sha}</code>
@@ -120,18 +156,19 @@ function getPatchLineClass(line: string) {
                                             </div>
                                         </details>
                                         <a
-                                            href={item.mailingListUrl}
+                                            href={item.pullRequest?.url ?? item.mailingListUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            title={item.mailingListUrl}
+                                            title={item.pullRequest?.url ?? item.mailingListUrl}
                                             class="link inline-flex min-w-0 items-center gap-1 text-xs font-bold text-[var(--primary)] md:pt-1"
                                         >
-                                            <span class="truncate">{t(I18nKey.contributionMailingListLabel, { label: item.mailingListLabel })}</span>
+                                            <span class="truncate">{item.pullRequest ? `PR #${item.pullRequest.number}` : t(I18nKey.contributionMailingListLabel, { label: item.mailingListLabel })}</span>
                                             <Icon name="fa6-solid:arrow-up-right-from-square" class="shrink-0 text-[0.65rem]" />
                                         </a>
                                     </div>
                                 ))}
                             </div>
+                        </div>
                         </div>
                     </article>
                 ))}
@@ -139,10 +176,98 @@ function getPatchLineClass(line: string) {
         </>}
 
         {projects.length === 0 && <div class="px-6 pb-7 pt-5 text-sm text-50 md:px-8">{t(I18nKey.contributionNoProjects)}</div>}
+        <footer class="contribution-source px-6 md:px-8">
+            <span>{t(I18nKey.contributionActivityScope, { account: activity.account })}</span>
+            <span>{t(I18nKey.contributionSynced)} <time datetime={activity.syncedAt} title={formatDateTime(new Date(activity.syncedAt)) + " UTC+8"}>{formatDisplayDate(new Date(activity.syncedAt))}</time></span>
+        </footer>
     </section>
 </MainGridLayout>
 
 <style>
+    /* :has follows Swup's current content, so normal scrolling returns on other pages. */
+    :global(html:has(.contribution-page)) { overflow: hidden; }
+    :global(#main-grid:has(.contribution-page)) {
+        height: calc(100dvh - 6.5rem);
+        grid-template-rows: minmax(0, 1fr);
+    }
+    :global(#main-grid:has(.contribution-page) main),
+    :global(#content-wrapper:has(.contribution-page)) { height: 100%; min-height: 0; }
+    :global(#main-grid:has(.contribution-page) .footer),
+    :global(#main-grid:has(.contribution-page) #toc-wrapper),
+    :global(#main-grid:has(.contribution-page) #sidebar-sticky) { display: none; }
+    :global(#main-grid:has(.contribution-page) #sidebar) { overflow: hidden; min-height: 0; margin-bottom: 0; }
+    .contribution-page { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+    .contribution-hero, .contribution-source { flex-shrink: 0; }
+    .contribution-panels { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    [data-project-panel]:not([hidden]) { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    [data-project-panel] > div:first-child { flex-shrink: 0; }
+    .contribution-entries { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--primary) 40%, transparent) transparent; padding-right: .6rem; padding-bottom: 1.25rem; margin-top: .75rem; }
+    .contribution-entries:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; border-radius: .5rem; }
+    .contribution-entries > section:first-child { margin-top: .5rem; }
+    @media (max-width: 1023px) {
+        :global(#main-grid:has(.contribution-page) #sidebar-wrapper) { display: none; }
+    }
+    @media (max-width: 640px), (max-height: 740px) {
+        .contribution-hero { padding-top: 1rem; padding-bottom: .75rem; }
+        .contribution-hero > p { display: none; }
+        .contribution-overview { margin-top: .5rem !important; }
+        .contribution-source { padding-top: .5rem !important; padding-bottom: .5rem !important; }
+        .contribution-source > span:first-child { display: none; }
+        .contribution-panels { padding-top: .75rem; }
+    }
+    @media (max-height: 540px) {
+        .contribution-overview { display: none !important; }
+        .contribution-hero { padding-top: .5rem; padding-bottom: .5rem; }
+        .contribution-hero h1 { font-size: 1.2rem; }
+        .contribution-hero h1 + p { display: none; }
+    }
+    .contribution-page { --text-90: rgb(0 0 0 / .9); --text-50: rgb(0 0 0 / .55); --text-30: rgb(0 0 0 / .35); }
+    :global(.dark) .contribution-page { --text-90: rgb(255 255 255 / .9); --text-50: rgb(255 255 255 / .55); --text-30: rgb(255 255 255 / .35); }
+    .contribution-hero {
+        background: radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--primary) 10%, transparent), transparent 65%);
+        border-radius: inherit;
+    }
+    .contribution-overview { display: flex; gap: 2.5rem; margin-top: 1.5rem; }
+    .contribution-overview > div { display: flex; align-items: baseline; gap: .65rem; }
+    .contribution-overview strong { font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--primary); }
+    .contribution-overview span { font-size: .75rem; color: var(--text-50); }
+    .project-tab { transition: background .15s, color .15s; }
+    .project-tab[aria-selected="true"] { box-shadow: inset 0 -2px var(--primary); }
+    .section-label { display: flex; align-items: center; gap: .6rem; }
+    .section-count { display: inline-flex; align-items: center; justify-content: center; min-width: 1.4rem; height: 1.4rem; padding: 0 .35rem; font-size: .7rem; font-variant-numeric: tabular-nums; background: var(--btn-regular-bg); color: var(--primary); border-radius: .4rem; }
+    .activity-list { border: 1px solid color-mix(in srgb, var(--primary) 12%, transparent); border-radius: 1rem; overflow: hidden; }
+    .activity-list > p { padding: 1.25rem; }
+    .activity-item { --activity-color: #23824d; display: flex; align-items: flex-start; gap: .9rem; padding: 1.15rem; transition: background .15s; }
+    :global(.dark) .activity-item { --activity-color: #79d5a1; }
+    .activity-item.is-draft { --activity-color: #876820; }
+    :global(.dark) .activity-item.is-draft { --activity-color: #dbc17d; }
+    .activity-item.is-issue { --activity-color: var(--primary); }
+    .activity-item + .activity-item { border-top: 1px solid color-mix(in srgb, var(--primary) 10%, transparent); }
+    .activity-item:hover { background: color-mix(in srgb, var(--primary) 6%, transparent); }
+    .activity-item:focus-visible { outline: 2px solid var(--primary); outline-offset: -3px; }
+    .activity-icon { display: grid; place-items: center; flex-shrink: 0; width: 2.2rem; height: 2.2rem; border-radius: .65rem; background: color-mix(in srgb, var(--activity-color) 10%, transparent); color: var(--activity-color); font-size: 1rem; }
+    .activity-body { flex: 1; min-width: 0; }
+    .status-badge { color: var(--activity-color); background: color-mix(in srgb, var(--activity-color) 9%, transparent); padding: .1rem .45rem; border-radius: .3rem; font-size: .65rem; line-height: 1.5; }
+    .activity-title { margin: .45rem 0 0; font-size: .9rem; font-weight: 500; line-height: 1.65; color: var(--text-90); overflow-wrap: anywhere; }
+    .activity-arrow { flex-shrink: 0; margin-top: .35rem; font-size: .65rem; color: var(--text-30); }
+    .activity-item:hover .activity-arrow { color: var(--primary); }
+    .contribution-source { border-top: 1px solid color-mix(in srgb, var(--primary) 10%, transparent); padding-top: 1rem; padding-bottom: 1rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1rem; font-size: .7rem; line-height: 1.8; color: var(--text-50); }
+    .commit-row summary code { justify-self: start; }
+    @media (max-width: 767px) {
+        .commit-row summary { grid-template-columns: minmax(0, 1fr) auto; }
+        .commit-row summary > span { grid-column: 1 / -1; }
+    }
+    @media (max-width: 640px) {
+        .contribution-overview { justify-content: space-between; gap: .8rem; }
+        .contribution-overview > div { flex-direction: column; gap: .1rem; }
+        .contribution-overview strong { font-size: 1.4rem; }
+        .activity-item { padding: 1rem .8rem; gap: .6rem; }
+        .activity-icon { width: 1.7rem; height: 1.7rem; font-size: .85rem; }
+        .activity-arrow { display: none; }
+        .activity-meta { column-gap: .5rem; }
+        .activity-meta > span:last-child { flex-basis: 100%; margin-top: .2rem; }
+        .activity-title { font-size: .85rem; }
+    }
     .patch-preview {
         scrollbar-color: var(--primary) var(--codeblock-bg);
         scrollbar-width: thin;

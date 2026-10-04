@@ -2,6 +2,18 @@ import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const zh_CN: Translation = {
+	[Key.contributionInProgress]: "进行中",
+	[Key.contributionMerged]: "已合并提交",
+	[Key.contributionSynced]: "同步于",
+	[Key.contributionActivityScope]:
+		"GitHub 上由 {account} 提出或负责的未关闭 issue / PR；不含邮件列表中的待处理补丁。",
+	[Key.contributionOpen]: "未关闭",
+	[Key.contributionDraft]: "草稿",
+	[Key.contributionAuthored]: "提出",
+	[Key.contributionAssigned]: "负责",
+	[Key.contributionNoActivity]: "本次同步没有符合条件的未关闭 issue / PR。",
+	[Key.contributionRepository]: "项目仓库",
+	[Key.contributionPullRequest]: "Pull Request",
 	[Key.updatedAt]: "更新于",
 	[Key.tableOfContents]: "本文目录",
 	[Key.articleNavigation]: "文章导航",
@@ -21,7 +33,7 @@ export const zh_CN: Translation = {
 	[Key.contribution]: "贡献",
 	[Key.openSource]: "开源",
 	[Key.contributionDescription]:
-		"每条记录展示 commit、时间、主线标题和 mailing list URL。点击记录后，可以在页面内查看对应的 patch。",
+		"记录正在推进的 issue / PR 与已合并的贡献。点击已合并的 commit，可在页面内查看对应的 patch。",
 	[Key.openSourceProjects]: "开源项目",
 	[Key.contributionCommit]: "Commit",
 	[Key.contributionDate]: "时间",

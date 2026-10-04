@@ -1,0 +1,4 @@
+{
+	"account": "ChenMiaoi",
+	"repositories": ["torvalds/linux", "llvm/llvm-project", "rust-lang/cargo"]
+}

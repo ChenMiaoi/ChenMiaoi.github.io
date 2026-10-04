@@ -18,6 +18,12 @@ deployed to GitHub Pages via GitHub Actions.
 
 ## Developing
 
+Run `pnpm sync:contributions` after `gh auth login` to refresh open GitHub issues and PRs. The account and repository allowlist are in `scripts/contribution-activity.config.json`; keep the repository URLs aligned with the displayed projects. The command searches both authored and assigned records, follows pagination, deduplicates overlaps, and saves a timestamped public snapshot to `src/data/contribution-activity.json`. Failed or incomplete searches leave the previous snapshot intact. Builds read this snapshot without invoking `gh` or exposing credentials. Refresh before publishing to update statuses: closed or merged PRs disappear from the open list, while verified merged commits are maintained separately below. Mailing-list patches and comment/review-only participation are not included.
+
+For quick ad hoc lookup: `gh search prs --repo llvm/llvm-project --author ChenMiaoi --state open` or `gh search issues --repo llvm/llvm-project --assignee ChenMiaoi --state open`. Use `--repo rust-lang/cargo` for Cargo.
+
+Contribution projects live in `contributionConfig.projects` in `src/config.ts`. Linux records use `mailingListLabel` and `mailingListUrl`; llvm-project and Cargo use `reviewType: "pull-request"` and each record's `pullRequest: { number, url }`. Add only verified merged records, with their upstream commit SHA, date and title. Patch previews use that commit in the configured repository, or an explicit `patch` value. An empty list means no records have been added, not that the author has no contributions.
+
 ```bash
 pnpm install
 pnpm dev       # local dev server

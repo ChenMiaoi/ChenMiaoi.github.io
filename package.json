@@ -8,6 +8,7 @@
     "check": "astro check",
     "build": "astro build && pagefind --site dist",
     "build:rag": "node scripts/build-rag-index.mjs",
+    "sync:contributions": "node scripts/sync-contribution-activity.mjs",
     "start:rag": "node rag/server.mjs",
     "preview": "astro preview",
     "astro": "astro",

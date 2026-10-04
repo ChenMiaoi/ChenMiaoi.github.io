@@ -219,6 +219,7 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
 			buttons.forEach((button) => {
 				const active = button.dataset.projectTab === projectId;
 				button.setAttribute("aria-selected", String(active));
+				button.tabIndex = active ? 0 : -1;
 				button.classList.toggle("current-theme-btn", active);
 			});
 			panels.forEach((panel) => {
@@ -232,6 +233,21 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
 				const target = event.target as Element;
 				const button = target.closest<HTMLButtonElement>("[data-project-tab]");
 				if (button?.dataset.projectTab) activate(button.dataset.projectTab);
+			});
+			root.addEventListener("keydown", (event) => {
+				const button = (event.target as Element).closest<HTMLButtonElement>("[data-project-tab]");
+				if (!button) return;
+				const index = buttons.indexOf(button);
+				let next: number;
+				if (event.key === "ArrowRight") next = (index + 1) % buttons.length;
+				else if (event.key === "ArrowLeft") next = (index - 1 + buttons.length) % buttons.length;
+				else if (event.key === "Home") next = 0;
+				else if (event.key === "End") next = buttons.length - 1;
+				else return;
+				event.preventDefault();
+				const target = buttons[next];
+				if (target.dataset.projectTab) activate(target.dataset.projectTab);
+				target.focus();
 			});
 		}
 

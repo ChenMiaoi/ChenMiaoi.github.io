@@ -74,16 +74,22 @@ export type ContributionItem = {
 	sha: string;
 	date: string;
 	title: string;
-	mailingListLabel: string;
-	mailingListUrl: string;
 	patch?: string;
-};
+} & (
+	| { mailingListLabel: string; mailingListUrl: string; pullRequest?: never }
+	| {
+			pullRequest: { number: number; url: string };
+			mailingListLabel?: never;
+			mailingListUrl?: never;
+	  }
+);
 
 export type ContributionProject = {
 	id: string;
 	name: string;
 	icon: string;
 	repository?: string;
+	reviewType?: "mailing-list" | "pull-request";
 	items: ContributionItem[];
 };
 

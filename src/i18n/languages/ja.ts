@@ -2,6 +2,19 @@ import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const ja: Translation = {
+	[Key.contributionInProgress]: "進行中",
+	[Key.contributionMerged]: "マージ済みコミット",
+	[Key.contributionSynced]: "同期日時",
+	[Key.contributionActivityScope]:
+		"{account} が作成または担当する未完了の GitHub issue / PR。メーリングリストは対象外です。",
+	[Key.contributionOpen]: "オープン",
+	[Key.contributionDraft]: "ドラフト",
+	[Key.contributionAuthored]: "作成者",
+	[Key.contributionAssigned]: "担当者",
+	[Key.contributionNoActivity]:
+		"このスナップショットに該当する未完了の issue / PR はありません。",
+	[Key.contributionRepository]: "リポジトリ",
+	[Key.contributionPullRequest]: "Pull Request",
 	[Key.updatedAt]: "更新日",
 	[Key.tableOfContents]: "目次",
 	[Key.articleNavigation]: "記事ナビゲーション",
@@ -21,7 +34,7 @@ export const ja: Translation = {
 	[Key.contribution]: "コントリビューション",
 	[Key.openSource]: "オープンソース",
 	[Key.contributionDescription]:
-		"各記録には commit、日付、メインラインのタイトル、メーリングリスト URL を表示します。記録を開くと、このページでパッチを確認できます。",
+		"進行中の issue / PR とマージ済みの貢献を掲載しています。コミットを開くとパッチを確認できます。",
 	[Key.openSourceProjects]: "オープンソースプロジェクト",
 	[Key.contributionCommit]: "Commit",
 	[Key.contributionDate]: "日付",

@@ -2,6 +2,19 @@ import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const th: Translation = {
+	[Key.contributionInProgress]: "In progress",
+	[Key.contributionMerged]: "Merged commits",
+	[Key.contributionSynced]: "Synced",
+	[Key.contributionActivityScope]:
+		"Open GitHub issues and PRs authored by or assigned to {account}; excludes mailing-list activity.",
+	[Key.contributionOpen]: "Open",
+	[Key.contributionDraft]: "Draft",
+	[Key.contributionAuthored]: "Author",
+	[Key.contributionAssigned]: "Assignee",
+	[Key.contributionNoActivity]:
+		"No matching open issues or PRs in this snapshot.",
+	[Key.contributionRepository]: "ที่เก็บโค้ด",
+	[Key.contributionPullRequest]: "Pull Request",
 	[Key.updatedAt]: "อัปเดตเมื่อ",
 	[Key.tableOfContents]: "สารบัญ",
 	[Key.articleNavigation]: "การนำทางบทความ",
@@ -21,7 +34,7 @@ export const th: Translation = {
 	[Key.contribution]: "Contribution",
 	[Key.openSource]: "Open source",
 	[Key.contributionDescription]:
-		"Each record includes the commit, date, mainline title, and mailing list URL. Open a record to preview its patch on this page.",
+		"Open issues and pull requests, followed by merged commits. Open a merged commit to preview its patch.",
 	[Key.openSourceProjects]: "Open source projects",
 	[Key.contributionCommit]: "Commit",
 	[Key.contributionDate]: "Date",

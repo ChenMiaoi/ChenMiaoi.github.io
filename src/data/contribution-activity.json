@@ -1,0 +1,77 @@
+{
+	"account": "ChenMiaoi",
+	"repositories": ["torvalds/linux", "llvm/llvm-project", "rust-lang/cargo"],
+	"syncedAt": "2026-10-04T04:24:51.017Z",
+	"items": [
+		{
+			"repository": "llvm/llvm-project",
+			"number": 228749,
+			"title": "[libc][math] Prevent spurious floating-point exceptions in fdim",
+			"url": "https://github.com/llvm/llvm-project/pull/228749",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-03T17:43:59Z",
+			"relations": ["author"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 228734,
+			"title": "[libc][math] Use float-only evaluation in asinbf16 and acosbf16",
+			"url": "https://github.com/llvm/llvm-project/pull/228734",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-03T16:14:52Z",
+			"relations": ["author"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 202079,
+			"title": "[libc][math] Add  float-only versions for `inv_trigf_utils.h`",
+			"url": "https://github.com/llvm/llvm-project/issues/202079",
+			"kind": "issue",
+			"draft": false,
+			"updatedAt": "2026-10-03T15:47:01Z",
+			"relations": ["assignee"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 228721,
+			"title": "[libc][stdbit] Support compound literals in type-generic macros",
+			"url": "https://github.com/llvm/llvm-project/pull/228721",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-03T15:09:32Z",
+			"relations": ["author"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 228633,
+			"title": "[libc][stdlib] Avoid scanning values during environment lookup",
+			"url": "https://github.com/llvm/llvm-project/pull/228633",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-03T13:57:39Z",
+			"relations": ["author"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 196016,
+			"title": "String match efficiency in libc environment",
+			"url": "https://github.com/llvm/llvm-project/issues/196016",
+			"kind": "issue",
+			"draft": false,
+			"updatedAt": "2026-10-02T11:31:30Z",
+			"relations": ["assignee"]
+		},
+		{
+			"repository": "rust-lang/cargo",
+			"number": 17545,
+			"title": "fix(diag): Honor build.warnings deny with JSON diagnostics",
+			"url": "https://github.com/rust-lang/cargo/pull/17545",
+			"kind": "pr",
+			"draft": true,
+			"updatedAt": "2026-10-01T17:31:31Z",
+			"relations": ["author"]
+		}
+	]
+}
