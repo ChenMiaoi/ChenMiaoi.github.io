@@ -16,5 +16,5 @@ export default defineConfig({
     },
   }],
   devToolbar: { enabled: false },
-  vite: { ...shared.vite, server: { watch: { ignored: ["**/vendor/**", "**/.git/**"] } } },
+  vite: { ...shared.vite, server: { watch: { ignored: ["**/.git/**"] } } },
 });
