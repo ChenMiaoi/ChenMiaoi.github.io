@@ -1,0 +1,579 @@
+/* Motion follows navigation and selection; the reading surface stays stable. */
+.station-atmosphere {
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	overflow: hidden;
+	pointer-events: none;
+}
+.station-atmosphere > span {
+	position: absolute;
+	left: var(--mote-x);
+	top: var(--mote-y);
+	width: 2px;
+	height: 2px;
+	border-radius: 50%;
+	background: #d5e4c3;
+	box-shadow: 0 0 9px #d5e4c359;
+	opacity: 0;
+}
+.station-scene.motion-running {
+	transform-origin: 68% 34%;
+	animation: station-drift 32s ease-in-out infinite alternate;
+}
+.station-atmosphere.motion-running > span {
+	animation: atmosphere-drift var(--mote-time) ease-in-out var(--mote-delay)
+		infinite;
+}
+.station-scene.motion-idle,
+.station-atmosphere.motion-idle > span {
+	animation-play-state: paused;
+}
+.orbit-transmission,
+.archive-arrival,
+.map-acquisition,
+.map-flow {
+	opacity: 0;
+}
+.motion-ready:not(.motion-paused) .orbit-transmission {
+	stroke: #e4e797;
+	stroke-width: 1.6;
+	stroke-dasharray: 0.07 0.93;
+	animation: orbit-transmit 14s linear infinite;
+}
+.motion-ready:not(.motion-paused) .archive-heading {
+	animation: panel-arrive 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.motion-ready:not(.motion-paused)
+	:is(.archive-list, .path-directory, .source-console-bar, .identity-register) {
+	animation: surface-arrive 480ms ease-out 60ms both;
+}
+.motion-ready:not(.motion-paused)
+	:is(.context-column, .path-manifest, .topology-console, .contribution-deck) {
+	animation: surface-arrive 600ms ease-out 100ms both;
+}
+.motion-ready:not(.motion-paused) .identity-introduction {
+	animation: panel-arrive 620ms cubic-bezier(0.16, 1, 0.3, 1) 90ms both;
+}
+.motion-ready:not(.motion-paused) .portrait-apparatus {
+	animation: surface-arrive 750ms ease-out 80ms both;
+}
+.motion-ready:not(.motion-paused) .identity-lower {
+	animation: panel-arrive 620ms cubic-bezier(0.16, 1, 0.3, 1) 160ms both;
+}
+.motion-ready:not(.motion-paused) .is-selected .dossier-lock {
+	transform-origin: center;
+	animation: selection-lock 360ms ease-out both;
+}
+.motion-ready:not(.motion-paused) .archive-arrival {
+	stroke: #ffffb9;
+	stroke-width: 2.5;
+	stroke-dasharray: 0.2 0.8;
+	animation: archive-transmit 720ms ease-out both;
+}
+.motion-ready:not(.motion-paused) .terminal-sidebar nav .active > svg {
+	animation: icon-acquire 360ms ease-out both;
+}
+.motion-ready:not(.motion-paused)
+	.topology-node.selected
+	.topology-document-dot {
+	animation: node-acquire 500ms ease-out both;
+}
+.motion-ready:not(.motion-paused) .rail-focus {
+	transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reading-dialog:not(.motion-paused)[open] .reader-layout {
+	animation: panel-arrive 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.reading-dialog:not(.motion-paused)[open]::backdrop {
+	animation: surface-arrive 200ms ease-out both;
+}
+
+/* Navigation, search and opening a document have distinct, visible responses. */
+.primary-nav {
+	position: relative;
+}
+.nav-tracer {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+	pointer-events: none;
+	background: #f2ef91;
+	box-shadow: 0 0 12px #f0e43366;
+	opacity: 0;
+}
+.nav-tracer[data-ready="true"] {
+	opacity: 0.9;
+}
+.motion-ready:not(.motion-paused) .nav-tracer {
+	transition:
+		transform 460ms cubic-bezier(0.22, 1, 0.36, 1),
+		opacity 200ms;
+}
+.motion-ready:not(.motion-paused) .terminal-kicker > span {
+	transform-origin: left;
+	animation: rule-extend 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.search-frame {
+	position: relative;
+}
+.search-frame::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	background: var(--signal);
+	transform: scaleX(0);
+	transform-origin: left;
+	pointer-events: none;
+}
+.search-frame:focus-within::after {
+	transform: scaleX(1);
+}
+.motion-ready:not(.motion-paused) .search-frame::after {
+	transition: transform 300ms ease-out;
+}
+.reading-dialog:not(.motion-paused)[open] {
+	animation: reader-arrive 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.orbital-preview .reading-meter span {
+	position: relative;
+}
+.reading-meter span::after {
+	content: "";
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: min(6px, 100%);
+	height: 2px;
+	background: #fffed3;
+	box-shadow: 0 0 9px #f0e433;
+}
+
+/* Light follows real graph edges and the currently selected project. */
+.motion-ready:not(.motion-paused) .topology-lines .map-acquisition {
+	stroke: #ffffbd;
+	stroke-width: 2;
+	stroke-dasharray: 1;
+	animation: path-acquire 850ms ease-out var(--path-delay) both;
+}
+.motion-ready:not(.motion-paused) .topology-lines .map-flow {
+	stroke: #ffffbd;
+	stroke-width: 2.6;
+	stroke-linecap: round;
+	stroke-dasharray: 0.025 0.975;
+	filter: drop-shadow(0 0 3px #e6ef9877);
+	animation: path-flow 3.6s linear var(--path-delay) infinite;
+}
+.motion-ready:not(.motion-paused) .stellar-rotor {
+	animation-duration: 36s;
+}
+.topology-document-dot::after {
+	content: "";
+	position: absolute;
+	inset: -6px;
+	border: 1px solid #f1ed94;
+	border-radius: 50%;
+	opacity: 0;
+	pointer-events: none;
+}
+.motion-ready:not(.motion-paused) .selected .topology-document-dot::after {
+	animation: node-ripple 3.2s ease-out infinite;
+}
+.motion-ready:not(.motion-paused) .project-port.active::after {
+	transform-origin: left;
+	animation: rule-extend 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.motion-ready:not(.motion-paused) .chamber-aperture i {
+	animation: aperture-cycle 2.8s ease-in-out infinite;
+	transform-origin: center;
+}
+.motion-ready:not(.motion-paused) .chamber-aperture i:nth-child(2) {
+	animation-delay: 160ms;
+}
+.motion-ready:not(.motion-paused) .chamber-aperture i:nth-child(3) {
+	animation-delay: 320ms;
+}
+.motion-ready:not(.motion-paused) .path-branch::before {
+	transform-origin: top;
+	animation: branch-connect 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.motion-ready:not(.motion-paused) .path-branch-node {
+	animation: icon-acquire 500ms ease-out both;
+}
+.path-branch:focus-within::before {
+	background: #e3e577aa;
+}
+.path-branch:focus-within .path-branch-node {
+	border-color: var(--signal);
+	color: #ffffb2;
+}
+.motion-ready:not(.motion-paused)
+	:is(.read-action, .path-start, .identity-primary, .topology-open) {
+	position: relative;
+	overflow: hidden;
+}
+.motion-ready:not(.motion-paused)
+	:is(.read-action, .path-start, .identity-primary, .topology-open)::after {
+	content: "";
+	position: absolute;
+	inset: -60% auto -60% -40%;
+	width: 28%;
+	background: linear-gradient(90deg, transparent, #fffff366, transparent);
+	transform: skewX(-25deg);
+	opacity: 0;
+	pointer-events: none;
+}
+.motion-ready:not(.motion-paused)
+	:is(.read-action, .path-start, .identity-primary, .topology-open):is(
+		:hover,
+		:focus-visible
+	)::after {
+	animation: control-sheen 600ms ease-out;
+}
+.motion-ready:not(.motion-paused) .portrait-image img {
+	transition: transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.motion-ready:not(.motion-paused) .portrait-mount:hover .portrait-image img {
+	transform: scale(1.045);
+}
+.identity-contact-text strong {
+	position: relative;
+}
+.identity-contact-text strong::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: -4px;
+	width: 100%;
+	height: 1px;
+	background: var(--signal);
+	transform: scaleX(0);
+	transform-origin: left;
+}
+.motion-ready:not(.motion-paused) .identity-contact-text strong::after {
+	transition: transform 300ms ease-out;
+}
+.identity-contact:is(:hover, :focus-visible)
+	.identity-contact-text
+	strong::after {
+	transform: scaleX(1);
+}
+
+/* Small, consistent feedback on controls; avoid moving blocks of text. */
+.motion-ready:not(.motion-paused)
+:is(.read-action, .path-start, .topology-open, .identity-primary) {
+	transition:
+		background-color 180ms,
+		filter 180ms;
+}
+.motion-ready:not(.motion-paused)
+	:is(.read-action, .path-start, .topology-open, .identity-primary):active {
+	filter: brightness(0.9);
+}
+.motion-ready:not(.motion-paused)
+	:is(
+		.dossier-arrow,
+		.path-option > svg,
+		.project-port > .brand-insignia,
+		.identity-field > svg,
+		.identity-contact > svg,
+		.read-action > svg,
+		.path-start > svg,
+		.identity-primary > svg
+	) {
+	transition:
+		transform 240ms cubic-bezier(0.16, 1, 0.3, 1),
+		color 180ms;
+}
+.motion-ready:not(.motion-paused)
+	:is(
+		.dossier-hit:hover .dossier-arrow,
+		.path-option:hover > svg,
+		.identity-field:hover > svg,
+		.identity-contact:hover > svg,
+		.read-action:hover > svg,
+		.path-start:hover > svg,
+		.identity-primary:hover > svg
+	) {
+	transform: translateX(3px);
+}
+.motion-ready:not(.motion-paused) .project-port:hover > .brand-insignia {
+	transform: translateY(-2px);
+}
+.motion-ready:not(.motion-paused) .dossier-hit::after {
+	content: "";
+	display: block;
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(110deg, #bccf9c0e, transparent 80%);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 220ms ease-out;
+}
+.motion-ready:not(.motion-paused) .dossier-hit:hover::after {
+	opacity: 1;
+}
+.orbital-preview .motion-control {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	min-height: 32px;
+	padding: 0 4px;
+	color: #a8bdb2;
+	font-size: 10px;
+	white-space: nowrap;
+}
+.motion-control[aria-pressed="true"] > svg {
+	color: #dce695;
+}
+.orbital-preview .motion-control:hover:enabled {
+	color: var(--signal);
+}
+.orbital-preview .motion-control:disabled {
+	cursor: default;
+}
+.ambient-paused
+	:is(
+		.orbit-transmission,
+		.stellar-rotor,
+		.projection-orbit-arc,
+		.portrait-orbit-segment,
+		.map-flow,
+		.chamber-aperture i
+	) {
+	animation-play-state: paused !important;
+}
+.ambient-paused .topology-document-dot::after {
+	animation-play-state: paused !important;
+}
+.motion-paused *,
+.motion-paused *::before,
+.motion-paused *::after {
+	animation: none !important;
+	transition: none !important;
+	scroll-behavior: auto !important;
+}
+@keyframes station-drift {
+	from {
+		transform: scale(1.025) translate3d(0, 0, 0);
+	}
+	to {
+		transform: scale(1.075) translate3d(-6px, -4px, 0);
+	}
+}
+@keyframes atmosphere-drift {
+	0% {
+		opacity: 0;
+		transform: translate3d(0, 12px, 0);
+	}
+	30% {
+		opacity: 0.5;
+	}
+	75% {
+		opacity: 0.25;
+	}
+	100% {
+		opacity: 0;
+		transform: translate3d(20px, -42px, 0);
+	}
+}
+@keyframes orbit-transmit {
+	0% {
+		opacity: 0;
+		stroke-dashoffset: 1;
+	}
+	15%,
+	65% {
+		opacity: 0.65;
+	}
+	85%,
+	100% {
+		opacity: 0;
+		stroke-dashoffset: 0;
+	}
+}
+@keyframes panel-arrive {
+	from {
+		opacity: 0;
+		transform: translate3d(0, 12px, 0);
+	}
+	to {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
+	}
+}
+@keyframes surface-arrive {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes selection-lock {
+	from {
+		opacity: 0.25;
+		transform: scaleY(0.2);
+	}
+	to {
+		opacity: 1;
+		transform: scaleY(1);
+	}
+}
+@keyframes archive-transmit {
+	0% {
+		opacity: 0;
+		stroke-dashoffset: 1;
+	}
+	18% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+		stroke-dashoffset: 0;
+	}
+}
+@keyframes icon-acquire {
+	from {
+		opacity: 0.4;
+		transform: scale(0.88);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+@keyframes node-acquire {
+	from {
+		box-shadow: 0 0 0 9px #e7e79700;
+	}
+	40% {
+		box-shadow: 0 0 0 5px #e7e79720;
+	}
+	to {
+		box-shadow: 0 0 0 0 #e7e79700;
+	}
+}
+@keyframes reader-arrive {
+	from {
+		opacity: 0;
+		transform: translateY(20px) scale(0.98);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+@keyframes rule-extend {
+	from {
+		transform: scaleX(0.08);
+		opacity: 0;
+	}
+	to {
+		transform: scaleX(1);
+		opacity: 1;
+	}
+}
+@keyframes branch-connect {
+	from {
+		transform: scaleY(0.08);
+		opacity: 0;
+	}
+	to {
+		transform: scaleY(1);
+		opacity: 1;
+	}
+}
+@keyframes path-acquire {
+	0% {
+		opacity: 0;
+		stroke-dashoffset: 1;
+	}
+	25% {
+		opacity: 0.9;
+	}
+	100% {
+		opacity: 0;
+		stroke-dashoffset: 0;
+	}
+}
+@keyframes path-flow {
+	0% {
+		stroke-dashoffset: 1;
+		opacity: 0;
+	}
+	10%,
+	85% {
+		opacity: 0.85;
+	}
+	100% {
+		stroke-dashoffset: 0;
+		opacity: 0;
+	}
+}
+@keyframes node-ripple {
+	0% {
+		transform: scale(0.55);
+		opacity: 0;
+	}
+	18% {
+		opacity: 0.45;
+	}
+	80%,
+	100% {
+		transform: scale(1.4);
+		opacity: 0;
+	}
+}
+@keyframes aperture-cycle {
+	0%,
+	70%,
+	100% {
+		transform: scaleY(0.7);
+		opacity: 0.3;
+	}
+	30% {
+		transform: scaleY(1);
+		opacity: 1;
+	}
+}
+@keyframes control-sheen {
+	0% {
+		opacity: 0;
+		transform: skewX(-25deg) translateX(0);
+	}
+	20% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+		transform: skewX(-25deg) translateX(620%);
+	}
+}
+@media (min-width: 1000px) {
+	.station-scene.motion-running {
+		translate: var(--camera-x, 0px) var(--camera-y, 0px);
+		transition: translate 900ms cubic-bezier(0.16, 1, 0.3, 1);
+	}
+}
+@media (max-width: 650px) {
+	.station-scene.motion-running {
+		animation: none;
+	}
+	.station-atmosphere > span:nth-child(n + 3) {
+		display: none;
+	}
+	.terminal-footer .preview-badge {
+		display: none;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.station-scene,
+	.station-atmosphere > span {
+		animation: none !important;
+	}
+}

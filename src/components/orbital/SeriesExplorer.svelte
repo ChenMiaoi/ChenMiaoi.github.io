@@ -1,0 +1,142 @@
+<script lang="ts">
+  import { tick } from "svelte";
+  import { fly } from "svelte/transition";
+  import TerminalIcon from "./TerminalIcon.svelte";
+  import { revealSequence } from "./motion";
+  import type { ArchivePost, ArchiveSeries } from "./types";
+
+  export let posts: ArchivePost[];
+  export let series: ArchiveSeries[];
+  export let reducedMotion = false;
+  export let onRead: (post: ArchivePost) => void;
+  export let onBrowse: (slug: string) => void;
+
+  let selection = "";
+  let showEmpty = false;
+  let chapterPane: HTMLDivElement;
+  let seriesRail: HTMLDivElement;
+
+  async function revealSeries(_slug: string) {
+    await tick();
+    const active = seriesRail?.querySelector<HTMLButtonElement>('[aria-pressed="true"]');
+    if (!active) return;
+    const viewport = seriesRail.getBoundingClientRect();
+    const item = active.getBoundingClientRect();
+    const behavior = reducedMotion ? "instant" : "smooth";
+    if (seriesRail.scrollWidth > seriesRail.clientWidth) {
+      if (item.left < viewport.left || item.right > viewport.right) seriesRail.scrollTo({ left: seriesRail.scrollLeft + item.left - viewport.left, behavior });
+    } else if (item.top < viewport.top || item.bottom > viewport.bottom) {
+      seriesRail.scrollTo({ top: seriesRail.scrollTop + (item.top < viewport.top ? item.top - viewport.top : item.bottom - viewport.bottom), behavior });
+    }
+  }
+
+  function jumpToSeries(slug: string) {
+    const group = groups.find((item) => item.series.slug === slug) ?? groups.find((item) => item.series.parent === slug);
+    const target = group && chapterPane?.querySelector<HTMLElement>(`[data-series="${CSS.escape(group.series.slug)}"]`);
+    if (!target) return;
+    if (chapterPane.scrollHeight > chapterPane.clientHeight) {
+      chapterPane.scrollTo({ top: target.offsetTop - 16, behavior: reducedMotion ? "instant" : "smooth" });
+    } else {
+      target.scrollIntoView({ block: "start", behavior: reducedMotion ? "instant" : "smooth" });
+    }
+    target.querySelector<HTMLButtonElement>(".path-reading-list button")?.focus({ preventScroll: true });
+  }
+
+  const compareSeries = (a: ArchiveSeries, b: ArchiveSeries) =>
+    (a.order ?? Number.POSITIVE_INFINITY) - (b.order ?? Number.POSITIVE_INFINITY) || a.title.localeCompare(b.title);
+  const comparePosts = (a: ArchivePost, b: ArchivePost) =>
+    (a.seriesOrder ?? Number.POSITIVE_INFINITY) - (b.seriesOrder ?? Number.POSITIVE_INFINITY) || a.timestamp - b.timestamp || a.slug.localeCompare(b.slug);
+  const shortTitle = (title: string) => title.split("：")[0];
+  const subtitle = (title: string) => title.includes("：") ? title.slice(title.indexOf("：") + 1) : "";
+
+  type ReadingGroup = { series: ArchiveSeries; depth: number; posts: ArchivePost[] };
+  function readingGroups(node: ArchiveSeries, depth = 0): ReadingGroup[] {
+    const children = series.filter((item) => item.parent === node.slug).sort(compareSeries);
+    const groups = children.flatMap((child) => readingGroups(child, depth + 1));
+    const directPosts = posts.filter((post) => post.series === node.slug).sort(comparePosts);
+    if (directPosts.length || !children.length) groups.push({ series: node, depth, posts: directPosts });
+    return groups;
+  }
+
+  $: roots = series.filter((item) => !item.parent && (showEmpty || item.posts.length)).sort(compareSeries);
+  $: current = roots.find((item) => item.slug === selection) ?? [...roots].sort((a, b) => b.posts.length - a.posts.length)[0];
+  $: currentIndex = current ? roots.indexOf(current) + 1 : 0;
+  $: children = current ? series.filter((item) => item.parent === current.slug).sort(compareSeries) : [];
+  $: groups = current ? readingGroups(current) : [];
+  $: firstPost = current ? posts.filter((post) => post.series === current.slug).sort(comparePosts)[0] ?? groups.flatMap((group) => group.posts)[0] : undefined;
+  $: documentCount = new Set(roots.flatMap((root) => root.posts)).size;
+  $: if (current && seriesRail) revealSeries(current.slug);
+</script>
+
+<svelte:window onresize={() => { if (current) revealSeries(current.slug); }}/>
+
+<section class="path-explorer" aria-label="系列探索">
+  <div class="path-layout">
+    <aside class="path-directory" aria-label="选择系列">
+      <div class="path-toolbar">
+        <span><i aria-hidden="true"></i>系列目录</span>
+        <button class:enabled={showEmpty} aria-label="显示未收录系列" title="显示未收录系列" aria-pressed={showEmpty} onclick={() => { showEmpty = !showEmpty; }}><span class="path-toggle" aria-hidden="true"></span>未收录</button>
+      </div>
+      <div class="path-options" bind:this={seriesRail} use:revealSequence={{key: String(showEmpty), enabled: !reducedMotion, selector: '.path-name'}}>
+        {#each roots as collection, index (collection.slug)}
+          <button class="path-option" class:active={current?.slug === collection.slug} aria-pressed={current?.slug === collection.slug} aria-label={`查看系列：${collection.title}`} onclick={() => { selection = collection.slug; }}>
+            <span class="path-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+            <span class="path-name"><strong>{shortTitle(collection.title)}</strong><small>{collection.posts.length ? `${collection.posts.length} 篇文章` : "尚未收录"}</small></span>
+            <TerminalIcon name="arrow" size={15}/>
+          </button>
+        {/each}
+      </div>
+      <div class="path-directory-foot"><span>{documentCount} 篇笔记</span><i aria-hidden="true"></i><span>{roots.length} 条路径</span></div>
+    </aside>
+
+    {#if current}
+      <section class="path-manifest" aria-labelledby="path-title">
+        {#key current.slug}
+          <div class="path-manifest-content" in:fly={{ x: reducedMotion ? 0 : 10, duration: reducedMotion ? 0 : 280 }}>
+            <header class="path-hero">
+              <div class="path-hero-line"><span>COLLECTION / {String(currentIndex).padStart(2, "0")}</span><span>{current.posts.length} DOCUMENTS</span></div>
+              <span class="path-watermark" aria-hidden="true">{String(currentIndex).padStart(2, "0")}</span>
+              <h2 id="path-title">{shortTitle(current.title)}</h2>
+              {#if subtitle(current.title)}<p class="path-subtitle">{subtitle(current.title)}</p>{/if}
+              <div class="path-summary-row">
+                <p class="path-description">{current.description}</p>
+                {#if firstPost}<div class="path-hero-actions"><button class="path-start" onclick={() => onRead(firstPost)}>开始阅读<TerminalIcon name="external" size={18}/></button></div>{/if}
+              </div>
+            </header>
+
+            {#if children.length}
+              <nav class="path-branch-shortcuts" aria-label="跳转到子系列">
+                {#each children as child, index}
+                  <button onclick={() => jumpToSeries(child.slug)}><span class="path-shortcut-node" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span>{shortTitle(child.title)}<small>{child.posts.length} 篇</small></span></button>
+                {/each}
+              </nav>
+            {/if}
+
+            <div class="path-outline">
+              <div class="path-outline-heading"><h3>阅读目录</h3><span>SERIES CONTENTS</span></div>
+              <div class="path-chapters" bind:this={chapterPane} use:revealSequence={{key: current.slug, enabled: !reducedMotion, selector: '.path-reading-list li'}} tabindex="0" role="region" aria-label={`${shortTitle(current.title)}的阅读目录`}>
+                {#each groups as group, groupIndex (group.series.slug)}
+                  <section class="path-branch" data-series={group.series.slug} class:root-branch={group.depth === 0}>
+                    <header class="path-branch-heading">
+                      <span class="path-branch-node" aria-hidden="true">{String(groupIndex + 1).padStart(2, "0")}</span>
+                      <div><span>{group.depth ? "子系列" : children.length ? "本系列文章" : "文章"}</span><h4>{group.depth ? group.series.title : "系列正文"}</h4></div>
+                      <button onclick={() => onBrowse(group.series.slug)} aria-label={`在档案中查看：${group.series.title}`} title="在档案中查看"><span>{group.posts.length} 篇</span><TerminalIcon name="external" size={15}/></button>
+                    </header>
+                    {#if group.posts.length}
+                      <ol class="path-reading-list">
+                        {#each group.posts as post, index (post.slug)}
+                          <li><button onclick={() => onRead(post)} aria-label={`阅读：${post.title}`}><span class="path-article-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span>{post.title}</span><TerminalIcon name="arrow" size={15}/></button></li>
+                        {/each}
+                      </ol>
+                    {:else}<p class="path-empty">这个系列还没有收录文章。</p>{/if}
+                  </section>
+                {/each}
+                <div class="path-list-end"><span></span>目录到底了<span></span></div>
+              </div>
+            </div>
+          </div>
+        {/key}
+      </section>
+    {:else}<p class="path-empty">尚未收录系列。</p>{/if}
+  </div>
+</section>

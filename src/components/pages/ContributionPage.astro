@@ -2,18 +2,18 @@
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { Icon } from "astro-icon/components";
 import { contributionConfig } from "../../config";
-import activity from "../../data/contribution-activity.json";
+import { contributionActivity as activity, contributionDetails } from "../../lib/contributions/snapshots";
 import { formatDisplayDate, formatDateTime } from "../../utils/date-utils";
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
-import { resolveContributionProjects } from "../../utils/contribution";
+import { resolveContributionProjects } from "../../lib/contributions/projects";
 
 interface Props {
 	lang?: string;
 }
 
 const { lang } = Astro.props;
-const projects = await resolveContributionProjects(contributionConfig.projects);
+const projects = resolveContributionProjects(contributionConfig.projects, contributionDetails);
 
 function t(key: I18nKey, replacements: Record<string, string> = {}) {
 	return Object.entries(replacements).reduce(

@@ -1,0 +1,236 @@
+<script lang="ts">
+  import { onMount, tick } from "svelte";
+  import ArticleArchive from "./ArticleArchive.svelte";
+  import ArticleReader from "./ArticleReader.svelte";
+  import TerminalIcon from "./TerminalIcon.svelte";
+  import BrandIcon from "./BrandIcon.svelte";
+  import SeriesExplorer from "./SeriesExplorer.svelte";
+  import KnowledgeAtlas from "./KnowledgeAtlas.svelte";
+  import SourceDock from "./SourceDock.svelte";
+  import ProfileDossier from "./ProfileDossier.svelte";
+  import { navigationBeacon } from "./motion";
+  import type { ArchivePost, ArchiveSeries, ContributionActivitySnapshot } from "./types";
+  import type { ContributionProject, ProfileConfig } from "../../types/config";
+
+  export let posts: ArchivePost[];
+  export let series: ArchiveSeries[];
+  export let projects: ContributionProject[];
+  export let activity: ContributionActivitySnapshot;
+  export let detailsUrl: string;
+  export let profile: ProfileConfig;
+
+  type Section = "articles" | "series" | "graph" | "code" | "about";
+  const navigation: { id: Section; label: string; icon: string; kicker: string; title: string }[] = [
+    { id: "articles", label: "文章", icon: "article", kicker: "WRITING / ARCHIVE", title: "文章档案" },
+    { id: "series", label: "系列", icon: "series", kicker: "COLLECTIONS / DIRECTORY", title: "探索路径" },
+    { id: "graph", label: "知识地图", icon: "graph", kicker: "KNOWLEDGE / CONNECTIONS", title: "知识地图" },
+    { id: "code", label: "开源", icon: "code", kicker: "SOURCE / OPEN", title: "代码与实践" },
+    { id: "about", label: "关于", icon: "about", kicker: "PROFILE / CHEN MIAO", title: "关于我" },
+  ];
+  let section: Section = "articles";
+  let query = "";
+  let category = "all";
+  let seriesFilter = "";
+  let resetKey = 0;
+  let reader: ArticleReader;
+  let sourceProject = projects[0]?.id;
+  let searchInput: HTMLInputElement;
+  let systemReducedMotion = true;
+  let effectsEnabled = true;
+  let motionReady = false;
+  let pageVisible = true;
+  let readerOpen = false;
+  let finePointer = false;
+  let cameraX = 0;
+  let cameraY = 0;
+  let cameraFrame = 0;
+  $: reducedMotion = systemReducedMotion || !effectsEnabled;
+  $: ambientPaused = readerOpen || !pageVisible;
+  $: activeSection = navigation.find((item) => item.id === section) ?? navigation[0];
+  const descriptions: Record<Section, string> = {
+    articles: '操作系统、硬件与底层世界的探索记录。',
+    series: '沿一条路径，读懂一个系统。',
+    graph: '把独立的笔记，连接成可探索的知识路径。',
+    code: '代码里的思考与实践，留下公开的记录。',
+    about: '记录系统的内部世界。',
+  };
+  function setSection(next: Section) {
+    section = next;
+    if (window.location.hash !== `#${next}`) history.pushState(null, "", `#${next}`);
+  }
+
+  function navigate(next: Section) {
+    setSection(next);
+    if (next === "articles") resetFilters();
+  }
+
+  async function openAuthor() {
+    navigate("about");
+    await tick();
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+
+  function toggleMotion() {
+    effectsEnabled = !effectsEnabled;
+    try { localStorage.setItem("orbital:motion", effectsEnabled ? "on" : "off"); } catch { /* Motion still works when storage is unavailable. */ }
+  }
+
+  function moveCamera(event: PointerEvent) {
+    if (reducedMotion || ambientPaused || !finePointer || window.innerWidth < 1000 || event.pointerType !== "mouse") return;
+    cancelAnimationFrame(cameraFrame);
+    cameraFrame = requestAnimationFrame(() => {
+      if (reducedMotion || ambientPaused || !finePointer) return;
+      cameraX = (Math.max(0, Math.min(1, event.clientX / window.innerWidth)) - .5) * -14;
+      cameraY = (Math.max(0, Math.min(1, event.clientY / window.innerHeight)) - .5) * -10;
+    });
+  }
+
+  function resetCamera() {
+    if (typeof window === "undefined") return;
+    cancelAnimationFrame(cameraFrame);
+    cameraX = 0;
+    cameraY = 0;
+  }
+
+  $: if (reducedMotion || !finePointer) resetCamera();
+
+  function resetFilters() {
+    query = "";
+    category = "all";
+    seriesFilter = "";
+    resetKey++;
+  }
+
+  function filterSeries(slug: string) {
+    setSection("articles");
+    resetFilters();
+    seriesFilter = slug;
+  }
+
+  function search() {
+    if (section !== "articles") {
+      category = "all";
+      seriesFilter = "";
+    }
+    setSection("articles");
+  }
+
+  function openReader(post: ArchivePost, heading?: string) { void reader.open(post, heading); }
+
+  function shortcuts(event: KeyboardEvent) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !readerOpen) {
+      event.preventDefault();
+      searchInput?.focus();
+    }
+  }
+
+  onMount(() => {
+    const restoreSection = () => {
+      const target = navigation.find((item) => item.id === window.location.hash.slice(1));
+      section = target?.id ?? "articles";
+      if (readerOpen) reader.close();
+    };
+    restoreSection();
+    window.addEventListener("popstate", restoreSection);
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const updatePointer = () => { finePointer = pointer.matches; };
+    const updateMotion = () => { systemReducedMotion = media.matches; };
+    const updateVisibility = () => { pageVisible = !document.hidden; };
+    try { effectsEnabled = localStorage.getItem("orbital:motion") !== "off"; } catch { /* Use the system preference. */ }
+    updateMotion();
+    updatePointer();
+    updateVisibility();
+    motionReady = true;
+    media.addEventListener("change", updateMotion);
+    pointer.addEventListener("change", updatePointer);
+    document.addEventListener("visibilitychange", updateVisibility);
+    return () => {
+      window.removeEventListener("popstate", restoreSection);
+      media.removeEventListener("change", updateMotion);
+      pointer.removeEventListener("change", updatePointer);
+      cancelAnimationFrame(cameraFrame);
+      document.removeEventListener("visibilitychange", updateVisibility);
+      document.body.classList.remove("reader-open");
+    };
+  });
+</script>
+
+<svelte:window onkeydown={shortcuts} onpointermove={moveCamera} onblur={resetCamera} onresize={resetCamera}/>
+
+<div class="station-scene" class:motion-running={motionReady && !reducedMotion} class:motion-idle={ambientPaused} style={`--camera-x:${cameraX}px;--camera-y:${cameraY}px`} aria-hidden="true"></div>
+<div class="station-shade" aria-hidden="true"></div>
+<div class="station-atmosphere" class:motion-running={motionReady && !reducedMotion} class:motion-idle={ambientPaused} aria-hidden="true">
+  {#each [0, 1, 2, 3, 4] as mote}<span style={`--mote-x:${[19,39,66,83,94][mote]}%;--mote-y:${[73,40,83,33,65][mote]}%;--mote-time:${[13,17,19,15,21][mote]}s;--mote-delay:${mote * -3}s`}></span>{/each}
+</div>
+<a class="skip-link" href="#terminal-main">跳到文章</a>
+
+<div class="terminal-shell" class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:ambient-paused={ambientPaused} class:archive-view={section === 'articles'} class:series-view={section === 'series'} class:graph-view={section === 'graph'} class:source-view={section === 'code'} class:about-view={section === 'about'}>
+  <svg class="terminal-orbit" viewBox="0 0 1600 1000" preserveAspectRatio="none" aria-hidden="true"><path d="M136 123C38 280 20 705 143 902"/><path d="M127 121C24 305 17 716 137 907"/><path class="orbit-transmission" d="M136 123C38 280 20 705 143 902" pathLength="1"/><circle cx="136" cy="123" r="5"/><circle cx="143" cy="902" r="5"/><path class="orbit-ground" d="M215 950H1450l75-75"/></svg>
+  <header class="terminal-header">
+    <button class="brand" aria-label="Nay's Blog，返回文章档案" onclick={() => navigate("articles")}>
+      <svg class="brand-mark" viewBox="0 0 52 52" aria-hidden="true"><path d="M35 4h10L17 36H7zM19 30h9L12 48H2z" fill="currentColor"/><path d="M34 29h12L31 47H19z" fill="#f3dc26"/></svg>
+      <span><strong>Nay's Blog</strong><small>SYSTEMS & NOTES</small></span>
+    </button>
+    <span class="header-hairline" aria-hidden="true"><i></i><span>PERSONAL ARCHIVE</span></span>
+    <div class="header-tools">
+      <div class="search-frame">
+        <TerminalIcon name="search" size={20}/>
+        <input bind:this={searchInput} bind:value={query} oninput={search} aria-label="搜索文章" placeholder="搜索文章" type="search" autocomplete="off" />
+        <kbd>Ctrl K</kbd>
+      </div>
+      <a class="github-link" href="https://github.com/ChenMiaoi" target="_blank" rel="noreferrer"><BrandIcon name="github" size={18} framed={false}/>GitHub <TerminalIcon name="external" size={17}/></a>
+    </div>
+  </header>
+
+  <div class="terminal-workspace">
+    <aside class="terminal-sidebar">
+      <p class="sidebar-label">NAVIGATION</p>
+      <nav class="primary-nav" aria-label="主导航" use:navigationBeacon={section}>
+        <span class="nav-tracer" aria-hidden="true"></span>
+        {#each navigation as item, index}
+          <button class:active={section === item.id} style={`--nav-offset:${[17,4,0,4,17][index]}px`} aria-current={section === item.id ? "page" : undefined} onclick={() => navigate(item.id)}>
+            <TerminalIcon name={item.icon} size={20}/><span>{item.label}</span><small aria-hidden="true">{String(index + 1).padStart(2, "0")}</small>
+          </button>
+        {/each}
+      </nav>
+      <button class="sidebar-note author-entry" aria-label={`关于作者：${profile.name}`} onclick={openAuthor}>
+        <span class="sidebar-avatar" aria-hidden="true">
+          {#if profile.avatar}<img src={profile.avatar} alt="" width="36" height="36"/>{:else}<span>{profile.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}</span>{/if}
+        </span>
+        <span class="sidebar-author-copy"><strong>{profile.name}</strong><span>关于作者<TerminalIcon name="arrow" size={14}/></span></span>
+      </button>
+    </aside>
+
+    <main id="terminal-main" class="terminal-main">
+      {#key section}
+      <div class="archive-heading">
+        <div><p class="terminal-kicker"><span></span>{activeSection.kicker}</p><h1>{activeSection.title}<span class="heading-mark" aria-hidden="true">/</span></h1><p class="heading-description">{descriptions[section]}</p></div>
+        {#if section === "articles"}
+          <div class="category-tabs" aria-label="文章分类">
+            {#each [{ value: "all", label: "全部" }, { value: "linux", label: "Linux" }, { value: "hardware", label: "硬件设计" }] as tab}
+              <button class:active={category === tab.value} aria-pressed={category === tab.value} onclick={() => { category = tab.value; seriesFilter = ""; }}>{#if tab.value !== 'all'}<BrandIcon name={tab.value === 'linux' ? 'linux' : 'chip'} size={15} framed={false}/>{/if}{tab.label}</button>
+            {/each}
+          </div>
+        {:else}<span class="section-coordinate">NAY'S PERSONAL ARCHIVE</span>{/if}
+      </div>
+      {/key}
+
+      {#if section === "articles"}
+        <ArticleArchive {posts} {series} {category} {query} {seriesFilter} {reducedMotion} {motionReady} {resetKey} {openReader} {resetFilters}/>
+      {:else if section === "series"}
+        <SeriesExplorer {posts} {series} {reducedMotion} onRead={openReader} onBrowse={filterSeries}/>
+      {:else if section === "graph"}
+        <KnowledgeAtlas {posts} {series} {reducedMotion} onRead={openReader} onBrowse={filterSeries}/>
+      {:else if section === "code"}
+        <SourceDock {projects} {activity} {detailsUrl} {reducedMotion} bind:projectId={sourceProject}/>
+      {:else}
+        <ProfileDossier {profile} onNavigate={navigate} onExplore={(nextCategory) => { navigate('articles'); category = nextCategory; }}/>
+      {/if}
+    </main>
+  </div>
+
+  <footer class="terminal-footer"><span>Nay's Blog <i>·</i> Chen Miao</span><span class="footer-line" aria-hidden="true"></span><button class="motion-control" aria-label={systemReducedMotion ? '系统已减少动态效果' : effectsEnabled ? '暂停页面动效' : '开启页面动效'} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion} title={systemReducedMotion ? '跟随系统的减少动态效果设置' : '切换页面动效'}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? '动效暂停' : '动效开启'}</span></button><span class="preview-badge">设计预览</span><span class="footer-words">文章 <i>/</i> 系列 <i>/</i> 关联</span></footer>
+</div>
+
+<ArticleReader bind:this={reader} {reducedMotion} bind:readerOpen/>

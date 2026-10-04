@@ -27,13 +27,14 @@ import { remarkPostHeadings } from "./src/plugins/remark-post-headings.mjs";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 
 // https://astro.build/config
-export default defineConfig({
+export function createSiteConfig({ preview = false } = {}) {
+return defineConfig({
 	site: "https://nyachen.cn",
 	base: "/",
 	trailingSlash: "always",
 	compressHTML: true,
 	integrations: [
-		swup({
+		...(!preview ? [swup({
 			theme: false,
 			animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
 			// the default value `transition-` cause transition delay
@@ -46,7 +47,7 @@ export default defineConfig({
 			updateHead: true,
 			updateBodyClass: false,
 			globalInstance: true,
-		}),
+		})] : []),
 		icon({
 			include: {
 				"preprocess: vitePreprocess(),": ["*"],
@@ -106,7 +107,7 @@ expressiveCode({
 			}
 		}),
         svelte(),
-		sitemap({
+		...(!preview ? [sitemap({
 			i18n: {
 				defaultLocale: "zh_CN",
 				locales: {
@@ -116,7 +117,7 @@ expressiveCode({
 					ja: "ja",
 				},
 			},
-		}),
+		})] : []),
 	],
 	markdown: {
 		processor: unified({
@@ -198,3 +199,6 @@ expressiveCode({
 		},
 	},
 });
+
+}
+export default createSiteConfig();

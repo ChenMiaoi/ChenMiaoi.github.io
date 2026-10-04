@@ -4,7 +4,8 @@ import { onMount } from "svelte";
 import { siteConfig } from "../config";
 import I18nKey from "../i18n/i18nKey";
 import { getTranslation } from "../i18n/translation";
-import { getPostUrlBySlug } from "../utils/url-utils";
+import { getPostUrlBySlug, getCategoryUrl, url } from "../utils/url-utils";
+import { observatoryCopy } from "@i18n/observatory";
 
 export let tags: string[] = [];
 export let categories: string[] = [];
@@ -15,6 +16,7 @@ const params = new URLSearchParams(window.location.search);
 tags = params.has("tag") ? params.getAll("tag") : [];
 categories = params.has("category") ? params.getAll("category") : [];
 const uncategorized = params.get("uncategorized");
+const categoryOptions = [...new Set(sortedPosts.map(post => post.data.category).filter((category): category is string => !!category))];
 
 interface Post {
 	slug: string;
@@ -87,7 +89,14 @@ onMount(async () => {
 });
 </script>
 
-<div class="card-base px-8 py-6">
+<nav class="archive-filters" aria-label={getTranslation(lang)[I18nKey.categories]}>
+    <a href={url('/archive/', lang)} aria-current={!categories.length && !tags.length && !uncategorized ? 'page' : undefined}>{observatoryCopy(lang).all}</a>
+    {#each categoryOptions as category}
+        <a href={getCategoryUrl(category, lang)} aria-current={categories.includes(category) ? 'page' : undefined}>{category}</a>
+    {/each}
+    {#each tags as tag}<span class="archive-selected-tag">#{tag}</span>{/each}
+</nav>
+<div class="archive-panel card-base px-8 py-6">
     {#each groups as group}
         <div>
             <div class="flex flex-row w-full items-center h-[3.75rem]">
@@ -109,7 +118,7 @@ onMount(async () => {
                 <a
                         href={getPostUrlBySlug(post.slug, post.data.published, lang)}
                         aria-label={post.data.title}
-                        class="group btn-plain !block h-10 w-full rounded-lg hover:text-[initial]"
+                        class="archive-row group btn-plain !block w-full hover:text-[initial]"
                 >
                     <div class="flex flex-row justify-start items-center h-full">
                         <!-- date -->
@@ -131,9 +140,9 @@ onMount(async () => {
 
                         <!-- post title -->
                         <div
-                                class="w-[70%] md:max-w-[65%] md:w-[65%] text-left font-bold
+                                class="archive-title w-[70%] md:max-w-[65%] md:w-[65%] text-left font-medium
                      group-hover:translate-x-1 transition-all group-hover:text-[var(--primary)]
-                     text-75 pr-8 whitespace-nowrap overflow-ellipsis overflow-hidden"
+                     text-75 pr-4"
                         >
                             {post.data.title}
                         </div>

@@ -33,20 +33,18 @@ const navigationLinks = links.filter((link) => !link.icon);
 const iconLinks = links.filter((link) => link.icon);
 ---
 <div id="navbar" class="z-50 onload-animation">
-    <div class="absolute h-8 left-0 right-0 -top-8 bg-[var(--card-bg)] transition"></div> <!-- used for onload animation -->
     <div class:list={[
         className,
-        "card-base !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
-        <a href={url('/', lang)} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-2 sm:px-5 shrink-0 whitespace-nowrap font-bold active:scale-95">
-            <div class="flex flex-row text-[var(--primary)] items-center text-md">
-                <Icon name="material-symbols:home-outline-rounded" class="hidden sm:block text-[1.75rem] mb-1 mr-2" />
-                {siteConfig.title}
-            </div>
+        "orbital-navbar !overflow-visible max-w-[var(--page-width)] mx-auto flex items-center justify-between"]}>
+        <a href={url('/', lang)} class="orbit-brand" aria-label={siteConfig.title}>
+            <span class="brand-mark" aria-hidden="true">N<span>↗</span></span>
+            <span class="brand-name">NAY<span class="mono">PERSONAL SPACE</span></span>
         </a>
-        <div class="hidden xl:flex shrink-0">
+        <nav aria-label="Main" class="orbit-navigation hidden xl:flex shrink-0">
             {navigationLinks.map((l) => {
                 return <a aria-label={linkName(l)} href={l.external ? l.url : url(l.url, lang)} target={l.external ? "_blank" : null}
-                          class="btn-plain scale-animation rounded-lg h-11 font-bold px-3 whitespace-nowrap active:scale-95"
+                          data-nav-link aria-current={currentPath === url(l.url, lang) ? "page" : undefined}
+                          class="btn-plain h-11 px-3 whitespace-nowrap"
                 >
                     <div class="flex items-center">
                         {linkName(l)}
@@ -54,7 +52,7 @@ const iconLinks = links.filter((link) => link.icon);
                     </div>
                 </a>;
             })}
-        </div>
+        </nav>
         <div class="navbar-actions flex shrink-0">
             <!--<SearchPanel client:load>-->
             <Search lang={lang} client:only="svelte"></Search>
@@ -83,6 +81,7 @@ const iconLinks = links.filter((link) => link.icon);
         <NavMenuPanel links={navigationLinks} lang={lang}></NavMenuPanel>
         <DisplaySettings lang={lang} client:only="svelte"></DisplaySettings>
         <div id="locale-panel" class:list={["float-panel float-panel-closed absolute transition-all fixed right-4 px-2 py-2"]}>
+            <!-- Locale switches reload the navbar, document language and title. -->
             {LOCALES.map((l) => (
                 <a href={switchLocalePath(currentPath, l)} data-locale={l} data-no-swup
                    class="group flex justify-between items-center py-2 pl-3 pr-4 rounded-lg gap-8
@@ -121,6 +120,8 @@ const iconLinks = links.filter((link) => link.icon);
 </style>
 
 <script>
+import { switchLocalePath } from "../utils/url-utils";
+import { onSwupReady } from "../scripts/lifecycle";
 function switchTheme() {
     if (localStorage.theme === 'dark') {
         document.documentElement.classList.remove('dark');
@@ -131,25 +132,17 @@ function switchTheme() {
     }
 }
 
-/* Client-side mirror of switchLocalePath in url-utils: the navbar survives
-   swup navigations, so locale links must be recomputed on every page view. */
-function localePath(pathname: string, target: string): string {
-    const prefixes = ["/en", "/zh_TW", "/ja"];
-    let p = pathname;
-    for (const pre of prefixes) {
-        if (p === pre) { p = "/"; break; }
-        if (p.startsWith(pre + "/")) { p = p.slice(pre.length); break; }
-    }
-    const prefix = target === "zh_CN" ? "" : `/${target}`;
-    return (prefix + p).replace(/\/+/g, "/") || "/";
-}
-
 function updateLocaleLinks() {
+    document.querySelectorAll<HTMLAnchorElement>("[data-nav-link]").forEach((link) => {
+        const active = new URL(link.href).pathname === window.location.pathname;
+        if (active) link.setAttribute("aria-current", "page");
+        else link.removeAttribute("aria-current");
+    });
     document
         .querySelectorAll<HTMLAnchorElement>("#locale-panel a[data-locale]")
         .forEach((a) => {
             const l = a.dataset.locale;
-            if (l) a.href = localePath(window.location.pathname, l);
+            if (l) a.href = switchLocalePath(window.location.pathname, l);
         });
 }
 
@@ -202,18 +195,7 @@ function loadButtonScript() {
 loadButtonScript();
 updateLocaleLinks();
 
-const w = window as any;
-if (!w.__localeLinksHooked) {
-    w.__localeLinksHooked = true;
-    const tryHook = (n = 0): void => {
-        if (w.swup?.hooks) {
-            w.swup.hooks.on("page:view", updateLocaleLinks);
-        } else if (n < 50) {
-            setTimeout(() => tryHook(n + 1), 100);
-        }
-    };
-    tryHook();
-}
+onSwupReady((swup) => swup.hooks.on("page:view", updateLocaleLinks));
 </script>
 
 {import.meta.env.PROD && <script is:inline define:vars={{scriptUrl: url('/pagefind/pagefind.js')}}>

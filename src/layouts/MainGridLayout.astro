@@ -19,6 +19,7 @@ import {
   MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
 } from "../constants/constants";
 import Layout from "./Layout.astro";
+import { observatoryCopy } from "@i18n/observatory";
 
 interface Props {
 	title?: string;
@@ -38,7 +39,7 @@ const {
 	lang,
 	setOGTypeArticle,
 	headings = [],
-	sidebar = "default",
+	sidebar = "none",
 	seriesSidebar,
 } = Astro.props;
 const hasBannerCredit =
@@ -67,6 +68,7 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
 
 ---
 <Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>
+<a class="skip-link" href="#swup-container">{observatoryCopy(lang).skip}</a>
 <!-- Navbar -->
 <slot slot="head" name="head"></slot>
 <div id="top-row" class="z-50 pointer-events-none relative transition-all duration-700 max-w-[var(--page-width)] px-0 md:px-4 mx-auto" class:list={[""]}>
@@ -84,7 +86,7 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
 </div>}
 
 <!-- Main content -->
-<div class="absolute w-full z-30 pointer-events-none" style={`top: ${mainPanelTop}`}>
+<div class="site-main absolute w-full z-30 pointer-events-none" style={`top: ${mainPanelTop}`}>
     <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
     <div class="relative max-w-[var(--page-width)] mx-auto pointer-events-auto">
         <div id="main-grid" class:list={["transition duration-700 w-full left-0 right-0 grid grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4 px-0 md:px-4", gridColClass]}
@@ -111,7 +113,7 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
                 {showSeriesSidebar && seriesSidebar && <SeriesSidebar seriesTitle={seriesSidebar.leafTitle} seriesSlug={seriesSidebar.leafSlug} ancestors={seriesSidebar.ancestors} items={seriesSidebar.items} lang={lang} />}
             </div>
 
-            <main id="swup-container" class:list={["transition-swup-fade overflow-hidden", mainColClass]}>
+            <main id="swup-container" tabindex="-1" class:list={["transition-swup-fade overflow-hidden", mainColClass]}>
                 <div id="content-wrapper" class="onload-animation" data-sidebar-mode={sidebar} data-show-toc={showToc ? "1" : "0"}>
                     <!-- the overflow-hidden here prevent long text break the layout-->
                     <!-- make id different from windows.swup global property -->
@@ -190,6 +192,10 @@ const mainColClass = showSidebar ? "col-span-2 lg:col-span-1" : "col-span-1";
 		const cw = document.getElementById("content-wrapper");
 		if (!grid || !cw) return;
 		grid.className = `${GRID_BASE} ${gridCols(cw.dataset.sidebarMode ?? "default", cw.dataset.showToc === "1")}`;
+		const main = document.getElementById("swup-container");
+		main?.classList.toggle("col-span-2", cw.dataset.sidebarMode !== "none");
+		main?.classList.toggle("col-span-1", cw.dataset.sidebarMode === "none");
+		main?.classList.toggle("lg:col-span-1", cw.dataset.sidebarMode !== "none");
 	}
 
 	function initContributionTabs(): void {

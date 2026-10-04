@@ -1,13 +1,9 @@
+import { activitySchema } from "../src/lib/contributions/schema.ts";
 import { execFileSync } from "node:child_process";
 import { readFile, writeFile, rename, rm } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-const config = JSON.parse(
-	await readFile(
-		new URL("./contribution-activity.config.json", import.meta.url),
-		"utf8",
-	),
-);
+const { contributionSyncConfig: config } = await import("../src/lib/contributions/config.ts");
 const output = new URL(
 	"../src/data/contribution-activity.json",
 	import.meta.url,
@@ -69,6 +65,7 @@ const snapshot = {
 		b.updatedAt.localeCompare(a.updatedAt),
 	),
 };
+activitySchema.parse(snapshot);
 const temporary = fileURLToPath(output) + ".tmp";
 try {
 	await writeFile(temporary, JSON.stringify(snapshot, null, 2) + "\n");

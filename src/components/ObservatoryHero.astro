@@ -1,0 +1,31 @@
+---
+import OrbitalScene from "./OrbitalScene.astro";
+import { observatoryCopy } from "@i18n/observatory";
+import { url } from "@utils/url-utils";
+import { profileConfig } from "@/config";
+
+interface Props { lang?: string; total: number; collections: number; }
+const { lang, total, collections } = Astro.props;
+const t = observatoryCopy(lang);
+---
+<section class="observatory-hero" aria-labelledby="hero-title">
+    <div class="hero-eyebrow mono"><span class="signal-dot"></span> {profileConfig.name.toUpperCase()} / PERSONAL OBSERVATORY <span class="hero-edition">EST. IN CURIOSITY</span></div>
+    <div class="hero-layout">
+        <div class="hero-copy">
+            <p class="hero-overline mono">NOTES FROM BELOW THE ABSTRACTION</p>
+            <h1 id="hero-title">Beneath<br />the <em>surface.</em><span class="hero-period" aria-hidden="true">↗</span></h1>
+            <h2>{t.intro}</h2>
+            <p class="hero-description">{t.description}</p>
+            <div class="hero-actions">
+                <a class="orbit-button orbit-button-primary" href="#latest">{t.explore}<span aria-hidden="true">↘</span></a>
+                <a class="orbit-text-link" href={url("/graph/", lang)}>{t.map}<span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+        <div class="hero-art"><OrbitalScene /></div>
+    </div>
+    <div class="hero-bottom mono">
+        <span class="hero-topics">KERNELS <i>/</i> SYSTEMS <i>/</i> OPEN SOURCE</span>
+        <span class="hero-count"><strong>{String(total).padStart(2, "0")}</strong> {t.articles} <i>·</i> <strong>{String(collections).padStart(2, "0")}</strong> {t.collections}</span>
+        <a href="#latest" class="scroll-cue" aria-label={t.explore}>SCROLL TO EXPLORE <span aria-hidden="true">↓</span></a>
+    </div>
+</section>

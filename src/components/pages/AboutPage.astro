@@ -5,6 +5,7 @@ import Markdown from "@components/misc/Markdown.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
+import PageHeading from "@components/PageHeading.astro";
 
 interface Props {
 	entry: CollectionEntry<"spec">;
@@ -16,6 +17,7 @@ const { entry, lang } = Astro.props;
 const { Content } = await render(entry);
 ---
 <MainGridLayout title={i18n(I18nKey.about, lang)} description={i18n(I18nKey.about, lang)} lang={lang}>
+    <PageHeading title={i18n(I18nKey.about, lang)} index="05" label="THE PERSON BEHIND THE NOTES" />
     <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
         <div class="card-base z-10 px-9 py-6 relative w-full ">
             <Markdown class="mt-2">

@@ -30,7 +30,7 @@ const totalPosts = flattenSeriesPosts(node).length;
 ---
 
 <MainGridLayout title={node.title} description={node.description} lang={lang}>
-    <div class="card-base p-6 md:p-9 mb-4 onload-animation">
+    <div class="series-detail-heading card-base p-6 md:p-9 mb-4 onload-animation">
         {ancestors.length > 0 && (
             <nav class="mb-2 flex flex-wrap items-center gap-1 text-sm text-black/40 dark:text-white/40">
                 {ancestors.map((a) => (

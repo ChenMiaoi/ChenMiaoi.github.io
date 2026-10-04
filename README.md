@@ -39,19 +39,34 @@ Do not suppress it in the audit configuration. Recheck with
 `pnpm audit --registry=https://registry.npmjs.org` (the configured mirror does not
 provide an audit endpoint).
 
-Run `pnpm sync:contributions` after `gh auth login` to refresh open GitHub issues and PRs. The account and repository allowlist are in `scripts/contribution-activity.config.json`; keep the repository URLs aligned with the displayed projects. The command searches both authored and assigned records, follows pagination, deduplicates overlaps, and saves a timestamped public snapshot to `src/data/contribution-activity.json`. Failed or incomplete searches leave the previous snapshot intact. Builds read this snapshot without invoking `gh` or exposing credentials. Refresh before publishing to update statuses: closed or merged PRs disappear from the open list, while verified merged commits are maintained separately below. Mailing-list patches and comment/review-only participation are not included.
+The Observatory design lives in `src/styles/observatory.css`. Its home page combines
+`ObservatoryHero.astro`, a locally drawn `OrbitalScene.astro`, article records, and
+series links generated from the content collections. New interface copy for the
+four locale trees lives in `src/i18n/observatory.ts`. Dark mode is the default for
+new visitors; saved theme preferences are respected. The orbital animation stops
+offscreen and follows the visitor's reduced-motion preference.
+
+Run `pnpm sync:contributions` after `gh auth login` to refresh open GitHub issues and PRs. The account and projects share `src/data/contribution-projects.json`; the repository allowlist is derived from it. The command searches both authored and assigned records, follows pagination, deduplicates overlaps, and saves a timestamped public snapshot to `src/data/contribution-activity.json`. Failed or incomplete searches leave the previous snapshot intact. Builds read this snapshot without invoking `gh` or exposing credentials. Refresh before publishing to update statuses: closed or merged PRs disappear from the open list, while verified merged commits are maintained separately below. Mailing-list patches and comment/review-only participation are not included.
 
 For quick ad hoc lookup: `gh search prs --repo llvm/llvm-project --author ChenMiaoi --state open` or `gh search issues --repo llvm/llvm-project --assignee ChenMiaoi --state open`. Use `--repo rust-lang/cargo` for Cargo.
 
-Contribution projects live in `contributionConfig.projects` in `src/config.ts`. Linux records use `mailingListLabel` and `mailingListUrl`; llvm-project and Cargo use `reviewType: "pull-request"` and each record's `pullRequest: { number, url }`. Add only verified merged records, with their upstream commit SHA, date and title. Patch previews use that commit in the configured repository, or an explicit `patch` value. An empty list means no records have been added, not that the author has no contributions.
+Contribution projects live in `src/data/contribution-projects.json` (re-exported by `src/config.ts`). Linux records use `mailingListLabel` and `mailingListUrl`; llvm-project and Cargo use `reviewType: "pull-request"` and each record's `pullRequest: { number, url }`. Add only verified merged records, with their upstream commit SHA, date and title. Run `pnpm sync:contribution-details` after activity synchronization to save validated detail snapshots. Both views render patches from those snapshots, or an explicit `patch` value; builds do not download contribution patches. An empty list means no records have been added, not that the author has no contributions.
 
 ```bash
 pnpm install
 pnpm dev       # local dev server
-pnpm build     # build to dist/ + Pagefind search index
+pnpm build     # build to dist/ + Pagefind + RAG indexes
 pnpm preview   # preview the production build (search works here)
+pnpm check     # Astro, Svelte and TypeScript diagnostics
+pnpm test:contribution-reader # Markdown safety and lossless patch rendering
 ```
 
 ## Publishing
 
 Push to `main` — the workflow in `.github/workflows/deploy.yml` builds and deploys automatically.
+
+## Architecture and verification
+
+See [architecture.md](docs/architecture.md) for module ownership, data flow and build boundaries.
+Run `pnpm verify` before publishing. It checks types, lint, domain formatting, tests, both builds and generated links.
+Use `pnpm dev:design --port 4332` or `pnpm build:design` followed by `pnpm preview:design --port 4332` for the Orbital preview. Production builds exclude preview routes.

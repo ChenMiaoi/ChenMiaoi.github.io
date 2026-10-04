@@ -1,0 +1,399 @@
+/* reader: owns the final orbital reader rules, including responsive states. */
+
+.orbital-preview.reader-open {
+	overflow: hidden;
+}
+
+.orbital-preview .reading-dialog {
+	width: min(1190px, calc(100vw - 64px));
+	height: min(900px, calc(100dvh - 58px));
+	max-width: none;
+	max-height: none;
+	padding: 0;
+	border: 1px solid #acb89299;
+	background: #1c2527;
+	color: #edf0e7;
+	margin: auto;
+	box-shadow: 0 40px 140px #000c;
+	overflow: hidden;
+}
+
+.orbital-preview .reading-dialog::backdrop {
+	background: #080d12c7;
+	backdrop-filter: blur(12px);
+}
+
+.orbital-preview .reading-dialog[open] {
+	display: flex;
+	flex-direction: column;
+}
+
+.orbital-preview .reader-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 15px;
+	padding: 19px 26px;
+	height: 62px;
+	border-bottom: 1px solid #a0ad831f;
+}
+
+.orbital-preview .reader-header button {
+	display: inline-flex;
+	align-items: center;
+	gap: 13px;
+	font-size: 12px;
+	color: #d9e0cb;
+}
+
+.orbital-preview .reader-header button:hover {
+	color: var(--signal);
+}
+
+.orbital-preview .reader-status {
+	font: 10px "JetBrains Mono Variable",
+		monospace;
+	letter-spacing: 1.1px;
+	color: #a5b498;
+}
+
+.orbital-preview .reader-close {
+	padding: 4px !important;
+}
+
+.orbital-preview .reading-meter {
+	height: 2px;
+	background: #0c1516;
+}
+
+.orbital-preview .reading-meter span {
+	height: 2px;
+	background: var(--signal);
+	display: block;
+	transition: width 0.12s;
+}
+
+.orbital-preview .reader-layout {
+	display: grid;
+	grid-template-columns: 205px minmax(0, 1fr);
+	height: calc(100% - 64px);
+}
+
+.orbital-preview .reader-header,
+.orbital-preview .reading-meter {
+	flex-shrink: 0;
+}
+
+.orbital-preview .reader-layout {
+	flex: 1;
+	min-height: 0;
+}
+
+.orbital-preview .reader-toc {
+	padding: 29px 23px;
+	overflow: auto;
+	scrollbar-width: thin;
+	scrollbar-color: #636f59 transparent;
+}
+
+.orbital-preview .reader-toc .terminal-kicker {
+	font-size: 9px;
+	color: #8c9c83;
+}
+
+.orbital-preview .reader-toc h2 {
+	font-size: 15px;
+	margin: 10px 0 24px;
+}
+
+.orbital-preview .reader-toc button {
+	display: block;
+	width: 100%;
+	font-size: 12px;
+	line-height: 1.7;
+	color: #abbca3;
+	padding: 9px 0;
+	overflow-wrap: anywhere;
+}
+
+.orbital-preview .reader-toc button:hover {
+	color: var(--signal);
+}
+
+.orbital-preview .reader-toc button.subheading {
+	padding-left: 11px;
+	font-size: 11px;
+}
+
+.orbital-preview .reader-scroll {
+	overflow-y: auto;
+	overflow-x: hidden;
+	color: #202c30;
+	scrollbar-width: thin;
+	scrollbar-color: #7a876c #e7e9e1;
+	scroll-behavior: smooth;
+}
+
+.orbital-preview .reader-article {
+	margin: auto;
+}
+
+.orbital-preview .reader-article-meta {
+	font: 11px "JetBrains Mono Variable",
+		"Microsoft YaHei",
+		monospace;
+	color: #606e64;
+	line-height: 1.7;
+}
+
+.orbital-preview .reader-article-meta span {
+	margin: 0 9px;
+	color: #88987f;
+}
+
+.orbital-preview .reader-article > h1 {
+	line-height: 1.5;
+	font-weight: 700;
+	padding-bottom: 28px;
+	margin-top: 15px;
+	border-bottom: 1px solid #a0ac9670;
+}
+
+.orbital-preview .reader-body {
+	overflow-wrap: break-word;
+	--codeblock-bg: #20282b;
+	--codeblock-topbar-bg: #293437;
+}
+
+.orbital-preview .reader-body p {
+	margin: 22px 0;
+}
+
+.orbital-preview .reader-body h1,
+.orbital-preview .reader-body h2,
+.orbital-preview .reader-body h3 {
+	scroll-margin-top: 24px;
+	line-height: 1.6;
+	margin: 32px 0 16px;
+	font-weight: 700;
+}
+
+.orbital-preview .reader-body h1 {
+	font-size: 26px;
+}
+
+.orbital-preview .reader-body h2 {
+	font-size: 23px;
+}
+
+.orbital-preview .reader-body h3 {
+	font-size: 19px;
+}
+
+.orbital-preview .reader-body a {
+	color: #506423;
+	text-decoration: underline;
+	text-underline-offset: 4px;
+}
+
+.orbital-preview .reader-body a.anchor {
+	display: none;
+}
+
+.orbital-preview .reader-body img,
+.orbital-preview .reader-body svg {
+	max-width: 100%;
+	height: auto;
+}
+
+.orbital-preview .reader-body code:not(pre code) {
+	font-size: 0.88em;
+	background: #bdc8ac66;
+	padding: 2px 5px;
+	border-radius: 2px;
+}
+
+.orbital-preview .reader-body pre {
+	overflow: auto;
+	padding: 20px;
+	background: #20282b;
+	color: #e4e9de;
+	border-radius: 0;
+	font-size: 12px;
+}
+
+.orbital-preview .reader-body blockquote {
+	border-left: 3px solid #8d9f61;
+	margin: 24px 0;
+	padding: 1px 20px;
+	background: #d6decb;
+}
+
+.orbital-preview .reader-body ul,
+.orbital-preview .reader-body ol {
+	padding-left: 25px;
+	margin: 20px 0;
+}
+
+.orbital-preview .reader-body ul {
+	list-style: disc;
+}
+
+.orbital-preview .reader-body ol {
+	list-style: decimal;
+}
+
+.orbital-preview .reader-body li {
+	margin: 6px 0;
+}
+
+.orbital-preview .reader-body table {
+	border-collapse: collapse;
+	display: block;
+	overflow-x: auto;
+	font-size: 13px;
+	margin: 25px 0;
+}
+
+.orbital-preview .reader-body td,
+.orbital-preview .reader-body th {
+	border: 1px solid #acb69d;
+	padding: 9px 12px;
+}
+
+.orbital-preview .reader-body th {
+	background: #d0d9c4;
+}
+
+.orbital-preview .reader-body .expressive-code {
+	margin: 23px 0;
+	max-width: 100%;
+}
+
+.orbital-preview .reader-body .expressive-code .frame,
+.orbital-preview .reader-body .expressive-code pre {
+	background: #20282b !important;
+	border-radius: 3px !important;
+}
+
+.orbital-preview .reader-body .expressive-code .gutter .ln {
+	color: #83948b !important;
+}
+
+.orbital-preview .reader-body pre {
+	position: relative;
+}
+
+.orbital-preview .reader-body .copy-btn {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 30px;
+	height: 30px;
+	display: grid;
+	place-items: center;
+	background: #536052;
+	border-radius: 3px;
+	color: #f3f6e9;
+}
+
+.orbital-preview .reader-body .copy-btn svg {
+	width: 18px;
+	height: 18px;
+	fill: currentColor;
+}
+
+.orbital-preview .reader-body .copy-btn .success-icon {
+	display: none;
+}
+
+.orbital-preview .reader-body .copy-btn[data-copied] .success-icon {
+	display: block;
+}
+
+.orbital-preview .reader-body .copy-btn[data-copied] .copy-icon {
+	display: none;
+}
+
+.orbital-preview .reader-end {
+	margin-top: 50px;
+	padding-top: 24px;
+	border-top: 1px solid #a1b090;
+	display: flex;
+	justify-content: space-between;
+	gap: 15px;
+	align-items: center;
+}
+
+.orbital-preview .reader-end > span {
+	font: 9px "JetBrains Mono Variable",
+		monospace;
+	letter-spacing: 2px;
+	color: #72806a;
+}
+
+.orbital-preview .reader-end button {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	font-size: 12px;
+}
+
+.orbital-preview .reader-scroll {
+	background: var(--paper);
+}
+
+.orbital-preview .reader-article {
+	max-width: 850px;
+	padding: 45px 58px 60px;
+}
+
+.orbital-preview .reader-body {
+	font-size: 16px;
+	line-height: 2;
+}
+
+.orbital-preview .reader-article > h1 {
+	font-size: 35px;
+}
+
+@media (max-width: 920px) {
+	.orbital-preview .reader-layout {
+		grid-template-columns: 160px minmax(0, 1fr);
+	}
+	.orbital-preview .reader-article {
+		padding: 35px;
+	}
+}
+
+@media (max-width: 650px) {
+	.orbital-preview .reading-dialog {
+		width: 100vw;
+		height: 100dvh;
+		border: 0;
+	}
+	.orbital-preview .reader-header {
+		height: 58px;
+		padding: 15px 20px;
+	}
+	.orbital-preview .reader-status,
+.orbital-preview .reader-toc {
+		display: none;
+	}
+	.orbital-preview .reader-layout {
+		grid-template-columns: 1fr;
+	}
+	.orbital-preview .reader-article {
+		padding: 31px 23px 45px;
+	}
+	.orbital-preview .reader-article > h1 {
+		font-size: 28px;
+	}
+	.orbital-preview .reader-body {
+		font-size: 14px;
+		line-height: 2;
+	}
+	.orbital-preview .reader-end {
+		flex-wrap: wrap;
+	}
+}

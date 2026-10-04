@@ -1,0 +1,56 @@
+/* base: owns the final orbital base rules, including responsive states. */
+
+.orbital-preview {
+	margin: 0;
+	color: #eff0eb;
+	font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+	-webkit-font-smoothing: antialiased;
+	color-scheme: dark;
+}
+
+.orbital-preview *,
+.orbital-preview *::before,
+.orbital-preview *::after {
+	box-sizing: border-box;
+}
+
+.orbital-preview button,
+.orbital-preview input {
+	font: inherit;
+}
+
+.orbital-preview button {
+	cursor: pointer;
+	color: inherit;
+	background: none;
+	border: 0;
+	padding: 0;
+	text-align: left;
+}
+
+.orbital-preview a {
+	color: inherit;
+	text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.orbital-preview *,
+.orbital-preview *::before,
+.orbital-preview *::after {
+		transition-duration: 0s !important;
+	}
+}
+
+.orbital-preview {
+	background: #101416;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.orbital-preview *,
+.orbital-preview *::before,
+.orbital-preview *::after {
+		scroll-behavior: auto !important;
+		transition: none !important;
+		animation: none !important;
+	}
+}

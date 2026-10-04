@@ -1,0 +1,164 @@
+<script lang="ts">
+  import { tick } from "svelte";
+  import { fly } from "svelte/transition";
+  import TerminalIcon from "./TerminalIcon.svelte";
+  import { revealSequence } from "./motion";
+  import type { ArchivePost, ArchiveSeries } from "./types";
+  export let posts: ArchivePost[];
+  export let series: ArchiveSeries[];
+  export let category = "all";
+  export let query = "";
+  export let seriesFilter = "";
+  export let reducedMotion = true;
+  export let motionReady = false;
+  export let resetKey = 0;
+  export let openReader: (post: ArchivePost, heading?: string) => void;
+  export let resetFilters: () => void;
+  let descending = true;
+  let selectedSlug = posts[0]?.slug ?? "";
+  let markerTop = 26;
+  let connectionY = 70;
+  let connectionStartX = 0;
+  let connectionTargetY = 116;
+  let railHeight = 560;
+  let connectionTop = 56;
+  let connectionVisible = true;
+  let archiveBody: HTMLDivElement;
+  let archiveScroll: HTMLDivElement;
+  let contextPanel: HTMLDivElement;
+
+  $: filteredPosts = posts.filter((post) => {
+    const text = `${post.title} ${post.description} ${post.tags.join(" ")} ${post.seriesTitle}`.toLowerCase();
+    const categoryMatch = category === "all" || (category === "linux" ? post.category.toLowerCase() === "linux" : /riscv|硬件/i.test(post.series + post.category));
+    const seriesMatch = !seriesFilter || series.find((item) => item.slug === seriesFilter)?.posts.includes(post.slug);
+    return categoryMatch && seriesMatch && text.includes(query.trim().toLowerCase());
+  }).sort((a, b) => descending ? b.timestamp - a.timestamp : a.timestamp - b.timestamp);
+  $: selectedPost = filteredPosts.find((post) => post.slug === selectedSlug) ?? filteredPosts[0];
+  $: selectedIndex = selectedPost ? filteredPosts.findIndex((post) => post.slug === selectedPost.slug) + 1 : 0;
+  $: selectedSeriesTitle = series.find((item) => item.slug === seriesFilter)?.title;
+
+  $: if (selectedPost && archiveBody) positionContext();
+  $: if (filteredPosts && archiveScroll) resetArchiveScroll();
+  $: resetSelection(resetKey);
+  function resetSelection(_key: number) { descending = true; selectedSlug = posts[0]?.slug ?? ""; }
+  async function resetArchiveScroll() {
+    await tick();
+    archiveScroll?.scrollTo({ top: 0, behavior: "instant" });
+    positionContext();
+  }
+
+  async function positionContext() {
+    await tick();
+    if (!archiveBody?.isConnected || !archiveScroll?.isConnected) return;
+    const card = archiveBody?.querySelector<HTMLElement>(".dossier.is-selected");
+    if (!card) return;
+    markerTop = card.offsetTop + 28;
+    const cardBounds = card.getBoundingClientRect();
+    const scrollBounds = archiveScroll.getBoundingClientRect();
+    connectionY = Math.max(8, Math.min(scrollBounds.height - 8, cardBounds.top + cardBounds.height / 2 - scrollBounds.top));
+    connectionVisible = cardBounds.bottom > scrollBounds.top + 8 && cardBounds.top < scrollBounds.bottom - 8;
+    connectionTop = archiveScroll.offsetTop;
+    railHeight = archiveScroll.clientHeight;
+    if (contextPanel?.isConnected) {
+      const panelBounds = contextPanel.getBoundingClientRect();
+      connectionTargetY = panelBounds.top + 116 - scrollBounds.top;
+      const gap = panelBounds.left - scrollBounds.right;
+      connectionStartX = gap > 0 ? (cardBounds.right - scrollBounds.right) * 70 / gap : 0;
+    }
+  }
+
+  function observeRail(node: HTMLDivElement) {
+    const observer = new ResizeObserver(positionContext);
+    observer.observe(node);
+    return { destroy: () => observer.disconnect() };
+  }
+
+  async function browseDocument(direction: number) {
+    const next = filteredPosts[selectedIndex - 1 + direction];
+    if (!next) return;
+    selectedSlug = next.slug;
+    await tick();
+    const card = archiveBody.querySelector<HTMLElement>(".dossier.is-selected");
+    if (!card) return;
+    const bounds = card.getBoundingClientRect();
+    const viewport = archiveScroll.getBoundingClientRect();
+    const offset = bounds.top < viewport.top + 8 ? bounds.top - viewport.top - 8 : bounds.bottom > viewport.bottom - 12 ? bounds.bottom - viewport.bottom + 12 : 0;
+    if (offset) archiveScroll.scrollBy({ top: offset, behavior: reducedMotion ? "instant" : "smooth" });
+  }
+
+  async function moveSelection(event: KeyboardEvent, index: number) {
+    const positions: Record<string, number> = {
+      ArrowDown: Math.min(index + 1, filteredPosts.length - 1),
+      ArrowUp: Math.max(index - 1, 0),
+      Home: 0,
+      End: filteredPosts.length - 1,
+    };
+    const next = positions[event.key];
+    if (next === undefined || !filteredPosts[next]) return;
+    event.preventDefault();
+    selectedSlug = filteredPosts[next].slug;
+    await tick();
+    archiveBody.querySelectorAll<HTMLButtonElement>('.dossier-hit')[next]?.focus();
+  }
+
+</script>
+<svelte:window onscroll={positionContext} />
+        {#if seriesFilter || query}
+          <div class="filter-summary"><span>{seriesFilter ? selectedSeriesTitle : `搜索「${query}」`} <small>{filteredPosts.length} 篇</small></span><button onclick={resetFilters}>清除筛选 <TerminalIcon name="close" size={14}/></button></div>
+        {/if}
+        <div class="archive-grid">
+          <section class="archive-list" aria-label="文章档案">
+            <div class="archive-toolbar"><span>文章索引<small>{String(filteredPosts.length).padStart(2, "0")}</small></span><button onclick={() => { descending = !descending; selectedSlug = ''; }} aria-label={descending ? "按时间从旧到新排序" : "按时间从新到旧排序"}>{descending ? '最新优先' : '最早优先'}<span class:reversed={!descending}><TerminalIcon name="sort" size={16}/></span></button></div>
+            <div class="archive-scroll" bind:this={archiveScroll} use:observeRail onscroll={positionContext} tabindex="0" role="region" aria-label="滚动浏览文章档案">
+            <div class="archive-rail" bind:this={archiveBody} use:observeRail use:revealSequence={{key: `${category}|${seriesFilter}|${descending}|${query}`, enabled: motionReady && !reducedMotion, selector: '.dossier-content', wait: query ? 140 : 0}}>
+              {#if selectedPost}<span class="rail-focus" style={`transform:translateY(${markerTop}px)`} aria-hidden="true"></span>{/if}
+              {#each filteredPosts as post, index (post.slug)}
+                <div class="dossier" class:is-selected={selectedPost?.slug === post.slug}>
+                  <span class="rail-node" aria-hidden="true"></span>
+                  <button class="dossier-hit" aria-label={`预览：${post.title}`} aria-pressed={selectedPost?.slug === post.slug} onclick={() => { selectedSlug = post.slug; }} onkeydown={(event) => moveSelection(event,index)}>
+                    <span class="dossier-lock" aria-hidden="true"></span>
+                    <span class="dossier-index" aria-hidden="true">{String(filteredPosts.indexOf(post) + 1).padStart(2, "0")}</span>
+                    <span class="dossier-meta"><time class="dossier-date" datetime={post.date.replaceAll(".", "-")}>{post.date}</time><span>{selectedPost?.slug === post.slug ? '正在预览' : post.category === 'linux' ? 'LINUX' : 'HARDWARE'}</span></span>
+                    <span class="dossier-content"><strong>{post.title}</strong><span class="dossier-description">{post.description}</span></span>
+                    <span class="dossier-series">{post.seriesTitle}</span>
+                    <span class="dossier-arrow"><TerminalIcon name="arrow" size={21}/></span>
+                  </button>
+                  {#if selectedPost?.slug === post.slug}<button class="mobile-read" onclick={() => openReader(post)}>进入阅读 <TerminalIcon name="external" size={16}/></button>{/if}
+                </div>
+              {/each}
+              {#if filteredPosts.length === 0}
+                <div class="archive-empty"><TerminalIcon name="search" size={30}/><h2>没有找到相关档案</h2><p>试试其他关键词，或返回全部文章。</p><button class="signal-button" onclick={resetFilters}>清除筛选</button></div>
+              {/if}
+              {#if filteredPosts.length > 0}
+                <div class="archive-end"><span></span>共 {filteredPosts.length} 篇文章<span></span></div>
+              {/if}
+            </div>
+            </div>
+            {#if selectedPost && connectionVisible}<svg class="archive-connection" viewBox={`0 0 70 ${railHeight}`} preserveAspectRatio="none" style={`height:${railHeight}px;top:${connectionTop}px`} aria-hidden="true"><path d={`M${connectionStartX} ${connectionY}H12L53 ${connectionTargetY}H70`} />{#key selectedPost.slug}<path class="archive-arrival" pathLength="1" d={`M${connectionStartX} ${connectionY}H12L53 ${connectionTargetY}H70`}/>{/key}<circle cx="68" cy={connectionTargetY} r="3"/></svg>{/if}
+          </section>
+
+          <aside class="context-column" aria-label="当前文章预览">
+            {#if selectedPost}
+              <div class="context-panel" bind:this={contextPanel}>
+                <div class="context-label"><span><i></i>当前档案</span><small>DOCUMENT / {String(selectedIndex).padStart(2, '0')}</small></div>
+                {#key selectedPost.slug}
+                  <div class="context-content" in:fly={{ x: reducedMotion ? 0 : 12, duration: reducedMotion ? 0 : 300 }}>
+                    <p class="context-eyebrow">{selectedPost.seriesTitle}</p>
+                    <h2>{selectedPost.title}</h2>
+                    <p class="context-meta">{selectedPost.date}<span>/</span>{selectedPost.tags.slice(0,2).join(' · ')}</p>
+                    <p class="context-excerpt">{selectedPost.excerpt}</p>
+                    <div class="context-chapters"><h3>{selectedPost.headings.length ? "从这里开始" : "文章主题"}</h3>
+                      {#if selectedPost.headings.length}
+                        {#each selectedPost.headings.filter((heading) => heading.depth <= 2).slice(0, 2) as heading}
+                          <button onclick={() => openReader(selectedPost, heading.slug)}>{heading.text}<TerminalIcon name="arrow" size={16}/></button>
+                        {/each}
+                      {:else}<p>{selectedPost.tags.join(" / ") || selectedPost.seriesTitle}</p>{/if}
+                    </div>
+                    <button class="signal-button read-action" onclick={() => openReader(selectedPost)}><span>进入阅读<small>OPEN DOCUMENT</small></span><TerminalIcon name="external" size={22}/></button>
+                  </div>
+                {/key}
+              </div>
+              <div class="document-jog" aria-label="档案切换"><button aria-label="上一篇档案" disabled={selectedIndex <= 1} onclick={() => browseDocument(-1)}><TerminalIcon name="back" size={18}/></button><span>{String(selectedIndex).padStart(2,'0')}<i>/</i>{String(filteredPosts.length).padStart(2,'0')}</span><button aria-label="下一篇档案" disabled={selectedIndex >= filteredPosts.length} onclick={() => browseDocument(1)}><TerminalIcon name="arrow" size={18}/></button></div>
+            {/if}
+          </aside>
+        </div>

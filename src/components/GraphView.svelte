@@ -1,13 +1,18 @@
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
 import type { GraphData, GraphNode } from "@utils/graph-utils";
+import type ForceGraphInstance from "force-graph";
+import type { NodeObject } from "force-graph";
 
 export let data: GraphData;
 
 let container: HTMLDivElement;
-let graph: any;
+type RenderNode = GraphNode & NodeObject;
+let graph: ForceGraphInstance<RenderNode>;
 let observer: MutationObserver;
-let hoverNode: any = null;
+let resizeObserver: ResizeObserver;
+let destroyed = false;
+let hoverNode: RenderNode | null = null;
 
 const COLORS: Record<GraphNode["type"], string> = {
 	post: "#7c97f8",
@@ -43,15 +48,18 @@ onMount(() => {
 		neighbors.get(link.source)?.add(link.target);
 		neighbors.get(link.target)?.add(link.source);
 	}
-	const isNeighborOfHover = (node: any) =>
+	const isNeighborOfHover = (node: RenderNode) =>
 		hoverNode && (node === hoverNode || neighbors.get(hoverNode.id)?.has(node.id));
 
 	// dynamic import: force-graph must only run in the browser
 	import("force-graph").then(({ default: ForceGraph }) => {
-		graph = new ForceGraph(container)
+		// A Swup navigation can remove the island before the import resolves.
+		if (destroyed || !container?.isConnected) return;
+		graph = new ForceGraph<RenderNode>(container)
 			.graphData(data)
 			.nodeId("id")
-			.nodeCanvasObject((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
+			.nodeCanvasObject((node, ctx, globalScale) => {
+				if (node.x === undefined || node.y === undefined) return;
 				const dimmed = hoverNode && !isNeighborOfHover(node);
 				const r = RADII[node.type as GraphNode["type"]] ?? 4;
 				ctx.beginPath();
@@ -77,25 +85,27 @@ onMount(() => {
 				ctx.fillText(node.label, node.x, node.y + r + fontSize * 0.3);
 				ctx.globalAlpha = 1;
 			})
-			.nodePointerAreaPaint((node: any, color: string, ctx: CanvasRenderingContext2D) => {
+			.nodePointerAreaPaint((node, color, ctx) => {
+				if (node.x === undefined || node.y === undefined) return;
 				const r = (RADII[node.type as GraphNode["type"]] ?? 4) + 2;
 				ctx.beginPath();
 				ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
 				ctx.fillStyle = color;
 				ctx.fill();
 			})
-			.linkColor((link: any) => {
+			.linkColor((link) => {
+				const source = typeof link.source === "object" ? link.source.id : link.source;
+				const target = typeof link.target === "object" ? link.target.id : link.target;
 				const hovered =
 					hoverNode &&
-					(link.source.id === hoverNode.id ||
-						link.target.id === hoverNode.id);
+					(source === hoverNode.id || target === hoverNode.id);
 				if (isDark)
 					return hovered
 						? "rgba(255,255,255,0.8)"
 						: "rgba(255,255,255,0.38)";
 				return hovered ? "rgba(0,0,0,0.55)" : "rgba(0,0,0,0.22)";
 			})
-			.onNodeHover((node: any) => {
+			.onNodeHover((node) => {
 				hoverNode = node ?? null;
 				container.style.cursor = node ? "pointer" : "grab";
 			})
@@ -104,26 +114,29 @@ onMount(() => {
 			.onEngineStop(() => {
 				graph.zoomToFit(0, 60);
 			})
-			.onNodeClick((node: any) => {
+			.onNodeClick((node) => {
 				window.location.href = node.url;
 			})
-			.onNodeDragEnd((node: any) => {
+			.onNodeDragEnd((node) => {
 				node.fx = node.x;
 				node.fy = node.y;
 			})
 			.width(container.clientWidth)
 			.height(container.clientHeight);
 
-		window.addEventListener("resize", handleResize);
+		resizeObserver = new ResizeObserver(() => {
+			if (!container?.isConnected) return;
+			graph?.width(container.clientWidth).height(container.clientHeight);
+		});
+		resizeObserver.observe(container);
 	});
-
-	const handleResize = () => {
-		graph?.width(container.clientWidth).height(container.clientHeight);
-	};
 });
 
 onDestroy(() => {
+	destroyed = true;
+	resizeObserver?.disconnect();
 	graph?.pauseAnimation();
+	graph?._destructor();
 	observer?.disconnect();
 });
 </script>

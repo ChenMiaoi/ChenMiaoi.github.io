@@ -37,6 +37,6 @@ export async function GET(context: APIContext) {
 				}),
 			};
 		}),
-		customData: `<language>zh-cn</language>`,
+		customData: "<language>zh-cn</language>",
 	});
 }

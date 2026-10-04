@@ -9,6 +9,7 @@ import {
 import { url } from "@utils/url-utils";
 import { formatDateTime } from "@utils/date-utils";
 import { Icon } from "astro-icon/components";
+import PageHeading from "@components/PageHeading.astro";
 
 interface Props {
 	roots: SeriesNode[]; // top-level series only
@@ -28,7 +29,8 @@ const allSeries = roots
 ---
 
 <MainGridLayout title={i18n(I18nKey.series, lang)} description="Curated, ordered collections of posts." lang={lang}>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <PageHeading title={i18n(I18nKey.series, lang)} index="02" label="EXPLORATION PATHS" />
+    <div class="series-directory grid grid-cols-1 md:grid-cols-2 gap-4">
         {allSeries.map(({ node, posts }) => {
             const first = posts[0];
             const last = posts[posts.length - 1];

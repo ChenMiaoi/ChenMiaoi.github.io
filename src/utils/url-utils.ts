@@ -1,7 +1,12 @@
-import { DEFAULT_LOCALE, LOCALE_PREFIX, type Locale } from "@constants/locales";
+import {
+	DEFAULT_LOCALE,
+	LOCALE_PREFIX,
+	type Locale,
+	stripLocalePrefix,
+} from "@constants/locales";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
-import { stripLocalePrefix } from "@constants/locales";
+import { postPath } from "../lib/content/paths";
 
 export function pathsEqual(path1: string, path2: string) {
 	const normalizedPath1 = path1.replace(/^\/|\/$/g, "").toLowerCase();
@@ -19,8 +24,6 @@ function joinUrl(...parts: string[]): string {
 	return joined.replace(/\/+/g, "/");
 }
 
-const pad = (n: number) => String(n).padStart(2, "0");
-
 // Permalink: /:year/:month/:day/:slug/ — kept identical to the old Hexo URLs.
 // `published` is a date-only value parsed as UTC midnight, so UTC getters
 // return the intended calendar date regardless of build-machine timezone.
@@ -29,11 +32,7 @@ export function getPostUrlBySlug(
 	published: Date,
 	lang?: string,
 ): string {
-	const d = new Date(published);
-	const y = d.getUTCFullYear();
-	const m = pad(d.getUTCMonth() + 1);
-	const day = pad(d.getUTCDate());
-	return url(`/${y}/${m}/${day}/${slug}/`, lang);
+	return url(postPath(slug, published), lang);
 }
 
 export function getTagUrl(tag: string, lang?: string): string {
@@ -72,7 +71,10 @@ export function stripEnSuffix(slug: string): string {
 }
 
 // The same path as it appears in another locale tree (pure path transform).
-export function switchLocalePath(pathname: string, targetLocale: string): string {
+export function switchLocalePath(
+	pathname: string,
+	targetLocale: string,
+): string {
 	const { path } = stripLocalePrefix(pathname);
 	const prefix = LOCALE_PREFIX[targetLocale as Locale] ?? "";
 	return joinUrl("", prefix, path) || "/";

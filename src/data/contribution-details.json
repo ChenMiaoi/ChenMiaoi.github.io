@@ -1,0 +1,835 @@
+{
+	"syncedAt": "2026-10-04T11:42:12.954Z",
+	"activitySyncedAt": "2026-10-04T11:06:18.791Z",
+	"records": [
+		{
+			"url": "https://github.com/torvalds/linux/commit/a44bfed9df8",
+			"kind": "commit",
+			"title": "kbuild: rust: clean libpin_init_internal in mrproper",
+			"body": "When I enabled Rust compilation, I wanted to clean up its output, so I\nused make mrproper. However, I was still able to find that\nlibpin_init_internal.so in the rust directory was not deleted, while\nall other corresponding outputs were cleared.\n\nThus add it to the `MRPROPER_FILES` list.\n\nReviewed-by: Dongliang Mu <dzm91@hust.edu.cn>\nSigned-off-by: Chen Miao <chenmiao@openatom.club>\nFixes: d7659acca7a3 (\"rust: add pin-init crate build infrastructure\")\nCc: stable@vger.kernel.org\nAcked-by: Nicolas Schier <nsc@kernel.org>\nAcked-by: Benno Lossin <lossin@kernel.org>\nLink: https://patch.msgid.link/71ff222b8731e63e06059c5d8566434e508baf2b.1761876365.git.chenmiao@openatom.club\n[ Fixed tags and Git author as discussed. Reworded slightly. - Miguel ]\nSigned-off-by: Miguel Ojeda <ojeda@kernel.org>",
+			"author": "ChenMiaoi",
+			"updatedAt": "2026-01-23T22:25:00Z",
+			"state": "commit",
+			"files": [
+				{
+					"filename": "Makefile",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 2,
+					"deletions": 1,
+					"patch": "@@ -1624,7 +1624,8 @@ MRPROPER_FILES += include/config include/generated          \\\n \t\t  certs/x509.genkey \\\n \t\t  vmlinux-gdb.py \\\n \t\t  rpmbuild \\\n-\t\t  rust/libmacros.so rust/libmacros.dylib\n+\t\t  rust/libmacros.so rust/libmacros.dylib \\\n+\t\t  rust/libpin_init_internal.so rust/libpin_init_internal.dylib\n \n # clean - Delete most, but leave enough to build external modules\n #",
+					"url": "https://github.com/torvalds/linux/blob/a44bfed9df8a514962e2cb076d9c0b594caeff36/Makefile"
+				}
+			],
+			"stats": {
+				"files": 1,
+				"additions": 2,
+				"deletions": 1
+			},
+			"filesComplete": true,
+			"comments": [],
+			"commentsTotal": 0,
+			"references": [],
+			"sha": "a44bfed9df8a514962e2cb076d9c0b594caeff36"
+		},
+		{
+			"url": "https://github.com/torvalds/linux/commit/4735037b5d9",
+			"kind": "commit",
+			"title": "openrisc: Add text patching API support",
+			"body": "Add text patching api's to use in subsequent jump_label implementation.  We use\na new fixmap FIX_TEXT_POKE0 entry to temporarily override MMU mappings to allow\nread only text pages to be written to.\n\nPreviously, __set_fix was marked with __init as it was only used during the\nEARLYCON stage. Now that TEXT_POKE mappings require post-init usage\n(e.g., FIX_TEXT_POKE0), keeping __init would cause runtime bugs whenset_fixmap\naccesses invalid memory. Thus, we remove the __init flag to ensure __set_fix\nremains valid beyond initialization.\n\nA new function patch_insn_write is exposed to allow single instruction patching.\n\nLink: https://lore.kernel.org/openrisc/aJIC8o1WmVHol9RY@antec/T/#t\n\nSigned-off-by: chenmiao <chenmiao.ku@gmail.com>\nSigned-off-by: Stafford Horne <shorne@gmail.com>",
+			"author": "ChenMiaoi",
+			"updatedAt": "2025-09-11T10:27:59Z",
+			"state": "commit",
+			"files": [
+				{
+					"filename": "arch/openrisc/include/asm/Kbuild",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 0,
+					"deletions": 1,
+					"patch": "@@ -9,4 +9,3 @@ generic-y += spinlock.h\n generic-y += qrwlock_types.h\n generic-y += qrwlock.h\n generic-y += user.h\n-generic-y += text-patching.h",
+					"url": "https://github.com/torvalds/linux/blob/4735037b5d9b0f809c51976c87d737fa2c48fdea/arch%2Fopenrisc%2Finclude%2Fasm%2FKbuild"
+				},
+				{
+					"filename": "arch/openrisc/include/asm/fixmap.h",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -28,6 +28,7 @@\n \n enum fixed_addresses {\n \tFIX_EARLYCON_MEM_BASE,\n+\tFIX_TEXT_POKE0,\n \t__end_of_fixed_addresses\n };\n ",
+					"url": "https://github.com/torvalds/linux/blob/4735037b5d9b0f809c51976c87d737fa2c48fdea/arch%2Fopenrisc%2Finclude%2Fasm%2Ffixmap.h"
+				},
+				{
+					"filename": "arch/openrisc/include/asm/insn-def.h",
+					"previousFilename": null,
+					"status": "added",
+					"additions": 12,
+					"deletions": 0,
+					"patch": "@@ -0,0 +1,12 @@\n+/* SPDX-License-Identifier: GPL-2.0-only */\n+/*\n+ * Copyright (C) 2025 Chen Miao\n+ */\n+\n+#ifndef __ASM_OPENRISC_INSN_DEF_H\n+#define __ASM_OPENRISC_INSN_DEF_H\n+\n+/* or1k instructions are always 32 bits. */\n+#define\tOPENRISC_INSN_SIZE\t\t4\n+\n+#endif /* __ASM_OPENRISC_INSN_DEF_H */",
+					"url": "https://github.com/torvalds/linux/blob/4735037b5d9b0f809c51976c87d737fa2c48fdea/arch%2Fopenrisc%2Finclude%2Fasm%2Finsn-def.h"
+				},
+				{
+					"filename": "arch/openrisc/include/asm/text-patching.h",
+					"previousFilename": null,
+					"status": "added",
+					"additions": 13,
+					"deletions": 0,
+					"patch": "@@ -0,0 +1,13 @@\n+/* SPDX-License-Identifier: GPL-2.0-only */\n+/*\n+ * Copyright (C) 2025 Chen Miao\n+ */\n+\n+#ifndef _ASM_OPENRISC_PATCHING_H\n+#define _ASM_OPENRISC_PATCHING_H\n+\n+#include <linux/types.h>\n+\n+int patch_insn_write(void *addr, u32 insn);\n+\n+#endif /* _ASM_OPENRISC_PATCHING_H */",
+					"url": "https://github.com/torvalds/linux/blob/4735037b5d9b0f809c51976c87d737fa2c48fdea/arch%2Fopenrisc%2Finclude%2Fasm%2Ftext-patching.h"
+				},
+				{
+					"filename": "arch/openrisc/kernel/Makefile",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -13,5 +13,6 @@ obj-$(CONFIG_SMP)\t\t+= smp.o sync-timer.o\n obj-$(CONFIG_STACKTRACE)\t+= stacktrace.o\n obj-$(CONFIG_MODULES)\t\t+= module.o\n obj-$(CONFIG_OF)\t\t+= prom.o\n+obj-y\t+= patching.o\n \n clean:",
+					"url": "https://github.com/torvalds/linux/blob/4735037b5d9b0f809c51976c87d737fa2c48fdea/arch%2Fopenrisc%2Fkernel%2FMakefile"
+				},
+				{
+					"filename": "arch/openrisc/kernel/patching.c",
+					"previousFilename": null,
+					"status": "added",
+					"additions": 79,
+					"deletions": 0,
+					"patch": "@@ -0,0 +1,79 @@\n+// SPDX-License-Identifier: GPL-2.0-only\n+/* Copyright (C) 2020 SiFive\n+ * Copyright (C) 2025 Chen Miao\n+ */\n+\n+#include <linux/mm.h>\n+#include <linux/kernel.h>\n+#include <linux/spinlock.h>\n+#include <linux/uaccess.h>\n+\n+#include <asm/insn-def.h>\n+#include <asm/cacheflush.h>\n+#include <asm/page.h>\n+#include <asm/fixmap.h>\n+#include <asm/text-patching.h>\n+#include <asm/sections.h>\n+\n+static DEFINE_RAW_SPINLOCK(patch_lock);\n+\n+static __always_inline void *patch_map(void *addr, int fixmap)\n+{\n+\tuintptr_t uaddr = (uintptr_t) addr;\n+\tphys_addr_t phys;\n+\n+\tif (core_kernel_text(uaddr)) {\n+\t\tphys = __pa_symbol(addr);\n+\t} else {\n+\t\tstruct page *page = vmalloc_to_page(addr);\n+\t\tBUG_ON(!page);\n+\t\tphys = page_to_phys(page) + offset_in_page(addr);\n+\t}\n+\n+\treturn (void *)set_fixmap_offset(fixmap, phys);\n+}\n+\n+static void patch_unmap(int fixmap)\n+{\n+\tclear_fixmap(fixmap);\n+}\n+\n+static int __patch_insn_write(void *addr, u32 insn)\n+{\n+\tvoid *waddr = addr;\n+\tunsigned long flags = 0;\n+\tint ret;\n+\n+\traw_spin_lock_irqsave(&patch_lock, flags);\n+\n+\twaddr = patch_map(addr, FIX_TEXT_POKE0);\n+\n+\tret = copy_to_kernel_nofault(waddr, &insn, OPENRISC_INSN_SIZE);\n+\tlocal_icache_range_inv((unsigned long)waddr,\n+\t\t\t       (unsigned long)waddr + OPENRISC_INSN_SIZE);\n+\n+\tpatch_unmap(FIX_TEXT_POKE0);\n+\n+\traw_spin_unlock_irqrestore(&patch_lock, flags);\n+\n+\treturn ret;\n+}\n+\n+/*\n+ * patch_insn_write - Write a single instruction to a specified memory location\n+ * This API provides a single-instruction patching, primarily used for runtime\n+ * code modification.\n+ * By the way, the insn size must be 4 bytes.\n+ */\n+int patch_insn_write(void *addr, u32 insn)\n+{\n+\tu32 *tp = addr;\n+\tint ret;\n+\n+\tif ((uintptr_t) tp & 0x3)\n+\t\treturn -EINVAL;\n+\n+\tret = __patch_insn_write(tp, insn);\n+\n+\treturn ret;\n+}",
+					"url": "https://github.com/torvalds/linux/blob/4735037b5d9b0f809c51976c87d737fa2c48fdea/arch%2Fopenrisc%2Fkernel%2Fpatching.c"
+				},
+				{
+					"filename": "arch/openrisc/mm/init.c",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 5,
+					"deletions": 1,
+					"patch": "@@ -226,7 +226,11 @@ static int __init map_page(unsigned long va, phys_addr_t pa, pgprot_t prot)\n \treturn 0;\n }\n \n-void __init __set_fixmap(enum fixed_addresses idx,\n+/*\n+ * __set_fix must now support both EARLYCON and TEXT_POKE mappings,\n+ * which are used at different stages of kernel execution.\n+ */\n+void __set_fixmap(enum fixed_addresses idx,\n \t\t\t phys_addr_t phys, pgprot_t prot)\n {\n \tunsigned long address = __fix_to_virt(idx);",
+					"url": "https://github.com/torvalds/linux/blob/4735037b5d9b0f809c51976c87d737fa2c48fdea/arch%2Fopenrisc%2Fmm%2Finit.c"
+				}
+			],
+			"stats": {
+				"files": 7,
+				"additions": 111,
+				"deletions": 2
+			},
+			"filesComplete": true,
+			"comments": [],
+			"commentsTotal": 0,
+			"references": [],
+			"sha": "4735037b5d9b0f809c51976c87d737fa2c48fdea"
+		},
+		{
+			"url": "https://github.com/torvalds/linux/commit/9d0cb6d00be",
+			"kind": "commit",
+			"title": "openrisc: Add R_OR1K_32_PCREL relocation type module support",
+			"body": "To ensure the proper functioning of the jump_label test module, this patch\nadds support for the R_OR1K_32_PCREL relocation type for any modules. The\nimplementation calculates the PC-relative offset by subtracting the\ninstruction location from the target value and stores the result at the\nspecified location.\n\nSigned-off-by: chenmiao <chenmiao.ku@gmail.com>\nSigned-off-by: Stafford Horne <shorne@gmail.com>",
+			"author": "ChenMiaoi",
+			"updatedAt": "2025-09-11T10:27:59Z",
+			"state": "commit",
+			"files": [
+				{
+					"filename": "arch/openrisc/kernel/module.c",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 4,
+					"deletions": 0,
+					"patch": "@@ -55,6 +55,10 @@ int apply_relocate_add(Elf32_Shdr *sechdrs,\n \t\t\tvalue |= *location & 0xfc000000;\n \t\t\t*location = value;\n \t\t\tbreak;\n+\t\tcase R_OR1K_32_PCREL:\n+\t\t\tvalue -= (uint32_t)location;\n+\t\t\t*location = value;\n+\t\t\tbreak;\n \t\tcase R_OR1K_AHI16:\n \t\t\t/* Adjust the operand to match with a signed LO16.  */\n \t\t\tvalue += 0x8000;",
+					"url": "https://github.com/torvalds/linux/blob/9d0cb6d00be891586261a35da7f8c3c956825c39/arch%2Fopenrisc%2Fkernel%2Fmodule.c"
+				}
+			],
+			"stats": {
+				"files": 1,
+				"additions": 4,
+				"deletions": 0
+			},
+			"filesComplete": true,
+			"comments": [],
+			"commentsTotal": 0,
+			"references": [],
+			"sha": "9d0cb6d00be891586261a35da7f8c3c956825c39"
+		},
+		{
+			"url": "https://github.com/torvalds/linux/commit/09a27fc32e3",
+			"kind": "commit",
+			"title": "openrisc: Regenerate defconfigs.",
+			"body": "Regenerating defconfigs allows subsequent changes to the configs to\nbe related only to the corresponding modifications, without mixing\nchanges from other configs.\n\nSigned-off-by: chenmiao <chenmiao.ku@gmail.com>\nSigned-off-by: Stafford Horne <shorne@gmail.com>",
+			"author": "ChenMiaoi",
+			"updatedAt": "2025-09-11T10:27:59Z",
+			"state": "commit",
+			"files": [
+				{
+					"filename": "arch/openrisc/configs/or1ksim_defconfig",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 6,
+					"deletions": 12,
+					"patch": "@@ -3,26 +3,22 @@ CONFIG_LOG_BUF_SHIFT=14\n CONFIG_BLK_DEV_INITRD=y\n # CONFIG_RD_GZIP is not set\n CONFIG_EXPERT=y\n-# CONFIG_KALLSYMS is not set\n # CONFIG_EPOLL is not set\n # CONFIG_TIMERFD is not set\n # CONFIG_EVENTFD is not set\n # CONFIG_AIO is not set\n-# CONFIG_VM_EVENT_COUNTERS is not set\n-# CONFIG_COMPAT_BRK is not set\n-CONFIG_SLUB=y\n-CONFIG_SLUB_TINY=y\n-CONFIG_MODULES=y\n-# CONFIG_BLOCK is not set\n+# CONFIG_KALLSYMS is not set\n CONFIG_BUILTIN_DTB_NAME=\"or1ksim\"\n CONFIG_HZ_100=y\n+CONFIG_MODULES=y\n+# CONFIG_BLOCK is not set\n+CONFIG_SLUB_TINY=y\n+# CONFIG_COMPAT_BRK is not set\n+# CONFIG_VM_EVENT_COUNTERS is not set\n CONFIG_NET=y\n CONFIG_PACKET=y\n CONFIG_UNIX=y\n CONFIG_INET=y\n-# CONFIG_INET_XFRM_MODE_TRANSPORT is not set\n-# CONFIG_INET_XFRM_MODE_TUNNEL is not set\n-# CONFIG_INET_XFRM_MODE_BEET is not set\n # CONFIG_INET_DIAG is not set\n CONFIG_TCP_CONG_ADVANCED=y\n # CONFIG_TCP_CONG_BIC is not set\n@@ -35,7 +31,6 @@ CONFIG_DEVTMPFS=y\n CONFIG_DEVTMPFS_MOUNT=y\n # CONFIG_PREVENT_FIRMWARE_BUILD is not set\n # CONFIG_FW_LOADER is not set\n-CONFIG_PROC_DEVICETREE=y\n CONFIG_NETDEVICES=y\n CONFIG_ETHOC=y\n CONFIG_MICREL_PHY=y\n@@ -53,4 +48,3 @@ CONFIG_SERIAL_OF_PLATFORM=y\n # CONFIG_DNOTIFY is not set\n CONFIG_TMPFS=y\n CONFIG_NFS_FS=y\n-# CONFIG_ENABLE_MUST_CHECK is not set",
+					"url": "https://github.com/torvalds/linux/blob/09a27fc32e3d69be93fdb898690932ad5bc592d8/arch%2Fopenrisc%2Fconfigs%2For1ksim_defconfig"
+				},
+				{
+					"filename": "arch/openrisc/configs/virt_defconfig",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 0,
+					"deletions": 1,
+					"patch": "@@ -55,7 +55,6 @@ CONFIG_DRM=y\n # CONFIG_DRM_FBDEV_EMULATION is not set\n CONFIG_DRM_VIRTIO_GPU=y\n CONFIG_FB=y\n-CONFIG_FIRMWARE_EDID=y\n CONFIG_FRAMEBUFFER_CONSOLE=y\n CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY=y\n CONFIG_LOGO=y",
+					"url": "https://github.com/torvalds/linux/blob/09a27fc32e3d69be93fdb898690932ad5bc592d8/arch%2Fopenrisc%2Fconfigs%2Fvirt_defconfig"
+				}
+			],
+			"stats": {
+				"files": 2,
+				"additions": 6,
+				"deletions": 13
+			},
+			"filesComplete": true,
+			"comments": [],
+			"commentsTotal": 0,
+			"references": [],
+			"sha": "09a27fc32e3d69be93fdb898690932ad5bc592d8"
+		},
+		{
+			"url": "https://github.com/torvalds/linux/commit/8c30b0018f9",
+			"kind": "commit",
+			"title": "openrisc: Add jump label support",
+			"body": "Supported a complete jump_label implementation based on the ARM64 and\nRV64 version and add the CONFIG_JUMP_LABEL=y to the defconfig.\n\nTesting was conducted using a dedicated test module jump-label-test,\nprovided in the link below. For detailed steps, please refer to the\nREADME also at the provided link.\n\nLink: https://github.com/ChenMiaoi/GSoC-2025-Final-Report/tree/main/tests/jump-label-test\n\nTest Environment:\n  - Hardware: QEMU emulated OR1K\n  - Kernel Version: 6.17.0-rc3-dirty\n  - Configs: CONFIG_MODULES=y,CONFIG_MODULE_UNLOAD=y\n  - Toolchain: or1k-none-linux-musl-gcc 15.1.0\n\nTest Results:\n$ insmod jump_label_test.ko\n[   32.590000] Jump label performance test module loaded\n[   35.250000] Normal branch time: 1241327150 ns (124 ns per iteration)\n[   35.250000] Jump label (false) time: 706422700 ns (70 ns per iteration)\n[   35.250000] Jump label (true) time: 708913450 ns (70 ns per iteration)\n$ rmmod jump_label_test.ko\n[   72.210000] Jump label test module unloaded\n\nThe results show approximately 43% improvement in branch performance\nwhen using jump labels compared to traditional branches.\n\nLink: https://lore.kernel.org/openrisc/aLsZ9S3X0OpKy1RM@antec/T/#u\nSigned-off-by: chenmiao <chenmiao.ku@gmail.com>\nSigned-off-by: Stafford Horne <shorne@gmail.com>",
+			"author": "ChenMiaoi",
+			"updatedAt": "2025-09-11T10:27:59Z",
+			"state": "commit",
+			"files": [
+				{
+					"filename": "Documentation/features/core/jump-labels/arch-support.txt",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 1,
+					"patch": "@@ -17,7 +17,7 @@\n     |  microblaze: | TODO |\n     |        mips: |  ok  |\n     |       nios2: | TODO |\n-    |    openrisc: | TODO |\n+    |    openrisc: |  ok  |\n     |      parisc: |  ok  |\n     |     powerpc: |  ok  |\n     |       riscv: |  ok  |",
+					"url": "https://github.com/torvalds/linux/blob/8c30b0018f9d93391573e091960d257fd9de120a/Documentation%2Ffeatures%2Fcore%2Fjump-labels%2Farch-support.txt"
+				},
+				{
+					"filename": "arch/openrisc/Kconfig",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 2,
+					"deletions": 0,
+					"patch": "@@ -24,6 +24,8 @@ config OPENRISC\n \tselect GENERIC_PCI_IOMAP\n \tselect GENERIC_IOREMAP\n \tselect GENERIC_CPU_DEVICES\n+\tselect HAVE_ARCH_JUMP_LABEL\n+\tselect HAVE_ARCH_JUMP_LABEL_RELATIVE\n \tselect HAVE_PCI\n \tselect HAVE_UID16\n \tselect HAVE_PAGE_SIZE_8KB",
+					"url": "https://github.com/torvalds/linux/blob/8c30b0018f9d93391573e091960d257fd9de120a/arch%2Fopenrisc%2FKconfig"
+				},
+				{
+					"filename": "arch/openrisc/configs/or1ksim_defconfig",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -10,6 +10,7 @@ CONFIG_EXPERT=y\n # CONFIG_KALLSYMS is not set\n CONFIG_BUILTIN_DTB_NAME=\"or1ksim\"\n CONFIG_HZ_100=y\n+CONFIG_JUMP_LABEL=y\n CONFIG_MODULES=y\n # CONFIG_BLOCK is not set\n CONFIG_SLUB_TINY=y",
+					"url": "https://github.com/torvalds/linux/blob/8c30b0018f9d93391573e091960d257fd9de120a/arch%2Fopenrisc%2Fconfigs%2For1ksim_defconfig"
+				},
+				{
+					"filename": "arch/openrisc/configs/virt_defconfig",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -12,6 +12,7 @@ CONFIG_NR_CPUS=8\n CONFIG_SMP=y\n CONFIG_HZ_100=y\n # CONFIG_OPENRISC_NO_SPR_SR_DSX is not set\n+CONFIG_JUMP_LABEL=y\n # CONFIG_COMPAT_BRK is not set\n CONFIG_NET=y\n CONFIG_PACKET=y",
+					"url": "https://github.com/torvalds/linux/blob/8c30b0018f9d93391573e091960d257fd9de120a/arch%2Fopenrisc%2Fconfigs%2Fvirt_defconfig"
+				},
+				{
+					"filename": "arch/openrisc/include/asm/insn-def.h",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 3,
+					"deletions": 0,
+					"patch": "@@ -9,4 +9,7 @@\n /* or1k instructions are always 32 bits. */\n #define\tOPENRISC_INSN_SIZE\t\t4\n \n+/* or1k nop instruction code */\n+#define OPENRISC_INSN_NOP     0x15000000U\n+\n #endif /* __ASM_OPENRISC_INSN_DEF_H */",
+					"url": "https://github.com/torvalds/linux/blob/8c30b0018f9d93391573e091960d257fd9de120a/arch%2Fopenrisc%2Finclude%2Fasm%2Finsn-def.h"
+				},
+				{
+					"filename": "arch/openrisc/include/asm/jump_label.h",
+					"previousFilename": null,
+					"status": "added",
+					"additions": 72,
+					"deletions": 0,
+					"patch": "@@ -0,0 +1,72 @@\n+/* SPDX-License-Identifier: GPL-2.0-only */\n+/*\n+ * Copyright (C) 2025 Chen Miao\n+ *\n+ * Based on arch/arm/include/asm/jump_label.h\n+ */\n+#ifndef __ASM_OPENRISC_JUMP_LABEL_H\n+#define __ASM_OPENRISC_JUMP_LABEL_H\n+\n+#ifndef __ASSEMBLER__\n+\n+#include <linux/types.h>\n+#include <asm/insn-def.h>\n+\n+#define HAVE_JUMP_LABEL_BATCH\n+\n+#define JUMP_LABEL_NOP_SIZE OPENRISC_INSN_SIZE\n+\n+/**\n+ * JUMP_TABLE_ENTRY - Create a jump table entry\n+ * @key: Jump key identifier (typically a symbol address)\n+ * @label: Target label address\n+ *\n+ * This macro creates a jump table entry in the dedicated kernel section (__jump_table).\n+ * Each entry contains the following information:\n+ * \t\tOffset from current instruction to jump instruction (1b - .)\n+ * \t\tOffset from current instruction to target label (label - .)\n+ * \t\tOffset from current instruction to key identifier (key - .)\n+ */\n+#define JUMP_TABLE_ENTRY(key, label)\t\t\t\\\n+\t\".pushsection\t__jump_table, \\\"aw\\\"\t\\n\\t\"\t\\\n+\t\".align \t4 \t\t\t\\n\\t\"\t\\\n+\t\".long \t\t1b - ., \" label \" - .\t\\n\\t\"\t\\\n+\t\".long \t\t\" key \" - . \t\t\\n\\t\"\t\\\n+\t\".popsection\t\t\t\t\\n\\t\"\n+\n+#define ARCH_STATIC_BRANCH_ASM(key, label)\t\t\\\n+\t\".align\t\t4\t\t\t\\n\\t\"\t\\\n+\t\"1: l.nop\t\t\t\t\\n\\t\"\t\\\n+\t\"    l.nop\t\t\t\t\\n\\t\"\t\\\n+\tJUMP_TABLE_ENTRY(key, label)\n+\n+static __always_inline bool arch_static_branch(struct static_key *const key,\n+\t\t\t\t\t       const bool branch)\n+{\n+\tasm goto (ARCH_STATIC_BRANCH_ASM(\"%0\", \"%l[l_yes]\")\n+\t\t  ::\"i\"(&((char *)key)[branch])::l_yes);\n+\n+\treturn false;\n+l_yes:\n+\treturn true;\n+}\n+\n+#define ARCH_STATIC_BRANCH_JUMP_ASM(key, label)\t\t\\\n+\t\".align\t\t4\t\t\t\\n\\t\"\t\\\n+\t\"1: l.j\t\" label \"\t\t\t\\n\\t\"\t\\\n+\t\"    l.nop\t\t\t\t\\n\\t\"\t\\\n+\tJUMP_TABLE_ENTRY(key, label)\n+\n+static __always_inline bool\n+arch_static_branch_jump(struct static_key *const key, const bool branch)\n+{\n+\tasm goto (ARCH_STATIC_BRANCH_JUMP_ASM(\"%0\", \"%l[l_yes]\")\n+\t\t  ::\"i\"(&((char *)key)[branch])::l_yes);\n+\n+\treturn false;\n+l_yes:\n+\treturn true;\n+}\n+\n+#endif /* __ASSEMBLER__ */\n+#endif /* __ASM_OPENRISC_JUMP_LABEL_H */",
+					"url": "https://github.com/torvalds/linux/blob/8c30b0018f9d93391573e091960d257fd9de120a/arch%2Fopenrisc%2Finclude%2Fasm%2Fjump_label.h"
+				},
+				{
+					"filename": "arch/openrisc/kernel/Makefile",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -9,6 +9,7 @@ obj-y\t:= head.o setup.o or32_ksyms.o process.o dma.o \\\n \t   traps.o time.o irq.o entry.o ptrace.o signal.o \\\n \t   sys_call_table.o unwinder.o cacheinfo.o\n \n+obj-$(CONFIG_JUMP_LABEL)\t+= jump_label.o\n obj-$(CONFIG_SMP)\t\t+= smp.o sync-timer.o\n obj-$(CONFIG_STACKTRACE)\t+= stacktrace.o\n obj-$(CONFIG_MODULES)\t\t+= module.o",
+					"url": "https://github.com/torvalds/linux/blob/8c30b0018f9d93391573e091960d257fd9de120a/arch%2Fopenrisc%2Fkernel%2FMakefile"
+				},
+				{
+					"filename": "arch/openrisc/kernel/jump_label.c",
+					"previousFilename": null,
+					"status": "added",
+					"additions": 51,
+					"deletions": 0,
+					"patch": "@@ -0,0 +1,51 @@\n+// SPDX-License-Identifier: GPL-2.0-only\n+/*\n+ * Copyright (C) 2025 Chen Miao\n+ *\n+ * Based on arch/arm/kernel/jump_label.c\n+ */\n+#include <linux/jump_label.h>\n+#include <linux/kernel.h>\n+#include <linux/memory.h>\n+#include <asm/bug.h>\n+#include <asm/cacheflush.h>\n+#include <asm/text-patching.h>\n+\n+bool arch_jump_label_transform_queue(struct jump_entry *entry,\n+\t\t\t\t     enum jump_label_type type)\n+{\n+\tvoid *addr = (void *)jump_entry_code(entry);\n+\tu32 insn;\n+\n+\tif (type == JUMP_LABEL_JMP) {\n+\t\tlong offset;\n+\n+\t\toffset = jump_entry_target(entry) - jump_entry_code(entry);\n+\t\t/*\n+\t\t * The actual maximum range of the l.j instruction's offset is -134,217,728\n+\t\t * ~ 134,217,724 (sign 26-bit imm).\n+\t\t * For the original jump range, we need to right-shift N by 2 to obtain the\n+\t\t * instruction's offset.\n+\t\t */\n+\t\tWARN_ON_ONCE(offset < -134217728 || offset > 134217724);\n+\n+\t\t/* 26bit imm mask */\n+\t\toffset = (offset >> 2) & 0x03ffffff;\n+\n+\t\tinsn = offset;\n+\t} else {\n+\t\tinsn = OPENRISC_INSN_NOP;\n+\t}\n+\n+\tif (early_boot_irqs_disabled)\n+\t\tcopy_to_kernel_nofault(addr, &insn, sizeof(insn));\n+\telse\n+\t\tpatch_insn_write(addr, insn);\n+\n+\treturn true;\n+}\n+\n+void arch_jump_label_transform_apply(void)\n+{\n+\tkick_all_cpus_sync();\n+}",
+					"url": "https://github.com/torvalds/linux/blob/8c30b0018f9d93391573e091960d257fd9de120a/arch%2Fopenrisc%2Fkernel%2Fjump_label.c"
+				},
+				{
+					"filename": "arch/openrisc/kernel/setup.c",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 2,
+					"deletions": 0,
+					"patch": "@@ -249,6 +249,8 @@ void __init setup_arch(char **cmdline_p)\n \t\tinitrd_below_start_ok = 1;\n \t}\n #endif\n+\t/* perform jump_table sorting before paging_init locks down read only memory */\n+\tjump_label_init();\n \n \t/* paging_init() sets up the MMU and marks all pages as reserved */\n \tpaging_init();",
+					"url": "https://github.com/torvalds/linux/blob/8c30b0018f9d93391573e091960d257fd9de120a/arch%2Fopenrisc%2Fkernel%2Fsetup.c"
+				}
+			],
+			"stats": {
+				"files": 9,
+				"additions": 134,
+				"deletions": 1
+			},
+			"filesComplete": true,
+			"comments": [],
+			"commentsTotal": 0,
+			"references": [],
+			"sha": "8c30b0018f9d93391573e091960d257fd9de120a"
+		},
+		{
+			"url": "https://github.com/llvm/llvm-project/pull/228863",
+			"kind": "pr",
+			"title": "[clang] Reject enum element types in ext_vector_type",
+			"body": "`BuildExtVectorType` checks element types with `isIntegerType()`, which also accepts complete unscoped enums. However,\r\n`ASTContext::getExtVectorType` does not support enum elements.\r\n\r\nFor example:\r\n\r\n```c\r\ntypedef enum { A } E;\r\ntypedef E V __attribute__((ext_vector_type(4)));\r\n```\r\n\r\nBefore this change, compiling with `-fsyntax-only` in an assertion-enabled build crashes in `ASTContext::getExtVectorType`:\r\n\r\n```text\r\nclang: clang/lib/AST/ASTContext.cpp:4839:\r\nQualType clang::ASTContext::getExtVectorType(QualType, unsigned int) const:\r\nAssertion `vecType->isBuiltinType() || vecType->isDependentType() ||\r\n(vecType->isBitIntType() && llvm::isPowerOf2_32(vecType->castAs<BitIntType>()->getNumBits()))' failed.\r\n```\r\n\r\nExplicitly reject enum element types in `BuildExtVectorType` so that the same code produces a diagnostic instead:\r\n\r\n```text\r\nerror: invalid vector element type 'E'\r\n```\r\n\r\nFixes #225037",
+			"author": "ChenMiaoi",
+			"updatedAt": "2026-10-04T11:26:01Z",
+			"state": "open",
+			"files": [
+				{
+					"filename": "clang/lib/Sema/SemaType.cpp",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 1,
+					"patch": "@@ -2470,7 +2470,7 @@ QualType Sema::BuildExtVectorType(QualType T, Expr *SizeExpr,\n   bool IsNoBoolVecLang = getLangOpts().OpenCL || getLangOpts().OpenCLCPlusPlus;\n   if ((!T->isDependentType() && !T->isIntegerType() &&\n        !T->isRealFloatingType()) ||\n-      (IsNoBoolVecLang && T->isBooleanType())) {\n+      T->isEnumeralType() || (IsNoBoolVecLang && T->isBooleanType())) {\n     Diag(AttrLoc, diag::err_attribute_invalid_vector_type) << T;\n     return QualType();\n   }",
+					"url": "https://github.com/llvm/llvm-project/blob/72c05eb80da5a65c4846cfd5a902fd7bee3cdea7/clang%2Flib%2FSema%2FSemaType.cpp"
+				},
+				{
+					"filename": "clang/test/Sema/types.c",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 5,
+					"deletions": 0,
+					"patch": "@@ -90,6 +90,11 @@ int __attribute__((vector_size(0x10000001))) v7; // expected-error {{vector size\n // no support for vector enum type\n enum { e_2 } x3 __attribute__((vector_size(64))); // expected-error {{invalid vector element type}}\n \n+// GH225037: reject enum elements before constructing an extended vector type.\n+typedef enum { enum_value } EnumElement;\n+typedef EnumElement EnumVector __attribute__((ext_vector_type(4))); // expected-error {{invalid vector element type 'EnumElement'}}\n+typedef enum e TaggedEnumVector __attribute__((ext_vector_type(4))); // expected-error {{invalid vector element type 'enum e'}}\n+\n int x4 __attribute__((ext_vector_type(64)));\n \n typedef __attribute__ ((ext_vector_type(32),__aligned__(32))) unsigned char uchar32;",
+					"url": "https://github.com/llvm/llvm-project/blob/72c05eb80da5a65c4846cfd5a902fd7bee3cdea7/clang%2Ftest%2FSema%2Ftypes.c"
+				},
+				{
+					"filename": "clang/test/SemaCXX/vector.cpp",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 28,
+					"deletions": 0,
+					"patch": "@@ -336,6 +336,34 @@ const int &reference_to_vec_element = vi4(1).x;\n // PR12649\n typedef bool bad __attribute__((__vector_size__(16)));  // expected-error {{invalid vector element type 'bool'}}\n \n+namespace GH225037 {\n+enum E { A };\n+typedef E EnumVector __attribute__((ext_vector_type(4))); // expected-error {{invalid vector element type 'E'}}\n+\n+#if __cplusplus >= 201103L\n+enum class ScopedE { A };\n+typedef ScopedE ScopedEnumVector __attribute__((ext_vector_type(4))); // expected-error {{invalid vector element type 'ScopedE'}}\n+#endif\n+\n+template <typename T> struct Vector {\n+  // Rebuilding a fixed-size extended vector currently loses the attribute location.\n+  typedef T type __attribute__((ext_vector_type(4))); // expected-error@*:* {{invalid vector element type 'GH225037::E'}}\n+};\n+Vector<E> enum_vector; // expected-note {{in instantiation of template class 'GH225037::Vector<GH225037::E>' requested here}}\n+Vector<int> int_vector;\n+Vector<bool> bool_vector;\n+\n+template <typename T, int N> struct DependentSizeVector {\n+  typedef T type __attribute__((ext_vector_type(N))); // expected-error {{invalid vector element type 'GH225037::E'}}\n+};\n+DependentSizeVector<E, 4> dependent_enum_vector; // expected-note {{in instantiation of template class 'GH225037::DependentSizeVector<GH225037::E, 4>' requested here}}\n+DependentSizeVector<float, 4> float_vector;\n+\n+template <int N> struct EnumVectorWithDependentSize {\n+  typedef E type __attribute__((ext_vector_type(N))); // expected-error {{invalid vector element type 'E'}}\n+};\n+} // namespace GH225037\n+\n namespace Templates {\n template <typename Elt, unsigned long long Size>\n struct TemplateVectorType {",
+					"url": "https://github.com/llvm/llvm-project/blob/72c05eb80da5a65c4846cfd5a902fd7bee3cdea7/clang%2Ftest%2FSemaCXX%2Fvector.cpp"
+				}
+			],
+			"stats": {
+				"files": 3,
+				"additions": 34,
+				"deletions": 1
+			},
+			"filesComplete": true,
+			"comments": [
+				{
+					"author": "TPPPP72",
+					"url": "https://github.com/llvm/llvm-project/pull/228863#discussion_r4177282011",
+					"body": "Are these tests necessary? It looks like the test coverage for the `types.c` file is already sufficient.",
+					"createdAt": "2026-10-04T11:25:28Z",
+					"path": "clang/test/SemaCXX/vector.cpp"
+				}
+			],
+			"commentsTotal": 1,
+			"references": [
+				{
+					"url": "https://github.com/llvm/llvm-project/issues/225037",
+					"number": 225037,
+					"title": "[clang] ext_vector_type with an enum element type: Sema accepts it, ASTContext::getExtVectorType asserts",
+					"kind": "issue",
+					"relation": "mentioned"
+				}
+			],
+			"sha": null
+		},
+		{
+			"url": "https://github.com/llvm/llvm-project/pull/228749",
+			"kind": "pr",
+			"title": "[libc][math] Prevent spurious floating-point exceptions in fdim",
+			"body": "Without `FENV_ACCESS` enabled, Clang at `-O2` optimizes the conditional expression in `fdim`:\r\n\r\n```cpp\r\nreturn x > y ? x - y : T(0);\r\n```\r\n\r\ninto the following LLVM IR:\r\n\r\n```llvm\r\n%cmp = fcmp ogt double %x, %y\r\n%diff = fsub double %x, %y\r\n%result = select i1 %cmp, double %diff, double 0.000000e+00\r\n```\r\n\r\nThe `fsub` is not guarded by `x > y`. Even when `x <= y`, the subtraction executes before `select` chooses zero as the result. The `select` only chooses a value; it cannot undo floating-point exceptions already raised by the subtraction. Consequently, `fdim(-inf, -inf)` raises `FE_INVALID`, `fdim(-max, -min_subnormal)` raises `FE_INEXACT`, and `fdim(-max, max)` can raise `FE_OVERFLOW` and `FE_INEXACT`, despite all these calls returning zero.\r\n\r\nWithout floating-point environment access enabled, the compiler need not preserve the observable behavior of these exceptions and can speculate the subtraction. Simply rewriting the conditional expression as an `if` statement does not reliably prevent this optimization.\r\n\r\nEnable `FENV_ACCESS` in the shared implementation so the subtraction uses `llvm.experimental.constrained.fsub` with dynamic rounding and strict exception semantics. The optimized IR keeps the subtraction in the `x > y` branch, avoiding spurious exceptions on the path that returns zero. Enable `FENV_ACCESS` in the public entry points as well to allow the strict floating-point implementation to be inlined.\r\n\r\nFixes #88771",
+			"author": "ChenMiaoi",
+			"updatedAt": "2026-10-03T17:43:59Z",
+			"state": "open",
+			"files": [
+				{
+					"filename": "libc/src/__support/FPUtil/BasicOperations.h",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 4,
+					"deletions": 0,
+					"patch": "@@ -260,6 +260,10 @@ LIBC_INLINE constexpr T fminimum_mag_num(T x, T y) {\n \n template <typename T, cpp::enable_if_t<cpp::is_floating_point_v<T>, int> = 0>\n LIBC_INLINE T constexpr fdim(T x, T y) {\n+  // Do not speculate x - y when x <= y: it can raise spurious FP exceptions.\n+  // See https://github.com/llvm/llvm-project/issues/88771.\n+  // The entry points also enable FENV_ACCESS to allow inlining this function.\n+  LIBC_FENV_ACCESS_ON\n   FPBits<T> bitx(x), bity(y);\n \n   if (bitx.is_nan()) {",
+					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2F__support%2FFPUtil%2FBasicOperations.h"
+				},
+				{
+					"filename": "libc/src/math/generic/fdim.cpp",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -12,6 +12,7 @@\n namespace LIBC_NAMESPACE_DECL {\n \n LLVM_LIBC_FUNCTION(double, fdim, (double x, double y)) {\n+  LIBC_FENV_ACCESS_ON\n   return math::fdim(x, y);\n }\n ",
+					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdim.cpp"
+				},
+				{
+					"filename": "libc/src/math/generic/fdimbf16.cpp",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -12,6 +12,7 @@\n namespace LIBC_NAMESPACE_DECL {\n \n LLVM_LIBC_FUNCTION(bfloat16, fdimbf16, (bfloat16 x, bfloat16 y)) {\n+  LIBC_FENV_ACCESS_ON\n   return math::fdimbf16(x, y);\n }\n ",
+					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdimbf16.cpp"
+				},
+				{
+					"filename": "libc/src/math/generic/fdimf.cpp",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -12,6 +12,7 @@\n namespace LIBC_NAMESPACE_DECL {\n \n LLVM_LIBC_FUNCTION(float, fdimf, (float x, float y)) {\n+  LIBC_FENV_ACCESS_ON\n   return math::fdimf(x, y);\n }\n ",
+					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdimf.cpp"
+				},
+				{
+					"filename": "libc/src/math/generic/fdimf128.cpp",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -15,6 +15,7 @@ namespace LIBC_NAMESPACE_DECL {\n using LIBC_NAMESPACE::fputil::Float128;\n \n LLVM_LIBC_FUNCTION(float128, fdimf128, (float128 x, float128 y)) {\n+  LIBC_FENV_ACCESS_ON\n   return cpp::bit_cast<float128>(\n       math::fdimf128(cpp::bit_cast<Float128>(x), cpp::bit_cast<Float128>(y)));\n }",
+					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdimf128.cpp"
+				},
+				{
+					"filename": "libc/src/math/generic/fdimf16.cpp",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -12,6 +12,7 @@\n namespace LIBC_NAMESPACE_DECL {\n \n LLVM_LIBC_FUNCTION(float16, fdimf16, (float16 x, float16 y)) {\n+  LIBC_FENV_ACCESS_ON\n   return math::fdimf16(x, y);\n }\n ",
+					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdimf16.cpp"
+				},
+				{
+					"filename": "libc/src/math/generic/fdiml.cpp",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -12,6 +12,7 @@\n namespace LIBC_NAMESPACE_DECL {\n \n LLVM_LIBC_FUNCTION(long double, fdiml, (long double x, long double y)) {\n+  LIBC_FENV_ACCESS_ON\n   return math::fdiml(x, y);\n }\n ",
+					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdiml.cpp"
+				},
+				{
+					"filename": "libc/test/src/math/smoke/FDimTest.h",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 30,
+					"deletions": 0,
+					"patch": "@@ -60,6 +60,33 @@ class FDimTestTemplate : public LIBC_NAMESPACE::testing::FEnvSafeTest {\n     EXPECT_FP_EQ(zero, func(neg_zero, neg_zero));\n   }\n \n+  void test_no_spurious_exceptions(FuncPtr func) {\n+    const T max = FPBits::max_normal().get_val();\n+    const T neg_max = FPBits::max_normal(Sign::NEG).get_val();\n+    const T neg_denorm = FPBits::min_subnormal(Sign::NEG).get_val();\n+    auto call = [func](T x, T y) {\n+      T result = func(x, y);\n+      // Comparing subnormal operands can raise the non-standard denormal\n+      // exception. Only check the standard floating-point exceptions here.\n+#ifdef FE_DENORM\n+      LIBC_NAMESPACE::fputil::clear_except(FE_DENORM);\n+#elif defined(FE_DENORMAL)\n+      LIBC_NAMESPACE::fputil::clear_except(FE_DENORMAL);\n+#elif defined(__FE_DENORM)\n+      LIBC_NAMESPACE::fputil::clear_except(__FE_DENORM);\n+#endif\n+      return result;\n+    };\n+\n+    // When x <= y, the subtraction must not raise exceptions before returning\n+    // zero, even when it would produce an invalid, inexact, or overflow result.\n+    EXPECT_FP_EQ_WITH_EXCEPTION_ALL_ROUNDING(zero, call(inf, inf), 0);\n+    EXPECT_FP_EQ_WITH_EXCEPTION_ALL_ROUNDING(zero, call(neg_inf, neg_inf), 0);\n+    EXPECT_FP_EQ_WITH_EXCEPTION_ALL_ROUNDING(zero, call(neg_max, neg_denorm),\n+                                             0);\n+    EXPECT_FP_EQ_WITH_EXCEPTION_ALL_ROUNDING(zero, call(neg_max, max), 0);\n+  }\n+\n   void test_in_range(FuncPtr func) {\n     constexpr StorageType STORAGE_MAX =\n         LIBC_NAMESPACE::cpp::numeric_limits<StorageType>::max();\n@@ -92,5 +119,8 @@ class FDimTestTemplate : public LIBC_NAMESPACE::testing::FEnvSafeTest {\n   TEST_F(LlvmLibc##Name##Test, InfArg) { test_inf_arg(&func); }                \\\n   TEST_F(LlvmLibc##Name##Test, NegInfArg) { test_neg_inf_arg(&func); }         \\\n   TEST_F(LlvmLibc##Name##Test, BothZero) { test_both_zero(&func); }            \\\n+  TEST_F(LlvmLibc##Name##Test, NoSpuriousExceptions) {                         \\\n+    test_no_spurious_exceptions(&func);                                        \\\n+  }                                                                            \\\n   TEST_F(LlvmLibc##Name##Test, InFloatRange) { test_in_range(&func); }         \\\n   static_assert(true, \"Require semicolon.\")",
+					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Ftest%2Fsrc%2Fmath%2Fsmoke%2FFDimTest.h"
+				}
+			],
+			"stats": {
+				"files": 8,
+				"additions": 40,
+				"deletions": 0
+			},
+			"filesComplete": true,
+			"comments": [],
+			"commentsTotal": 0,
+			"references": [
+				{
+					"url": "https://github.com/llvm/llvm-project/issues/88771",
+					"number": 88771,
+					"title": "[libc][math] `fdim` functions compile to incorrect code",
+					"kind": "issue",
+					"relation": "mentioned"
+				}
+			],
+			"sha": null
+		},
+		{
+			"url": "https://github.com/llvm/llvm-project/pull/228734",
+			"kind": "pr",
+			"title": "[libc][math] Use float-only evaluation in asinbf16 and acosbf16",
+			"body": "Update `asinbf16` and `acosbf16` to use a shared `float` polynomial instead of the double-precision `asin_eval` helper. Reuse the polynomial coefficients from `asinf16`.\r\n\r\nFor small `acosbf16` inputs, return pi/2 rounded to `bfloat16` before squaring the input or evaluating the polynomial. This avoids spurious underflow from intermediate products.\r\n\r\nRelated: #202079\r\nAssisted-by: GPT-6-Astra",
+			"author": "ChenMiaoi",
+			"updatedAt": "2026-10-03T16:14:52Z",
+			"state": "open",
+			"files": [
+				{
+					"filename": "libc/src/__support/math/acosbf16.h",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 10,
+					"deletions": 11,
+					"patch": "@@ -35,19 +35,22 @@ LIBC_INLINE bfloat16 acosbf16(bfloat16 x) {\n   uint16_t x_u = xbits.uintval();\n   uint16_t x_abs = x_u & 0x7fff;\n   bool sign = (x_u >> 15);\n+\n+  // For |x| <= 2^-12, 0x1.92p0 < acos(x) < 0x1.93p0: the lower bound is\n+  // a bfloat16 value and the upper bound is the midpoint to its successor.\n+  // Thus acos(x) rounds like pi/2 in every rounding mode.  Return before\n+  // squaring x or evaluating the polynomial to avoid intermediate underflow.\n+  if (LIBC_UNLIKELY(x_abs <= 0x3980))\n+    return fputil::cast<bfloat16>(PI_2);\n+\n   float xf = x;\n \n   float xf_abs = (xf < 0 ? -xf : xf);\n   float x_sq = xf_abs * xf_abs;\n \n   // case 1: x <= 0.5\n   if (x_abs <= 0x3F00) {\n-    // |x| = {0}\n-    if (LIBC_UNLIKELY(x_abs == 0))\n-      return fputil::cast<bfloat16>(PI_2);\n-\n-    float xp = fputil::cast<float>(asin_internal::asin_eval(x_sq));\n-    float result = xf * fputil::multiply_add(x_sq, xp, 1.0f);\n+    float result = xf * asin_internal::asin_eval_float(x_sq);\n     return fputil::cast<bfloat16>(PI_2 - result);\n   }\n \n@@ -66,11 +69,7 @@ LIBC_INLINE bfloat16 acosbf16(bfloat16 x) {\n     // and acos(x) = acos(|x|) for x >= 0, pi - acos(|x|) for x < 0\n     float t = fputil::multiply_add<float>(xf_abs, -0.5f, 0.5f);\n     float t_sqrt = fputil::sqrt<float>(t);\n-    // TODO: Use bfloat16 version for inv_trigf_utils_internals after they are\n-    // available Tracking issue :\n-    // https://github.com/llvm/llvm-project/issues/202079\n-    float tp = fputil::cast<float>(asin_internal::asin_eval(t));\n-    float asin_sqrt_t = t_sqrt * (fputil::multiply_add(t, tp, 1.0f));\n+    float asin_sqrt_t = t_sqrt * asin_internal::asin_eval_float(t);\n \n     return fputil::cast<bfloat16>(\n         (sign) ? fputil::multiply_add(asin_sqrt_t, -2.0f, PI)",
+					"url": "https://github.com/llvm/llvm-project/blob/9d9b48b7807174d9447db17dafb990e200bcb479/libc%2Fsrc%2F__support%2Fmath%2Facosbf16.h"
+				},
+				{
+					"filename": "libc/src/__support/math/asin_utils.h",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 10,
+					"deletions": 0,
+					"patch": "@@ -21,6 +21,16 @@ namespace LIBC_NAMESPACE_DECL {\n \n namespace asin_internal {\n \n+// Single-precision approximation of asin(x) / x for |x| <= 0.5, evaluated\n+// at xsq = x * x.  The coefficients are the same as those used by asinf16,\n+// generated with Sollya:\n+// > P = fpminimax(asin(x)/x, [|0, 2, 4, 6, 8|], [|SG...|], [0, 0.5]);\n+// This approximation is intended for 16-bit results, not float results.\n+LIBC_INLINE LIBC_CONSTEXPR float asin_eval_float(float xsq) {\n+  return fputil::polyeval(xsq, 0x1.000002p0f, 0x1.554c2ap-3f, 0x1.3541ccp-4f,\n+                          0x1.43b2d6p-5f, 0x1.a0d73ep-5f);\n+}\n+\n using DoubleDouble = fputil::DoubleDouble;\n using DFloat128 = fputil::DyadicFloat<128>;\n ",
+					"url": "https://github.com/llvm/llvm-project/blob/9d9b48b7807174d9447db17dafb990e200bcb479/libc%2Fsrc%2F__support%2Fmath%2Fasin_utils.h"
+				},
+				{
+					"filename": "libc/src/__support/math/asinbf16.h",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 2,
+					"deletions": 4,
+					"patch": "@@ -55,8 +55,7 @@ LIBC_INLINE LIBC_CONSTEXPR bfloat16 asinbf16(bfloat16 x) {\n       return x;\n     }\n \n-    float xp = fputil::cast<float>(asin_internal::asin_eval(x_sq));\n-    float result = xf * (fputil::multiply_add<float>(x_sq, xp, 1.0f));\n+    float result = xf * asin_internal::asin_eval_float(x_sq);\n     return fputil::cast<bfloat16>(result);\n   }\n \n@@ -70,8 +69,7 @@ LIBC_INLINE LIBC_CONSTEXPR bfloat16 asinbf16(bfloat16 x) {\n \n     float t = fputil::multiply_add<float>(xf_abs, -0.5f, 0.5f);\n     float t_sqrt = fputil::sqrt<float>(t);\n-    float tp = fputil::cast<float>(asin_internal::asin_eval(t));\n-    float asin_sqrt_t = t_sqrt * (fputil::multiply_add<float>(t, tp, 1.0f));\n+    float asin_sqrt_t = t_sqrt * asin_internal::asin_eval_float(t);\n     float result = fputil::multiply_add<float>(-2.0f, asin_sqrt_t, PI_2);\n     return fputil::cast<bfloat16>(x_sign * result);\n   }",
+					"url": "https://github.com/llvm/llvm-project/blob/9d9b48b7807174d9447db17dafb990e200bcb479/libc%2Fsrc%2F__support%2Fmath%2Fasinbf16.h"
+				},
+				{
+					"filename": "libc/test/src/math/smoke/acosbf16_test.cpp",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 25,
+					"deletions": 0,
+					"patch": "@@ -49,3 +49,28 @@ class LlvmLibcAcosBf16Test : public LIBC_NAMESPACE::testing::FEnvSafeTest {\n   }\n };\n TEST_F(LlvmLibcAcosBf16Test, SpecialNumbers) { test_special_numbers(); }\n+\n+TEST_F(LlvmLibcAcosBf16Test, SmallInputs) {\n+  using FPBits = LIBC_NAMESPACE::fputil::FPBits<bfloat16>;\n+  auto acos_without_underflow = [](bfloat16 x) {\n+    LIBC_NAMESPACE::fputil::clear_except(FE_ALL_EXCEPT);\n+    bfloat16 result = LIBC_NAMESPACE::acosbf16(x);\n+    EXPECT_EQ(LIBC_NAMESPACE::fputil::test_except(FE_UNDERFLOW), 0);\n+    EXPECT_MATH_ERRNO(0);\n+    return result;\n+  };\n+\n+  // Include subnormals, an input that caused an intermediate underflow in\n+  // the float polynomial without FMA, and the small-input branch boundary.\n+  const uint16_t inputs[] = {0x0001, 0x007f, 0x0080, 0x209d,\n+                             0x397f, 0x3980, 0x3981};\n+  const bfloat16 pi_2_lo = FPBits(uint16_t(0x3fc9)).get_val();\n+  const bfloat16 pi_2_hi = FPBits(uint16_t(0x3fca)).get_val();\n+  for (uint16_t bits : inputs) {\n+    bfloat16 x = FPBits(bits).get_val();\n+    EXPECT_FP_EQ_ALL_ROUNDING(pi_2_lo, pi_2_hi, pi_2_lo, pi_2_lo,\n+                              acos_without_underflow(x));\n+    EXPECT_FP_EQ_ALL_ROUNDING(pi_2_lo, pi_2_hi, pi_2_lo, pi_2_lo,\n+                              acos_without_underflow(-x));\n+  }\n+}",
+					"url": "https://github.com/llvm/llvm-project/blob/9d9b48b7807174d9447db17dafb990e200bcb479/libc%2Ftest%2Fsrc%2Fmath%2Fsmoke%2Facosbf16_test.cpp"
+				}
+			],
+			"stats": {
+				"files": 4,
+				"additions": 47,
+				"deletions": 15
+			},
+			"filesComplete": true,
+			"comments": [],
+			"commentsTotal": 0,
+			"references": [
+				{
+					"url": "https://github.com/llvm/llvm-project/issues/202079",
+					"number": 202079,
+					"title": "[libc][math] Add  float-only versions for `inv_trigf_utils.h`",
+					"kind": "issue",
+					"relation": "mentioned"
+				}
+			],
+			"sha": null
+		},
+		{
+			"url": "https://github.com/llvm/llvm-project/issues/202079",
+			"kind": "issue",
+			"title": "[libc][math] Add  float-only versions for `inv_trigf_utils.h`",
+			"body": "Currently, the inverse trig utility functions in `libc/src/__support/math/inv_trigf_utils.h` perform all intermediate computations in double precision. This is inefficient for float16 and bfloat16 math functions.\n\nWe should provide float-only versions for `inv_trigf_utils.h` so that float16 and bfloat16 functions can use them efficiently.\nThis is a tracking-issue for the same",
+			"author": "Sukumarsawant",
+			"updatedAt": "2026-10-03T15:47:01Z",
+			"state": "open",
+			"files": [],
+			"stats": null,
+			"filesComplete": true,
+			"comments": [
+				{
+					"author": "Sukumarsawant",
+					"url": "https://github.com/llvm/llvm-project/issues/202079#issuecomment-5970730377",
+					"body": "sure, assigned . ",
+					"createdAt": "2026-10-03T15:46:57Z",
+					"path": null
+				},
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/issues/202079#issuecomment-5970694117",
+					"body": "@Sukumarsawant Hi, is anyone currently working on this issue? If not, I’d like to take it on.\n\nI checked the latest code and noticed that `inv_trigf_utils.h` no longer exists; the relevant helpers now live in files such as `asin_utils.h` and `atan_utils.h`. Some functions, including `asinf16` and `atanbf16`, already use float-only polynomial evaluations, while `asinbf16` and `acosbf16` still call the double-precision `asin_eval` helper.\n\nI’d like to start by adding a float-only helper for `asinbf16` and `acosbf16`, validating accuracy across rounding modes, and measuring the performance impact. Would this be a reasonable initial scope?",
+					"createdAt": "2026-10-03T15:42:52Z",
+					"path": null
+				}
+			],
+			"commentsTotal": 2,
+			"references": [
+				{
+					"url": "https://github.com/llvm/llvm-project/pull/228734",
+					"number": 228734,
+					"title": "[libc][math] Use float-only evaluation in asinbf16 and acosbf16",
+					"kind": "pr",
+					"relation": "cross-reference"
+				}
+			],
+			"sha": null
+		},
+		{
+			"url": "https://github.com/llvm/llvm-project/pull/228721",
+			"kind": "pr",
+			"title": "[libc][stdbit] Support compound literals in type-generic macros",
+			"body": "Calls such as the following fail because the preprocessor treats the comma in the initializer as a macro argument separator:\r\n\r\n``` c\r\nstruct PairUI { unsigned int first, second; };\r\nstdc_count_ones((struct PairUI){ 2U, 3U }.first);\r\n```\r\n\r\nUse variadic macros so `__VA_ARGS__` preserves all argument tokens, including the separating commas, reconstructing the original expression.\r\n\r\nFixes #81503.",
+			"author": "ChenMiaoi",
+			"updatedAt": "2026-10-03T15:09:32Z",
+			"state": "open",
+			"files": [
+				{
+					"filename": "libc/include/llvm-libc-macros/stdbit-macros.h",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 43,
+					"deletions": 42,
+					"patch": "@@ -213,104 +213,105 @@ inline unsigned long long stdc_bit_ceil(unsigned long long x) {\n   return stdc_bit_ceil_ull(x);\n }\n #else\n-#define stdc_leading_zeros(x)                                                  \\\n-  _Generic((x),                                                                \\\n+// Use variadic macros to accept compound literals containing commas.\n+#define stdc_leading_zeros(...)                                                \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_leading_zeros_uc,                                    \\\n       unsigned short: stdc_leading_zeros_us,                                   \\\n       unsigned: stdc_leading_zeros_ui,                                         \\\n       unsigned long: stdc_leading_zeros_ul,                                    \\\n-      unsigned long long: stdc_leading_zeros_ull)(x)\n-#define stdc_leading_ones(x)                                                   \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_leading_zeros_ull)(__VA_ARGS__)\n+#define stdc_leading_ones(...)                                                 \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_leading_ones_uc,                                     \\\n       unsigned short: stdc_leading_ones_us,                                    \\\n       unsigned: stdc_leading_ones_ui,                                          \\\n       unsigned long: stdc_leading_ones_ul,                                     \\\n-      unsigned long long: stdc_leading_ones_ull)(x)\n-#define stdc_trailing_zeros(x)                                                 \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_leading_ones_ull)(__VA_ARGS__)\n+#define stdc_trailing_zeros(...)                                               \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_trailing_zeros_uc,                                   \\\n       unsigned short: stdc_trailing_zeros_us,                                  \\\n       unsigned: stdc_trailing_zeros_ui,                                        \\\n       unsigned long: stdc_trailing_zeros_ul,                                   \\\n-      unsigned long long: stdc_trailing_zeros_ull)(x)\n-#define stdc_trailing_ones(x)                                                  \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_trailing_zeros_ull)(__VA_ARGS__)\n+#define stdc_trailing_ones(...)                                                \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_trailing_ones_uc,                                    \\\n       unsigned short: stdc_trailing_ones_us,                                   \\\n       unsigned: stdc_trailing_ones_ui,                                         \\\n       unsigned long: stdc_trailing_ones_ul,                                    \\\n-      unsigned long long: stdc_trailing_ones_ull)(x)\n-#define stdc_first_leading_zero(x)                                             \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_trailing_ones_ull)(__VA_ARGS__)\n+#define stdc_first_leading_zero(...)                                           \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_first_leading_zero_uc,                               \\\n       unsigned short: stdc_first_leading_zero_us,                              \\\n       unsigned: stdc_first_leading_zero_ui,                                    \\\n       unsigned long: stdc_first_leading_zero_ul,                               \\\n-      unsigned long long: stdc_first_leading_zero_ull)(x)\n-#define stdc_first_leading_one(x)                                              \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_first_leading_zero_ull)(__VA_ARGS__)\n+#define stdc_first_leading_one(...)                                            \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_first_leading_one_uc,                                \\\n       unsigned short: stdc_first_leading_one_us,                               \\\n       unsigned: stdc_first_leading_one_ui,                                     \\\n       unsigned long: stdc_first_leading_one_ul,                                \\\n-      unsigned long long: stdc_first_leading_one_ull)(x)\n-#define stdc_first_trailing_zero(x)                                            \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_first_leading_one_ull)(__VA_ARGS__)\n+#define stdc_first_trailing_zero(...)                                          \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_first_trailing_zero_uc,                              \\\n       unsigned short: stdc_first_trailing_zero_us,                             \\\n       unsigned: stdc_first_trailing_zero_ui,                                   \\\n       unsigned long: stdc_first_trailing_zero_ul,                              \\\n-      unsigned long long: stdc_first_trailing_zero_ull)(x)\n-#define stdc_first_trailing_one(x)                                             \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_first_trailing_zero_ull)(__VA_ARGS__)\n+#define stdc_first_trailing_one(...)                                           \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_first_trailing_one_uc,                               \\\n       unsigned short: stdc_first_trailing_one_us,                              \\\n       unsigned: stdc_first_trailing_one_ui,                                    \\\n       unsigned long: stdc_first_trailing_one_ul,                               \\\n-      unsigned long long: stdc_first_trailing_one_ull)(x)\n-#define stdc_count_zeros(x)                                                    \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_first_trailing_one_ull)(__VA_ARGS__)\n+#define stdc_count_zeros(...)                                                  \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_count_zeros_uc,                                      \\\n       unsigned short: stdc_count_zeros_us,                                     \\\n       unsigned: stdc_count_zeros_ui,                                           \\\n       unsigned long: stdc_count_zeros_ul,                                      \\\n-      unsigned long long: stdc_count_zeros_ull)(x)\n-#define stdc_count_ones(x)                                                     \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_count_zeros_ull)(__VA_ARGS__)\n+#define stdc_count_ones(...)                                                   \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_count_ones_uc,                                       \\\n       unsigned short: stdc_count_ones_us,                                      \\\n       unsigned: stdc_count_ones_ui,                                            \\\n       unsigned long: stdc_count_ones_ul,                                       \\\n-      unsigned long long: stdc_count_ones_ull)(x)\n-#define stdc_has_single_bit(x)                                                 \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_count_ones_ull)(__VA_ARGS__)\n+#define stdc_has_single_bit(...)                                               \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_has_single_bit_uc,                                   \\\n       unsigned short: stdc_has_single_bit_us,                                  \\\n       unsigned: stdc_has_single_bit_ui,                                        \\\n       unsigned long: stdc_has_single_bit_ul,                                   \\\n-      unsigned long long: stdc_has_single_bit_ull)(x)\n-#define stdc_bit_width(x)                                                      \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_has_single_bit_ull)(__VA_ARGS__)\n+#define stdc_bit_width(...)                                                    \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_bit_width_uc,                                        \\\n       unsigned short: stdc_bit_width_us,                                       \\\n       unsigned: stdc_bit_width_ui,                                             \\\n       unsigned long: stdc_bit_width_ul,                                        \\\n-      unsigned long long: stdc_bit_width_ull)(x)\n-#define stdc_bit_floor(x)                                                      \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_bit_width_ull)(__VA_ARGS__)\n+#define stdc_bit_floor(...)                                                    \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_bit_floor_uc,                                        \\\n       unsigned short: stdc_bit_floor_us,                                       \\\n       unsigned: stdc_bit_floor_ui,                                             \\\n       unsigned long: stdc_bit_floor_ul,                                        \\\n-      unsigned long long: stdc_bit_floor_ull)(x)\n-#define stdc_bit_ceil(x)                                                       \\\n-  _Generic((x),                                                                \\\n+      unsigned long long: stdc_bit_floor_ull)(__VA_ARGS__)\n+#define stdc_bit_ceil(...)                                                     \\\n+  _Generic((__VA_ARGS__),                                                      \\\n       unsigned char: stdc_bit_ceil_uc,                                         \\\n       unsigned short: stdc_bit_ceil_us,                                        \\\n       unsigned: stdc_bit_ceil_ui,                                              \\\n       unsigned long: stdc_bit_ceil_ul,                                         \\\n-      unsigned long long: stdc_bit_ceil_ull)(x)\n+      unsigned long long: stdc_bit_ceil_ull)(__VA_ARGS__)\n #endif // __cplusplus\n \n #endif // __LLVM_LIBC_MACROS_STDBIT_MACROS_H",
+					"url": "https://github.com/llvm/llvm-project/blob/88ea86709b4f72137f39615a5a177faf4904f4b1/libc%2Finclude%2Fllvm-libc-macros%2Fstdbit-macros.h"
+				},
+				{
+					"filename": "libc/test/include/stdbit_stub.h",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 6,
+					"deletions": 15,
+					"patch": "@@ -46,21 +46,12 @@ STDBIT_STUB_FUNCTION(stdc_first_trailing_one, 0x1)\n STDBIT_STUB_FUNCTION(stdc_count_zeros, 0x2)\n STDBIT_STUB_FUNCTION(stdc_count_ones, 0x3)\n \n-bool stdc_has_single_bit_uc(unsigned char __attribute__((unused)) x) {\n-  return false;\n-}\n-bool stdc_has_single_bit_us(unsigned short __attribute__((unused)) x) {\n-  return false;\n-}\n-bool stdc_has_single_bit_ui(unsigned __attribute__((unused)) x) {\n-  return false;\n-}\n-bool stdc_has_single_bit_ul(unsigned long __attribute__((unused)) x) {\n-  return false;\n-}\n-bool stdc_has_single_bit_ull(unsigned long long __attribute__((unused)) x) {\n-  return false;\n-}\n+// Distinct accepted values let tests distinguish the bool-returning overloads.\n+bool stdc_has_single_bit_uc(unsigned char x) { return x == 0xAU; }\n+bool stdc_has_single_bit_us(unsigned short x) { return x == 0xBU; }\n+bool stdc_has_single_bit_ui(unsigned x) { return x == 0xCU; }\n+bool stdc_has_single_bit_ul(unsigned long x) { return x == 0xDU; }\n+bool stdc_has_single_bit_ull(unsigned long long x) { return x == 0xEU; }\n \n STDBIT_STUB_FUNCTION(stdc_bit_width, 0x4)\n ",
+					"url": "https://github.com/llvm/llvm-project/blob/88ea86709b4f72137f39615a5a177faf4904f4b1/libc%2Ftest%2Finclude%2Fstdbit_stub.h"
+				},
+				{
+					"filename": "libc/test/include/stdbit_test.c",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 21,
+					"deletions": 0,
+					"patch": "@@ -25,13 +25,29 @@\n #include \"include/llvm-libc-macros/stdbit-macros.h\"\n #include \"test/UnitTest/LibcCTest.h\"\n \n+// The trailing comma in a compound literal must not be treated as a macro\n+// argument separator. Also check that the initializer is evaluated only once.\n+#define CHECK_COMPOUND_LITERAL(FUNC_NAME, TYPE, VALUE, EXPECTED)               \\\n+  do {                                                                         \\\n+    unsigned evaluations = 0;                                                  \\\n+    EXPECT_TRUE(FUNC_NAME((TYPE){                                              \\\n+                    (evaluations++, VALUE),                                    \\\n+                }) == EXPECTED);                                               \\\n+    EXPECT_TRUE(evaluations == 1);                                             \\\n+  } while (0)\n+\n #define CHECK_FUNCTION(FUNC_NAME, VAL)                                         \\\n   do {                                                                         \\\n     EXPECT_TRUE(FUNC_NAME((unsigned char)0U) == VAL##AU);                      \\\n     EXPECT_TRUE(FUNC_NAME((unsigned short)0U) == VAL##BU);                     \\\n     EXPECT_TRUE(FUNC_NAME(0U) == VAL##CU);                                     \\\n     EXPECT_TRUE(FUNC_NAME(0UL) == VAL##DU);                                    \\\n     EXPECT_TRUE(FUNC_NAME(0ULL) == VAL##EU);                                   \\\n+    CHECK_COMPOUND_LITERAL(FUNC_NAME, unsigned char, 0, VAL##AU);              \\\n+    CHECK_COMPOUND_LITERAL(FUNC_NAME, unsigned short, 0, VAL##BU);             \\\n+    CHECK_COMPOUND_LITERAL(FUNC_NAME, unsigned int, 0, VAL##CU);               \\\n+    CHECK_COMPOUND_LITERAL(FUNC_NAME, unsigned long, 0, VAL##DU);              \\\n+    CHECK_COMPOUND_LITERAL(FUNC_NAME, unsigned long long, 0, VAL##EU);         \\\n   } while (0)\n \n TEST(stdbit) {\n@@ -51,6 +67,11 @@ TEST(stdbit) {\n   EXPECT_FALSE(stdc_has_single_bit(1U));\n   EXPECT_FALSE(stdc_has_single_bit(1UL));\n   EXPECT_FALSE(stdc_has_single_bit(1ULL));\n+  CHECK_COMPOUND_LITERAL(stdc_has_single_bit, unsigned char, 0xAU, true);\n+  CHECK_COMPOUND_LITERAL(stdc_has_single_bit, unsigned short, 0xBU, true);\n+  CHECK_COMPOUND_LITERAL(stdc_has_single_bit, unsigned int, 0xCU, true);\n+  CHECK_COMPOUND_LITERAL(stdc_has_single_bit, unsigned long, 0xDU, true);\n+  CHECK_COMPOUND_LITERAL(stdc_has_single_bit, unsigned long long, 0xEU, true);\n \n   CHECK_FUNCTION(stdc_bit_width, 0x4);\n   CHECK_FUNCTION(stdc_bit_floor, 0x5);",
+					"url": "https://github.com/llvm/llvm-project/blob/88ea86709b4f72137f39615a5a177faf4904f4b1/libc%2Ftest%2Finclude%2Fstdbit_test.c"
+				}
+			],
+			"stats": {
+				"files": 3,
+				"additions": 70,
+				"deletions": 57
+			},
+			"filesComplete": true,
+			"comments": [
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/228721#issuecomment-5970428055",
+					"body": "> Hello @ChenMiaoi 👋\r\n> \r\n> Thank you for submitting a Pull Request (PR) to the LLVM Project. Since this is your first PR, here are a few useful links covering our main contribution policies and review practices.\r\n> \r\n> * All contributions to LLVM must follow our [LLVM AI Tool Use Policy](https://llvm.org/docs/AIToolPolicy.html). In particular, if you used AI while working on this PR, remember to add a note to the PR description.\r\n> * The [LLVM Code-Review Policy and Practices](https://llvm.org/docs/CodeReview.html) document contains practical information about the PR process, including how patches are reviewed and accepted, and who can review a PR.\r\n> * Our [LLVM Developer Policy](https://llvm.org/docs/DeveloperPolicy.html) describes our expectations for code quality, commit summaries and contains notes on our CI system.\r\n> \r\n> Please reply to this message to confirm that you have read these policies, especially the LLVM AI Tool Use Policy, and that any AI tool usage has been noted in the PR description.\r\n> \r\n> ### Frequently asked questions\r\n> **How do I add reviewers?**\r\n> \r\n> This PR will be automatically labeled, and the relevant teams will be notified. For some parts of the project, reviewers may also be added automatically.\r\n> \r\n> You can also add reviewers manually using the **Reviewers** section on this page. If you cannot use that section, it is probably because you do not have write permissions for the repository. In that case, you can request a review by tagging reviewers in a comment using `@` followed by their GitHub username.\r\n> \r\n> **What if there are no comments?**\r\n> \r\n> If you have not received any comments on your PR after a week, you can request a review by pinging the PR with a comment such as “Ping”. The common courtesy ping rate is once a week. Please remember that you are asking for volunteer time from other developers.\r\n> \r\n> **Are any special GitHub settings required to contribute to LLVM?**\r\n> \r\n> We only require contributors to have a public email address associated with their GitHub commits, see this [section](https://llvm.org/docs/DeveloperPolicy.html#email-addresses) of LLVM Developer Policy for details.\r\n> \r\n> If you have questions, feel free to leave a comment on this PR, or ask on [LLVM Discord](https://discord.com/invite/xS7Z362) or [LLVM Discourse](https://discourse.llvm.org/).\r\n> \r\n> Thank you, The LLVM Community\r\n\r\nI see!",
+					"createdAt": "2026-10-03T15:09:32Z",
+					"path": null
+				}
+			],
+			"commentsTotal": 1,
+			"references": [
+				{
+					"url": "https://github.com/llvm/llvm-project/issues/81503",
+					"number": 81503,
+					"title": "[libc][stdbit] fix type generic macros to work with compound literals",
+					"kind": "issue",
+					"relation": "mentioned"
+				}
+			],
+			"sha": null
+		},
+		{
+			"url": "https://github.com/llvm/llvm-project/pull/228633",
+			"kind": "pr",
+			"title": "[libc][stdlib] Avoid scanning values during environment lookup",
+			"body": "Constructing a string_view for each environment entry scans the entire value to determine its length, even when the name does not match. This makes lookups unnecessarily expensive for long values such as PATH.\r\n\r\nFilter entries by their first character, then compare the remaining name up to a mismatch or null terminator. Require a following '=' to match the complete key, preserving support for empty names in putenv.\r\n\r\nCloses #196016",
+			"author": "ChenMiaoi",
+			"updatedAt": "2026-10-03T13:57:39Z",
+			"state": "open",
+			"files": [
+				{
+					"filename": "libc/src/stdlib/environ_internal.cpp",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 27,
+					"deletions": 4,
+					"patch": "@@ -82,10 +82,33 @@ cpp::optional<size_t> EnvironmentManager::find_var(cpp::string_view name) {\n   if (!env_array)\n     return cpp::nullopt;\n \n-  for (size_t i = 0; i < count; i++) {\n-    cpp::string_view current(env_array[i]);\n-    if (current.starts_with(name) && current.size() > name.size() &&\n-        current[name.size()] == '=')\n+  // Compare entries directly: constructing a string_view from the entry's C\n+  // string would scan the entire value to determine the entry's length, even\n+  // when the name does not match.\n+  // Empty names, supported by putenv, match entries starting with '='.\n+  const char first = name.empty() ? '=' : name.front();\n+\n+  // Reject a leading null so matching an empty entry cannot advance past its\n+  // terminator when the comparison resumes at index 1.\n+  if (first == '\\0')\n+    return cpp::nullopt;\n+  const size_t start = name.empty() ? 0 : 1;\n+\n+  for (size_t i = 0; i < count; ++i) {\n+    const char *entry = env_array[i];\n+    // Reject entries with a different first character before comparing the\n+    // rest.\n+    if (entry[0] != first)\n+      continue;\n+\n+    size_t j = start;\n+    // Bound the comparison by the name's length and stop at a mismatch or null\n+    // terminator, so shorter entries cannot cause an out-of-bounds read.\n+    while (j < name.size() && entry[j] != '\\0' && entry[j] == name[j])\n+      ++j;\n+\n+    // Require the full key to match, not just a prefix of a longer key.\n+    if (j == name.size() && entry[j] == '=')\n       return i;\n   }\n ",
+					"url": "https://github.com/llvm/llvm-project/blob/bdb3bbfe0eb7786758cad3887bbb2db0178f495b/libc%2Fsrc%2Fstdlib%2Fenviron_internal.cpp"
+				},
+				{
+					"filename": "libc/test/integration/src/stdlib/CMakeLists.txt",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -11,6 +11,7 @@ add_integration_test(\n   SRCS\n     getenv_test.cpp\n   DEPENDS\n+    libc.src.stdlib.environ_internal\n     libc.src.stdlib.getenv\n   ENV\n     FRANCE=Paris",
+					"url": "https://github.com/llvm/llvm-project/blob/bdb3bbfe0eb7786758cad3887bbb2db0178f495b/libc%2Ftest%2Fintegration%2Fsrc%2Fstdlib%2FCMakeLists.txt"
+				},
+				{
+					"filename": "libc/test/integration/src/stdlib/getenv_test.cpp",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 32,
+					"deletions": 0,
+					"patch": "@@ -6,6 +6,7 @@\n //\n //===----------------------------------------------------------------------===//\n \n+#include \"src/stdlib/environ_internal.h\"\n #include \"src/stdlib/getenv.h\"\n \n #include \"test/IntegrationTest/test.h\"\n@@ -21,5 +22,36 @@ TEST_MAIN([[maybe_unused]] int argc, [[maybe_unused]] char **argv,\n   ASSERT_TRUE(LIBC_NAMESPACE::getenv(\"FRANC\") == nullptr);\n   ASSERT_TRUE(LIBC_NAMESPACE::getenv(\"FRANCE1\") == nullptr);\n \n+  auto &env = LIBC_NAMESPACE::internal::EnvironmentManager::get_instance();\n+  // Remove inherited variables that could interfere with the lookup tests.\n+  ASSERT_EQ(env.unset(\"LIBC_GETENV_TEST\"), 0);\n+  ASSERT_EQ(env.unset(\"LIBC_GETENV_TEST_LONG\"), 0);\n+\n+  // Exercise entries shorter than the requested name, including entries\n+  // without '='. Lookup must stop at the terminator of each entry.\n+  char *const ORIGINAL = *env.begin();\n+  static char empty_entry[] = \"\";\n+  static char short_entry[] = \"LIBC_GETENV_TEST\";\n+  static char long_key[] = \"LIBC_GETENV_TEST_LONG=value\";\n+  static char empty_value[] = \"LIBC_GETENV_TEST=\";\n+  static char value_with_equals[] = \"LIBC_GETENV_TEST=first=second\";\n+\n+  *env.begin() = empty_entry;\n+  ASSERT_TRUE(LIBC_NAMESPACE::getenv(\"LIBC_GETENV_TEST\") == nullptr);\n+  *env.begin() = short_entry;\n+  ASSERT_TRUE(LIBC_NAMESPACE::getenv(\"LIBC_GETENV_TEST\") == nullptr);\n+  ASSERT_TRUE(LIBC_NAMESPACE::getenv(\"LIBC_GETENV_TEST_LONG\") == nullptr);\n+\n+  *env.begin() = long_key;\n+  ASSERT_TRUE(LIBC_NAMESPACE::getenv(\"LIBC_GETENV_TEST\") == nullptr);\n+\n+  *env.begin() = empty_value;\n+  ASSERT_STREQ(LIBC_NAMESPACE::getenv(\"LIBC_GETENV_TEST\"), \"\");\n+\n+  *env.begin() = value_with_equals;\n+  ASSERT_STREQ(LIBC_NAMESPACE::getenv(\"LIBC_GETENV_TEST\"), \"first=second\");\n+\n+  *env.begin() = ORIGINAL;\n+\n   return 0;\n }",
+					"url": "https://github.com/llvm/llvm-project/blob/bdb3bbfe0eb7786758cad3887bbb2db0178f495b/libc%2Ftest%2Fintegration%2Fsrc%2Fstdlib%2Fgetenv_test.cpp"
+				}
+			],
+			"stats": {
+				"files": 3,
+				"additions": 60,
+				"deletions": 4
+			},
+			"filesComplete": true,
+			"comments": [
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/228633#issuecomment-5969857878",
+					"body": "@kaladron hi, please review this pr",
+					"createdAt": "2026-10-03T13:57:39Z",
+					"path": null
+				}
+			],
+			"commentsTotal": 1,
+			"references": [
+				{
+					"url": "https://github.com/llvm/llvm-project/issues/196016",
+					"number": 196016,
+					"title": "String match efficiency in libc environment",
+					"kind": "issue",
+					"relation": "mentioned"
+				}
+			],
+			"sha": null
+		},
+		{
+			"url": "https://github.com/llvm/llvm-project/issues/196016",
+			"kind": "issue",
+			"title": "String match efficiency in libc environment",
+			"body": "The environment matching code in libc currently does a strlen (as part of creating a string_view) of every variable in the environment.  This is a waste for long environment variables like PATH which can be hundreds of characters.  We could truncate the search at NULL or the right number of characters if we didn't use a string_view (or used a modified container that lazily calculated the string length)",
+			"author": "kaladron",
+			"updatedAt": "2026-10-02T11:31:30Z",
+			"state": "open",
+			"files": [],
+			"stats": null,
+			"filesComplete": true,
+			"comments": [
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/issues/196016#issuecomment-5951454925",
+					"body": "> > [@kaladron](https://github.com/kaladron) Hi, is anyone currently working on this issue? If not, I’d like to take it on.\n> \n> I've assigned it to you, thank you! Please let me know if you need anything and please let me know if you choose not to work on it so that I can unassigned it.\n\nThanks, btw, I want to know, what’s the best place to discuss LLVM-related questions? Discord?",
+					"createdAt": "2026-10-02T11:31:30Z",
+					"path": null
+				},
+				{
+					"author": "kaladron",
+					"url": "https://github.com/llvm/llvm-project/issues/196016#issuecomment-5951415390",
+					"body": "> [@kaladron](https://github.com/kaladron) Hi, is anyone currently working on this issue? If not, I’d like to take it on.\n\nI've assigned it to you, thank you!  Please let me know if you need anything and please let me know if you choose not to work on it so that I can unassigned it.",
+					"createdAt": "2026-10-02T11:28:40Z",
+					"path": null
+				},
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/issues/196016#issuecomment-5951328572",
+					"body": "@kaladron Hi, is anyone currently working on this issue? If not, I’d like to take it on.",
+					"createdAt": "2026-10-02T11:24:40Z",
+					"path": null
+				}
+			],
+			"commentsTotal": 3,
+			"references": [
+				{
+					"url": "https://github.com/llvm/llvm-project/pull/195260",
+					"number": 195260,
+					"title": "[libc][stdlib] Add EnvironmentManager",
+					"kind": "pr",
+					"relation": "cross-reference"
+				},
+				{
+					"url": "https://github.com/llvm/llvm-project/pull/228633",
+					"number": 228633,
+					"title": "[libc][stdlib] Avoid scanning values during environment lookup",
+					"kind": "pr",
+					"relation": "cross-reference"
+				}
+			],
+			"sha": null
+		},
+		{
+			"url": "https://github.com/rust-lang/cargo/pull/17545",
+			"kind": "pr",
+			"title": "fix(diag): Honor build.warnings deny with JSON diagnostics",
+			"body": "Closes #17519\r\n\r\n### What does this PR try to resolve?\r\n\r\nMinimal reproduction:\r\n\r\n```\r\nfn main() { \r\n  let unused = 1; \r\n}\r\n\r\ncargo clippy --config 'build.warnings=\"deny\"' --message-format=json\r\necho $?\r\n```\r\n\r\nExpected: exit code 101.\r\nActual: exit code 0, with `\"success\": true` in the `build-finished` message.\r\n\r\nJSON diagnostics bypass warning accounting. This change counts JSON lint warnings so the existing deny handling applies, while preserving the original compiler failure when errors and warnings occur together.\r\n\r\n`cargo clippy --message-format=json` succeeds despite lint warnings when `build.warnings = \"deny\"` is set, because JSON diagnostics bypass warning accounting.\r\n\r\nCount JSON lint warnings so the existing deny handling applies. Preserve the original compiler failure when errors and warnings occur together.\r\n\r\n### How to test and review this PR?\r\n\r\nAdded regression coverage for JSON output formats, cached diagnostics, `--keep-going`, and mixed errors and warnings.\r\n\r\n```sh\r\ncargo test -p cargo --test testsuite warning_override\r\n```\r\n\r\nAll 16 tests pass. Also verified the Clippy reproduction from #17519: it now exits with 101 and emits `\"success\": false`.",
+			"author": "ChenMiaoi",
+			"updatedAt": "2026-10-01T17:31:31Z",
+			"state": "draft",
+			"files": [
+				{
+					"filename": "src/compiler/job_queue/job_state.rs",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 15,
+					"deletions": 0,
+					"patch": "@@ -136,6 +136,21 @@ impl<'a, 'gctx> JobState<'a, 'gctx> {\n         Ok(())\n     }\n \n+    /// Account for JSON lint diagnostics when warnings are denied.\n+    pub fn count_json_warning(&self, lint: bool) {\n+        // JSON diagnostics are forwarded to stdout rather than emitted through\n+        // `emit_diag`. Track denied lint warnings so output formatting does not\n+        // bypass `build.warnings`, without adding summaries for other modes.\n+        if lint && self.warning_handling == WarningHandling::Deny {\n+            self.messages.push(Message::WarningCount {\n+                id: self.id,\n+                lint,\n+                emitted: true,\n+                fixable: false,\n+            });\n+        }\n+    }\n+\n     /// See [`Message::Warning`].\n     pub fn warning(&self, warning: String) {\n         self.messages.push_bounded(Message::Warning {",
+					"url": "https://github.com/rust-lang/cargo/blob/bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23/src%2Fcompiler%2Fjob_queue%2Fjob_state.rs"
+				},
+				{
+					"filename": "src/compiler/job_queue/mod.rs",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 3,
+					"deletions": 1,
+					"patch": "@@ -701,7 +701,9 @@ impl<'gctx> DrainState<'gctx> {\n                             let stop_on_warnings = denied_warnings\n                                 && !build_runner.bcx.build_config.keep_going\n                                 && !count.supplanted_by_errors;\n-                            if stop_on_warnings {\n+                            // Preserve the original failure when the compiler has\n+                            // already failed, including in JSON output mode.\n+                            if stop_on_warnings && result.is_ok() {\n                                 result = Err(anyhow::format_err!(\n                                     \"warnings are denied by `build.warnings` configuration\"\n                                 ))",
+					"url": "https://github.com/rust-lang/cargo/blob/bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23/src%2Fcompiler%2Fjob_queue%2Fmod.rs"
+				},
+				{
+					"filename": "src/compiler/mod.rs",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 4,
+					"deletions": 0,
+					"patch": "@@ -2397,6 +2397,7 @@ fn on_stderr_line_inner(\n         message: Cow<'a, str>,\n         #[serde(borrow)]\n         level: Cow<'a, str>,\n+        code: Option<serde_json::Value>,\n     }\n \n     if let Ok(msg) = serde_json::from_str::<CompilerMessage<'_>>(compiler_message.get()) {\n@@ -2408,6 +2409,9 @@ fn on_stderr_line_inner(\n             return Ok(true);\n         }\n         count_diagnostic(&msg.level, options);\n+        if msg.level == \"warning\" {\n+            state.count_json_warning(msg.code.is_some());\n+        }\n     }\n \n     let msg = machine_message::FromCompiler {",
+					"url": "https://github.com/rust-lang/cargo/blob/bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23/src%2Fcompiler%2Fmod.rs"
+				},
+				{
+					"filename": "tests/testsuite/warning_override.rs",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 71,
+					"deletions": 0,
+					"patch": "@@ -22,6 +22,56 @@ fn make_project_with_rustc_warning() -> Project {\n         .build()\n }\n \n+#[cargo_test]\n+fn json_deny() {\n+    // Regression: https://github.com/rust-lang/cargo/issues/17519\n+    for format in [\n+        \"json\",\n+        \"json-diagnostic-short\",\n+        \"json-diagnostic-rendered-ansi\",\n+    ] {\n+        let p = make_project_with_rustc_warning();\n+        // The second invocation replays cached diagnostics from a fresh unit.\n+        for _ in 0..2 {\n+            let output = p\n+                .cargo(\"check\")\n+                .arg(format!(\"--message-format={format}\"))\n+                .arg(\"--config\")\n+                .arg(\"build.warnings='deny'\")\n+                .with_status(101)\n+                .with_stdout_contains(r#\"{\"reason\":\"build-finished\",\"success\":false}\"#)\n+                .with_stderr_contains(\n+                    \"[ERROR] warnings are denied by `build.warnings` configuration\",\n+                )\n+                .run();\n+            let messages: Vec<serde_json::Value> = std::str::from_utf8(&output.stdout)\n+                .unwrap()\n+                .lines()\n+                .map(|line| serde_json::from_str(line).unwrap())\n+                .collect();\n+            assert!(messages.iter().any(|msg| {\n+                msg[\"reason\"] == \"compiler-message\"\n+                    && msg[\"message\"][\"code\"][\"code\"] == \"unused_variables\"\n+                    && msg[\"message\"][\"level\"] == \"warning\"\n+            }));\n+        }\n+    }\n+}\n+\n+#[cargo_test]\n+fn json_deny_keep_going() {\n+    // Regression: https://github.com/rust-lang/cargo/issues/17519\n+    let p = make_project_with_rustc_warning();\n+    for _ in 0..2 {\n+        p.cargo(\"check --message-format=json --keep-going\")\n+            .arg(\"--config\")\n+            .arg(\"build.warnings='deny'\")\n+            .with_status(101)\n+            .with_stderr_contains(\"[ERROR] warnings are denied by `build.warnings` configuration\")\n+            .run();\n+    }\n+}\n+\n #[cargo_test]\n fn always_show_error_diags() {\n     let p = make_project_with_rustc_warning();\n@@ -782,4 +832,25 @@ error[..]\n \"#]])\n         .with_status(101)\n         .run();\n+\n+    // Regression: https://github.com/rust-lang/cargo/issues/17519\n+    for format in [\n+        \"json\",\n+        \"json-diagnostic-short\",\n+        \"json-diagnostic-rendered-ansi\",\n+    ] {\n+        p.cargo(\"check\")\n+            .arg(format!(\"--message-format={format}\"))\n+            .arg(\"--config\")\n+            .arg(\"build.warnings='deny'\")\n+            .with_stdout_contains(r#\"{\"reason\":\"build-finished\",\"success\":false}\"#)\n+            .with_stderr_data(str![[r#\"\n+[CHECKING] foo v0.0.1 ([ROOT]/foo)\n+[ERROR] `foo` (bin \"foo\") generated 1 warning\n+[ERROR] could not compile `foo` (bin \"foo\") due to 1 previous error; 1 warning emitted\n+\n+\"#]])\n+            .with_status(101)\n+            .run();\n+    }\n }",
+					"url": "https://github.com/rust-lang/cargo/blob/bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23/tests%2Ftestsuite%2Fwarning_override.rs"
+				}
+			],
+			"stats": {
+				"files": 4,
+				"additions": 93,
+				"deletions": 1
+			},
+			"filesComplete": true,
+			"comments": [
+				{
+					"author": "epage",
+					"url": "https://github.com/rust-lang/cargo/pull/17545#discussion_r4158450221",
+					"body": "Note that `contains` asserts are something we try to minimize as much as possible.\n\nWe have other resources on hand to allow for proper snapshots of jsonlines with eliding of unrelated content, see also\n- https://docs.rs/snapbox/latest/snapbox/assert/struct.Assert.html#method.eq\n- existing jsonlines tests\n\n*[View changes since the review](https://triagebot.infra.rust-lang.org/gh-changes-since/rust-lang/cargo/17545/4f3fb2428282fb2467c4bb5be0163d2f42a31491..bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23)*",
+					"createdAt": "2026-10-01T17:31:31Z",
+					"path": "tests/testsuite/warning_override.rs"
+				},
+				{
+					"author": "ranger-ross",
+					"url": "https://github.com/rust-lang/cargo/pull/17545#discussion_r4155132395",
+					"body": "Correct!",
+					"createdAt": "2026-10-01T12:03:44Z",
+					"path": "tests/testsuite/warning_override.rs"
+				},
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/rust-lang/cargo/pull/17545#discussion_r4155041342",
+					"body": "okay, let me confirm: **should I split this commit into two: one that adds a test demonstrating the issue, and another that fixes it?**",
+					"createdAt": "2026-10-01T11:51:52Z",
+					"path": "tests/testsuite/warning_override.rs"
+				},
+				{
+					"author": "ranger-ross",
+					"url": "https://github.com/rust-lang/cargo/pull/17545#discussion_r4154892995",
+					"body": "would you mind splitting the test into a commit with the existing behavior, then update the test in the change commit. \n\nSee the atomic commit section of https://doc.crates.io/contrib/process/working-on-cargo.html#submitting-a-pull-request\n\nAlso linking to the issue in a code comment would be helpful: `Regression: <link>`\n\n*[View changes since the review](https://triagebot.infra.rust-lang.org/gh-changes-since/rust-lang/cargo/17545/4f3fb2428282fb2467c4bb5be0163d2f42a31491..694d43070db38b52801128b32167613e0df50723)*",
+					"createdAt": "2026-10-01T11:32:55Z",
+					"path": "tests/testsuite/warning_override.rs"
+				}
+			],
+			"commentsTotal": 4,
+			"references": [
+				{
+					"url": "https://github.com/rust-lang/cargo/issues/17519",
+					"number": 17519,
+					"title": "`build.warnings` is not honored when using `cargo clippy --message-format=json`",
+					"kind": "issue",
+					"relation": "mentioned"
+				}
+			],
+			"sha": null
+		}
+	]
+}

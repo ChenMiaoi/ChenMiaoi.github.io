@@ -1,0 +1,25 @@
+/* tokens: owns the final orbital tokens rules, including responsive states. */
+
+.orbital-preview {
+	--signal: #f0e433;
+	--paper: #eceee8;
+	--ink: #17191b;
+	--muted: #a0a5a6;
+	--surface: #202426;
+	--edge: #373c3e;
+	--mono: "JetBrains Mono Variable", monospace;
+	--panel-cut: polygon(
+		0 18px,
+		18px 0,
+		calc(100% - 28px) 0,
+		100% 28px,
+		100% calc(100% - 16px),
+		calc(100% - 16px) 100%,
+		0 100%
+	);
+	--archive-rule: #bfcebc38;
+	--archive-surface: linear-gradient(110deg, #12212666, #1221260a);
+	--archive-selected: linear-gradient(110deg, #8a9c7133, #23393226);
+	--archive-muted: #a8bdb2
+;
+}

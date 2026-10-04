@@ -1,0 +1,185 @@
+<script lang="ts">
+  import { onMount, tick } from "svelte";
+  import { projectRecords } from "../../lib/contributions/projects";
+  import { loadJson } from "../../lib/content/client-cache";
+  import { fly } from "svelte/transition";
+  import TerminalIcon from "./TerminalIcon.svelte";
+  import BrandIcon from "./BrandIcon.svelte";
+  import { revealSequence } from "./motion";
+  import ContributionReader from "./ContributionReader.svelte";
+  import type { ContributionProject } from "../../types/config";
+  import type { ContributionActivitySnapshot, ContributionDetailsSnapshot, SourceRecord } from "./types";
+
+  export let projects: ContributionProject[];
+  export let activity: ContributionActivitySnapshot;
+  export let detailsUrl: string;
+  let details: ContributionDetailsSnapshot = { syncedAt: activity.syncedAt, records: [] };
+  let detailsError = false;
+  let loadingDetails = true;
+  export let projectId: string | undefined;
+  export let reducedMotion = false;
+  let selectedId = "";
+  let kindFilter = "all";
+  let recordRail: HTMLDivElement;
+  let deck: HTMLDivElement;
+  let tether: { width: number; height: number; path: string; x: number; y: number; endX: number; endY: number } | undefined;
+
+  $: project = projects.find((item) => item.id === projectId) ?? projects[0];
+  $: allRecords = project ? projectRecords(project, activity) : [];
+  $: recordKinds = [...new Set(allRecords.map((item) => item.kind))];
+  $: records = allRecords.filter((item) => kindFilter === "all" || item.kind === kindFilter);
+  $: selected = records.find((item) => item.id === selectedId) ?? records[0];
+  $: selectedDetail = details.records.find((item) => item.url === selected?.url);
+  $: selectedIndex = records.findIndex((item) => item.id === selected?.id);
+  $: if (selected && recordRail) revealSelection(selected.id);
+  $: syncDate = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", dateStyle: "medium", timeStyle: "short" }).format(new Date(activity.syncedAt));
+  const number = (value: number) => String(value).padStart(2, "0");
+  const repositoryPath = (url?: string) => url?.replace(/^https?:\/\/[^/]+\//, "").replace(/\/$/, "") ?? "";
+  const kindName = (kind: string) => kind === "commit" ? "提交" : kind === "pr" ? "PR" : "Issue";
+
+  function chooseProject(id: string) {
+    projectId = id;
+    selectedId = "";
+    kindFilter = "all";
+  }
+
+  function step(direction: number) {
+    const record = records[selectedIndex + direction];
+    if (record) selectedId = record.id;
+  }
+
+  async function revealSelection(_id: string) {
+    await tick();
+    const active = recordRail?.querySelector<HTMLButtonElement>('[aria-pressed="true"]');
+    if (!active) return;
+    const container = recordRail.getBoundingClientRect();
+    const item = active.getBoundingClientRect();
+    const horizontal = recordRail.scrollWidth > recordRail.clientWidth;
+    if (horizontal && (item.left < container.left || item.right > container.right)) {
+      recordRail.scrollTo({ left: recordRail.scrollLeft + item.left - container.left, behavior: reducedMotion ? "instant" : "smooth" });
+    } else if (!horizontal && (item.top < container.top || item.bottom > container.bottom)) {
+      recordRail.scrollTo({ top: recordRail.scrollTop + (item.top < container.top ? item.top - container.top : item.bottom - container.bottom), behavior: reducedMotion ? "instant" : "smooth" });
+    }
+    updateTether();
+  }
+
+  function updateTether() {
+    const active = recordRail?.querySelector<HTMLButtonElement>('[aria-pressed="true"]');
+    const crown = deck?.querySelector<HTMLElement>('.chamber-crown');
+    if (!active || !crown || window.innerWidth < 1000) { tether = undefined; return; }
+    const frame = deck.getBoundingClientRect();
+    const rail = recordRail.getBoundingClientRect();
+    const item = active.getBoundingClientRect();
+    const target = crown.getBoundingClientRect();
+    const y = item.top + 27;
+    if (y < rail.top || y > rail.bottom) { tether = undefined; return; }
+    const x = item.right - frame.left - 2;
+    const startY = y - frame.top;
+    const endX = target.left - frame.left + 2;
+    const endY = target.top - frame.top + target.height / 2;
+    const elbow = x + (endX - x) * .5;
+    tether = { width: frame.width, height: frame.height, x, y: startY, endX, endY, path: `M ${x} ${startY} H ${elbow - 5} L ${elbow} ${startY - 5} V ${endY + 5} L ${elbow + 5} ${endY} H ${endX}` };
+  }
+
+  function connectDeck(node: HTMLDivElement) {
+    deck = node;
+    const observer = new ResizeObserver(updateTether);
+    observer.observe(node);
+    node.addEventListener('scroll', updateTether, true);
+    return { destroy() { observer.disconnect(); node.removeEventListener('scroll', updateTether, true); } };
+  }
+  async function loadDetails() {
+    detailsError = false;
+    loadingDetails = true;
+    try { details = await loadJson<ContributionDetailsSnapshot>(detailsUrl); }
+    catch { detailsError = true; }
+    finally { loadingDetails = false; }
+  }
+  onMount(() => { void loadDetails(); });
+</script>
+
+<section class="source-dock" aria-label="开源贡献接入站">
+  <div class="projection-environment" aria-hidden="true">
+    <svg class="projection-orbits" viewBox="0 0 900 900" fill="none">
+      <circle cx="450" cy="450" r="355"/>
+      <circle cx="450" cy="450" r="330" stroke-dasharray="2 14"/>
+      <ellipse cx="450" cy="450" rx="415" ry="160" transform="rotate(-32 450 450)"/>
+      <path d="M95 450H180M720 450H805M450 95V165M450 735V805"/>
+      <g class="projection-orbit-arc"><path d="M450 95A355 355 0 0 1 787 339M450 805A355 355 0 0 1 113 561"/><circle cx="787" cy="339" r="5"/></g>
+    </svg>
+  </div>
+  <header class="source-console-bar">
+    <nav class="project-docks" aria-label="选择开源项目">
+      {#each projects as item}
+        <button class="project-port" class:active={project?.id === item.id} aria-label={`选择项目：${item.name}`} aria-pressed={project?.id === item.id} onclick={() => chooseProject(item.id)}>
+          <BrandIcon name={item.id} size={26}/>
+          <strong>{item.name}</strong>
+          <span class="port-count" aria-label={`${projectRecords(item, activity).length}条记录`}>{number(projectRecords(item, activity).length)}</span>
+        </button>
+      {/each}
+    </nav>
+    {#if project?.repository}<a class="source-repository" href={project.repository} target="_blank" rel="noreferrer"><BrandIcon name="github" size={16} framed={false}/>项目仓库<TerminalIcon name="external" size={15}/></a>{/if}
+  </header>
+
+  {#if project}
+    <div class="contribution-deck" class:empty-deck={!records.length} use:connectDeck>
+      {#if tether}
+        <svg class="selection-tether" viewBox={`0 0 ${tether.width} ${tether.height}`} aria-hidden="true">
+          <path d={tether.path}/>
+          {#key selected?.id}<path class="tether-arrival" d={tether.path} pathLength="1"/>{/key}
+          <circle cx={tether.x} cy={tether.y} r="2.5"/>
+          <rect x={tether.endX - 3} y={tether.endY - 3} width="6" height="6" transform={`rotate(45 ${tether.endX} ${tether.endY})`}/>
+        </svg>
+      {/if}
+      <aside class="contribution-rail" aria-label={`${project.name}贡献记录`}>
+        <header><span>{allRecords.some((item) => item.kind !== 'commit') ? '协作轨迹' : '提交轨迹'}</span><small>{number(records.length)} / RECORDS</small></header>
+        {#if recordKinds.length > 1}
+          <div class="contribution-kind-filter" aria-label="筛选贡献类型">
+            <button class:active={kindFilter === 'all'} aria-pressed={kindFilter === 'all'} onclick={() => { kindFilter = 'all'; selectedId = ''; }}>全部 <small>{allRecords.length}</small></button>
+            {#each recordKinds as kind}<button class:active={kindFilter === kind} aria-pressed={kindFilter === kind} onclick={() => { kindFilter = kind; selectedId = ''; }}>{kindName(kind)} <small>{allRecords.filter((item) => item.kind === kind).length}</small></button>{/each}
+          </div>
+        {/if}
+        {#if records.length}
+          <div class="contribution-records" bind:this={recordRail} use:revealSequence={{key: `${project.id}|${kindFilter}`, enabled: !reducedMotion, selector: '.record-text'}}>
+            {#each records as record, index}
+              <button class="contribution-record" class:active={selected?.id === record.id} aria-pressed={selected?.id === record.id} aria-label={`查看${kindName(record.kind)}：${record.title}`} onclick={() => { selectedId = record.id; }}>
+                <span class="record-point" aria-hidden="true">{number(index + 1)}</span>
+                <span class="record-text"><span class="record-date"><time datetime={record.date}>{record.date.slice(0, 10)}</time>{#if record.kind !== 'commit'}<span class="collaboration-state" class:draft={record.draft}>{record.draft ? '草稿' : '进行中'}</span>{/if}</span><strong>{record.title}</strong><code>{record.reference}</code></span>
+                <TerminalIcon name="arrow" size={13}/>
+              </button>
+            {/each}
+          </div>
+        {:else}
+          <div class="rail-empty"><span aria-hidden="true">—</span><p>暂无收录记录</p><small>项目仓库仍可访问</small></div>
+        {/if}
+      </aside>
+
+      <div class="projection-shell">
+      <svg class="projection-depth" viewBox="0 0 1000 800" preserveAspectRatio="none" aria-hidden="true">
+        <path class="projection-backplane" d="M32 9H942L993 51V746L965 790H12V33Z"/>
+        <path d="M12 33L0 18M993 51L982 40M965 790L953 776M12 790L0 776"/>
+        <path class="projection-ribs" d="M994 112V260M994 290V333M60 790H218M242 790H271"/>
+      </svg>
+      <section class="patch-chamber" aria-label="当前贡献详情">
+        <header class="chamber-crown">
+          <span class="chamber-aperture" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="chamber-address">{repositoryPath(project.repository) || project.name}</span>
+          <span class="chamber-position"><b>{number(Math.max(0, selectedIndex + 1))}</b><i>/</i>{number(records.length)}</span>
+        </header>
+        {#key `${project.id}:${selected?.id ?? 'empty'}`}
+          <div class="patch-presentation" in:fly={{y: reducedMotion ? 0 : 6, duration: reducedMotion ? 0 : 260}}>
+            {#if selected}
+              {#if loadingDetails}<p class="dock-note" role="status">正在读取记录内容…</p>{:else if detailsError}<p class="dock-note" role="alert">记录内容暂时无法读取。<button onclick={loadDetails}>重试</button></p>{/if}
+              <ContributionReader record={selected} detail={selectedDetail} syncedAt={details.syncedAt}/>
+            {:else}
+              <div class="patch-content patch-empty"><p class="patch-eyebrow">{project.name} <i>/</i> 开源项目</p><h2>尚未收录贡献记录</h2><p>这里会展示博客收录的提交与讨论。你可以先前往项目仓库浏览源码。</p>{#if project.repository}<a class="patch-primary" href={project.repository} target="_blank" rel="noreferrer">浏览项目源码<TerminalIcon name="external" size={20}/></a>{/if}</div>
+            {/if}
+          </div>
+        {/key}
+        <footer class="chamber-footer"><span>{selected ? '浏览收录记录' : '项目入口'}</span>{#if records.length}<div><button aria-label="上一条贡献记录" disabled={selectedIndex <= 0} onclick={() => step(-1)}><TerminalIcon name="back" size={16}/></button><span>{number(selectedIndex + 1)}<i>/</i>{number(records.length)}</span><button aria-label="下一条贡献记录" disabled={selectedIndex >= records.length - 1} onclick={() => step(1)}><TerminalIcon name="arrow" size={16}/></button></div>{:else}<code>{repositoryPath(project.repository)}</code>{/if}</footer>
+      </section>
+      </div>
+    </div>
+  {:else}<p class="dock-note">尚未配置开源项目。</p>{/if}
+  <p class="dock-note"><span aria-hidden="true"></span>{#if allRecords.some((item) => item.kind !== 'commit')}收录 {activity.account} 发起或被指派的未关闭 Issue / PR。状态同步于 {syncDate}（北京时间）。{:else}仅展示博客已收录的贡献记录。提交与讨论链接指向各项目的公开页面。{/if}</p>
+</section>

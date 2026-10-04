@@ -1,0 +1,175 @@
+/* icons: owns the final orbital icons rules, including responsive states. */
+
+.brand-insignia {
+	--insignia-size: var(--requested-icon-size);
+	display: inline-grid;
+	place-items: center;
+	width: var(--insignia-size);
+	height: var(--insignia-size);
+	flex: 0 0 auto;
+	position: relative;
+	color: inherit;
+	vertical-align: middle;
+}
+
+.brand-insignia > svg {
+	display: block;
+	width: var(--insignia-size);
+	height: var(--insignia-size);
+	overflow: visible;
+}
+
+.insignia-framed {
+	width: calc(var(--insignia-size) + 16px);
+	height: calc(var(--insignia-size) + 16px);
+	background: linear-gradient(135deg, #2d403dd6, #13252bdd);
+	border: 1px solid #b7c99d66;
+	color: #c6d6ad;
+	clip-path: polygon(
+		8px 0,
+		100% 0,
+		100% calc(100% - 7px),
+		calc(100% - 7px) 100%,
+		0 100%,
+		0 8px
+	);
+	transition: color 0.18s,
+		background 0.18s,
+		border-color 0.18s;
+}
+
+.insignia-framed::after {
+	content: "";
+	position: absolute;
+	right: 2px;
+	bottom: 2px;
+	width: 7px;
+	height: 2px;
+	background: #c9d5808c;
+}
+
+.brand-insignia[data-brand="llvm"] > svg {
+	transform: scale(1.1);
+}
+
+:is(button, a):hover .insignia-framed,
+:is(button, a):focus-visible .insignia-framed,
+.active > .insignia-framed {
+	color: #f4ed83;
+	background: linear-gradient(135deg, #666a2a66, #263935e8);
+	border-color: #ede86fb3;
+}
+
+.identity-field > .brand-insignia {
+	--insignia-size: 24px;
+}
+
+.identity-contact > .identity-contact-text {
+	flex: 1;
+	min-width: 0;
+}
+
+.identity-contact {
+	gap: 15px;
+}
+
+.identity-contact > .brand-insignia {
+	color: #d3ddc0;
+}
+
+.identity-field > .identity-field-copy {
+	min-width: 0;
+}
+
+.project-port > .brand-insignia {
+	z-index: 1;
+}
+
+.project-port.active > .brand-insignia {
+	color: #fbf394;
+}
+
+.source-repository > .brand-insignia {
+	color: #c8d7b9;
+}
+
+.orbital-preview .github-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.github-link > .brand-insignia {
+	color: #dce3d3;
+}
+
+.orbital-preview .category-tabs button {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+}
+
+.category-tabs button .brand-insignia {
+	color: #c1d2a9;
+}
+
+.category-tabs button.active .brand-insignia {
+	color: var(--signal);
+}
+
+@media (max-width: 1190px) {
+	.project-port > .brand-insignia {
+		--insignia-size: 22px;
+	}
+}
+
+@media (max-width: 999px) {
+	.source-console-bar .project-docks {
+		flex: 1 0 100%;
+	}
+	.source-console-bar .source-repository {
+		margin-left: auto;
+		border: 0;
+		padding: 10px 0 0;
+	}
+	.orbital-preview .project-port {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		grid-template-rows: auto auto;
+		align-items: center;
+		padding: 10px 7px;
+		gap: 6px;
+	}
+	.project-port > .brand-insignia {
+		--insignia-size: 22px;
+		width: 30px;
+		height: 30px;
+		justify-self: center;
+	}
+	.project-port > strong {
+		grid-column: 1 / -1;
+		grid-row: 2;
+		text-align: center;
+		white-space: nowrap;
+	}
+	.project-port > .port-count {
+		grid-column: 2;
+		grid-row: 1;
+		margin-right: 2px;
+	}
+}
+
+@media (max-width: 650px) {
+	.identity-contact {
+		gap: 12px;
+	}
+	.identity-contact .brand-insignia {
+		--insignia-size: 22px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.insignia-framed {
+		transition: none;
+	}
+}
