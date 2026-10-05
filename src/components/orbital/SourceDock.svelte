@@ -24,8 +24,9 @@
   let disposed = false;
   export let projectId: string | undefined;
   export let reducedMotion = false;
-  let selectedId = "";
-  let kindFilter = "all";
+  export let selectedId = "";
+  export let kindFilter = "all";
+  export let onNavigate: (project: string, record: string, kind: string) => void = () => {};
   let recordRail: HTMLDivElement;
   let deck: HTMLDivElement;
   let tether: { width: number; height: number; path: string; x: number; y: number; endX: number; endY: number } | undefined;
@@ -34,7 +35,8 @@
   $: allRecords = project ? projectRecords(project, activity) : [];
   $: recordKinds = [...new Set(allRecords.map((item) => item.kind))];
   $: records = allRecords.filter((item) => kindFilter === "all" || item.kind === kindFilter);
-  $: selected = records.find((item) => item.id === selectedId) ?? records[0];
+  $: selected = selectedId ? records.find((item) => item.id === selectedId) : records[0];
+  $: if (typeof document !== "undefined") document.title = `${selectedId && selected ? selected.title : project?.name ?? t("代码与实践")} · Miao's Blog`;
   $: selectedDetail = details.records.find((item) => item.url === selected?.url);
   $: selectedIndex = records.findIndex((item) => item.id === selected?.id);
   $: if (selected && recordRail) revealSelection(selected.id);
@@ -49,11 +51,23 @@
     projectId = id;
     selectedId = "";
     kindFilter = "all";
+    onNavigate(id, "", "all");
   }
 
   function step(direction: number) {
     const record = records[selectedIndex + direction];
-    if (record) selectedId = record.id;
+    if (record) selectRecord(record.id);
+  }
+
+  function selectRecord(id: string) {
+    selectedId = id;
+    onNavigate(project.id, id, kindFilter);
+  }
+
+  function filterKind(kind: string) {
+    kindFilter = kind;
+    selectedId = "";
+    onNavigate(project.id, "", kind);
   }
 
   async function revealSelection(_id: string) {
@@ -109,7 +123,7 @@
       if (!Array.isArray(next.records) || !next.syncedAt || (next.version === 1 && !Array.isArray(next.activity?.items))) throw new Error('Invalid contribution data');
       if (!disposed) {
         // Update list and details together so record selection never mixes generations.
-        if (selected) selectedId = selected.id;
+        // Preserve explicit route selection, including a record discovered in this refresh.
         details = next;
         if (next.version === 1) activity = next.activity;
         refreshFailed = false;
@@ -165,8 +179,8 @@
         <header><span>{allRecords.some((item) => item.kind !== 'commit') ? t("协作轨迹") : t("提交轨迹")}</span><small>{number(records.length)} / RECORDS</small></header>
         {#if recordKinds.length > 1}
           <div class="contribution-kind-filter" aria-label={t("筛选贡献类型")}>
-            <button class:active={kindFilter === 'all'} aria-pressed={kindFilter === 'all'} onclick={() => { kindFilter = 'all'; selectedId = ''; }}>{t("全部")} <small>{allRecords.length}</small></button>
-            {#each recordKinds as kind}<button class:active={kindFilter === kind} aria-pressed={kindFilter === kind} onclick={() => { kindFilter = kind; selectedId = ''; }}>{kindName(kind)} <small>{allRecords.filter((item) => item.kind === kind).length}</small></button>{/each}
+            <button class:active={kindFilter === 'all'} aria-pressed={kindFilter === 'all'} onclick={() => filterKind("all")}>{t("全部")} <small>{allRecords.length}</small></button>
+            {#each recordKinds as kind}<button class:active={kindFilter === kind} aria-pressed={kindFilter === kind} onclick={() => filterKind(kind)}>{kindName(kind)} <small>{allRecords.filter((item) => item.kind === kind).length}</small></button>{/each}
           </div>
         {/if}
         {#if records.length}
@@ -174,7 +188,7 @@
             {#each records as record, index}
               {@const pr = record.kind === "pr" ? details.records.find((item) => item.url === record.url)?.pullRequest : undefined}
               {@const ci = pr ? summarizeChecks(pr.checks) : undefined}
-              <button class="contribution-record" class:active={selected?.id === record.id} aria-pressed={selected?.id === record.id} aria-label={t("查看{v0}：{v1}", { v0: kindName(record.kind), v1: record.title })} onclick={() => { selectedId = record.id; }}>
+              <button class="contribution-record" class:active={selected?.id === record.id} aria-pressed={selected?.id === record.id} aria-label={t("查看{v0}：{v1}", { v0: kindName(record.kind), v1: record.title })} onclick={() => selectRecord(record.id)}>
                 <span class="record-point" aria-hidden="true">{number(index + 1)}</span>
                 <span class="record-text"><span class="record-date"><time datetime={record.date}>{record.date.slice(0, 10)}</time>{#if record.kind !== 'commit'}<span class="collaboration-state" class:draft={record.draft} class:merged={record.state === 'merged'} class:closed={record.state === 'closed'}>{contributionStateLabel(record.state, record.draft)}</span>{/if}</span><strong>{record.title}</strong><code>{record.reference}</code>{#if ci}<span class={`record-ci ci-${ci.state}`} title={t("检查详情")}><i aria-hidden="true"></i>CI · {({passed:t("通过"),failed:t("检查未通过"),pending:t("运行中"),neutral:t("检查已结束"),none:t("暂无检查")} as Record<string,string>)[ci.state]}</span>{/if}</span>
                 <TerminalIcon name="arrow" size={13}/>
@@ -204,7 +218,7 @@
               {#if loadingDetails}<p class="dock-note" role="status">{t("正在读取记录内容…")}</p>{:else if detailsError}<p class="dock-note" role="alert">{t("记录内容暂时无法读取。")}<button onclick={loadDetails}>{t("重试")}</button></p>{/if}
               <ContributionReader record={selected} detail={selectedDetail}/>
             {:else}
-              <div class="patch-content patch-empty"><p class="patch-eyebrow">{project.name} <i>/</i> {t("开源项目")}</p><h2>{t("尚未收录贡献记录")}</h2><p>{t("这里会展示博客收录的提交与讨论。你可以先前往项目仓库浏览源码。")}</p>{#if project.repository}<a class="patch-primary" href={project.repository} target="_blank" rel="noreferrer">{t("浏览项目源码")}<TerminalIcon name="external" size={20}/></a>{/if}</div>
+              {#if selectedId}<div class="patch-content patch-empty"><h2>{t("未找到这条贡献记录")}</h2><p>{t("这条记录未收录或已不在当前项目中。")}</p><button class="signal-button" onclick={() => chooseProject(project.id)}>{t("返回项目记录")}</button></div>{:else}<div class="patch-content patch-empty"><p class="patch-eyebrow">{project.name} <i>/</i> {t("开源项目")}</p><h2>{t("尚未收录贡献记录")}</h2><p>{t("这里会展示博客收录的提交与讨论。你可以先前往项目仓库浏览源码。")}</p>{#if project.repository}<a class="patch-primary" href={project.repository} target="_blank" rel="noreferrer">{t("浏览项目源码")}<TerminalIcon name="external" size={20}/></a>{/if}</div>{/if}
             {/if}
           </div>
         {/key}

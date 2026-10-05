@@ -22,6 +22,8 @@ export function resolveOrbitalLocation(
 	const post = posts.find((item) => item.url === path);
 	const localPath =
 		prefix && path.startsWith(`${prefix}/`) ? path.slice(prefix.length) : path;
+	const contributionProject =
+		/^\/contribution\/([^/]+)\/$/.exec(localPath)?.[1] ?? "";
 	const section =
 		(Object.keys(sectionPaths) as Section[]).find(
 			(key) => sectionPaths[key] === localPath,
@@ -29,7 +31,16 @@ export function resolveOrbitalLocation(
 	const series = localPath.startsWith("/series/")
 		? localPath.slice(8).replace(/\/$/, "")
 		: "";
-	return { section: series ? ("articles" as const) : section, series, post };
+	return {
+		section: contributionProject
+			? ("code" as const)
+			: series
+				? ("articles" as const)
+				: section,
+		series,
+		post,
+		contributionProject,
+	};
 }
 
 export function isWelcomeLocation(pathname: string, search = "", prefix = "") {

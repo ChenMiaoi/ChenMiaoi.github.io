@@ -1,5 +1,20 @@
 // Shared interface copy. Each message has English, Traditional Chinese and Japanese translations.
 export const messages = {
+	未找到这条贡献记录: [
+		"Contribution record not found",
+		"未找到這條貢獻記錄",
+		"貢献記録が見つかりません",
+	],
+	"这条记录未收录或已不在当前项目中。": [
+		"This record is not listed in the current project.",
+		"此記錄未收錄或已不在目前專案中。",
+		"この記録は現在のプロジェクトに登録されていません。",
+	],
+	返回项目记录: [
+		"Back to project records",
+		"返回專案記錄",
+		"プロジェクトの記録に戻る",
+	],
 	"PR 进展": ["PR progress", "PR 進展", "PR の進捗"],
 	持续集成: ["Continuous integration", "持續整合", "継続的インテグレーション"],
 	检查通过: ["Checks passed", "檢查通過", "チェック成功"],

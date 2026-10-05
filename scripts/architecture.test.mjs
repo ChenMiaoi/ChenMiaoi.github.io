@@ -11,6 +11,31 @@ import { resolveContributionProjects, projectRecords } from "../src/lib/contribu
 import { isWelcomeLocation, resolveOrbitalLocation, sectionPaths } from "../src/lib/content/navigation.ts";
 import { createTranslations, languageUrl } from "../src/features/orbital/i18n/index.ts";
 import { messages } from "../src/features/orbital/i18n/messages.ts";
+import { contributionUrl, resolveContributionSelection } from "../src/lib/contributions/navigation.ts";
+
+test("contribution links round-trip project, record and filter across every locale", () => {
+    for (const prefix of ["", "/en", "/ja", "/zh_TW"]) {
+        for (const record of ["pr:228734", "issue:202079", "commit:a44bfed9df8"]) {
+            const location = new URL(contributionUrl("llvm-project", record, record.split(":")[0], prefix), "https://example.com");
+            const route = resolveOrbitalLocation(location.pathname, [], prefix);
+            assert.equal(route.section, "code");
+            assert.equal(route.contributionProject, "llvm-project");
+            assert.deepEqual(resolveContributionSelection(location.search), { record, kind: record.split(":")[0] });
+            const japanese = languageUrl(location.pathname + location.search, "ja");
+            assert.ok(japanese.startsWith("/ja/contribution/llvm-project/"));
+            assert.equal(new URL(japanese, "https://example.com").search, location.search);
+        }
+    }
+    assert.equal(contributionUrl("cargo", "", "pr"), "/contribution/cargo/?kind=pr");
+    assert.deepEqual(resolveContributionSelection("?pr=1&kind=issue"), { record: "pr:1", kind: "all" });
+});
+
+test("invalid or ambiguous contribution selections cannot silently select a different record", () => {
+    for (const search of ["?pr=0", "?pr=oops", "?commit=../evil", "?issue=1&pr=2", "?pr=1&pr=2", "?pr="]) {
+        assert.equal(resolveContributionSelection(search).record, "invalid");
+    }
+    assert.deepEqual(resolveContributionSelection(""), { record: "", kind: "all" });
+});
 
 test("permalinks preserve UTC dates, leap days and nested slugs", () => {
 	assert.equal(postPath("kernel/memory", new Date("2024-02-29")), "/2024/02/29/kernel/memory/");

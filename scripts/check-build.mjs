@@ -30,6 +30,11 @@ for (const path of ["", "en/", "ja/", "zh_TW/", "articles/", "series/", "graph/"
 	await access(resolve(production, path, "index.html"));
 }
 for (const prefix of ["", "en/", "ja/", "zh_TW/"]) {
+    for (const project of ["linux", "llvm-project", "cargo"]) {
+        const projectPage = await readFile(resolve(production, prefix, "contribution", project, "index.html"), "utf8");
+        assert.match(projectPage, /class="source-dock"/);
+        assert.ok(projectPage.includes(`href="https://nyachen.cn/${prefix}contribution/${project}/"`));
+    }
 	const [lang, entrance, heading, switchLabel] = {
 		"": ["zh-CN", "欢迎登站", "文章档案", "选择语言"],
 		"en/": ["en", "Welcome aboard", "Article archive", "Choose language"],

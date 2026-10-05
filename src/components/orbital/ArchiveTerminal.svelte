@@ -25,9 +25,11 @@
   export let detailsUrl: string;
   export let profile: ProfileConfig;
 
+  import { contributionUrl, resolveContributionSelection } from "../../lib/contributions/navigation";
   import { sectionPaths, resolveOrbitalLocation, isWelcomeLocation, type Section } from "../../lib/content/navigation";
   export let initialSection: Section = "articles";
   export let initialSeries = "";
+  export let initialProject = "";
   export let localePrefix = "";
   export let notFound = false;
   export let initialWelcome = false;
@@ -47,7 +49,9 @@
   let returnPath = `${localePrefix}${sectionPaths.articles}`;
   let resetKey = 0;
   let reader: ArticleReader;
-  let sourceProject = projects[0]?.id;
+  let sourceProject = initialProject || projects[0]?.id;
+  let sourceRecord = "";
+  let sourceKind = "all";
   let searchInput: HTMLInputElement;
   let systemReducedMotion = true;
   let effectsEnabled = true;
@@ -76,7 +80,20 @@
     document.title = `${navigation.find((item) => item.id === next)?.title} · Miao's Blog`;
   }
 
+  function sourceNavigate(project: string, record: string, kind: string) {
+    sourceProject = project;
+    sourceRecord = record;
+    sourceKind = kind;
+    const path = contributionUrl(project, record, kind, localePrefix);
+    if (window.location.pathname + window.location.search !== path) history.pushState(null, "", path);
+  }
+
   function navigate(next: Section) {
+    if (next === "code") {
+      sourceProject = projects[0]?.id;
+      sourceRecord = "";
+      sourceKind = "all";
+    }
     setSection(next);
     if (next === "articles") resetFilters();
   }
@@ -188,12 +205,19 @@
         void reader.open(target.post as ArchivePost, heading);
       } else {
         section = target.section;
+        if (section === "code") {
+          sourceProject = target.contributionProject || projects[0]?.id;
+          const selection = resolveContributionSelection(window.location.search);
+          sourceRecord = selection.record;
+          sourceKind = selection.kind;
+        }
         seriesFilter = target.series;
         const params = new URLSearchParams(window.location.search);
         query = params.get("q") || params.get("tag") || "";
         category = params.get("category") || "all";
         if (readerOpen) reader.close(false);
-        document.title = `${series.find((item) => item.slug === seriesFilter)?.title || navigation.find((item) => item.id === section)?.title} · Miao's Blog`;
+        const projectTitle = section === "code" ? projects.find((item) => item.id === sourceProject)?.name : "";
+        document.title = `${projectTitle || series.find((item) => item.slug === seriesFilter)?.title || navigation.find((item) => item.id === section)?.title} · Miao's Blog`;
       }
   }
 
@@ -297,7 +321,7 @@
       {:else if section === "graph"}
         <KnowledgeAtlas {posts} {series} {reducedMotion} onRead={openReader} onBrowse={filterSeries}/>
       {:else if section === "code"}
-        <SourceDock {projects} {activity} {detailsUrl} {reducedMotion} bind:projectId={sourceProject}/>
+        <SourceDock {projects} {activity} {detailsUrl} {reducedMotion} bind:projectId={sourceProject} bind:selectedId={sourceRecord} bind:kindFilter={sourceKind} onNavigate={sourceNavigate}/>
       {:else}
         <ProfileDossier {profile} onNavigate={navigate} onExplore={(nextCategory) => { navigate('articles'); category = nextCategory; storeFilters(); }}/>
       {/if}
