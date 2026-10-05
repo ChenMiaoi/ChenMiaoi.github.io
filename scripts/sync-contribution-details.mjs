@@ -21,8 +21,9 @@ const output = fileURLToPath(
 const { projects } = contributionConfig;
 
 const requests = new Map();
+let freshReads = 0;
 function api(endpoint, paginate = false) {
-	const key = `${paginate}:${endpoint}`;
+	const key = /\/pulls\/\d+$/.test(endpoint) ? `fresh:${++freshReads}:${endpoint}` : `${paginate}:${endpoint}`;
 	if (!requests.has(key))
 		requests.set(
 			key,

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { useTranslations } from "../../features/orbital/i18n/context";
   const { t, dateLocale } = useTranslations();
+  import { checkState, summarizeChecks } from "../../lib/contributions/checks";
   import TerminalIcon from "./TerminalIcon.svelte";
   import BrandIcon from "./BrandIcon.svelte";
   import { contributionDiffLines } from "../../utils/contribution-diff";
@@ -8,7 +9,11 @@
 
   export let record: SourceRecord;
   export let detail: ContributionDetail | undefined;
-  export let syncedAt: string;
+  $: pr = detail?.pullRequest;
+  $: ci = summarizeChecks(pr?.checks ?? []);
+  const ciLabel = (value: string) => ({ passed: t("检查通过"), failed: t("检查未通过"), pending: t("检查进行中"), neutral: t("检查已结束"), none: t("暂无检查") } as Record<string, string>)[value];
+  const checkLabel = (status: string, conclusion: string | null) => status !== "completed" ? (status === "in_progress" ? t("运行中") : t("等待运行")) : ({ success: t("通过"), failure: t("失败"), error: t("失败"), timed_out: t("超时"), cancelled: t("已取消"), skipped: t("已跳过"), neutral: t("中性结果"), action_required: t("需要处理"), stale: t("已过期"), startup_failure: t("启动失败") } as Record<string, string>)[conclusion ?? ""] ?? t("结果未知");
+  const mergeLabel = (value: string) => ({ clean: t("无合并阻碍"), unstable: t("检查尚未通过"), blocked: t("合并受阻"), behind: t("分支落后"), dirty: t("存在冲突"), draft: t("草稿待就绪"), unknown: t("计算中") } as Record<string,string>)[value] ?? t("尚未确认");
   let copyState = "";
   let copyAttempt = 0;
   $: kind = record.kind === "commit" ? t("提交") : record.kind === "pr" ? "PR" : "Issue";
@@ -17,7 +22,6 @@
   $: reference = detail?.sha ?? record.sha ?? String(record.number ?? record.reference);
   const date = (value: string) => value.slice(0, 10).replaceAll("-", "/");
   const discussionDate = (value: string) => new Intl.DateTimeFormat(dateLocale, { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(value));
-  const snapshotDate = (value: string) => new Intl.DateTimeFormat(dateLocale, { timeZone: 'Asia/Shanghai', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
   const reviewLabel = (value?: string | null) => ({ APPROVED: t("批准"), CHANGES_REQUESTED: t("要求修改"), DISMISSED: t("评审已撤销"), COMMENTED: t("评审意见") } as Record<string, string>)[value ?? ''] ?? t("评审");
 
   async function copyReference() {
@@ -41,6 +45,22 @@
 
   <div class="contribution-reader-scroll" tabindex="0" role="region" aria-label={t("贡献正文与改动")}>
     {#if detail}
+      {#if record.kind === 'pr'}
+        <section class="reader-pr-status" aria-label={t("PR 进展")}>
+          <div class="reader-section-label"><span>{t("PR 进展")}</span><small>PR OVERVIEW</small></div>
+          {#if pr}
+            <div class="pr-overview-grid"><div><small>{t("持续集成")}</small><strong class={`ci-summary ci-${ci.state}`}><i aria-hidden="true"></i>{ciLabel(ci.state)}</strong><span>{t("{v0} 通过 · {v1} 未通过 · {v2} 等待 · {v3} 其他", {v0:ci.passed,v1:ci.failed,v2:ci.pending,v3:ci.neutral})}</span></div><div><small>{t("合并状态")}</small><strong>{state === 'merged' ? t("已合并") : state === 'closed' ? t("已关闭") : mergeLabel(pr.mergeState)}</strong><span>{t("冲突检测")}: {pr.mergeable === null ? t("尚未确认") : pr.mergeable ? t("无冲突") : t("存在冲突")}</span></div></div>
+            <div class="pr-branches"><span>{t("目标分支")}</span><code>{pr.baseRef || '—'}</code><span aria-hidden="true">←</span><code>{pr.headRef || '—'}</code></div>
+            {#if pr.requestedReviewers.length}<p class="pr-meta-line"><span>{t("待评审人")}</span>{pr.requestedReviewers.join(' · ')}</p>{/if}
+            {#if pr.labels.length}<div class="pr-labels">{#each pr.labels as label}<span>{label}</span>{/each}</div>{/if}
+            <details class="pr-checks" open={ci.state === 'failed'}><summary><span>{t("检查详情")} <b>{ci.total}</b></span><TerminalIcon name="arrow" size={14}/></summary><div class="pr-check-list">
+              {#each pr.checks as check}<div class="pr-check-row"><span class={`check-indicator ci-${checkState(check)}`} aria-hidden="true"></span><div>{#if check.url}<a href={check.url} target="_blank" rel="noopener noreferrer">{check.name}<TerminalIcon name="external" size={12}/></a>{:else}<strong>{check.name}</strong>{/if}<small>{check.ref === 'merge' ? t("合并测试") : 'HEAD'} · {check.sha.slice(0, 10)}{#if check.description} · {check.description}{/if}</small></div><span class={`check-result ci-${checkState(check)}`}>{checkLabel(check.status,check.conclusion)}</span></div>{/each}
+              {#if !ci.total}<p class="reader-muted">{t("该版本没有公开的检查记录。")}</p>{/if}
+            </div></details>
+          {:else}<p class="reader-muted">{t("CI 与合并状态尚未同步。")}</p>{/if}
+        </section>
+      {/if}
+
       <section class="reader-description" aria-label={t("说明原文")}><div class="reader-section-label"><span>{t("说明原文")}</span><small>DESCRIPTION</small></div>{#if detail.bodyHtml}<div class="contribution-prose">{@html detail.bodyHtml}</div>{:else}<p class="reader-muted">{t("原始记录没有提供进一步说明。")}</p>{/if}
         {#if detail.trailers}<details class="commit-trailers"><summary>{t("提交附注与签署信息")}<TerminalIcon name="arrow" size={13}/></summary><pre>{detail.trailers}</pre></details>{/if}
       </section>
@@ -96,7 +116,6 @@
           {/each}
         </section>
       {/if}
-      <p class="reader-snapshot-note">{t("内容来自公开原始记录 · 同步于 {v0}（北京时间）", { v0: snapshotDate(syncedAt) })}</p>
     {:else}
       <div class="reader-detail-unavailable"><p>{t("这条记录的正文尚未收录。")}</p><p>{t("你仍可以通过上方链接查看原始说明和讨论。")}</p></div>
     {/if}

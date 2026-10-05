@@ -1,6 +1,7 @@
 <script lang="ts">
   import { useTranslations } from "../../features/orbital/i18n/context";
   const { t, dateLocale } = useTranslations();
+  import { summarizeChecks } from "../../lib/contributions/checks";
   import { onMount, tick } from "svelte";
   import { projectRecords } from "../../lib/contributions/projects";
   import type { ContributionFeed } from "../../lib/contributions/types";
@@ -171,9 +172,11 @@
         {#if records.length}
           <div class="contribution-records" bind:this={recordRail} use:revealSequence={{key: `${project.id}|${kindFilter}`, enabled: !reducedMotion, selector: '.record-text'}}>
             {#each records as record, index}
+              {@const pr = record.kind === "pr" ? details.records.find((item) => item.url === record.url)?.pullRequest : undefined}
+              {@const ci = pr ? summarizeChecks(pr.checks) : undefined}
               <button class="contribution-record" class:active={selected?.id === record.id} aria-pressed={selected?.id === record.id} aria-label={t("查看{v0}：{v1}", { v0: kindName(record.kind), v1: record.title })} onclick={() => { selectedId = record.id; }}>
                 <span class="record-point" aria-hidden="true">{number(index + 1)}</span>
-                <span class="record-text"><span class="record-date"><time datetime={record.date}>{record.date.slice(0, 10)}</time>{#if record.kind !== 'commit'}<span class="collaboration-state" class:draft={record.draft} class:merged={record.state === 'merged'} class:closed={record.state === 'closed'}>{contributionStateLabel(record.state, record.draft)}</span>{/if}</span><strong>{record.title}</strong><code>{record.reference}</code></span>
+                <span class="record-text"><span class="record-date"><time datetime={record.date}>{record.date.slice(0, 10)}</time>{#if record.kind !== 'commit'}<span class="collaboration-state" class:draft={record.draft} class:merged={record.state === 'merged'} class:closed={record.state === 'closed'}>{contributionStateLabel(record.state, record.draft)}</span>{/if}</span><strong>{record.title}</strong><code>{record.reference}</code>{#if ci}<span class={`record-ci ci-${ci.state}`} title={t("检查详情")}><i aria-hidden="true"></i>CI · {({passed:t("通过"),failed:t("检查未通过"),pending:t("运行中"),neutral:t("检查已结束"),none:t("暂无检查")} as Record<string,string>)[ci.state]}</span>{/if}</span>
                 <TerminalIcon name="arrow" size={13}/>
               </button>
             {/each}
@@ -199,7 +202,7 @@
           <div class="patch-presentation" in:fly={{y: reducedMotion ? 0 : 6, duration: reducedMotion ? 0 : 260}}>
             {#if selected}
               {#if loadingDetails}<p class="dock-note" role="status">{t("正在读取记录内容…")}</p>{:else if detailsError}<p class="dock-note" role="alert">{t("记录内容暂时无法读取。")}<button onclick={loadDetails}>{t("重试")}</button></p>{/if}
-              <ContributionReader record={selected} detail={selectedDetail} syncedAt={details.syncedAt}/>
+              <ContributionReader record={selected} detail={selectedDetail}/>
             {:else}
               <div class="patch-content patch-empty"><p class="patch-eyebrow">{project.name} <i>/</i> {t("开源项目")}</p><h2>{t("尚未收录贡献记录")}</h2><p>{t("这里会展示博客收录的提交与讨论。你可以先前往项目仓库浏览源码。")}</p>{#if project.repository}<a class="patch-primary" href={project.repository} target="_blank" rel="noreferrer">{t("浏览项目源码")}<TerminalIcon name="external" size={20}/></a>{/if}</div>
             {/if}

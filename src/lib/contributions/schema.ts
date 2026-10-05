@@ -3,6 +3,33 @@ import { z } from "astro/zod";
 const count = z.number().int().nonnegative();
 const url = z.url();
 const date = z.iso.datetime({ offset: true });
+export const pullRequestStatusSchema = z.object({
+	fetchedAt: date,
+	headSha: z.string(),
+	headRef: z.string(),
+	baseRef: z.string(),
+	mergeable: z.boolean().nullable(),
+	mergeState: z.string(),
+	labels: z.array(z.string()),
+	requestedReviewers: z.array(z.string()),
+	checks: z.array(
+		z.object({
+			name: z.string(),
+			source: z.enum(["check", "status"]),
+			ref: z.enum(["head", "merge"]),
+			sha: z.string(),
+			status: z.string(),
+			conclusion: z.string().nullable(),
+			url: url
+				.refine((value) =>
+					["https:", "http:"].includes(new URL(value).protocol),
+				)
+				.nullable(),
+			description: z.string(),
+		}),
+	),
+});
+
 export const activitySchema = z.object({
 	account: z.string(),
 	repositories: z.array(z.string()),
@@ -30,6 +57,7 @@ export const detailsSchema = z.object({
 			kind: z.enum(["commit", "pr", "issue"]),
 			detailVersion: z.number().int().optional(),
 			fetchedAt: date.optional(),
+			pullRequest: pullRequestStatusSchema.optional(),
 			headSha: z.string().nullable().optional(),
 			baseSha: z.string().nullable().optional(),
 			commitsTotal: count.optional(),

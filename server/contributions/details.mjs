@@ -1,3 +1,4 @@
+import { readPullRequestStatus } from './pull-request-status.mjs';
 // Shared by local snapshot refresh and the VPS service.
 export function createDetailReader(api, repositories) {
 const allowed = new Set(repositories);
@@ -146,6 +147,7 @@ async function fetchDetails(descriptor, existingRecord) {
 			throw new Error(`PR #${descriptor.number} changed during synchronization; previous snapshot retained`);
 	}
 	return {
+		pullRequest: kind === "pr" ? await readPullRequestStatus(api, repository, descriptor.number, record) : undefined,
 		detailVersion: 2,
 		fetchedAt: new Date().toISOString(),
 		url,

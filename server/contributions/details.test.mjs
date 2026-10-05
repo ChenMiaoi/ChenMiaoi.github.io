@@ -18,6 +18,8 @@ const comment = (id, extra = {}) => ({ id, user: { login: `person-${id}`, type: 
 function fixtureApi({ racing = false } = {}) {
   const calls = [];
   const api = async (path) => {
+    if (path.includes("/check-runs?")) return [{ total_count: 0, check_runs: [] }];
+    if (/\/commits\/[^/]+\/status\?/.test(path)) return [{ total_count: 0, sha: path.split("/commits/")[1].split("/")[0], statuses: [] }];
     calls.push(path);
     if (path === `repos/${repository}`) return { private: false };
     if (path.startsWith('search/')) return { total_count: 1, incomplete_results: false,

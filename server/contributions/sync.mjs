@@ -1,3 +1,4 @@
+import { readPullRequestStatus } from './pull-request-status.mjs';
 import { activitySchema, detailsSchema } from '../../src/lib/contributions/schema.ts';
 import { createDetailReader } from './details.mjs';
 
@@ -57,6 +58,9 @@ export async function syncContributions({ config, projects, previous, api, detai
     const reusable = recent && old.detailVersion === 2 && old.updatedAt === record.updated_at && old.state === state &&
       (item.kind !== 'pr' || (old.headSha === record.head.sha && old.baseSha === record.base.sha));
     const detail = detailsSchema.shape.records.element.parse(reusable ? old : await readDetail(item, record));
+    if (reusable && item.kind === "pr") {
+      detail.pullRequest = await readPullRequestStatus(api, item.repository, item.number, record);
+    }
     detailCache.set(item.url, detail);
     Object.assign(item, { state, title: record.title, draft: state === 'draft', updatedAt: record.updated_at });
     records.push(detail);

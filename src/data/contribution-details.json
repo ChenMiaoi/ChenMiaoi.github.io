@@ -1,5 +1,5 @@
 {
-	"syncedAt": "2026-10-04T17:59:01.817Z",
+	"syncedAt": "2026-10-05T07:33:44.974Z",
 	"activitySyncedAt": "2026-10-04T17:58:39.210Z",
 	"records": [
 		{
@@ -288,8 +288,474 @@
 			"sha": "8c30b0018f9d93391573e091960d257fd9de120a"
 		},
 		{
+			"pullRequest": {
+				"fetchedAt": "2026-10-05T07:33:04.982Z",
+				"headSha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+				"headRef": "ChenMiaoi:issue-202079",
+				"baseRef": "main",
+				"mergeable": true,
+				"mergeState": "clean",
+				"labels": [
+					"libc"
+				],
+				"requestedReviewers": [
+					"Sukumarsawant"
+				],
+				"checks": [
+					{
+						"name": "Build and Test macOS arm64",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198224/job/111572888727",
+						"description": ""
+					},
+					{
+						"name": "validate_email",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198253/job/111572868082",
+						"description": ""
+					},
+					{
+						"name": "build",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198227/job/111572867943",
+						"description": ""
+					},
+					{
+						"name": "linux-x86_64",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198239/job/111572862609",
+						"description": ""
+					},
+					{
+						"name": "macos-aarch64",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198239/job/111572862591",
+						"description": ""
+					},
+					{
+						"name": "windows2022-x86_64",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198239/job/111572862590",
+						"description": ""
+					},
+					{
+						"name": "windows2025-x86_64",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198239/job/111572862581",
+						"description": ""
+					},
+					{
+						"name": "linux-aarch64",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198239/job/111572862573",
+						"description": ""
+					},
+					{
+						"name": "qemu - armhf - clang-23",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198239/job/111572862541",
+						"description": ""
+					},
+					{
+						"name": "qemu - riscv64 - clang-23",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198239/job/111572862421",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests with gcc-9",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198232/job/111572862054",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests with gcc-8",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198232/job/111572862037",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests on ppc64le",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198232/job/111572862035",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests with gcc-7",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198232/job/111572862020",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-test with MSVC on amd64",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198232/job/111572862019",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests with gcc-11",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198232/job/111572862011",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-test with MSVC on arm64",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198232/job/111572862006",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests on armhf",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198232/job/111572861998",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests on riscv64",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198232/job/111572861982",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests with gcc",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198232/job/111572861957",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests on aarch64",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198232/job/111572861951",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-test with MSVC on amd64_x86",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198232/job/111572861908",
+						"description": ""
+					},
+					{
+						"name": "Compute macOS Projects",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198224/job/111572861501",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Windows",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198224/job/111572861442",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Linux",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198224/job/111572861338",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv6m",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860358",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on linux-x86_64-Release",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860356",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv7em",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860331",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv8m-softfp",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860330",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-riscv32",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860324",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv7m",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860301",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv8.1m",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860293",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv8m-hard",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860291",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on amd-gpu",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860288",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on uefi-x86_64-clang",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860282",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on linux-x86_64-MinSizeRel",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860277",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on linux-aarch64-clang",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860263",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on linux-x86_64-Debug",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198222/job/111572860226",
+						"description": ""
+					},
+					{
+						"name": "code_formatter",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136198207/job/111572859843",
+						"description": ""
+					},
+					{
+						"name": "subscriber",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136116663/job/111240880666",
+						"description": ""
+					},
+					{
+						"name": "automate-prs-labels",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136090682/job/111240842023",
+						"description": ""
+					},
+					{
+						"name": "Graphite / mergeability_check",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/runs/111240810589",
+						"description": ""
+					},
+					{
+						"name": "greeter",
+						"source": "check",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37136090682/job/111240805374",
+						"description": ""
+					},
+					{
+						"name": "buildkite/libcxx-ci/pipeline",
+						"source": "status",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272495#01a1028b-34a9-43e2-ba68-85dfae4bba3d",
+						"description": "Passed (4 seconds)"
+					},
+					{
+						"name": "buildkite/libcxx-ci",
+						"source": "status",
+						"ref": "head",
+						"sha": "9d9b48b7807174d9447db17dafb990e200bcb479",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272495",
+						"description": "Build #272495 passed (4 seconds)"
+					}
+				]
+			},
 			"detailVersion": 2,
-			"fetchedAt": "2026-10-04T17:58:45.202Z",
+			"fetchedAt": "2026-10-05T07:33:04.983Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228734",
 			"kind": "pr",
 			"title": "[libc][math] Use float-only evaluation in asinbf16 and acosbf16",
@@ -395,8 +861,75 @@
 			"sha": null
 		},
 		{
+			"pullRequest": {
+				"fetchedAt": "2026-10-05T07:33:15.295Z",
+				"headSha": "e6815973808c957bb5534fbafe6089795ed9f1e3",
+				"headRef": "ChenMiaoi:issue-225037",
+				"baseRef": "main",
+				"mergeable": true,
+				"mergeState": "blocked",
+				"labels": [
+					"clang",
+					"clang:frontend"
+				],
+				"requestedReviewers": [
+					"Sirraide"
+				],
+				"checks": [
+					{
+						"name": "Graphite / mergeability_check",
+						"source": "check",
+						"ref": "head",
+						"sha": "e6815973808c957bb5534fbafe6089795ed9f1e3",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/runs/111436811624",
+						"description": ""
+					},
+					{
+						"name": "greeter",
+						"source": "check",
+						"ref": "head",
+						"sha": "e6815973808c957bb5534fbafe6089795ed9f1e3",
+						"status": "completed",
+						"conclusion": "skipped",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37202472690/job/111436791676",
+						"description": ""
+					},
+					{
+						"name": "automate-prs-labels",
+						"source": "check",
+						"ref": "head",
+						"sha": "e6815973808c957bb5534fbafe6089795ed9f1e3",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37202472690/job/111436791624",
+						"description": ""
+					},
+					{
+						"name": "buildkite/libcxx-ci/pipeline",
+						"source": "status",
+						"ref": "head",
+						"sha": "e6815973808c957bb5534fbafe6089795ed9f1e3",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272834#01a106e6-eaa1-45fe-bd7b-906fab256ce6",
+						"description": "Passed (4 seconds)"
+					},
+					{
+						"name": "buildkite/libcxx-ci",
+						"source": "status",
+						"ref": "head",
+						"sha": "e6815973808c957bb5534fbafe6089795ed9f1e3",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272834",
+						"description": "Build #272834 passed (4 seconds)"
+					}
+				]
+			},
 			"detailVersion": 2,
-			"fetchedAt": "2026-10-04T17:58:49.512Z",
+			"fetchedAt": "2026-10-05T07:33:15.295Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228863",
 			"kind": "pr",
 			"title": "[clang] Reject enum element types in ext_vector_type",
@@ -565,8 +1098,83 @@
 			"sha": null
 		},
 		{
+			"pullRequest": {
+				"fetchedAt": "2026-10-05T07:33:15.257Z",
+				"headSha": "8e8619b7b04a609c081053904e392d778092567f",
+				"headRef": "ChenMiaoi:issue-227549",
+				"baseRef": "main",
+				"mergeable": true,
+				"mergeState": "blocked",
+				"labels": [
+					"clang",
+					"clang:frontend"
+				],
+				"requestedReviewers": [],
+				"checks": [
+					{
+						"name": "subscriber",
+						"source": "check",
+						"ref": "head",
+						"sha": "8e8619b7b04a609c081053904e392d778092567f",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37199464303/job/111427979204",
+						"description": ""
+					},
+					{
+						"name": "automate-prs-labels",
+						"source": "check",
+						"ref": "head",
+						"sha": "8e8619b7b04a609c081053904e392d778092567f",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37199438775/job/111427945523",
+						"description": ""
+					},
+					{
+						"name": "Graphite / mergeability_check",
+						"source": "check",
+						"ref": "head",
+						"sha": "8e8619b7b04a609c081053904e392d778092567f",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/runs/111427907081",
+						"description": ""
+					},
+					{
+						"name": "greeter",
+						"source": "check",
+						"ref": "head",
+						"sha": "8e8619b7b04a609c081053904e392d778092567f",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37199438775/job/111427904792",
+						"description": ""
+					},
+					{
+						"name": "buildkite/libcxx-ci/pipeline",
+						"source": "status",
+						"ref": "head",
+						"sha": "8e8619b7b04a609c081053904e392d778092567f",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272820#01a106b5-9597-4f42-ba97-91a69af90d11",
+						"description": "Passed (3 seconds)"
+					},
+					{
+						"name": "buildkite/libcxx-ci",
+						"source": "status",
+						"ref": "head",
+						"sha": "8e8619b7b04a609c081053904e392d778092567f",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272820",
+						"description": "Build #272820 passed (4 seconds)"
+					}
+				]
+			},
 			"detailVersion": 2,
-			"fetchedAt": "2026-10-04T17:58:48.947Z",
+			"fetchedAt": "2026-10-05T07:33:15.257Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228873",
 			"kind": "pr",
 			"title": "[clang][Sema] Check swift_attr argument count in type contexts",
@@ -654,8 +1262,72 @@
 			"sha": null
 		},
 		{
+			"pullRequest": {
+				"fetchedAt": "2026-10-05T07:33:25.273Z",
+				"headSha": "c72f0080780598b11a25e3e480537697dfd42aec",
+				"headRef": "ChenMiaoi:issue-88771",
+				"baseRef": "main",
+				"mergeable": true,
+				"mergeState": "blocked",
+				"labels": [
+					"libc"
+				],
+				"requestedReviewers": [],
+				"checks": [
+					{
+						"name": "Graphite / mergeability_check",
+						"source": "check",
+						"ref": "head",
+						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/runs/111256947820",
+						"description": ""
+					},
+					{
+						"name": "greeter",
+						"source": "check",
+						"ref": "head",
+						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"status": "completed",
+						"conclusion": "skipped",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37141569335/job/111256919982",
+						"description": ""
+					},
+					{
+						"name": "automate-prs-labels",
+						"source": "check",
+						"ref": "head",
+						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37141569335/job/111256919075",
+						"description": ""
+					},
+					{
+						"name": "buildkite/libcxx-ci/pipeline",
+						"source": "status",
+						"ref": "head",
+						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272541#01a102dd-3f90-48f1-9376-0af2eba24ba2",
+						"description": "Passed (7 seconds)"
+					},
+					{
+						"name": "buildkite/libcxx-ci",
+						"source": "status",
+						"ref": "head",
+						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272541",
+						"description": "Build #272541 passed (8 seconds)"
+					}
+				]
+			},
 			"detailVersion": 2,
-			"fetchedAt": "2026-10-04T17:58:53.134Z",
+			"fetchedAt": "2026-10-05T07:33:25.273Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228749",
 			"kind": "pr",
 			"title": "[libc][math] Prevent spurious floating-point exceptions in fdim",
@@ -798,7 +1470,7 @@
 		},
 		{
 			"detailVersion": 2,
-			"fetchedAt": "2026-10-04T17:58:51.852Z",
+			"fetchedAt": "2026-10-05T07:33:17.794Z",
 			"url": "https://github.com/llvm/llvm-project/issues/202079",
 			"kind": "issue",
 			"title": "[libc][math] Add  float-only versions for `inv_trigf_utils.h`",
@@ -868,8 +1540,82 @@
 			"sha": null
 		},
 		{
+			"pullRequest": {
+				"fetchedAt": "2026-10-05T07:33:35.063Z",
+				"headSha": "88ea86709b4f72137f39615a5a177faf4904f4b1",
+				"headRef": "ChenMiaoi:issue-81503",
+				"baseRef": "main",
+				"mergeable": true,
+				"mergeState": "blocked",
+				"labels": [
+					"libc"
+				],
+				"requestedReviewers": [],
+				"checks": [
+					{
+						"name": "subscriber",
+						"source": "check",
+						"ref": "head",
+						"sha": "88ea86709b4f72137f39615a5a177faf4904f4b1",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37131926587/job/111228566817",
+						"description": ""
+					},
+					{
+						"name": "automate-prs-labels",
+						"source": "check",
+						"ref": "head",
+						"sha": "88ea86709b4f72137f39615a5a177faf4904f4b1",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37131896477/job/111228523134",
+						"description": ""
+					},
+					{
+						"name": "Graphite / mergeability_check",
+						"source": "check",
+						"ref": "head",
+						"sha": "88ea86709b4f72137f39615a5a177faf4904f4b1",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/runs/111228496822",
+						"description": ""
+					},
+					{
+						"name": "greeter",
+						"source": "check",
+						"ref": "head",
+						"sha": "88ea86709b4f72137f39615a5a177faf4904f4b1",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37131896477/job/111228480677",
+						"description": ""
+					},
+					{
+						"name": "buildkite/libcxx-ci/pipeline",
+						"source": "status",
+						"ref": "head",
+						"sha": "88ea86709b4f72137f39615a5a177faf4904f4b1",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272464#01a1024a-d205-476f-b600-fa52cde30f5b",
+						"description": "Passed (4 seconds)"
+					},
+					{
+						"name": "buildkite/libcxx-ci",
+						"source": "status",
+						"ref": "head",
+						"sha": "88ea86709b4f72137f39615a5a177faf4904f4b1",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272464",
+						"description": "Build #272464 passed (5 seconds)"
+					}
+				]
+			},
 			"detailVersion": 2,
-			"fetchedAt": "2026-10-04T17:58:56.787Z",
+			"fetchedAt": "2026-10-05T07:33:35.063Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228721",
 			"kind": "pr",
 			"title": "[libc][stdbit] Support compound literals in type-generic macros",
@@ -979,8 +1725,472 @@
 			"sha": null
 		},
 		{
+			"pullRequest": {
+				"fetchedAt": "2026-10-05T07:33:35.380Z",
+				"headSha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+				"headRef": "ChenMiaoi:issue-196016",
+				"baseRef": "main",
+				"mergeable": true,
+				"mergeState": "clean",
+				"labels": [
+					"libc"
+				],
+				"requestedReviewers": [],
+				"checks": [
+					{
+						"name": "Build and Test macOS arm64",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "skipped",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219266/job/111180648914",
+						"description": ""
+					},
+					{
+						"name": "build",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219265/job/111180632855",
+						"description": ""
+					},
+					{
+						"name": "linux-aarch64",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219316/job/111180628805",
+						"description": ""
+					},
+					{
+						"name": "qemu - riscv64 - clang-23",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219316/job/111180628800",
+						"description": ""
+					},
+					{
+						"name": "qemu - armhf - clang-23",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219316/job/111180628713",
+						"description": ""
+					},
+					{
+						"name": "linux-x86_64",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219316/job/111180628684",
+						"description": ""
+					},
+					{
+						"name": "macos-aarch64",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219316/job/111180628683",
+						"description": ""
+					},
+					{
+						"name": "windows2022-x86_64",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219316/job/111180628627",
+						"description": ""
+					},
+					{
+						"name": "windows2025-x86_64",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219316/job/111180628540",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv7em",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628337",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-riscv32",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628324",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv8.1m",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628313",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv8m-hard",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628285",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on linux-aarch64-clang",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628277",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv8m-softfp",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628271",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on linux-x86_64-MinSizeRel",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628258",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on linux-x86_64-Debug",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628238",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on amd-gpu",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628234",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv7m",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628208",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on linux-x86_64-Release",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628206",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv6m",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628188",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on uefi-x86_64-clang",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219317/job/111180628084",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests with gcc-8",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219309/job/111180627282",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests with gcc-9",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219309/job/111180627277",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-test with MSVC on amd64",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219309/job/111180627272",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests on armhf",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219309/job/111180627264",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-test with MSVC on amd64_x86",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219309/job/111180627250",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-test with MSVC on arm64",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219309/job/111180627249",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests on aarch64",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219309/job/111180627238",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests with gcc",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219309/job/111180627222",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests on ppc64le",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219309/job/111180627209",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests with gcc-11",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219309/job/111180627204",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests with gcc-7",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219309/job/111180627200",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests on riscv64",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219309/job/111180627075",
+						"description": ""
+					},
+					{
+						"name": "validate_email",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219271/job/111180625842",
+						"description": ""
+					},
+					{
+						"name": "code_formatter",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219268/job/111180625823",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Windows",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219266/job/111180625096",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Linux",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219266/job/111180625066",
+						"description": ""
+					},
+					{
+						"name": "Compute macOS Projects",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087219266/job/111180625043",
+						"description": ""
+					},
+					{
+						"name": "subscriber",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087149369/job/111099707080",
+						"description": ""
+					},
+					{
+						"name": "automate-prs-labels",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087116418/job/111099661866",
+						"description": ""
+					},
+					{
+						"name": "Graphite / mergeability_check",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/runs/111099613002",
+						"description": ""
+					},
+					{
+						"name": "greeter",
+						"source": "check",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37087116418/job/111099608200",
+						"description": ""
+					},
+					{
+						"name": "buildkite/libcxx-ci/pipeline",
+						"source": "status",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272264#01a0ff6d-39ec-407c-bc1b-f9c63e03d75b",
+						"description": "Passed (21 seconds)"
+					},
+					{
+						"name": "buildkite/libcxx-ci",
+						"source": "status",
+						"ref": "head",
+						"sha": "bdb3bbfe0eb7786758cad3887bbb2db0178f495b",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272264",
+						"description": "Build #272264 passed (21 seconds)"
+					}
+				]
+			},
 			"detailVersion": 2,
-			"fetchedAt": "2026-10-04T17:58:56.807Z",
+			"fetchedAt": "2026-10-05T07:33:35.380Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228633",
 			"kind": "pr",
 			"title": "[libc][stdlib] Avoid scanning values during environment lookup",
@@ -1091,7 +2301,7 @@
 		},
 		{
 			"detailVersion": 2,
-			"fetchedAt": "2026-10-04T17:58:59.186Z",
+			"fetchedAt": "2026-10-05T07:33:38.539Z",
 			"url": "https://github.com/llvm/llvm-project/issues/196016",
 			"kind": "issue",
 			"title": "String match efficiency in libc environment",
@@ -1181,8 +2391,312 @@
 			"sha": null
 		},
 		{
+			"pullRequest": {
+				"fetchedAt": "2026-10-05T07:33:43.895Z",
+				"headSha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+				"headRef": "ChenMiaoi:issue-17519",
+				"baseRef": "master",
+				"mergeable": true,
+				"mergeState": "blocked",
+				"labels": [
+					"A-build-execution"
+				],
+				"requestedReviewers": [],
+				"checks": [
+					{
+						"name": "conclusion",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110375176960",
+						"description": ""
+					},
+					{
+						"name": "docs",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930614",
+						"description": ""
+					},
+					{
+						"name": "Spell Check with Typos",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930552",
+						"description": ""
+					},
+					{
+						"name": "resolver",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930527",
+						"description": ""
+					},
+					{
+						"name": "build_std",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930508",
+						"description": ""
+					},
+					{
+						"name": "lockfile",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930494",
+						"description": ""
+					},
+					{
+						"name": "Clippy Windows x86_64 MSVC",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930474",
+						"description": ""
+					},
+					{
+						"name": "Clippy macOS aarch64",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930428",
+						"description": ""
+					},
+					{
+						"name": "Tests Windows x86_64 MSVC stable",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930417",
+						"description": ""
+					},
+					{
+						"name": "lint-docs",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930404",
+						"description": ""
+					},
+					{
+						"name": "Timing HTML report",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930384",
+						"description": ""
+					},
+					{
+						"name": "schema",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930383",
+						"description": ""
+					},
+					{
+						"name": "Tests Linux x86_64 beta",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930331",
+						"description": ""
+					},
+					{
+						"name": "Tests Windows x86_64 gnu nightly",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930306",
+						"description": ""
+					},
+					{
+						"name": "Tests Linux x86_64 nightly",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930296",
+						"description": ""
+					},
+					{
+						"name": "Tests Windows aarch64 MSVC stable",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930270",
+						"description": ""
+					},
+					{
+						"name": "Tests Windows x86_64 MSVC nightly",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930269",
+						"description": ""
+					},
+					{
+						"name": "Tests macOS aarch64 nightly",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930240",
+						"description": ""
+					},
+					{
+						"name": "Tests macOS aarch64 stable",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930232",
+						"description": ""
+					},
+					{
+						"name": "Tests Linux aarch64 stable",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930225",
+						"description": ""
+					},
+					{
+						"name": "rustfmt",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930218",
+						"description": ""
+					},
+					{
+						"name": "check-version-bump",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930208",
+						"description": ""
+					},
+					{
+						"name": "Tests Windows aarch64 MSVC nightly",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930207",
+						"description": ""
+					},
+					{
+						"name": "Tests Linux x86_64 stable",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930199",
+						"description": ""
+					},
+					{
+						"name": "Clippy Linux x86_64",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930193",
+						"description": ""
+					},
+					{
+						"name": "Tests Linux aarch64 nightly",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930165",
+						"description": ""
+					},
+					{
+						"name": "Run zizmor",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103480/job/110361930146",
+						"description": ""
+					},
+					{
+						"name": "msrv",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361930075",
+						"description": ""
+					},
+					{
+						"name": "stale-label",
+						"source": "check",
+						"ref": "head",
+						"sha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/rust-lang/cargo/actions/runs/36860103431/job/110361929800",
+						"description": ""
+					}
+				]
+			},
 			"detailVersion": 2,
-			"fetchedAt": "2026-10-04T17:59:00.742Z",
+			"fetchedAt": "2026-10-05T07:33:43.895Z",
 			"url": "https://github.com/rust-lang/cargo/pull/17545",
 			"kind": "pr",
 			"title": "fix(diag): Honor build.warnings deny with JSON diagnostics",

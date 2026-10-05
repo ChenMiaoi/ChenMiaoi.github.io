@@ -1,3 +1,8 @@
+import type { z } from "astro/zod";
+import type { pullRequestStatusSchema } from "./schema";
+
+export type PullRequestStatus = z.infer<typeof pullRequestStatusSchema>;
+
 // Build-time fallback or the last complete snapshot served by the VPS.
 export type ContributionActivitySnapshot = {
 	account: string;
@@ -42,6 +47,7 @@ export type ContributionFile = {
 };
 
 export type ContributionDetail = {
+	pullRequest?: PullRequestStatus;
 	detailVersion?: number;
 	fetchedAt?: string;
 	headSha?: string | null;

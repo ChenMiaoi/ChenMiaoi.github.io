@@ -43,6 +43,8 @@ test('seeding is one-time, restart preserves updates, invalid generations do not
 test('tracked PR remains after merge and unchanged detail is not downloaded again', async () => {
   const calls = [];
   const api = async (path) => {
+    if (path.includes("/check-runs?")) return [{ total_count: 0, check_runs: [] }];
+    if (/\/commits\/[^/]+\/status\?/.test(path)) return [{ total_count: 0, sha: path.split("/commits/")[1].split("/")[0], statuses: [] }];
     calls.push(path);
     if (path === 'repos/example/public') return { private: false };
     if (path.startsWith('search/')) return { total_count: 0, incomplete_results: false, items: [] };
@@ -67,6 +69,8 @@ test('partial search, private repositories and failed detail requests preserve p
   const before = JSON.stringify(seed);
   for (const scenario of ['incomplete', 'private', 'detail']) {
     const api = async (path) => {
+    if (path.includes("/check-runs?")) return [{ total_count: 0, check_runs: [] }];
+    if (/\/commits\/[^/]+\/status\?/.test(path)) return [{ total_count: 0, sha: path.split("/commits/")[1].split("/")[0], statuses: [] }];
       if (path === 'repos/example/public') return { private: scenario === 'private' };
       if (path.startsWith('search/')) return { total_count: 0, incomplete_results: scenario === 'incomplete', items: [] };
       throw new Error('unavailable');
@@ -80,6 +84,8 @@ test('unchanged open work validates head/base but reuses full details', async ()
   const upgraded = structuredClone(seed);
   Object.assign(upgraded.details.records[0], { detailVersion: 2, fetchedAt: new Date().toISOString(), headSha: 'a'.repeat(40), baseSha: 'b'.repeat(40) });
   const api = async (path) => {
+    if (path.includes("/check-runs?")) return [{ total_count: 0, check_runs: [] }];
+    if (/\/commits\/[^/]+\/status\?/.test(path)) return [{ total_count: 0, sha: path.split("/commits/")[1].split("/")[0], statuses: [] }];
     if (path === 'repos/example/public') return { private: false };
     if (path.startsWith('search/')) return { total_count: 1, incomplete_results: false,
       items: [{ number: 1, html_url: url, title: detail.title, updated_at: date, pull_request: {}, draft: false }] };
@@ -95,6 +101,8 @@ test('unchanged open work validates head/base but reuses full details', async ()
 test('discover new authored/assigned issue once with both relations', async () => {
   const issueUrl = 'https://github.com/example/public/issues/2';
   const api = async (path) => {
+    if (path.includes("/check-runs?")) return [{ total_count: 0, check_runs: [] }];
+    if (/\/commits\/[^/]+\/status\?/.test(path)) return [{ total_count: 0, sha: path.split("/commits/")[1].split("/")[0], statuses: [] }];
     if (path === 'repos/example/public') return { private: false };
     if (path.startsWith('search/')) return { total_count: 1, incomplete_results: false, items: [{ number: 2, html_url: issueUrl, title: 'Issue', updated_at: nextDate }] };
     if (path.includes('/timeline')) return [[]];
