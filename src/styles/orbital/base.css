@@ -11,7 +11,8 @@
   line-height: 1.8;
 }
 .article-document h1 { font-size: 2rem; margin: 1rem 0; }
-.article-document { background: #e7e9e1; color: #202c30; color-scheme: light; }
+/* Static articles share the same dark palette as the interactive reader. */
+.article-document { background: #141e22; color: #cbd5d0; color-scheme: dark; }
 .static-archive a { display: block; padding: 8px 0; }
 .orbital-ready .article-document { display: none; }
 .route-notice { color: var(--signal); padding: 12px 0; }

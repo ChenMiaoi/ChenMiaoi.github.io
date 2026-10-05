@@ -247,7 +247,7 @@
 	background: var(--signal);
 }
 
-.orbital-site .archive-heading h1 {
+.orbital-site .archive-heading .heading-title {
 	line-height: 1.2;
 	display: flex;
 	gap: 14px;
@@ -737,7 +737,7 @@
 	letter-spacing: 3px;
 }
 
-.orbital-site .archive-heading h1 {
+.orbital-site .archive-heading .heading-title {
 	font-weight: 700;
 	font-size: clamp(36px, 3.2vw, 48px);
 	margin-top: 16px;
@@ -916,7 +916,7 @@
 		gap: 23px;
 		margin-bottom: 24px;
 	}
-	.orbital-site .archive-heading h1 {
+	.orbital-site .archive-heading .heading-title {
 		font-size: 34px;
 		margin-top: 14px;
 	}
@@ -980,7 +980,7 @@
 		grid-column: 1 / -1;
 		font-size: 8px;
 	}
-	.orbital-site .series-view .archive-heading h1 {
+	.orbital-site .series-view .archive-heading .heading-title {
 		font-size: clamp(30px, 2.4vw, 36px);
 		margin-top: 10px;
 		gap: 8px;
@@ -1096,7 +1096,7 @@
 		grid-column: 1 / -1;
 		font-size: 8px;
 	}
-	.orbital-site .source-view .archive-heading h1 {
+	.orbital-site .source-view .archive-heading .heading-title {
 		font-size: clamp(30px, 2.4vw, 36px);
 		margin-top: 10px;
 		gap: 8px;
@@ -1167,7 +1167,7 @@
 		grid-column: 1 / -1;
 		font-size: 8px;
 	}
-	.orbital-site .about-view .archive-heading h1 {
+	.orbital-site .about-view .archive-heading .heading-title {
 		font-size: clamp(30px, 2.4vw, 36px);
 		margin-top: 10px;
 		gap: 8px;
@@ -1303,7 +1303,7 @@
 	.orbital-site .archive-heading {
 		margin-bottom: 23px;
 	}
-	.orbital-site .archive-heading h1 {
+	.orbital-site .archive-heading .heading-title {
 		font-size: clamp(30px, 2.4vw, 36px);
 		margin-top: 10px;
 	}

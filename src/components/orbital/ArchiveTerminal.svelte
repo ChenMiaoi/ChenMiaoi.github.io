@@ -33,7 +33,9 @@
   export let localePrefix = "";
   export let notFound = false;
   export let initialWelcome = false;
+  export let hasArticle = false;
   let welcome = initialWelcome;
+  let hydrated = false;
   let mainElement: HTMLElement;
   const navigation: { id: Section; label: string; icon: string; kicker: string; title: string }[] = [
     { id: "articles", label: t("文章"), icon: "article", kicker: "WRITING / ARCHIVE", title: t("文章档案") },
@@ -222,6 +224,7 @@
   }
 
   onMount(() => {
+    hydrated = true;
     document.body.classList.add("orbital-ready");
     restoreLocation();
     window.addEventListener("popstate", restoreLocation);
@@ -304,7 +307,7 @@
       {#key section}
       <span class="section-transfer" aria-hidden="true"><i></i></span>
       <div class="archive-heading">
-        <div><p class="terminal-kicker"><span></span>{activeSection.kicker}</p><h1>{activeSection.title}<span class="heading-mark" aria-hidden="true">/</span></h1>{#if descriptions[section]}<p class="heading-description">{descriptions[section]}</p>{/if}</div>
+        <div><p class="terminal-kicker"><span></span>{activeSection.kicker}</p><svelte:element this={(!hydrated && hasArticle) || readerOpen ? "p" : "h1"} class="heading-title">{activeSection.title}<span class="heading-mark" aria-hidden="true">/</span></svelte:element>{#if descriptions[section]}<p class="heading-description">{descriptions[section]}</p>{/if}</div>
         {#if section === "articles"}
           <div class="category-tabs" aria-label={t("文章分类")}>
             {#each [{ value: "all", label: t("全部") }, { value: "linux", label: "Linux" }, { value: "hardware", label: t("硬件设计") }] as tab}

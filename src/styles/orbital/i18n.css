@@ -60,7 +60,7 @@
 .orbital-site .header-hairline { min-width: 0; }
 .orbital-site .archive-heading { flex-wrap: wrap; }
 .orbital-site .archive-heading > div { min-width: 0; }
-.orbital-site .archive-heading h1 { overflow-wrap: anywhere; }
+.orbital-site .archive-heading .heading-title { overflow-wrap: anywhere; }
 .orbital-site .category-tabs { flex-wrap: wrap; row-gap: 10px; }
 .orbital-site:lang(en) .portal-copy h1 { font-size: clamp(28px, 3.1vw, 48px); white-space: normal; text-wrap: balance; }
 .orbital-site:lang(en) .portal-enter strong { letter-spacing: .3px; }
