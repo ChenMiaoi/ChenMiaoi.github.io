@@ -121,6 +121,8 @@ test('discover an issue by another author only through discussion participation'
     if (path === 'repos/example/public') return { private: false };
     if (path.startsWith('search/')) {
       const query = new URL(path, 'https://api.github.com/').searchParams.get('q');
+      // Reproduce the 422 constraint enforced by token-authenticated GitHub search.
+      assert.match(query, /\bis:(issue|pr)\b/);
       queries.push(query);
       return { total_count: query.includes('commenter:writer') ? 1 : 0, incomplete_results: false,
         items: query.includes('commenter:writer') ? [{ number: 3, html_url: issueUrl, title: 'Discussion', updated_at: nextDate }] : [] };
@@ -131,7 +133,8 @@ test('discover an issue by another author only through discussion participation'
     throw new Error(`Unexpected endpoint ${path}`);
   };
   const result = await syncContributions({ config, projects: [], previous: { ...seed, activity: { ...seed.activity, items: [] } }, api });
-  assert.deepEqual(queries, ['repo:example/public is:open author:writer', 'repo:example/public is:open assignee:writer',
+  assert.deepEqual(queries, ['repo:example/public is:open is:issue author:writer', 'repo:example/public is:open is:pr author:writer',
+    'repo:example/public is:open is:issue assignee:writer', 'repo:example/public is:open is:pr assignee:writer',
     'repo:example/public is:open is:issue commenter:writer']);
   assert.equal(result.activity.items.length, 1);
   assert.equal(result.activity.items[0].url, issueUrl);
