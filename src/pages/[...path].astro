@@ -8,7 +8,7 @@ import { getPostUrlBySlug } from "../utils/url-utils";
 import { LOCALES, LOCALE_PREFIX, type Locale } from "../constants/locales";
 import { sectionPaths, type Section } from "../lib/content/navigation";
 
-interface Props { lang: Locale; section?: Section; seriesSlug?: string; postSlug?: string; redirectTo?: string; projectId?: string }
+interface Props { lang: Locale; section?: Section; seriesSlug?: string; postSlug?: string; redirectTo?: string; label?: "开源"; projectId?: string }
 export async function getStaticPaths() {
   const paths: { params: { path: string | undefined }; props: Props }[] = [];
   for (const lang of LOCALES) {
@@ -16,7 +16,12 @@ export async function getStaticPaths() {
     const add = (url: string, props: Omit<Props, "lang"> = {}) => {
       paths.push({ params: { path: url.replace(/^\/+|\/+$/g, "") || undefined }, props: { lang, ...props } });
     };
-    for (const [section, path] of Object.entries(sectionPaths)) add(prefix + path, { section: section as Section });
+    for (const [section, path] of Object.entries(sectionPaths)) {
+      if (section === "code") continue;
+      add(prefix + path, { section: section as Section });
+    }
+    const defaultProject = contributionConfig.projects[0];
+    if (defaultProject) add(prefix + sectionPaths.code, { redirectTo: contributionUrl(defaultProject.id, "", "all", prefix), label: "开源" });
     for (const project of contributionConfig.projects) add(contributionUrl(project.id, "", "all", prefix), { section: "code", projectId: project.id });
     add(`${prefix}/`);
     add(`${prefix}/archive/`, { redirectTo: prefix + sectionPaths.articles });
@@ -29,4 +34,4 @@ export async function getStaticPaths() {
   return paths;
 }
 ---
-{Astro.props.redirectTo ? <ArchiveRedirect target={Astro.props.redirectTo} lang={Astro.props.lang} /> : <Page {...Astro.props} />}
+{Astro.props.redirectTo ? <ArchiveRedirect target={Astro.props.redirectTo} lang={Astro.props.lang} label={Astro.props.label} /> : <Page {...Astro.props} />}

@@ -1,16 +1,16 @@
 ---
 import { htmlLang, type Locale } from "../../constants/locales";
-import { createTranslations } from "./i18n";
+import { createTranslations, type Message } from "./i18n";
 
-interface Props { target: string; lang: Locale }
-const { target, lang } = Astro.props;
+interface Props { target: string; lang: Locale; label?: Message }
+const { target, lang, label = "文章" } = Astro.props;
 const { t } = createTranslations(lang);
 ---
 <!doctype html>
 <html lang={htmlLang(lang)}>
   <head>
     <meta charset="utf-8" />
-    <title>{t("文章")}</title>
+    <title>{t(label)}</title>
     <link rel="canonical" href={new URL(target, Astro.site)} />
     <meta name="robots" content="noindex" />
     <script is:inline define:vars={{ target }}>
@@ -19,6 +19,6 @@ const { t } = createTranslations(lang);
     <meta http-equiv="refresh" content={`0;url=${target}`} />
   </head>
   <body data-archive-redirect={target}>
-    <a href={target}>{t("文章")}</a>
+    <a href={target}>{t(label)}</a>
   </body>
 </html>

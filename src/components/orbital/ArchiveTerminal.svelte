@@ -60,6 +60,7 @@
   let effectsEnabled = true;
   let motionReady = false;
   let pageVisible = true;
+  let notFoundPath = "";
   let readerOpen = false;
   let finePointer = false;
   let cameraX = 0;
@@ -79,9 +80,12 @@
   function setSection(next: Section, preserveQuery = false) {
     welcome = false;
     section = next;
-    const path = localePrefix + sectionPaths[next];
+    const projectName = next === "code" ? projects.find((item) => item.id === (sourceProject || projects[0]?.id))?.name : "";
+    const path = next === "code"
+      ? contributionUrl(sourceProject || projects[0]?.id || "", sourceRecord, sourceKind, localePrefix)
+      : localePrefix + sectionPaths[next];
     if (window.location.pathname !== path || (!preserveQuery && window.location.search) || window.location.hash) history.pushState(null, "", path);
-    document.title = `${navigation.find((item) => item.id === next)?.title} · Miao's Blog`;
+    document.title = `${projectName || navigation.find((item) => item.id === next)?.title} · Miao's Blog`;
   }
 
   function sourceNavigate(project: string, record: string, kind: string) {
@@ -222,13 +226,17 @@
         category = params.get("category") || "all";
         if (readerOpen) reader.close(false);
         const projectTitle = section === "code" ? projects.find((item) => item.id === sourceProject)?.name : "";
-        document.title = `${projectTitle || series.find((item) => item.slug === seriesFilter)?.title || navigation.find((item) => item.id === section)?.title} · Miao's Blog`;
+        const locationTitle = notFound && window.location.pathname === notFoundPath
+          ? t("页面未找到")
+          : projectTitle || series.find((item) => item.slug === seriesFilter)?.title || navigation.find((item) => item.id === section)?.title;
+        document.title = `${locationTitle} · Miao's Blog`;
       }
   }
 
   onMount(() => {
     hydrated = true;
     document.body.classList.add("orbital-ready");
+    if (notFound) notFoundPath = window.location.pathname;
     restoreLocation();
     window.addEventListener("popstate", restoreLocation);
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
