@@ -49,7 +49,7 @@
 .language-static .language-options, .language-static .language-options a { animation: none; }
 .language-static .language-orbit-ring, .language-static .language-chevron { transition: none; }
 .orbital-site .terminal-sidebar nav a { white-space: normal; padding-right: 22px; }
-.orbital-site .terminal-sidebar nav a > span { flex: 1; min-width: 0; overflow-wrap: anywhere; line-height: 1.4; }
+.orbital-site .terminal-sidebar nav a > span { flex: 1; min-width: 0; line-height: 1.4; }
 .orbital-site .terminal-sidebar nav a small { flex-shrink: 0; }
 .orbital-site .terminal-header .brand { flex-shrink: 0; }
 .orbital-site .brand strong { white-space: nowrap; }
@@ -65,6 +65,8 @@
 .orbital-site:lang(en) .portal-copy h1 { font-size: clamp(28px, 3.1vw, 48px); white-space: normal; text-wrap: balance; }
 .orbital-site:lang(en) .portal-enter strong { letter-spacing: .3px; }
 .orbital-site:lang(en) .terminal-sidebar nav a { font-size: 13px; }
+.orbital-site:lang(ja) .terminal-sidebar nav a { font-size: 12px; padding-right: 10px; }
+.orbital-site .terminal-sidebar nav a span { word-break: keep-all; }
 .orbital-site:lang(en) .terminal-sidebar nav a span { overflow-wrap: anywhere; }
 .orbital-site:lang(en) .category-tabs button { font-size: 11px; white-space: nowrap; }
 .orbital-site:lang(en) .terminal-footer { flex-wrap: wrap; }
@@ -106,6 +108,7 @@
   .orbital-site:lang(en) .portal-copy h1 { font-size: clamp(27px, 7.5vw, 40px); }
   .orbital-site:lang(en) .terminal-sidebar nav a { font-size: 10px; }
   .orbital-site:lang(en) .terminal-sidebar nav a span { text-align: center; }
+  .orbital-site:lang(ja) .terminal-sidebar nav a { font-size: 9px; padding: 10px 2px; }
   .orbital-site:lang(en) .archive-heading { flex-wrap: wrap; gap: 12px; }
   .orbital-site:lang(en) .category-tabs { margin-left: 0; }
   .orbital-site:lang(en) .portal-footer { flex-wrap: wrap; padding: 12px 0; gap: 12px; }
