@@ -289,6 +289,8 @@ export const messages = {
 	我发起: ["Created by me", "我發起", "自分が作成"],
 	指派给我: ["Assigned to me", "指派給我", "自分に割り当て"],
 	我参与讨论: ["I joined the discussion", "我參與討論", "議論に参加"],
+	我: ["Me", "我", "自分"],
+	机器人: ["Bot", "機器人", "ボット"],
 	提交于: ["Committed on", "提交於", "コミット日"],
 	更新于: ["Updated on", "更新於", "更新日"],
 	"在 GitHub 查看": ["View on GitHub", "在 GitHub 查看", "GitHub で表示"],

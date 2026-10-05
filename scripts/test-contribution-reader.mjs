@@ -11,7 +11,7 @@ const html = renderContributionMarkdown(
 	source,
 );
 assert.match(html, /<h2>Reproduction<\/h2>/);
-assert.match(html, /&lt;script&gt;/);
+assert.match(html.replace(/<\/?span\b[^>]*>/g, ""), /&lt;script&gt;/);
 assert.doesNotMatch(
 	html,
 	/<script|<img|onclick|onerror|javascript:|window\.stolen/,
@@ -36,6 +36,23 @@ assert.match(
 	/https:\/\/github.com\/example\/project\/issues\/12#context/,
 );
 
+// Highlighting must retain indentation, escaped characters and every newline.
+for (const language of ["c", "c++", "cc", "rust", "bash", "python", "asm", "llvm", "diff"]) {
+	const code = '\tconst char *s = "<&>";\n\n  return 42;\n';
+	const highlighted = renderContributionMarkdown(`\`\`\`${language}\n${code}\`\`\``, source);
+	assert.match(highlighted, /class="contribution-code"/);
+	assert.match(highlighted, /<span style="color:#[A-F0-9]{6}">/);
+	const content = highlighted.match(/<code>([\s\S]*?)<\/code>/)[1].replace(/<\/?span\b[^>]*>/g, "");
+	assert.equal(content, code.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;'));
+}
+for (const language of ["", "unknown-language", 'unknown"onclick="bad()']) {
+	const fallback = renderContributionMarkdown(`\`\`\`${language}\n<&>\n\`\`\``, source);
+	assert.doesNotMatch(fallback, /contribution-code|style=|onclick/);
+	assert.match(fallback, /&lt;&amp;&gt;/);
+}
+assert.doesNotMatch(renderContributionMarkdown('```c\n' + 'x'.repeat(50_001) + '\n```', source), /contribution-code/);
+assert.doesNotMatch(renderContributionMarkdown('<span style="color:red;position:fixed;background:url(javascript:bad())" onclick="bad()">safe</span>', source), /style=|onclick|javascript:/);
+
 const raw = {
 	syncedAt: "2026-10-04T00:00:00Z",
 	records: [
@@ -52,6 +69,13 @@ assert.match(prepared.records[0].bodyHtml, /Fix the cleanup/);
 assert.doesNotMatch(prepared.records[0].bodyHtml, /Signed-off/);
 assert.match(prepared.records[0].trailers, /^Signed-off/);
 assert.match(raw.records[0].body, /Signed-off/);
+
+const discussion = prepareContributionDetails({ ...raw, records: [{ ...raw.records[0], kind: 'issue',
+	body: '```cpp\nint main() { return 0; }\n```',
+	comments: [{ url: source + '#comment', body: '```rust\nfn main() {}\n```' }] }] });
+assert.match(discussion.records[0].bodyHtml, /contribution-code/);
+assert.match(discussion.records[0].comments[0].bodyHtml, /contribution-code/);
+assert.equal(discussion.records[0].comments[0].excerpt, 'fn main() {}');
 
 const patch =
 	"@@ -8,2 +8,3 @@\n \tunchanged\n-\tremoved\n+\tadded\n+\tadded again\n\\ No newline at end of file\n@@ -20 +21 @@\n-before\n+after";

@@ -216,7 +216,7 @@
           <div class="patch-presentation">
             {#if selected}
               {#if loadingDetails}<p class="dock-note" role="status">{t("正在读取记录内容…")}</p>{:else if detailsError}<p class="dock-note" role="alert">{t("记录内容暂时无法读取。")}<button onclick={loadDetails}>{t("重试")}</button></p>{/if}
-              <ContributionReader record={selected} detail={selectedDetail}/>
+              <ContributionReader record={selected} detail={selectedDetail} account={activity.account}/>
             {:else}
               {#if selectedId}<div class="patch-content patch-empty"><h2>{t("未找到这条贡献记录")}</h2><p>{t("这条记录未收录或已不在当前项目中。")}</p><button class="signal-button" onclick={() => chooseProject(project.id)}>{t("返回项目记录")}</button></div>{:else}<div class="patch-content patch-empty"><p class="patch-eyebrow">{project.name} <i>/</i> {t("开源项目")}</p><h2>{t("尚未收录贡献记录")}</h2><p>{t("这里会展示博客收录的提交与讨论。你可以先前往项目仓库浏览源码。")}</p>{#if project.repository}<a class="patch-primary" href={project.repository} target="_blank" rel="noreferrer">{t("浏览项目源码")}<TerminalIcon name="external" size={20}/></a>{/if}</div>{/if}
             {/if}

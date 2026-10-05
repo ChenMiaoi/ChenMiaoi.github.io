@@ -1,8 +1,13 @@
 import MarkdownIt from "markdown-it";
 import sanitizeHtml from "sanitize-html";
 import type { ContributionDetail } from "../lib/contributions/types";
+import { highlightContributionCode } from "./contribution-highlight.ts";
 
-const markdown = new MarkdownIt({ html: true, linkify: true });
+const markdown = new MarkdownIt({
+	html: true,
+	linkify: true,
+	highlight: highlightContributionCode,
+});
 
 export function renderContributionMarkdown(body: string, sourceUrl: string) {
 	// External content is rendered on the server or at build time. No raw GitHub HTML or event
@@ -15,11 +20,15 @@ export function renderContributionMarkdown(body: string, sourceUrl: string) {
 			"del",
 		],
 		allowedAttributes: {
+			pre: ["class", "data-language"],
+			span: ["style"],
 			a: ["href", "title", "target", "rel"],
 			ol: ["start"],
 			th: ["colspan", "rowspan"],
 			td: ["colspan", "rowspan"],
 		},
+		allowedClasses: { pre: ["contribution-code"] },
+		allowedStyles: { span: { color: [/^#[\da-f]{6}(?:[\da-f]{2})?$/i] } },
 		allowedSchemes: ["https", "http", "mailto"],
 		allowProtocolRelative: false,
 		transformTags: {

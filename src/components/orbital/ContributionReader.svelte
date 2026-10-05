@@ -9,6 +9,7 @@
 
   export let record: SourceRecord;
   export let detail: ContributionDetail | undefined;
+  export let account = "";
   $: pr = detail?.pullRequest;
   $: ci = summarizeChecks(pr?.checks ?? []);
   const ciLabel = (value: string) => ({ passed: t("检查通过"), failed: t("检查未通过"), pending: t("检查进行中"), neutral: t("检查已结束"), none: t("暂无检查") } as Record<string, string>)[value];
@@ -22,6 +23,7 @@
   $: reference = detail?.sha ?? record.sha ?? String(record.number ?? record.reference);
   const date = (value: string) => value.slice(0, 10).replaceAll("-", "/");
   const discussionDate = (value: string) => new Intl.DateTimeFormat(dateLocale, { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(value));
+  const fullDiscussionDate = (value: string) => new Intl.DateTimeFormat(dateLocale, { timeZone: 'Asia/Shanghai', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
   const reviewLabel = (value?: string | null) => ({ APPROVED: t("批准"), CHANGES_REQUESTED: t("要求修改"), DISMISSED: t("评审已撤销"), COMMENTED: t("评审意见") } as Record<string, string>)[value ?? ''] ?? t("评审");
 
   async function copyReference() {
@@ -102,18 +104,28 @@
       {#if detail.comments.length}
         <section class="reader-comments" aria-label={t("讨论与评审")}>
           <div class="reader-section-label"><span>{t("讨论与评审")}</span><small>{t("{v0} 条 · 最新在前", { v0: detail.comments.length })}</small></div>
-          {#each detail.comments as comment}
-            <details class="reader-comment">
-              <summary><span><strong>{comment.author}</strong><span class="comment-kind">{comment.kind === 'review' ? reviewLabel(comment.reviewState) : comment.path ? t("行内讨论") : t("讨论")}{#if comment.bot} {t("· 机器人")}{/if}</span><time datetime={comment.createdAt}>{discussionDate(comment.createdAt)}</time><span class="comment-excerpt">{comment.excerpt || reviewLabel(comment.reviewState)}</span></span><TerminalIcon name="arrow" size={14}/></summary>
+          <div class="discussion-timeline">
+          {#each detail.comments as comment (comment.url)}
+            <details class="reader-comment" class:comment-own={comment.author === account} class:comment-bot={comment.bot}>
+              <summary>
+                <span class="comment-avatar" aria-hidden="true">{comment.bot ? '↳' : comment.author.slice(0, 2).toUpperCase()}</span>
+                <span class="comment-summary">
+                  <span class="comment-heading"><strong>{comment.author}</strong>{#if comment.author === account}<span class="comment-role">{t("我")}</span>{:else if comment.author === detail.author}<span class="comment-role">{t("原文作者")}</span>{/if}<time datetime={comment.createdAt} title={fullDiscussionDate(comment.createdAt)}>{discussionDate(comment.createdAt)}</time></span>
+                  <span class="comment-meta"><span class="comment-kind" class:review-approved={comment.kind === 'review' && comment.reviewState === 'APPROVED'} class:review-changes={comment.kind === 'review' && comment.reviewState === 'CHANGES_REQUESTED'}>{comment.kind === 'review' ? reviewLabel(comment.reviewState) : comment.path ? t("行内讨论") : t("讨论")}</span>{#if comment.bot}<span class="comment-role">{t("机器人")}</span>{/if}{#if comment.path}<code class="comment-path">{comment.path}</code>{/if}</span>
+                  {#if comment.excerpt}<span class="comment-excerpt">{comment.excerpt}</span>{/if}
+                </span>
+                <TerminalIcon name="arrow" size={14}/>
+              </summary>
               <div class="reader-comment-content">
                 {#if comment.path}<p class="comment-file">{t("代码评审")} <code>{comment.path}</code></p>{/if}
                 {#if comment.commitSha}<p class="reader-muted">{t("评审时版本")} <code>{comment.commitSha.slice(0, 10)}</code></p>{/if}
                 {#if comment.bodyHtml}<div class="contribution-prose">{@html comment.bodyHtml}</div>{/if}
-                {#if comment.replyToUrl}<a class="comment-permalink" href={comment.replyToUrl} target="_blank" rel="noreferrer">{t("查看回复的讨论")}<TerminalIcon name="external" size={13}/></a>{/if}
-                <a class="comment-permalink" href={comment.url} target="_blank" rel="noreferrer">{t("查看这条记录")}<TerminalIcon name="external" size={13}/></a>
+                <div class="comment-actions">{#if comment.replyToUrl}<a class="comment-permalink" href={comment.replyToUrl} target="_blank" rel="noreferrer">{t("查看回复的讨论")}<TerminalIcon name="external" size={13}/></a>{/if}
+                <a class="comment-permalink" href={comment.url} target="_blank" rel="noreferrer">{t("查看这条记录")}<TerminalIcon name="external" size={13}/></a></div>
               </div>
             </details>
           {/each}
+          </div>
         </section>
       {/if}
     {:else}
