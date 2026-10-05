@@ -2,9 +2,8 @@
   import { useTranslations } from "../../features/orbital/i18n/context";
   const { t } = useTranslations();
   import { tick } from "svelte";
-  import { fly } from "svelte/transition";
   import TerminalIcon from "./TerminalIcon.svelte";
-  import { revealSequence } from "./motion";
+  import { revealOnView } from "./motion";
   import type { ArchivePost, ArchiveSeries } from "./types";
   export let posts: ArchivePost[];
   export let series: ArchiveSeries[];
@@ -110,9 +109,9 @@
         {/if}
         <div class="archive-grid">
           <section class="archive-list" aria-label={t("文章档案")}>
-            <div class="archive-toolbar"><span>{t("文章索引")}<small>{String(filteredPosts.length).padStart(2, "0")}</small></span><button onclick={() => { descending = !descending; selectedSlug = ''; }} aria-label={descending ? t("按时间从旧到新排序") : t("按时间从新到旧排序")}>{descending ? t("最新优先") : t("最早优先")}<span class:reversed={!descending}><TerminalIcon name="sort" size={16}/></span></button></div>
+            <div class="archive-toolbar"><span>{t("文章索引")}<small aria-live="polite" aria-atomic="true">{#key filteredPosts.length}<span class="result-count">{String(filteredPosts.length).padStart(2, "0")}</span>{/key}</small></span><button onclick={() => { descending = !descending; selectedSlug = ''; }} aria-label={descending ? t("按时间从旧到新排序") : t("按时间从新到旧排序")}>{descending ? t("最新优先") : t("最早优先")}<span class:reversed={!descending}><TerminalIcon name="sort" size={16}/></span></button></div>
             <div class="archive-scroll" bind:this={archiveScroll} use:observeRail onscroll={positionContext} tabindex="0" role="region" aria-label={t("滚动浏览文章档案")}>
-            <div class="archive-rail" bind:this={archiveBody} use:observeRail use:revealSequence={{key: `${category}|${seriesFilter}|${descending}|${query}`, enabled: motionReady && !reducedMotion, selector: '.dossier-content', wait: query ? 140 : 0}}>
+            <div class="archive-rail" bind:this={archiveBody} use:observeRail use:revealOnView={{key: `${category}|${seriesFilter}|${descending}|${query}`, enabled: motionReady && !reducedMotion, selector: '.dossier-content', wait: query ? 140 : 0}}>
               {#if selectedPost}<span class="rail-focus" style={`transform:translateY(${markerTop}px)`} aria-hidden="true"></span>{/if}
               {#each filteredPosts as post, index (post.slug)}
                 <div class="dossier" class:is-selected={selectedPost?.slug === post.slug}>
@@ -144,7 +143,8 @@
               <div class="context-panel" bind:this={contextPanel}>
                 <div class="context-label"><span><i></i>{t("当前档案")}</span><small>DOCUMENT / {String(selectedIndex).padStart(2, '0')}</small></div>
                 {#key selectedPost.slug}
-                  <div class="context-content" in:fly={{ x: reducedMotion ? 0 : 12, duration: reducedMotion ? 0 : 300 }}>
+                  <div class="context-content" class:context-receiving={motionReady && !reducedMotion}>
+                    <span class="context-reception" aria-hidden="true"></span>
                     <p class="context-eyebrow">{selectedPost.seriesTitle}</p>
                     <h2>{selectedPost.title}</h2>
                     <p class="context-meta">{selectedPost.date}<span>/</span>{selectedPost.tags.slice(0,2).join(' · ')}</p>

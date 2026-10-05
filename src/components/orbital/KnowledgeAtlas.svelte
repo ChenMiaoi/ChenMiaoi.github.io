@@ -27,6 +27,8 @@
 
   let scope = "";
   let selectedId = "";
+  let hoveredId = "";
+  let focusedId = "";
   let viewport: HTMLDivElement;
   let viewportWidth = 800;
   let viewportHeight = 540;
@@ -41,6 +43,8 @@
   $: map = current ? buildMap(current, sceneWidth) : { nodes: [] as MapNode[], height: 600 };
   $: selected = map.nodes.find((node) => node.id === selectedId) ?? map.nodes.find((node) => node.kind === "post") ?? map.nodes[0];
   $: activePath = ancestorPath(selected, map.nodes);
+  $: previewNode = map.nodes.find((node) => node.id === (hoveredId || focusedId));
+  $: previewPath = ancestorPath(previewNode, map.nodes);
   $: collectionNodes = map.nodes.filter((node) => node.kind === "series");
   $: articleNodes = map.nodes.filter((node) => node.kind === "post");
   $: focusedSeries = selected?.collection ?? series.find((item) => item.slug === selected?.post?.series);
@@ -143,6 +147,8 @@
 
   async function changeScope() {
     selectedId = "";
+    hoveredId = "";
+    focusedId = "";
     zoom = 1;
     await tick();
     viewport?.scrollTo({ top: 0, left: compact ? map.nodes[0].cx - viewport.clientWidth / 2 : 0, behavior: "instant" });
@@ -221,10 +227,14 @@
             {#each map.nodes.filter((node) => node.parent).sort((a, b) => Number(activePath.has(a.id)) - Number(activePath.has(b.id))) as node}<path class:lit={activePath.has(node.id)} d={connection(node)}/>{/each}
             {#key selected?.id}
               {#each map.nodes.filter((node) => node.parent && activePath.has(node.id)) as node}<path class="map-acquisition" pathLength="1" d={connection(node)} style={`--path-delay:${Math.max(0, node.depth - 1) * 100}ms`}/><path class="map-flow" pathLength="1" d={connection(node)} style={`--path-delay:${Math.max(0, node.depth - 1) * -1.1}s`}/>{/each}
+              {#each map.nodes.filter((node) => node.parent === selected?.id) as node, index}<path class="map-outbound" pathLength="1" d={connection(node)} style={`--path-delay:${index * 65}ms`}/>{/each}
+            {/key}
+            {#key previewNode?.id}
+              {#each map.nodes.filter((node) => node.parent && previewPath.has(node.id)) as node}<path class="map-preview" pathLength="1" d={connection(node)} style={`--path-delay:${Math.max(0, node.depth - 1) * 70}ms`}/>{/each}
             {/key}
           </svg>
           {#each map.nodes as node (node.id)}
-            <button class="topology-node" class:root-node={node.depth === 0} class:series-node={node.kind === 'series'} class:article-node={node.kind === 'post'} class:label-above={node.above} class:label-left={node.leftLabel} class:selected={selected?.id === node.id} class:on-path={activePath.has(node.id)} style={`left:${node.x}px;top:${node.y}px;width:${node.w}px;height:${node.h}px;--anchor-x:${node.cx-node.x}px;--anchor-y:${node.cy-node.y}px`} aria-label={`${node.kind === 'post' ? t("预览文章") : t("查看节点")}：${node.title}`} aria-pressed={selected?.id === node.id} title={node.title} onclick={() => { selectedId = node.id; }}>
+            <button class="topology-node" class:root-node={node.depth === 0} class:series-node={node.kind === 'series'} class:article-node={node.kind === 'post'} class:label-above={node.above} class:label-left={node.leftLabel} class:selected={selected?.id === node.id} class:on-path={activePath.has(node.id)} class:previewed={previewPath.has(node.id)} style={`left:${node.x}px;top:${node.y}px;width:${node.w}px;height:${node.h}px;--anchor-x:${node.cx-node.x}px;--anchor-y:${node.cy-node.y}px`} aria-label={`${node.kind === 'post' ? t("预览文章") : t("查看节点")}：${node.title}`} aria-pressed={selected?.id === node.id} title={node.title} onpointermove={(event) => { if (event.pointerType === 'mouse' && !dragging) hoveredId = node.id; }} onpointerleave={() => { if (hoveredId === node.id) hoveredId = ''; }} onfocus={() => { focusedId = node.id; hoveredId = ''; }} onblur={() => { if (focusedId === node.id) focusedId = ''; }} onclick={() => { selectedId = node.id; }}>
               {#if node.depth === 0}<span class="core-overline">{t("当前主题")}</span><strong>{node.label}</strong><small>{String(node.collection?.posts.length ?? 0).padStart(2, '0')} / ARTICLES</small>
               {:else if node.kind === "series"}<span class="stellar-hub" aria-hidden="true"><i></i></span><span class="stellar-series-label"><strong>{node.label}</strong><small>{t("{v0} 篇文章", { v0: node.collection?.posts.length ?? 0 })}</small></span>
               {:else}<span class="topology-document-dot" aria-hidden="true">{String(node.ordinal).padStart(2, '0')}</span><span class="topology-article-title">{node.label}</span>{/if}

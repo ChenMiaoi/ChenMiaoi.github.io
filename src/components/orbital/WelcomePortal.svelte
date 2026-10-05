@@ -13,10 +13,16 @@
   export let ambientPaused = false;
   export let systemReducedMotion = true;
   export let toggleMotion: () => void;
-  export let onEnter: () => void;
+  export let onEnter: (animated?: boolean) => void;
+  export let cameraX = 0;
+  export let cameraY = 0;
   let departing = false;
   let departureTimer: ReturnType<typeof setTimeout> | undefined;
   $: archiveUrl = localePrefix + sectionPaths.articles;
+  $: if (departing && reducedMotion) {
+    clearTimeout(departureTimer);
+    onEnter();
+  }
 
   function enter(event: MouseEvent, immediate = false) {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -24,13 +30,13 @@
     if (departing) return;
     if (reducedMotion || immediate) { onEnter(); return; }
     departing = true;
-    departureTimer = setTimeout(onEnter, 520);
+    departureTimer = setTimeout(() => onEnter(true), 680);
   }
 
   onDestroy(() => clearTimeout(departureTimer));
 </script>
 
-<div class="welcome-portal" class:portal-moving={motionReady && !reducedMotion} class:portal-idle={ambientPaused} class:portal-departing={departing}>
+<div class="welcome-portal" class:portal-moving={motionReady && !reducedMotion} class:portal-idle={ambientPaused} class:portal-departing={departing} style={`--instrument-x:${reducedMotion ? 0 : cameraX}px;--instrument-y:${reducedMotion ? 0 : cameraY}px`}>
   <div class="portal-grid" aria-hidden="true"></div>
   <header class="portal-header">
     <a class="brand portal-brand" href={archiveUrl} onclick={(event) => enter(event, true)} aria-label={t("Miao's Blog，进入文章档案")}>
@@ -68,22 +74,29 @@
         <circle cx="320" cy="320" r="282" stroke="#bfd0c3" stroke-opacity=".12"/>
         <path d="M320 15v38m0 534v38M15 320h38m534 0h38" stroke="#b7c8bb" stroke-opacity=".6"/>
         <path d="M112 112l20 20m376 376 20 20M112 528l20-20m376-376 20-20" stroke="#b7c8bb" stroke-opacity=".25"/>
-        <g class="portal-outer-ring">
+        <g class="portal-depth-outer"><g class="portal-outer-ring">
           <circle cx="320" cy="320" r="274" stroke="#c0cdba" stroke-opacity=".4" stroke-width="4" stroke-dasharray="1 17"/>
           <circle cx="320" cy="320" r="258" stroke="url(#portal-orbit-light)" stroke-width="2" stroke-dasharray="260 1360" transform="rotate(-74 320 320)"/>
           <circle cx="389" cy="71" r="5" fill="#f0e433"/>
           <circle cx="389" cy="71" r="12" stroke="#f0e433" stroke-opacity=".35"/>
-        </g>
-        <g class="portal-inner-ring">
+        </g></g>
+        <g class="portal-depth-inner"><g class="portal-inner-ring">
           <circle cx="320" cy="320" r="201" stroke="#b7c8bb" stroke-opacity=".2" stroke-dasharray="2 9"/>
           <path d="M136 256a195 195 0 0 1 274-107M504 384a195 195 0 0 1-274 107" stroke="#bccdb4" stroke-opacity=".65"/>
           <circle cx="134" cy="381" r="3" fill="#f0e433"/>
+        </g></g>
+        <g class="portal-orbital-signal">
+          <ellipse cx="320" cy="320" rx="305" ry="103" transform="rotate(-35 320 320)" pathLength="1"/>
         </g>
         <ellipse cx="320" cy="320" rx="305" ry="103" transform="rotate(-35 320 320)" stroke="#c9d5b5" stroke-opacity=".3"/>
-        <path d="M165 356v-46l25-25h43m174 0h43l25 25v46M165 390v13l25 25h43m174 0h43l25-25v-13" stroke="#d3dfb7" stroke-opacity=".5"/>
+        <g class="portal-depth-core">
+        <circle class="portal-core-halo" cx="320" cy="320" r="115" fill="url(#portal-core-glow)"/>
+        <circle class="portal-lock-ring" cx="320" cy="320" r="129" stroke="#f0e433" stroke-dasharray="32 170"/>
+        <path class="portal-reticle" d="M165 356v-46l25-25h43m174 0h43l25 25v46M165 390v13l25 25h43m174 0h43l25-25v-13" stroke="#d3dfb7" stroke-opacity=".5"/>
         <path d="M220 320h32m136 0h32M320 216v29m0 158v21" stroke="#d3dfb7" stroke-opacity=".45"/>
         <path d="M338 260h29l-87 101h-29zm-49 83h26l-46 53h-28z" fill="#edf1e6"/>
         <path d="M337 340h34l-43 52h-34z" fill="#f0e433"/>
+        </g>
         <circle cx="563" cy="407" r="4" fill="#d4ddba"/>
         <path d="M563 407h43l19 19M120 171H69l-22-22" stroke="#cbd6b9" stroke-opacity=".5"/>
       </svg>

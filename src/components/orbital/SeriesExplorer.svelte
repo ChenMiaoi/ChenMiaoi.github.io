@@ -4,7 +4,7 @@
   import { tick } from "svelte";
   import { fly } from "svelte/transition";
   import TerminalIcon from "./TerminalIcon.svelte";
-  import { revealSequence } from "./motion";
+  import { revealSequence, revealOnView } from "./motion";
   import type { ArchivePost, ArchiveSeries } from "./types";
 
   export let posts: ArchivePost[];
@@ -14,6 +14,7 @@
   export let onBrowse: (slug: string) => void;
 
   let selection = "";
+  let locatedSeries = "";
   let showEmpty = false;
   let chapterPane: HTMLDivElement;
   let seriesRail: HTMLDivElement;
@@ -36,6 +37,7 @@
     const group = groups.find((item) => item.series.slug === slug) ?? groups.find((item) => item.series.parent === slug);
     const target = group && chapterPane?.querySelector<HTMLElement>(`[data-series="${CSS.escape(group.series.slug)}"]`);
     if (!target) return;
+    locatedSeries = group.series.slug;
     if (chapterPane.scrollHeight > chapterPane.clientHeight) {
       chapterPane.scrollTo({ top: target.offsetTop - 16, behavior: reducedMotion ? "instant" : "smooth" });
     } else {
@@ -63,6 +65,8 @@
   $: roots = series.filter((item) => !item.parent && (showEmpty || item.posts.length)).sort(compareSeries);
   $: current = roots.find((item) => item.slug === selection) ?? [...roots].sort((a, b) => b.posts.length - a.posts.length)[0];
   $: currentIndex = current ? roots.indexOf(current) + 1 : 0;
+  $: if (current) resetLocator(current.slug);
+  function resetLocator(_slug: string) { locatedSeries = ""; }
   $: children = current ? series.filter((item) => item.parent === current.slug).sort(compareSeries) : [];
   $: groups = current ? readingGroups(current) : [];
   $: firstPost = current ? posts.filter((post) => post.series === current.slug).sort(comparePosts)[0] ?? groups.flatMap((group) => group.posts)[0] : undefined;
@@ -116,9 +120,9 @@
 
             <div class="path-outline">
               <div class="path-outline-heading"><h3>{t("阅读目录")}</h3><span>SERIES CONTENTS</span></div>
-              <div class="path-chapters" bind:this={chapterPane} use:revealSequence={{key: current.slug, enabled: !reducedMotion, selector: '.path-reading-list li'}} tabindex="0" role="region" aria-label={t("{v0}的阅读目录", { v0: shortTitle(current.title) })}>
+              <div class="path-chapters" bind:this={chapterPane} use:revealOnView={{key: current.slug, enabled: !reducedMotion, selector: '.path-reading-list button > span:nth-of-type(2)', wait: 180}} tabindex="0" role="region" aria-label={t("{v0}的阅读目录", { v0: shortTitle(current.title) })}>
                 {#each groups as group, groupIndex (group.series.slug)}
-                  <section class="path-branch" data-series={group.series.slug} class:root-branch={group.depth === 0}>
+                  <section class="path-branch" data-series={group.series.slug} class:located={locatedSeries === group.series.slug} class:root-branch={group.depth === 0} style={`--branch-delay:${Math.min(groupIndex, 5) * 100}ms`}>
                     <header class="path-branch-heading">
                       <span class="path-branch-node" aria-hidden="true">{String(groupIndex + 1).padStart(2, "0")}</span>
                       <div><span>{group.depth ? t("子系列") : children.length ? t("本系列文章") : t("文章")}</span><h4>{group.depth ? group.series.title : t("系列正文")}</h4></div>

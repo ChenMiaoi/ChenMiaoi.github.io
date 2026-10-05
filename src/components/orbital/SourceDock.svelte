@@ -5,10 +5,9 @@
   import { onMount, tick } from "svelte";
   import { projectRecords } from "../../lib/contributions/projects";
   import type { ContributionFeed } from "../../lib/contributions/types";
-  import { fly } from "svelte/transition";
   import TerminalIcon from "./TerminalIcon.svelte";
   import BrandIcon from "./BrandIcon.svelte";
-  import { revealSequence } from "./motion";
+  import { revealOnView } from "./motion";
   import ContributionReader from "./ContributionReader.svelte";
   import type { ContributionProject } from "../../types/config";
   import type { ContributionActivitySnapshot, ContributionDetailsSnapshot, SourceRecord } from "./types";
@@ -184,7 +183,7 @@
           </div>
         {/if}
         {#if records.length}
-          <div class="contribution-records" bind:this={recordRail} use:revealSequence={{key: `${project.id}|${kindFilter}`, enabled: !reducedMotion, selector: '.record-text'}}>
+          <div class="contribution-records" bind:this={recordRail} use:revealOnView={{key: `${project.id}|${kindFilter}`, enabled: !reducedMotion, selector: '.record-text'}}>
             {#each records as record, index}
               {@const pr = record.kind === "pr" ? details.records.find((item) => item.url === record.url)?.pullRequest : undefined}
               {@const ci = pr ? summarizeChecks(pr.checks) : undefined}
@@ -205,6 +204,7 @@
         <path class="projection-backplane" d="M32 9H942L993 51V746L965 790H12V33Z"/>
         <path d="M12 33L0 18M993 51L982 40M965 790L953 776M12 790L0 776"/>
         <path class="projection-ribs" d="M994 112V260M994 290V333M60 790H218M242 790H271"/>
+        {#key `${project.id}:${selected?.id ?? 'empty'}`}<path class="projection-reception" pathLength="1" d="M32 9H942L993 51V260"/>{/key}
       </svg>
       <section class="patch-chamber" aria-label={t("当前贡献详情")}>
         <header class="chamber-crown">
@@ -213,7 +213,7 @@
           <span class="chamber-position"><b>{number(Math.max(0, selectedIndex + 1))}</b><i>/</i>{number(records.length)}</span>
         </header>
         {#key `${project.id}:${selected?.id ?? 'empty'}`}
-          <div class="patch-presentation" in:fly={{y: reducedMotion ? 0 : 6, duration: reducedMotion ? 0 : 260}}>
+          <div class="patch-presentation">
             {#if selected}
               {#if loadingDetails}<p class="dock-note" role="status">{t("正在读取记录内容…")}</p>{:else if detailsError}<p class="dock-note" role="alert">{t("记录内容暂时无法读取。")}<button onclick={loadDetails}>{t("重试")}</button></p>{/if}
               <ContributionReader record={selected} detail={selectedDetail}/>

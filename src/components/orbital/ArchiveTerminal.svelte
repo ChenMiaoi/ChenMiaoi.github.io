@@ -35,6 +35,7 @@
   export let initialWelcome = false;
   export let hasArticle = false;
   let welcome = initialWelcome;
+  let archiveArrival = false;
   let hydrated = false;
   let mainElement: HTMLElement;
   const navigation: { id: Section; label: string; icon: string; kicker: string; title: string }[] = [
@@ -65,6 +66,7 @@
   let cameraY = 0;
   let cameraFrame = 0;
   $: reducedMotion = systemReducedMotion || !effectsEnabled;
+  $: if (reducedMotion) archiveArrival = false;
   $: ambientPaused = readerOpen || !pageVisible;
   $: activeSection = navigation.find((item) => item.id === section) ?? navigation[0];
   const descriptions: Record<Section, string> = {
@@ -100,7 +102,8 @@
     if (next === "articles") resetFilters();
   }
 
-  async function enterArchive() {
+  async function enterArchive(animated = false) {
+    archiveArrival = animated && !reducedMotion;
     navigate("articles");
     await tick();
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -256,15 +259,17 @@
 
 <div class="station-scene" class:welcome-scene={welcome} class:motion-running={motionReady && !reducedMotion} class:motion-idle={ambientPaused} style={`--camera-x:${cameraX}px;--camera-y:${cameraY}px`} aria-hidden="true"></div>
 <div class="station-shade" class:welcome-shade={welcome} aria-hidden="true"></div>
-<div class="station-atmosphere" class:motion-running={motionReady && !reducedMotion} class:motion-idle={ambientPaused} aria-hidden="true">
+<div class="station-atmosphere" class:motion-running={motionReady && !reducedMotion} class:motion-idle={ambientPaused} style={`--camera-x:${cameraX}px;--camera-y:${cameraY}px`} aria-hidden="true">
   {#each [0, 1, 2, 3, 4] as mote}<span style={`--mote-x:${[19,39,66,83,94][mote]}%;--mote-y:${[73,40,83,33,65][mote]}%;--mote-time:${[13,17,19,15,21][mote]}s;--mote-delay:${mote * -3}s`}></span>{/each}
+  {#each [0, 1, 2] as mote}<span class="atmosphere-near" style={`--mote-x:${[7,76,96][mote]}%;--mote-y:${[32,17,79][mote]}%;--mote-time:${[23,29,26][mote]}s;--mote-delay:${mote * -7}s`}></span>{/each}
+  <i class="station-edge-signal"></i>
 </div>
 {#if welcome}
-  <WelcomePortal {localePrefix} {reducedMotion} {motionReady} {ambientPaused} {systemReducedMotion} {toggleMotion} onEnter={enterArchive} author={profile.name}/>
+  <WelcomePortal {localePrefix} {reducedMotion} {motionReady} {ambientPaused} {systemReducedMotion} {toggleMotion} {cameraX} {cameraY} onEnter={enterArchive} author={profile.name}/>
 {:else}
 <a class="skip-link" href="#terminal-main">{t("跳到文章")}</a>
 
-<div class="terminal-shell" class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:ambient-paused={ambientPaused} class:archive-view={section === 'articles'} class:series-view={section === 'series'} class:graph-view={section === 'graph'} class:source-view={section === 'code'} class:about-view={section === 'about'}>
+<div class="terminal-shell" class:station-arriving={archiveArrival} onanimationend={(event) => { if (event.target === event.currentTarget) archiveArrival = false; }} class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:ambient-paused={ambientPaused} class:archive-view={section === 'articles'} class:series-view={section === 'series'} class:graph-view={section === 'graph'} class:source-view={section === 'code'} class:about-view={section === 'about'}>
   <svg class="terminal-orbit" viewBox="0 0 1600 1000" preserveAspectRatio="none" aria-hidden="true"><path d="M136 123C38 280 20 705 143 902"/><path d="M127 121C24 305 17 716 137 907"/><path class="orbit-transmission" d="M136 123C38 280 20 705 143 902" pathLength="1"/><circle cx="136" cy="123" r="5"/><circle cx="143" cy="902" r="5"/><path class="orbit-ground" d="M215 950H1450l75-75"/></svg>
   <header class="terminal-header">
     <button class="brand" aria-label={t("Miao's Blog，返回文章档案")} onclick={() => navigate("articles")}>
@@ -305,7 +310,7 @@
     <main id="terminal-main" class="terminal-main" bind:this={mainElement} tabindex="-1" use:revealSequence={{key: section, enabled: motionReady && !reducedMotion, selector: ".project-port, .identity-field-copy, .identity-contact-text"}}>
       {#if notFound}<p class="route-notice" role="status">{t("没有找到这个页面。你可以从文章档案继续探索。")}</p>{/if}
       {#key section}
-      <span class="section-transfer" aria-hidden="true"><i></i></span>
+      <span class="section-transfer" data-section={section} aria-hidden="true"><i></i></span>
       <div class="archive-heading">
         <div><p class="terminal-kicker"><span></span>{activeSection.kicker}</p><svelte:element this={(!hydrated && hasArticle) || readerOpen ? "p" : "h1"} class="heading-title">{activeSection.title}<span class="heading-mark" aria-hidden="true">/</span></svelte:element>{#if descriptions[section]}<p class="heading-description">{descriptions[section]}</p>{/if}</div>
         {#if section === "articles"}
