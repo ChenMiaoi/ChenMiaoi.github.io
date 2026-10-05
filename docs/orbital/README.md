@@ -54,10 +54,11 @@ This view uses `SourceDock.svelte`, `ContributionReader.svelte`, `src/styles/orb
 and `src/styles/orbital/contribution-reader.css`.
 It also reads `src/data/contribution-activity.json`, the public GitHub snapshot
 used by the existing contribution page. The LLVM and Cargo docks include authored
-or assigned open issues and pull requests from their upstream repositories. The
-rail can filter PRs and issues, and the inspector distinguishes draft/open status,
-authorship/assignment, record numbers, update dates and the original URLs. These
-records are not presented as merged commits. The snapshot time is shown in Beijing
+or assigned open issues and pull requests from their upstream repositories, plus
+open issues commented on by the account. The rail can filter PRs and issues, and
+the inspector distinguishes draft/open status, authorship/assignment/discussion
+participation, record numbers, update dates and the original URLs. These records
+are not presented as merged commits. The snapshot time is shown in Beijing
 time. Refresh with `pnpm sync:contributions`; the site itself uses no credentials
 and does not make live GitHub requests from the browser. On the VPS, a separate
 service refreshes persistent snapshots every 15 minutes and serves the same

@@ -44,7 +44,7 @@ export const activitySchema = z.object({
 			draft: z.boolean(),
 			state: z.enum(["open", "draft", "merged", "closed"]).optional(),
 			updatedAt: date,
-			relations: z.array(z.enum(["author", "assignee"])),
+			relations: z.array(z.enum(["author", "assignee", "commenter"])),
 		}),
 	),
 });

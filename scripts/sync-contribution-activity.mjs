@@ -22,8 +22,9 @@ function api(endpoint) {
 // Do not write the snapshot until every repository and page has succeeded.
 const records = new Map();
 for (const repository of config.repositories) {
-	for (const relation of ["author", "assignee"]) {
-		const query = `repo:${repository} is:open ${relation}:${config.account}`;
+	for (const relation of ["author", "assignee", "commenter"]) {
+		const issueFilter = relation === "commenter" ? " is:issue" : "";
+		const query = `repo:${repository} is:open${issueFilter} ${relation}:${config.account}`;
 		for (let page = 1; ; page++) {
 			const result = api(
 				`search/issues?q=${encodeURIComponent(query)}&per_page=100&page=${page}`,

@@ -98,7 +98,7 @@ test('unchanged open work validates head/base but reuses full details', async ()
   assert.equal(result.details.records[0].body, detail.body);
 });
 
-test('discover new authored/assigned issue once with both relations', async () => {
+test('discover an issue once and merge author, assignee and commenter relations', async () => {
   const issueUrl = 'https://github.com/example/public/issues/2';
   const api = async (path) => {
     if (path.includes("/check-runs?")) return [{ total_count: 0, check_runs: [] }];
@@ -111,7 +111,43 @@ test('discover new authored/assigned issue once with both relations', async () =
   };
   const result = await syncContributions({ config, projects: [], previous: { ...seed, activity: { ...seed.activity, items: [] } }, api });
   assert.equal(result.activity.items.length, 1);
-  assert.deepEqual(result.activity.items[0].relations, ['author', 'assignee']);
+  assert.deepEqual(result.activity.items[0].relations, ['author', 'assignee', 'commenter']);
+});
+
+test('discover an issue by another author only through discussion participation', async () => {
+  const issueUrl = 'https://github.com/example/public/issues/3';
+  const queries = [];
+  const api = async (path) => {
+    if (path === 'repos/example/public') return { private: false };
+    if (path.startsWith('search/')) {
+      const query = new URL(path, 'https://api.github.com/').searchParams.get('q');
+      queries.push(query);
+      return { total_count: query.includes('commenter:writer') ? 1 : 0, incomplete_results: false,
+        items: query.includes('commenter:writer') ? [{ number: 3, html_url: issueUrl, title: 'Discussion', updated_at: nextDate }] : [] };
+    }
+    if (path.includes('/timeline')) return [[]];
+    if (path.endsWith('/issues/3')) return { html_url: issueUrl, title: 'Discussion', updated_at: nextDate,
+      state: 'open', user: { login: 'someone-else' }, assignees: [], body: '', comments: 0 };
+    throw new Error(`Unexpected endpoint ${path}`);
+  };
+  const result = await syncContributions({ config, projects: [], previous: { ...seed, activity: { ...seed.activity, items: [] } }, api });
+  assert.deepEqual(queries, ['repo:example/public is:open author:writer', 'repo:example/public is:open assignee:writer',
+    'repo:example/public is:open is:issue commenter:writer']);
+  assert.equal(result.activity.items.length, 1);
+  assert.equal(result.activity.items[0].url, issueUrl);
+  assert.deepEqual(result.activity.items[0].relations, ['commenter']);
+  assert.equal(result.details.records[0].author, 'someone-else');
+});
+
+test('incomplete commenter discovery keeps the previous snapshot intact', async () => {
+  const before = JSON.stringify(seed);
+  const api = async (path) => {
+    if (path === 'repos/example/public') return { private: false };
+    if (path.startsWith('search/')) return { total_count: 0, items: [], incomplete_results: decodeURIComponent(path).includes('commenter:writer') };
+    throw new Error(`Unexpected endpoint ${path}`);
+  };
+  await assert.rejects(syncContributions({ config, projects: [], previous: seed, api }), /Incomplete GitHub search/);
+  assert.equal(JSON.stringify(seed), before);
 });
 
 test('HTTP feed is sanitized, validates cache, tracks updates and keeps last-good data after failure', async (t) => {

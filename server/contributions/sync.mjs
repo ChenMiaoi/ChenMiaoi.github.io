@@ -7,8 +7,9 @@ export async function syncContributions({ config, projects, previous, api, detai
   for (const repository of config.repositories) {
     const metadata = await api(`repos/${repository}`);
     if (metadata.private !== false) throw new Error('Contribution repository must be public');
-    for (const relation of ['author', 'assignee']) {
-      const query = `repo:${repository} is:open ${relation}:${config.account}`;
+    for (const relation of ['author', 'assignee', 'commenter']) {
+      const issueFilter = relation === 'commenter' ? ' is:issue' : '';
+      const query = `repo:${repository} is:open${issueFilter} ${relation}:${config.account}`;
       for (let page = 1; ; page++) {
         const result = await api(`search/issues?q=${encodeURIComponent(query)}&per_page=100&page=${page}`);
         if (result.incomplete_results || result.total_count > 1000 || !Number.isInteger(result.total_count) || !Array.isArray(result.items)

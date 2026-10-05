@@ -110,8 +110,8 @@ Do not copy personal CLI credentials into releases or commit environment files.
 Optional settings: `CONTRIBUTION_SYNC_SECONDS=900`, `CONTRIBUTION_PORT=4336`, and
 `CONTRIBUTION_DATA_DIR`. Changing the port also requires updating the Nginx snippet
 and receiver readiness probe. Initial historical backfill is not performed:
-new open authored/assigned work is discovered, previously tracked work is retained
-after closure/merge, and configured commit references remain curated.
+new open authored/assigned work and commented-on issues are discovered; previously
+tracked work is retained after closure/merge, and configured commit references remain curated.
 
 PR freshness is checked against the current head/base SHAs as well as record
 timestamps. The reader collects all discussion pages, review conclusions and

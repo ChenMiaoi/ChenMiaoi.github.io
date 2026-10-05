@@ -5,18 +5,18 @@
     "llvm/llvm-project",
     "rust-lang/cargo"
   ],
-  "syncedAt": "2026-10-04T17:58:39.210Z",
+  "syncedAt": "2026-10-05T17:23:25.420Z",
   "items": [
     {
       "repository": "llvm/llvm-project",
-      "number": 228734,
-      "title": "[libc][math] Use float-only evaluation in asinbf16 and acosbf16",
-      "url": "https://github.com/llvm/llvm-project/pull/228734",
-      "kind": "pr",
+      "number": 220923,
+      "title": "[Clang] [[gnu::weak, gnu::ifunc]] isn't diagnosed",
+      "url": "https://github.com/llvm/llvm-project/issues/220923",
+      "kind": "issue",
       "draft": false,
-      "updatedAt": "2026-10-04T15:21:46Z",
+      "updatedAt": "2026-10-05T17:16:49Z",
       "relations": [
-        "author"
+        "commenter"
       ]
     },
     {
@@ -26,7 +26,104 @@
       "url": "https://github.com/llvm/llvm-project/pull/228863",
       "kind": "pr",
       "draft": false,
-      "updatedAt": "2026-10-04T12:36:40Z",
+      "updatedAt": "2026-10-05T17:15:20Z",
+      "relations": [
+        "author"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 229156,
+      "title": "[clang] Fix crash on unterminated __identifier",
+      "url": "https://github.com/llvm/llvm-project/pull/229156",
+      "kind": "pr",
+      "draft": false,
+      "updatedAt": "2026-10-05T16:59:51Z",
+      "relations": [
+        "author"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 229034,
+      "title": "[clang] Restrict parenthesized direct initialization to C++",
+      "url": "https://github.com/llvm/llvm-project/pull/229034",
+      "kind": "pr",
+      "draft": false,
+      "updatedAt": "2026-10-05T15:30:47Z",
+      "relations": [
+        "author"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 228633,
+      "title": "[libc][stdlib] Avoid scanning values during environment lookup",
+      "url": "https://github.com/llvm/llvm-project/pull/228633",
+      "kind": "pr",
+      "draft": false,
+      "updatedAt": "2026-10-05T15:18:46Z",
+      "relations": [
+        "author"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 196016,
+      "title": "String match efficiency in libc environment",
+      "url": "https://github.com/llvm/llvm-project/issues/196016",
+      "kind": "issue",
+      "draft": false,
+      "updatedAt": "2026-10-05T10:46:57Z",
+      "relations": [
+        "assignee",
+        "commenter"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 229010,
+      "title": "[clang][Sema] Avoid out-of-bounds format_arg access",
+      "url": "https://github.com/llvm/llvm-project/pull/229010",
+      "kind": "pr",
+      "draft": false,
+      "updatedAt": "2026-10-05T08:50:19Z",
+      "relations": [
+        "author"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 228990,
+      "title": "[clang] Fix pragma attribute crashes caused by nested _Pragma",
+      "url": "https://github.com/llvm/llvm-project/pull/228990",
+      "kind": "pr",
+      "draft": false,
+      "updatedAt": "2026-10-05T07:16:53Z",
+      "relations": [
+        "author"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 225035,
+      "title": "[clang] #pragma clang attribute with a _Pragma as its argument: getIdentifierInfo() called on an annotation token",
+      "url": "https://github.com/llvm/llvm-project/issues/225035",
+      "kind": "issue",
+      "draft": false,
+      "updatedAt": "2026-10-05T06:45:32Z",
+      "relations": [
+        "commenter"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 228734,
+      "title": "[libc][math] Use float-only evaluation in asinbf16 and acosbf16",
+      "url": "https://github.com/llvm/llvm-project/pull/228734",
+      "kind": "pr",
+      "draft": false,
+      "updatedAt": "2026-10-04T15:21:46Z",
       "relations": [
         "author"
       ]
@@ -45,6 +142,18 @@
     },
     {
       "repository": "llvm/llvm-project",
+      "number": 225037,
+      "title": "[clang] ext_vector_type with an enum element type: Sema accepts it, ASTContext::getExtVectorType asserts",
+      "url": "https://github.com/llvm/llvm-project/issues/225037",
+      "kind": "issue",
+      "draft": false,
+      "updatedAt": "2026-10-04T08:02:08Z",
+      "relations": [
+        "commenter"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
       "number": 228749,
       "title": "[libc][math] Prevent spurious floating-point exceptions in fdim",
       "url": "https://github.com/llvm/llvm-project/pull/228749",
@@ -57,6 +166,18 @@
     },
     {
       "repository": "llvm/llvm-project",
+      "number": 53565,
+      "title": "LLVM_USE_LINKER should use --ld-path= instead of -fuse-ld=",
+      "url": "https://github.com/llvm/llvm-project/issues/53565",
+      "kind": "issue",
+      "draft": false,
+      "updatedAt": "2026-10-03T16:42:44Z",
+      "relations": [
+        "commenter"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
       "number": 202079,
       "title": "[libc][math] Add  float-only versions for `inv_trigf_utils.h`",
       "url": "https://github.com/llvm/llvm-project/issues/202079",
@@ -64,7 +185,20 @@
       "draft": false,
       "updatedAt": "2026-10-03T15:47:01Z",
       "relations": [
-        "assignee"
+        "assignee",
+        "commenter"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 81503,
+      "title": "[libc][stdbit] fix type generic macros to work with compound literals",
+      "url": "https://github.com/llvm/llvm-project/issues/81503",
+      "kind": "issue",
+      "draft": false,
+      "updatedAt": "2026-10-03T15:24:10Z",
+      "relations": [
+        "commenter"
       ]
     },
     {
@@ -81,26 +215,26 @@
     },
     {
       "repository": "llvm/llvm-project",
-      "number": 228633,
-      "title": "[libc][stdlib] Avoid scanning values during environment lookup",
-      "url": "https://github.com/llvm/llvm-project/pull/228633",
-      "kind": "pr",
+      "number": 195276,
+      "title": "[libc] Request for Annex K via `__STDC_WANT_LIB_EXT1__` doesn't work as expected",
+      "url": "https://github.com/llvm/llvm-project/issues/195276",
+      "kind": "issue",
       "draft": false,
-      "updatedAt": "2026-10-03T13:57:39Z",
+      "updatedAt": "2026-10-03T02:04:58Z",
       "relations": [
-        "author"
+        "commenter"
       ]
     },
     {
-      "repository": "llvm/llvm-project",
-      "number": 196016,
-      "title": "String match efficiency in libc environment",
-      "url": "https://github.com/llvm/llvm-project/issues/196016",
+      "repository": "rust-lang/cargo",
+      "number": 17519,
+      "title": "`build.warnings` is not honored when using `cargo clippy --message-format=json`",
+      "url": "https://github.com/rust-lang/cargo/issues/17519",
       "kind": "issue",
       "draft": false,
-      "updatedAt": "2026-10-02T11:31:30Z",
+      "updatedAt": "2026-10-02T04:50:29Z",
       "relations": [
-        "assignee"
+        "commenter"
       ]
     },
     {
@@ -113,6 +247,18 @@
       "updatedAt": "2026-10-01T17:31:31Z",
       "relations": [
         "author"
+      ]
+    },
+    {
+      "repository": "rust-lang/cargo",
+      "number": 11370,
+      "title": "`cargo tree -d` with multitarget configured shows duplicate dependencies once per target",
+      "url": "https://github.com/rust-lang/cargo/issues/11370",
+      "kind": "issue",
+      "draft": false,
+      "updatedAt": "2026-10-01T09:27:23Z",
+      "relations": [
+        "commenter"
       ]
     }
   ]

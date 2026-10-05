@@ -29,7 +29,7 @@ rag/                           可选问答后端及生成的本地索引
 
 ## 贡献数据
 
-项目配置唯一来源是 `src/data/contribution-projects.json`。`pnpm sync:contributions` 同步进行中的 Issue / PR，`pnpm sync:contribution-details` 保存已验证的记录详情。同步失败保留旧快照。
+项目配置唯一来源是 `src/data/contribution-projects.json`。`pnpm sync:contributions` 同步本人创建或获分配的进行中 Issue / PR，也收录本人评论参与的进行中 Issue；同一条目合并参与关系并去重。`pnpm sync:contribution-details` 保存已验证的记录详情。同步失败保留旧快照。
 
 构建不联系 GitHub。GitHub Pages 从 `/contributions.json` 读取打包的快照；VPS 的同一路径由独立 Node 服务提供，活动列表和清理后的 Markdown 详情来自同一代数据。页面打开时、重新可见时及可见期间每分钟检查更新，保留当前项目、类型筛选和记录选择。
 
