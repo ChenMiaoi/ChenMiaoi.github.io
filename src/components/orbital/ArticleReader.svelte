@@ -1,6 +1,9 @@
 <script lang="ts">
+  import { useTranslations } from "../../features/orbital/i18n/context";
+  const { t, dateLocale } = useTranslations();
   import { tick, onDestroy } from "svelte";
   import TerminalIcon from "./TerminalIcon.svelte";
+  import LanguageSwitcher from "./LanguageSwitcher.svelte";
   import type { ArchivePost } from "./types";
   import { loadArticle } from "../../lib/content/article-loader";
   export let reducedMotion = false;
@@ -41,6 +44,10 @@
       readerHtml = html;
       loading = false;
       await tick();
+      readerScroll.querySelectorAll<HTMLButtonElement>('.copy-btn').forEach((button) => {
+        button.setAttribute('aria-label', t("复制代码"));
+        button.title = t("复制代码");
+      });
       if (heading) jumpToHeading(heading);
       updateProgress();
     } catch {
@@ -83,9 +90,9 @@
       try {
         await navigator.clipboard.writeText(code);
         copyButton.dataset.copied = "true";
-        copyButton.setAttribute("aria-label", "已复制代码");
+        copyButton.setAttribute("aria-label", t("已复制代码"));
       } catch {
-        copyButton.setAttribute("aria-label", "复制失败，请选择代码复制");
+        copyButton.setAttribute("aria-label", t("复制失败，请选择代码复制"));
       }
     }
     const anchor = event.target.closest<HTMLAnchorElement>('.reader-body a[href^="#"]');
@@ -105,11 +112,11 @@
 <svelte:document onclick={readerAction} />
 <dialog bind:this={dialog} class="reading-dialog" class:motion-paused={reducedMotion} onclose={readerClosed} oncancel={(event) => { event.preventDefault(); closeReader(); }} aria-labelledby="reader-title">
   {#if readerPost}
-    <header class="reader-header"><button onclick={() => closeReader()}><TerminalIcon name="back" size={19}/><span>返回档案</span></button><span class="reader-status">READING / {readerPost.seriesTitle}</span><button class="reader-close" onclick={() => closeReader()} aria-label="关闭阅读面板"><TerminalIcon name="close" size={21}/></button></header>
+    <header class="reader-header"><button onclick={() => closeReader()}><TerminalIcon name="back" size={19}/><span>{t("返回档案")}</span></button><span class="reader-status">READING / {readerPost.seriesTitle}</span><LanguageSwitcher {reducedMotion}/><button class="reader-close" onclick={() => closeReader()} aria-label={t("关闭阅读面板")}><TerminalIcon name="close" size={21}/></button></header>
     <div class="reading-meter" aria-hidden="true"><span style={`width:${readingProgress}%`}></span></div>
-    <div class="reader-layout"><aside class="reader-toc"><p class="terminal-kicker">CONTENTS</p><h2>文内导航</h2>{#each readerPost.headings.filter((heading) => heading.depth <= 3) as heading}<button class:subheading={heading.depth > 1} onclick={() => jumpToHeading(heading.slug)}>{heading.text}</button>{/each}</aside>
+    <div class="reader-layout"><aside class="reader-toc"><p class="terminal-kicker">CONTENTS</p><h2>{t("文内导航")}</h2>{#each readerPost.headings.filter((heading) => heading.depth <= 3) as heading}<button class:subheading={heading.depth > 1} onclick={() => jumpToHeading(heading.slug)}>{heading.text}</button>{/each}</aside>
       <div class="reader-scroll" bind:this={readerScroll} onscroll={updateProgress}>
-        <article class="reader-article"><div class="reader-article-meta">{readerPost.date} <span>/</span> {readerPost.seriesTitle}</div><h1 id="reader-title">{readerPost.title}</h1><div class="reader-body" aria-busy={loading}>{#if loading}<p role="status">正在载入文章…</p>{:else if failed}<div role="alert"><p>文章暂时无法载入。</p><button class="signal-button" onclick={() => readerPost && open(readerPost, requestedHeading)}>重新加载</button><p><a href={readerPost.url}>打开文章页面 ↗</a></p></div>{:else}{@html readerHtml}{/if}</div><div class="reader-end"><span>END OF DOCUMENT</span><button onclick={() => closeReader()}>返回文章档案 <TerminalIcon name="back" size={17}/></button></div></article>
+        <article class="reader-article" lang={readerPost.contentLang}><div class="reader-article-meta">{readerPost.date} <span>/</span> {readerPost.seriesTitle}</div><h1 id="reader-title">{readerPost.title}</h1>{#if readerPost.contentLang !== dateLocale}<p class="reader-language-note" lang={dateLocale}>{t("这篇文章暂无当前语言译文，以下为中文原文。")}</p>{/if}<div class="reader-body" aria-busy={loading}>{#if loading}<p role="status">{t("正在载入文章…")}</p>{:else if failed}<div role="alert"><p>{t("文章暂时无法载入。")}</p><button class="signal-button" onclick={() => readerPost && open(readerPost, requestedHeading)}>{t("重新加载")}</button><p><a href={readerPost.url}>{t("打开文章页面 ↗")}</a></p></div>{:else}{@html readerHtml}{/if}</div><div class="reader-end"><span>END OF DOCUMENT</span><button onclick={() => closeReader()}>{t("返回文章档案")} <TerminalIcon name="back" size={17}/></button></div></article>
       </div>
     </div>
   {/if}

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { useTranslations } from "../../features/orbital/i18n/context";
+  const { t } = useTranslations();
   import { tick } from "svelte";
   import { fly } from "svelte/transition";
   import TerminalIcon from "./TerminalIcon.svelte";
@@ -41,7 +43,7 @@
   $: collectionNodes = map.nodes.filter((node) => node.kind === "series");
   $: articleNodes = map.nodes.filter((node) => node.kind === "post");
   $: focusedSeries = selected?.collection ?? series.find((item) => item.slug === selected?.post?.series);
-  $: scopeTitle = current ? shortTitle(current.title) : "暂无主题";
+  $: scopeTitle = current ? shortTitle(current.title) : t("暂无主题");
   $: if (compact && current && viewport) centerCore(current.slug);
 
   function buildMap(root: ArchiveSeries, width: number) {
@@ -189,16 +191,16 @@
   function endDrag() { dragging = false; dragOrigin = null; }
 </script>
 
-<section class="topology-console" class:compact aria-label="知识星图探索">
+<section class="topology-console" class:compact aria-label={t("知识星图探索")}>
   <div class="topology-toolbar">
-    <label class="topology-scope"><span>探索主题</span><select value={current?.slug ?? ''} onchange={(event) => { scope = event.currentTarget.value; changeScope(); }} aria-label="选择地图主题">{#each roots as root}<option value={root.slug}>{shortTitle(root.title)}</option>{/each}</select><TerminalIcon name="arrow" size={14}/></label>
-    <div class="topology-key" aria-label="节点图例"><span><i class="series-symbol"></i>系列</span><span><i class="article-symbol"></i>文章</span></div>
-    <div class="topology-tools"><button aria-label="缩小地图" disabled={zoom <= .35} onclick={() => changeZoom(-1)}>−</button><span aria-live="polite">{Math.round(zoom * 100)}%</span><button aria-label="放大地图" disabled={zoom >= 1.8} onclick={() => changeZoom(1)}>+</button><button class="topology-reset" onclick={resetView}>完整星图</button></div>
+    <label class="topology-scope"><span>{t("探索主题")}</span><select value={current?.slug ?? ''} onchange={(event) => { scope = event.currentTarget.value; changeScope(); }} aria-label={t("选择地图主题")}>{#each roots as root}<option value={root.slug}>{shortTitle(root.title)}</option>{/each}</select><TerminalIcon name="arrow" size={14}/></label>
+    <div class="topology-key" aria-label={t("节点图例")}><span><i class="series-symbol"></i>{t("系列")}</span><span><i class="article-symbol"></i>{t("文章")}</span></div>
+    <div class="topology-tools"><button aria-label={t("缩小地图")} disabled={zoom <= .35} onclick={() => changeZoom(-1)}>−</button><span aria-live="polite">{Math.round(zoom * 100)}%</span><button aria-label={t("放大地图")} disabled={zoom >= 1.8} onclick={() => changeZoom(1)}>+</button><button class="topology-reset" onclick={resetView}>{t("完整星图")}</button></div>
   </div>
 
   <div class="topology-map">
-    <div class="topology-map-label"><span>CONSTELLATION <i>/</i> 知识星图</span><span>{collectionNodes.length} 个系列节点 <i>·</i> {articleNodes.length} 篇文章</span></div>
-    <div class="topology-viewport" class:dragging bind:this={viewport} use:observeViewport role="region" aria-label={`${scopeTitle}关系图，可滚动或拖动查看`} tabindex="0" onpointerdown={startDrag} onpointermove={moveDrag} onpointerup={endDrag} onpointercancel={endDrag} onlostpointercapture={endDrag}>
+    <div class="topology-map-label"><span>CONSTELLATION <i>/</i> {t("知识星图")}</span><span>{t("{v0} 个系列节点", { v0: collectionNodes.length })} <i>·</i> {t("{v0} 篇文章", { v0: articleNodes.length })}</span></div>
+    <div class="topology-viewport" class:dragging bind:this={viewport} use:observeViewport role="region" aria-label={t("{v0}关系图，可滚动或拖动查看", { v0: scopeTitle })} tabindex="0" onpointerdown={startDrag} onpointermove={moveDrag} onpointerup={endDrag} onpointercancel={endDrag} onlostpointercapture={endDrag}>
       <div class="topology-plane" style={`width:${sceneWidth * zoom}px;height:${map.height * zoom}px`}>
         <div class="topology-scene" style={`width:${sceneWidth}px;height:${map.height}px;transform:scale(${zoom})`}>
           <svg class="stellar-environment" viewBox={`0 0 ${sceneWidth} ${map.height}`} aria-hidden="true">
@@ -221,24 +223,24 @@
             {/key}
           </svg>
           {#each map.nodes as node (node.id)}
-            <button class="topology-node" class:root-node={node.depth === 0} class:series-node={node.kind === 'series'} class:article-node={node.kind === 'post'} class:label-above={node.above} class:label-left={node.leftLabel} class:selected={selected?.id === node.id} class:on-path={activePath.has(node.id)} style={`left:${node.x}px;top:${node.y}px;width:${node.w}px;height:${node.h}px;--anchor-x:${node.cx-node.x}px;--anchor-y:${node.cy-node.y}px`} aria-label={`${node.kind === 'post' ? '预览文章' : '查看节点'}：${node.title}`} aria-pressed={selected?.id === node.id} title={node.title} onclick={() => { selectedId = node.id; }}>
-              {#if node.depth === 0}<span class="core-overline">当前主题</span><strong>{node.label}</strong><small>{String(node.collection?.posts.length ?? 0).padStart(2, '0')} / ARTICLES</small>
-              {:else if node.kind === "series"}<span class="stellar-hub" aria-hidden="true"><i></i></span><span class="stellar-series-label"><strong>{node.label}</strong><small>{node.collection?.posts.length} 篇文章</small></span>
+            <button class="topology-node" class:root-node={node.depth === 0} class:series-node={node.kind === 'series'} class:article-node={node.kind === 'post'} class:label-above={node.above} class:label-left={node.leftLabel} class:selected={selected?.id === node.id} class:on-path={activePath.has(node.id)} style={`left:${node.x}px;top:${node.y}px;width:${node.w}px;height:${node.h}px;--anchor-x:${node.cx-node.x}px;--anchor-y:${node.cy-node.y}px`} aria-label={`${node.kind === 'post' ? t("预览文章") : t("查看节点")}：${node.title}`} aria-pressed={selected?.id === node.id} title={node.title} onclick={() => { selectedId = node.id; }}>
+              {#if node.depth === 0}<span class="core-overline">{t("当前主题")}</span><strong>{node.label}</strong><small>{String(node.collection?.posts.length ?? 0).padStart(2, '0')} / ARTICLES</small>
+              {:else if node.kind === "series"}<span class="stellar-hub" aria-hidden="true"><i></i></span><span class="stellar-series-label"><strong>{node.label}</strong><small>{t("{v0} 篇文章", { v0: node.collection?.posts.length ?? 0 })}</small></span>
               {:else}<span class="topology-document-dot" aria-hidden="true">{String(node.ordinal).padStart(2, '0')}</span><span class="topology-article-title">{node.label}</span>{/if}
             </button>
           {/each}
         </div>
       </div>
     </div>
-    <div class="topology-map-foot"><span><i></i>系列归属路径</span><span>选择节点聚焦 · 拖动探索</span></div>
-    {#if compact}<label class="stellar-mobile-locate"><span>定位节点</span><select aria-label="定位星图节点" value={selected?.id} onchange={(event) => locateNode(event.currentTarget.value)}>{#each map.nodes as node}<option value={node.id}>{node.title}</option>{/each}</select></label>{/if}
+    <div class="topology-map-foot"><span><i></i>{t("系列归属路径")}</span><span>{t("选择节点聚焦 · 拖动探索")}</span></div>
+    {#if compact}<label class="stellar-mobile-locate"><span>{t("定位节点")}</span><select aria-label={t("定位星图节点")} value={selected?.id} onchange={(event) => locateNode(event.currentTarget.value)}>{#each map.nodes as node}<option value={node.id}>{node.title}</option>{/each}</select></label>{/if}
   </div>
 
   {#if selected}
     <section class="topology-inspector" aria-labelledby="topology-selection-title">
       <div class="topology-selection-mark" aria-hidden="true"><TerminalIcon name={selected.kind === 'post' ? 'article' : 'series'} size={24}/></div>
-      {#key selected.id}<div class="topology-selection-content" in:fly={{x: reducedMotion ? 0 : 8, duration: reducedMotion ? 0 : 240}}><p class="topology-selection-meta"><span>{selected.kind === 'post' ? '文章节点' : selected.depth ? '子系列节点' : '主题节点'}</span><i>/</i>{selected.post?.date ?? `${selected.collection?.posts.length ?? 0} 篇文章`}</p><h2 id="topology-selection-title">{selected.title}</h2><p class="topology-selection-description">{selected.post?.description ?? selected.collection?.description}</p><span class="topology-selection-parent">{selected.kind === 'post' ? focusedSeries?.title : selected.depth ? series.find((item) => item.slug === selected.collection?.parent)?.title : '选择分支，探索主题下的文章。'}</span></div>{/key}
-      <button class="topology-open" onclick={() => { if (selected.post) onRead(selected.post); else if (selected.collection) onBrowse(selected.collection.slug); }}>{selected.kind === 'post' ? '进入阅读' : '浏览系列'}<TerminalIcon name="external" size={20}/></button>
+      {#key selected.id}<div class="topology-selection-content" in:fly={{x: reducedMotion ? 0 : 8, duration: reducedMotion ? 0 : 240}}><p class="topology-selection-meta"><span>{selected.kind === 'post' ? t("文章节点") : selected.depth ? t("子系列节点") : t("主题节点")}</span><i>/</i>{selected.post?.date ?? t("{v0} 篇文章", { v0: selected.collection?.posts.length ?? 0 })}</p><h2 id="topology-selection-title">{selected.title}</h2><p class="topology-selection-description">{selected.post?.description ?? selected.collection?.description}</p><span class="topology-selection-parent">{selected.kind === 'post' ? focusedSeries?.title : selected.depth ? series.find((item) => item.slug === selected.collection?.parent)?.title : t("选择分支，探索主题下的文章。")}</span></div>{/key}
+      <button class="topology-open" onclick={() => { if (selected.post) onRead(selected.post); else if (selected.collection) onBrowse(selected.collection.slug); }}>{selected.kind === 'post' ? t("进入阅读") : t("浏览系列")}<TerminalIcon name="external" size={20}/></button>
     </section>
   {/if}
 </section>

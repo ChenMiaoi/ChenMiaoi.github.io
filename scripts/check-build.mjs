@@ -29,11 +29,22 @@ for (const path of ["", "en/", "ja/", "zh_TW/", "archive/", "series/", "graph/",
 	await access(resolve(production, path, "index.html"));
 }
 for (const prefix of ["", "en/", "ja/", "zh_TW/"]) {
+	const [lang, entrance, heading, switchLabel] = {
+		"": ["zh-CN", "欢迎登站", "文章档案", "选择语言"],
+		"en/": ["en", "Welcome aboard", "Article archive", "Choose language"],
+		"ja/": ["ja", "ようこそ", "記事アーカイブ", "言語を選択"],
+		"zh_TW/": ["zh-TW", "歡迎登站", "文章檔案", "選擇語言"],
+	}[prefix];
 	const welcome = await readFile(resolve(production, prefix, "index.html"), "utf8");
 	assert.match(welcome, /class="welcome-portal/, `Welcome missing: ${prefix}`);
+	assert.ok(welcome.includes(`<html lang="${lang}"`), `Wrong document language: ${prefix}`);
+	assert.ok(welcome.includes(`<title>${entrance} · Miao&#39;s Blog</title>`) || welcome.includes(`<title>${entrance} · Miao's Blog</title>`), `Untranslated entrance title: ${prefix}`);
+	assert.ok(welcome.includes(`aria-label="${switchLabel}"`), `Language switch missing: ${prefix}`);
 	assert.ok(welcome.includes(`href="/${prefix}archive/"`));
 	const archive = await readFile(resolve(production, prefix, "archive/index.html"), "utf8");
 	assert.match(archive, /class="terminal-shell/);
+	assert.ok(archive.includes(`<title>${heading} · Miao&#39;s Blog</title>`) || archive.includes(`<title>${heading} · Miao's Blog</title>`), `Untranslated archive title: ${prefix}`);
+	await access(resolve(production, prefix, "2026/09/20/linux-physical-memory/index.html"));
 	assert.doesNotMatch(archive, /class="welcome-portal/);
 }
 await access(resolve(production, "pagefind/pagefind.js"));

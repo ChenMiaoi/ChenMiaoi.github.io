@@ -9,6 +9,8 @@ import { contributionActivity, contributionDetails } from "../src/lib/contributi
 import { detailsSchema } from "../src/lib/contributions/schema.ts";
 import { resolveContributionProjects, projectRecords } from "../src/lib/contributions/projects.ts";
 import { isWelcomeLocation, resolveOrbitalLocation, sectionPaths } from "../src/lib/content/navigation.ts";
+import { createTranslations, languageUrl } from "../src/features/orbital/i18n/index.ts";
+import { messages } from "../src/features/orbital/i18n/messages.ts";
 
 test("permalinks preserve UTC dates, leap days and nested slugs", () => {
 	assert.equal(postPath("kernel/memory", new Date("2024-02-29")), "/2024/02/29/kernel/memory/");
@@ -85,4 +87,71 @@ test("both contribution views resolve every configured record from validated sna
 	}
 	assert.deepEqual(contributionActivity.repositories, contributionSyncConfig.repositories);
 	assert.throws(() => detailsSchema.parse({ ...contributionDetails, records: [{ ...contributionDetails.records[0], stats: { files: -1, additions: 0, deletions: 0 } }] }));
+});
+
+test("language switching preserves deep links, filters and headings without duplicating locale prefixes", () => {
+	assert.equal(
+		languageUrl("/en/archive/?q=Linux&category=hardware", "ja"),
+		"/ja/archive/?q=Linux&category=hardware",
+	);
+	assert.equal(
+		languageUrl("/ja/series/linux-memory/", "zh_CN"),
+		"/series/linux-memory/",
+	);
+	assert.equal(
+		languageUrl("/2026/09/20/memory/#page-table", "en"),
+		"/en/2026/09/20/memory/#page-table",
+	);
+	assert.equal(languageUrl("/zh_TW/", "en"), "/en/");
+	assert.equal(languageUrl("/en", "zh_CN"), "/");
+});
+
+test("all interface translations preserve interpolation parameters and substitute values literally", () => {
+	const parameters = (text) =>
+		[...text.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort();
+	for (const [source, translations] of Object.entries(messages)) {
+		assert.equal(translations.length, 3);
+		for (const text of translations) {
+			assert.ok(text.trim(), source);
+			assert.deepEqual(parameters(text), parameters(source), source);
+		}
+	}
+	assert.equal(
+		createTranslations("en").t("搜索「{v0}」", { v0: "$& <Linux>" }),
+		"Search: “$& <Linux>”",
+	);
+	assert.equal(
+		createTranslations("ja").t("{v0} 篇文章", { v0: 0 }),
+		"0 件の記事",
+	);
+	assert.equal(createTranslations("zh_CN").t("欢迎登站"), "欢迎登站");
+	assert.equal(createTranslations("zh_TW").t("文章档案"), "文章檔案");
+	assert.equal(createTranslations("en").t("{v0} 篇文章", { v0: 1 }), "1 article");
+	assert.equal(createTranslations("en").t("{v0} 篇文章", { v0: 2 }), "2 articles");
+});
+
+test("English prefers published translations and falls back per article without dropping untranslated posts", () => {
+	const post = (id, draft = false) => ({
+		id,
+		data: { published: new Date("2026-01-01"), draft },
+	});
+	const entries = [
+		post("translated"),
+		post("translated.en"),
+		post("original"),
+		post("original.en", true),
+		post("draft", true),
+	];
+	assert.deepEqual(
+		selectPosts(entries, "en").map((entry) => entry.id),
+		["translated.en", "original"],
+	);
+	assert.deepEqual(
+		selectPosts(entries, "en").map((entry) => entry.slug),
+		["translated", "original"],
+	);
+	assert.deepEqual(
+		selectPosts(entries, "zh_CN").map((entry) => entry.id),
+		["translated", "original"],
+	);
 });

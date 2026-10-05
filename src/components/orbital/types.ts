@@ -1,4 +1,5 @@
 export type ArchivePost = {
+  contentLang: "en" | "zh-CN";
   slug: string;
   title: string;
   date: string;

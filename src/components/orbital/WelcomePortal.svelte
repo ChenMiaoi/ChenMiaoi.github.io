@@ -1,6 +1,9 @@
 <script lang="ts">
+  import { useTranslations } from "../../features/orbital/i18n/context";
+  const { t } = useTranslations();
   import { onDestroy } from "svelte";
   import TerminalIcon from "./TerminalIcon.svelte";
+  import LanguageSwitcher from "./LanguageSwitcher.svelte";
   import { sectionPaths } from "../../lib/content/navigation";
 
   export let localePrefix = "";
@@ -30,25 +33,26 @@
 <div class="welcome-portal" class:portal-moving={motionReady && !reducedMotion} class:portal-idle={ambientPaused} class:portal-departing={departing}>
   <div class="portal-grid" aria-hidden="true"></div>
   <header class="portal-header">
-    <a class="brand portal-brand" href={archiveUrl} onclick={(event) => enter(event, true)} aria-label="Miao's Blog，进入文章档案">
+    <a class="brand portal-brand" href={archiveUrl} onclick={(event) => enter(event, true)} aria-label={t("Miao's Blog，进入文章档案")}>
       <svg class="brand-mark" viewBox="0 0 52 52" aria-hidden="true"><path d="M35 4h10L17 36H7zM19 30h9L12 48H2z" fill="currentColor"/><path d="M34 29h12L31 47H19z" fill="#f0e433"/></svg>
       <span><strong>Miao's Blog</strong><small>SYSTEMS & NOTES</small></span>
     </a>
     <span class="portal-header-label" aria-hidden="true"><i></i> A PERSONAL SPACE FOR EXPLORATION</span>
-    <a class="portal-skip" href={archiveUrl} onclick={(event) => enter(event, true)}>直接进入 <TerminalIcon name="arrow" size={16}/></a>
+    <a class="portal-skip" href={archiveUrl} onclick={(event) => enter(event, true)}>{t("直接进入")} <TerminalIcon name="arrow" size={16}/></a>
+    <LanguageSwitcher {reducedMotion}/>
   </header>
 
   <main class="portal-main">
     <div class="portal-copy">
-      <p class="portal-eyebrow"><span></span> HELLO, EXPLORER <i>/</i> 欢迎登站</p>
-      <h1>原天地之美<br/>而达<span>万物之理</span><b aria-hidden="true">。</b></h1>
+      <p class="portal-eyebrow"><span></span> HELLO, EXPLORER <i>/</i> {t("欢迎登站")}</p>
+      <h1>{t("原天地之美")}<br/>{t("而达")}<span>{t("万物之理")}</span><b aria-hidden="true">。</b></h1>
       <div class="portal-action-row">
-        <a class="portal-enter" href={archiveUrl} onclick={enter} aria-label="进入档案">
+        <a class="portal-enter" href={archiveUrl} onclick={enter} aria-label={t("进入档案")}>
           <span class="portal-enter-index" aria-hidden="true">↗</span>
-          <span><strong>进入档案</strong><small>ENTER THE ARCHIVE</small></span>
+          <span><strong>{t("进入档案")}</strong><small>ENTER THE ARCHIVE</small></span>
           <TerminalIcon name="arrow" size={23}/>
         </a>
-        <span class="portal-action-note">保持好奇<br/><span>KEEP EXPLORING</span></span>
+        <span class="portal-action-note">{t("保持好奇")}<br/><span>KEEP EXPLORING</span></span>
       </div>
       <p class="portal-signature"><span></span> {author} <i>/</i> Let me drive your world.</p>
     </div>
@@ -91,8 +95,8 @@
   </main>
 
   <footer class="portal-footer">
-    <span>一个人的探索，也期待与你相遇。</span>
+    <span>{t("一个人的探索，也期待与你相遇。")}</span>
     <span class="portal-footer-index" aria-hidden="true">MIAO / PERSONAL ARCHIVE</span>
-    <button class="motion-control" aria-label={systemReducedMotion ? '系统已减少动态效果' : reducedMotion ? '开启页面动效' : '暂停页面动效'} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? '动效暂停' : '动效开启'}</span></button>
+    <button class="motion-control" aria-label={systemReducedMotion ? t("系统已减少动态效果") : reducedMotion ? t("开启页面动效") : t("暂停页面动效")} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? t("动效暂停") : t("动效开启")}</span></button>
   </footer>
 </div>

@@ -7,7 +7,10 @@ export async function GET() {
 	const documents = await Promise.all(
 		(["zh_CN", "en"] as const).map(async (locale) =>
 			(await getRawSortedPosts(locale))
-				.filter((post) => !post.data.draft)
+				.filter(
+					(post) =>
+						!post.data.draft && (locale !== "en" || post.id.endsWith(".en")),
+				)
 				.map((post) => ({
 					id: post.id,
 					locale,

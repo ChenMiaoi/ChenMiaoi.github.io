@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { useTranslations } from "../../features/orbital/i18n/context";
+  const { t } = useTranslations();
   import { tick } from "svelte";
   import { fly } from "svelte/transition";
   import TerminalIcon from "./TerminalIcon.svelte";
@@ -104,61 +106,61 @@
 </script>
 <svelte:window onscroll={positionContext} />
         {#if seriesFilter || query}
-          <div class="filter-summary"><span>{seriesFilter ? selectedSeriesTitle : `搜索「${query}」`} <small>{filteredPosts.length} 篇</small></span><button onclick={resetFilters}>清除筛选 <TerminalIcon name="close" size={14}/></button></div>
+          <div class="filter-summary"><span>{seriesFilter ? selectedSeriesTitle : t("搜索「{v0}」", { v0: query })} <small>{t("{v0} 篇文章", { v0: filteredPosts.length })}</small></span><button onclick={resetFilters}>{t("清除筛选")} <TerminalIcon name="close" size={14}/></button></div>
         {/if}
         <div class="archive-grid">
-          <section class="archive-list" aria-label="文章档案">
-            <div class="archive-toolbar"><span>文章索引<small>{String(filteredPosts.length).padStart(2, "0")}</small></span><button onclick={() => { descending = !descending; selectedSlug = ''; }} aria-label={descending ? "按时间从旧到新排序" : "按时间从新到旧排序"}>{descending ? '最新优先' : '最早优先'}<span class:reversed={!descending}><TerminalIcon name="sort" size={16}/></span></button></div>
-            <div class="archive-scroll" bind:this={archiveScroll} use:observeRail onscroll={positionContext} tabindex="0" role="region" aria-label="滚动浏览文章档案">
+          <section class="archive-list" aria-label={t("文章档案")}>
+            <div class="archive-toolbar"><span>{t("文章索引")}<small>{String(filteredPosts.length).padStart(2, "0")}</small></span><button onclick={() => { descending = !descending; selectedSlug = ''; }} aria-label={descending ? t("按时间从旧到新排序") : t("按时间从新到旧排序")}>{descending ? t("最新优先") : t("最早优先")}<span class:reversed={!descending}><TerminalIcon name="sort" size={16}/></span></button></div>
+            <div class="archive-scroll" bind:this={archiveScroll} use:observeRail onscroll={positionContext} tabindex="0" role="region" aria-label={t("滚动浏览文章档案")}>
             <div class="archive-rail" bind:this={archiveBody} use:observeRail use:revealSequence={{key: `${category}|${seriesFilter}|${descending}|${query}`, enabled: motionReady && !reducedMotion, selector: '.dossier-content', wait: query ? 140 : 0}}>
               {#if selectedPost}<span class="rail-focus" style={`transform:translateY(${markerTop}px)`} aria-hidden="true"></span>{/if}
               {#each filteredPosts as post, index (post.slug)}
                 <div class="dossier" class:is-selected={selectedPost?.slug === post.slug}>
                   <span class="rail-node" aria-hidden="true"></span>
-                  <button class="dossier-hit" aria-label={`预览：${post.title}`} aria-pressed={selectedPost?.slug === post.slug} onclick={() => { selectedSlug = post.slug; }} onkeydown={(event) => moveSelection(event,index)}>
+                  <button class="dossier-hit" aria-label={t("预览：{v0}", { v0: post.title })} aria-pressed={selectedPost?.slug === post.slug} onclick={() => { selectedSlug = post.slug; }} onkeydown={(event) => moveSelection(event,index)}>
                     <span class="dossier-lock" aria-hidden="true"></span>
                     <span class="dossier-index" aria-hidden="true">{String(filteredPosts.indexOf(post) + 1).padStart(2, "0")}</span>
-                    <span class="dossier-meta"><time class="dossier-date" datetime={post.date.replaceAll(".", "-")}>{post.date}</time><span>{selectedPost?.slug === post.slug ? '正在预览' : post.category === 'linux' ? 'LINUX' : 'HARDWARE'}</span></span>
+                    <span class="dossier-meta"><time class="dossier-date" datetime={post.date.replaceAll(".", "-")}>{post.date}</time><span>{selectedPost?.slug === post.slug ? t("正在预览") : post.category === 'linux' ? 'LINUX' : 'HARDWARE'}</span></span>
                     <span class="dossier-content"><strong>{post.title}</strong><span class="dossier-description">{post.description}</span></span>
                     <span class="dossier-series">{post.seriesTitle}</span>
                     <span class="dossier-arrow"><TerminalIcon name="arrow" size={21}/></span>
                   </button>
-                  {#if selectedPost?.slug === post.slug}<button class="mobile-read" onclick={() => openReader(post)}>进入阅读 <TerminalIcon name="external" size={16}/></button>{/if}
+                  {#if selectedPost?.slug === post.slug}<button class="mobile-read" onclick={() => openReader(post)}>{t("进入阅读")} <TerminalIcon name="external" size={16}/></button>{/if}
                 </div>
               {/each}
               {#if filteredPosts.length === 0}
-                <div class="archive-empty"><TerminalIcon name="search" size={30}/><h2>没有找到相关档案</h2><p>试试其他关键词，或返回全部文章。</p><button class="signal-button" onclick={resetFilters}>清除筛选</button></div>
+                <div class="archive-empty"><TerminalIcon name="search" size={30}/><h2>{t("没有找到相关档案")}</h2><p>{t("试试其他关键词，或返回全部文章。")}</p><button class="signal-button" onclick={resetFilters}>{t("清除筛选")}</button></div>
               {/if}
               {#if filteredPosts.length > 0}
-                <div class="archive-end"><span></span>共 {filteredPosts.length} 篇文章<span></span></div>
+                <div class="archive-end"><span></span>{t("共 {v0} 篇文章", { v0: filteredPosts.length })}<span></span></div>
               {/if}
             </div>
             </div>
             {#if selectedPost && connectionVisible}<svg class="archive-connection" viewBox={`0 0 70 ${railHeight}`} preserveAspectRatio="none" style={`height:${railHeight}px;top:${connectionTop}px`} aria-hidden="true"><path d={`M${connectionStartX} ${connectionY}H12L53 ${connectionTargetY}H70`} />{#key selectedPost.slug}<path class="archive-arrival" pathLength="1" d={`M${connectionStartX} ${connectionY}H12L53 ${connectionTargetY}H70`}/>{/key}<circle cx="68" cy={connectionTargetY} r="3"/></svg>{/if}
           </section>
 
-          <aside class="context-column" aria-label="当前文章预览">
+          <aside class="context-column" aria-label={t("当前文章预览")}>
             {#if selectedPost}
               <div class="context-panel" bind:this={contextPanel}>
-                <div class="context-label"><span><i></i>当前档案</span><small>DOCUMENT / {String(selectedIndex).padStart(2, '0')}</small></div>
+                <div class="context-label"><span><i></i>{t("当前档案")}</span><small>DOCUMENT / {String(selectedIndex).padStart(2, '0')}</small></div>
                 {#key selectedPost.slug}
                   <div class="context-content" in:fly={{ x: reducedMotion ? 0 : 12, duration: reducedMotion ? 0 : 300 }}>
                     <p class="context-eyebrow">{selectedPost.seriesTitle}</p>
                     <h2>{selectedPost.title}</h2>
                     <p class="context-meta">{selectedPost.date}<span>/</span>{selectedPost.tags.slice(0,2).join(' · ')}</p>
                     <p class="context-excerpt">{selectedPost.excerpt}</p>
-                    <div class="context-chapters"><h3>{selectedPost.headings.length ? "从这里开始" : "文章主题"}</h3>
+                    <div class="context-chapters"><h3>{selectedPost.headings.length ? t("从这里开始") : t("文章主题")}</h3>
                       {#if selectedPost.headings.length}
                         {#each selectedPost.headings.filter((heading) => heading.depth <= 2).slice(0, 2) as heading}
                           <button onclick={() => openReader(selectedPost, heading.slug)}>{heading.text}<TerminalIcon name="arrow" size={16}/></button>
                         {/each}
                       {:else}<p>{selectedPost.tags.join(" / ") || selectedPost.seriesTitle}</p>{/if}
                     </div>
-                    <button class="signal-button read-action" onclick={() => openReader(selectedPost)}><span>进入阅读<small>OPEN DOCUMENT</small></span><TerminalIcon name="external" size={22}/></button>
+                    <button class="signal-button read-action" onclick={() => openReader(selectedPost)}><span>{t("进入阅读")}<small>OPEN DOCUMENT</small></span><TerminalIcon name="external" size={22}/></button>
                   </div>
                 {/key}
               </div>
-              <div class="document-jog" aria-label="档案切换"><button aria-label="上一篇档案" disabled={selectedIndex <= 1} onclick={() => browseDocument(-1)}><TerminalIcon name="back" size={18}/></button><span>{String(selectedIndex).padStart(2,'0')}<i>/</i>{String(filteredPosts.length).padStart(2,'0')}</span><button aria-label="下一篇档案" disabled={selectedIndex >= filteredPosts.length} onclick={() => browseDocument(1)}><TerminalIcon name="arrow" size={18}/></button></div>
+              <div class="document-jog" aria-label={t("档案切换")}><button aria-label={t("上一篇档案")} disabled={selectedIndex <= 1} onclick={() => browseDocument(-1)}><TerminalIcon name="back" size={18}/></button><span>{String(selectedIndex).padStart(2,'0')}<i>/</i>{String(filteredPosts.length).padStart(2,'0')}</span><button aria-label={t("下一篇档案")} disabled={selectedIndex >= filteredPosts.length} onclick={() => browseDocument(1)}><TerminalIcon name="arrow" size={18}/></button></div>
             {/if}
           </aside>
         </div>

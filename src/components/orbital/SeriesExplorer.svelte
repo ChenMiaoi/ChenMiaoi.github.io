@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { useTranslations } from "../../features/orbital/i18n/context";
+  const { t } = useTranslations();
   import { tick } from "svelte";
   import { fly } from "svelte/transition";
   import TerminalIcon from "./TerminalIcon.svelte";
@@ -70,23 +72,23 @@
 
 <svelte:window onresize={() => { if (current) revealSeries(current.slug); }}/>
 
-<section class="path-explorer" aria-label="系列探索">
+<section class="path-explorer" aria-label={t("系列探索")}>
   <div class="path-layout">
-    <aside class="path-directory" aria-label="选择系列">
+    <aside class="path-directory" aria-label={t("选择系列")}>
       <div class="path-toolbar">
-        <span><i aria-hidden="true"></i>系列目录</span>
-        <button class:enabled={showEmpty} aria-label="显示未收录系列" title="显示未收录系列" aria-pressed={showEmpty} onclick={() => { showEmpty = !showEmpty; }}><span class="path-toggle" aria-hidden="true"></span>未收录</button>
+        <span><i aria-hidden="true"></i>{t("系列目录")}</span>
+        <button class:enabled={showEmpty} aria-label={t("显示未收录系列")} title={t("显示未收录系列")} aria-pressed={showEmpty} onclick={() => { showEmpty = !showEmpty; }}><span class="path-toggle" aria-hidden="true"></span>{t("未收录")}</button>
       </div>
       <div class="path-options" bind:this={seriesRail} use:revealSequence={{key: String(showEmpty), enabled: !reducedMotion, selector: '.path-name'}}>
         {#each roots as collection, index (collection.slug)}
-          <button class="path-option" class:active={current?.slug === collection.slug} aria-pressed={current?.slug === collection.slug} aria-label={`查看系列：${collection.title}`} onclick={() => { selection = collection.slug; }}>
+          <button class="path-option" class:active={current?.slug === collection.slug} aria-pressed={current?.slug === collection.slug} aria-label={t("查看系列：{v0}", { v0: collection.title })} onclick={() => { selection = collection.slug; }}>
             <span class="path-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-            <span class="path-name"><strong>{shortTitle(collection.title)}</strong><small>{collection.posts.length ? `${collection.posts.length} 篇文章` : "尚未收录"}</small></span>
+            <span class="path-name"><strong>{shortTitle(collection.title)}</strong><small>{collection.posts.length ? t("{v0} 篇文章", { v0: collection.posts.length }) : t("尚未收录")}</small></span>
             <TerminalIcon name="arrow" size={15}/>
           </button>
         {/each}
       </div>
-      <div class="path-directory-foot"><span>{documentCount} 篇笔记</span><i aria-hidden="true"></i><span>{roots.length} 条路径</span></div>
+      <div class="path-directory-foot"><span>{t("{v0} 篇笔记", { v0: documentCount })}</span><i aria-hidden="true"></i><span>{t("{v0} 条路径", { v0: roots.length })}</span></div>
     </aside>
 
     {#if current}
@@ -100,43 +102,43 @@
               {#if subtitle(current.title)}<p class="path-subtitle">{subtitle(current.title)}</p>{/if}
               <div class="path-summary-row">
                 <p class="path-description">{current.description}</p>
-                {#if firstPost}<div class="path-hero-actions"><button class="path-start" onclick={() => onRead(firstPost)}>开始阅读<TerminalIcon name="external" size={18}/></button></div>{/if}
+                {#if firstPost}<div class="path-hero-actions"><button class="path-start" onclick={() => onRead(firstPost)}>{t("开始阅读")}<TerminalIcon name="external" size={18}/></button></div>{/if}
               </div>
             </header>
 
             {#if children.length}
-              <nav class="path-branch-shortcuts" aria-label="跳转到子系列">
+              <nav class="path-branch-shortcuts" aria-label={t("跳转到子系列")}>
                 {#each children as child, index}
-                  <button onclick={() => jumpToSeries(child.slug)}><span class="path-shortcut-node" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span>{shortTitle(child.title)}<small>{child.posts.length} 篇</small></span></button>
+                  <button onclick={() => jumpToSeries(child.slug)}><span class="path-shortcut-node" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span>{shortTitle(child.title)}<small>{t("{v0} 篇文章", { v0: child.posts.length })}</small></span></button>
                 {/each}
               </nav>
             {/if}
 
             <div class="path-outline">
-              <div class="path-outline-heading"><h3>阅读目录</h3><span>SERIES CONTENTS</span></div>
-              <div class="path-chapters" bind:this={chapterPane} use:revealSequence={{key: current.slug, enabled: !reducedMotion, selector: '.path-reading-list li'}} tabindex="0" role="region" aria-label={`${shortTitle(current.title)}的阅读目录`}>
+              <div class="path-outline-heading"><h3>{t("阅读目录")}</h3><span>SERIES CONTENTS</span></div>
+              <div class="path-chapters" bind:this={chapterPane} use:revealSequence={{key: current.slug, enabled: !reducedMotion, selector: '.path-reading-list li'}} tabindex="0" role="region" aria-label={t("{v0}的阅读目录", { v0: shortTitle(current.title) })}>
                 {#each groups as group, groupIndex (group.series.slug)}
                   <section class="path-branch" data-series={group.series.slug} class:root-branch={group.depth === 0}>
                     <header class="path-branch-heading">
                       <span class="path-branch-node" aria-hidden="true">{String(groupIndex + 1).padStart(2, "0")}</span>
-                      <div><span>{group.depth ? "子系列" : children.length ? "本系列文章" : "文章"}</span><h4>{group.depth ? group.series.title : "系列正文"}</h4></div>
-                      <button onclick={() => onBrowse(group.series.slug)} aria-label={`在档案中查看：${group.series.title}`} title="在档案中查看"><span>{group.posts.length} 篇</span><TerminalIcon name="external" size={15}/></button>
+                      <div><span>{group.depth ? t("子系列") : children.length ? t("本系列文章") : t("文章")}</span><h4>{group.depth ? group.series.title : t("系列正文")}</h4></div>
+                      <button onclick={() => onBrowse(group.series.slug)} aria-label={t("在档案中查看：{v0}", { v0: group.series.title })} title={t("在档案中查看")}><span>{t("{v0} 篇文章", { v0: group.posts.length })}</span><TerminalIcon name="external" size={15}/></button>
                     </header>
                     {#if group.posts.length}
                       <ol class="path-reading-list">
                         {#each group.posts as post, index (post.slug)}
-                          <li><button onclick={() => onRead(post)} aria-label={`阅读：${post.title}`}><span class="path-article-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span>{post.title}</span><TerminalIcon name="arrow" size={15}/></button></li>
+                          <li><button onclick={() => onRead(post)} aria-label={t("阅读：{v0}", { v0: post.title })}><span class="path-article-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span>{post.title}</span><TerminalIcon name="arrow" size={15}/></button></li>
                         {/each}
                       </ol>
-                    {:else}<p class="path-empty">这个系列还没有收录文章。</p>{/if}
+                    {:else}<p class="path-empty">{t("这个系列还没有收录文章。")}</p>{/if}
                   </section>
                 {/each}
-                <div class="path-list-end"><span></span>目录到底了<span></span></div>
+                <div class="path-list-end"><span></span>{t("目录到底了")}<span></span></div>
               </div>
             </div>
           </div>
         {/key}
       </section>
-    {:else}<p class="path-empty">尚未收录系列。</p>{/if}
+    {:else}<p class="path-empty">{t("尚未收录系列。")}</p>{/if}
   </div>
 </section>

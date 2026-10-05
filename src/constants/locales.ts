@@ -1,6 +1,6 @@
 // Locale trees: zh_CN is the default and lives at the root (no prefix).
 // zh_TW and ja reuse the Chinese content; only en has its own translated
-// content (posts/*.en.md).
+// content (posts/*.en.md), falling back to the Chinese original when untranslated.
 export type Locale = "zh_CN" | "en" | "zh_TW" | "ja";
 
 export const LOCALES: Locale[] = ["zh_CN", "en", "zh_TW", "ja"];

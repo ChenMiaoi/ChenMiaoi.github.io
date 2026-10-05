@@ -15,18 +15,27 @@ export function selectPosts<T extends Post>(
 ) {
 	const contentLocale =
 		CONTENT_LOCALE[(locale as Locale) || DEFAULT_LOCALE] ?? "zh";
-	return entries
-		.filter(
-			(entry) =>
-				(contentLocale === "en"
-					? entry.id.endsWith(".en")
-					: !entry.id.endsWith(".en")) &&
-				(includeDrafts || !entry.data.draft),
+	const publicEntries = entries.filter(
+		(entry) => includeDrafts || !entry.data.draft,
+	);
+	const translatedSlugs = new Set(
+		publicEntries
+			.filter((entry) => entry.id.endsWith(".en"))
+			.map((entry) => entry.id.slice(0, -3)),
+	);
+	return publicEntries
+		.filter((entry) =>
+			contentLocale === "en"
+				? entry.id.endsWith(".en") || !translatedSlugs.has(entry.id)
+				: !entry.id.endsWith(".en"),
 		)
 		.map((entry) => ({
 			...entry,
 			data: { ...entry.data },
-			slug: contentLocale === "en" ? entry.id.slice(0, -3) : entry.id,
+			slug:
+				contentLocale === "en" && entry.id.endsWith(".en")
+					? entry.id.slice(0, -3)
+					: entry.id,
 		}))
 		.sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
 }

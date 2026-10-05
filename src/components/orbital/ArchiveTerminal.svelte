@@ -1,4 +1,9 @@
 <script lang="ts">
+  import { provideTranslations } from "../../features/orbital/i18n/context";
+  import type { Locale } from "../../constants/locales";
+  import LanguageSwitcher from "./LanguageSwitcher.svelte";
+  export let lang: Locale = "zh_CN";
+  const { t } = provideTranslations(lang);
   import { onMount, tick } from "svelte";
   import ArticleArchive from "./ArticleArchive.svelte";
   import ArticleReader from "./ArticleReader.svelte";
@@ -29,11 +34,11 @@
   let welcome = initialWelcome;
   let mainElement: HTMLElement;
   const navigation: { id: Section; label: string; icon: string; kicker: string; title: string }[] = [
-    { id: "articles", label: "文章", icon: "article", kicker: "WRITING / ARCHIVE", title: "文章档案" },
-    { id: "series", label: "系列", icon: "series", kicker: "COLLECTIONS / DIRECTORY", title: "探索路径" },
-    { id: "graph", label: "知识地图", icon: "graph", kicker: "KNOWLEDGE / CONNECTIONS", title: "知识地图" },
-    { id: "code", label: "开源", icon: "code", kicker: "SOURCE / OPEN", title: "代码与实践" },
-    { id: "about", label: "关于", icon: "about", kicker: "PROFILE / CHEN MIAO", title: "关于我" },
+    { id: "articles", label: t("文章"), icon: "article", kicker: "WRITING / ARCHIVE", title: t("文章档案") },
+    { id: "series", label: t("系列"), icon: "series", kicker: "COLLECTIONS / DIRECTORY", title: t("探索路径") },
+    { id: "graph", label: t("知识地图"), icon: "graph", kicker: "KNOWLEDGE / CONNECTIONS", title: t("知识地图") },
+    { id: "code", label: t("开源"), icon: "code", kicker: "SOURCE / OPEN", title: t("代码与实践") },
+    { id: "about", label: t("关于"), icon: "about", kicker: "PROFILE / CHEN MIAO", title: t("关于我") },
   ];
   let section: Section = initialSection;
   let query = "";
@@ -61,7 +66,7 @@
     series: '',
     graph: '',
     code: '',
-    about: '记录系统的内部世界。',
+    about: t("记录系统的内部世界。"),
   };
   function setSection(next: Section, preserveQuery = false) {
     welcome = false;
@@ -172,7 +177,7 @@
       welcome = !notFound && isWelcomeLocation(window.location.pathname, window.location.search, localePrefix);
       if (welcome) {
         if (readerOpen) reader.close(false);
-        document.title = "欢迎登站 · Miao's Blog";
+        document.title = t("欢迎登站 · Miao's Blog");
         return;
       }
       const target = resolveOrbitalLocation(window.location.pathname, posts, localePrefix);
@@ -230,20 +235,21 @@
 {#if welcome}
   <WelcomePortal {localePrefix} {reducedMotion} {motionReady} {ambientPaused} {systemReducedMotion} {toggleMotion} onEnter={enterArchive} author={profile.name}/>
 {:else}
-<a class="skip-link" href="#terminal-main">跳到文章</a>
+<a class="skip-link" href="#terminal-main">{t("跳到文章")}</a>
 
 <div class="terminal-shell" class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:ambient-paused={ambientPaused} class:archive-view={section === 'articles'} class:series-view={section === 'series'} class:graph-view={section === 'graph'} class:source-view={section === 'code'} class:about-view={section === 'about'}>
   <svg class="terminal-orbit" viewBox="0 0 1600 1000" preserveAspectRatio="none" aria-hidden="true"><path d="M136 123C38 280 20 705 143 902"/><path d="M127 121C24 305 17 716 137 907"/><path class="orbit-transmission" d="M136 123C38 280 20 705 143 902" pathLength="1"/><circle cx="136" cy="123" r="5"/><circle cx="143" cy="902" r="5"/><path class="orbit-ground" d="M215 950H1450l75-75"/></svg>
   <header class="terminal-header">
-    <button class="brand" aria-label="Miao's Blog，返回文章档案" onclick={() => navigate("articles")}>
+    <button class="brand" aria-label={t("Miao's Blog，返回文章档案")} onclick={() => navigate("articles")}>
       <svg class="brand-mark" viewBox="0 0 52 52" aria-hidden="true"><path d="M35 4h10L17 36H7zM19 30h9L12 48H2z" fill="currentColor"/><path d="M34 29h12L31 47H19z" fill="#f3dc26"/></svg>
       <span><strong>Miao's Blog</strong><small>SYSTEMS & NOTES</small></span>
     </button>
     <span class="header-hairline" aria-hidden="true"><i></i><span>PERSONAL ARCHIVE</span></span>
     <div class="header-tools">
+      <LanguageSwitcher {reducedMotion}/>
       <div class="search-frame">
         <TerminalIcon name="search" size={20}/>
-        <input bind:this={searchInput} bind:value={query} oninput={search} aria-label="搜索文章" placeholder="搜索文章" type="search" autocomplete="off" />
+        <input bind:this={searchInput} bind:value={query} oninput={search} aria-label={t("搜索文章")} placeholder={t("搜索文章")} type="search" autocomplete="off" />
         <kbd>Ctrl K</kbd>
       </div>
       <a class="github-link" href="https://github.com/ChenMiaoi" target="_blank" rel="noreferrer"><BrandIcon name="github" size={18} framed={false}/>GitHub <TerminalIcon name="external" size={17}/></a>
@@ -253,7 +259,7 @@
   <div class="terminal-workspace">
     <aside class="terminal-sidebar">
       <p class="sidebar-label">NAVIGATION</p>
-      <nav class="primary-nav" aria-label="主导航" use:navigationBeacon={section}>
+      <nav class="primary-nav" aria-label={t("主导航")} use:navigationBeacon={section}>
         <span class="nav-tracer" aria-hidden="true"></span>
         {#each navigation as item, index}
           <a href={localePrefix + sectionPaths[item.id]} class:active={section === item.id} style={`--nav-offset:${[17,4,0,4,17][index]}px`} aria-current={section === item.id ? "page" : undefined} onclick={(event) => { if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); navigate(item.id); }}>
@@ -261,22 +267,22 @@
           </a>
         {/each}
       </nav>
-      <button class="sidebar-note author-entry" aria-label={`关于作者：${profile.name}`} onclick={openAuthor}>
+      <button class="sidebar-note author-entry" aria-label={t("关于作者：{v0}", { v0: profile.name })} onclick={openAuthor}>
         <span class="sidebar-avatar" aria-hidden="true">
           {#if profile.avatar}<img src={profile.avatar} alt="" width="36" height="36"/>{:else}<span>{profile.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}</span>{/if}
         </span>
-        <span class="sidebar-author-copy"><strong>{profile.name}</strong><span>关于作者<TerminalIcon name="arrow" size={14}/></span></span>
+        <span class="sidebar-author-copy"><strong>{profile.name}</strong><span>{t("关于作者")}<TerminalIcon name="arrow" size={14}/></span></span>
       </button>
     </aside>
 
     <main id="terminal-main" class="terminal-main" bind:this={mainElement} tabindex="-1">
-      {#if notFound}<p class="route-notice" role="status">没有找到这个页面。你可以从文章档案继续探索。</p>{/if}
+      {#if notFound}<p class="route-notice" role="status">{t("没有找到这个页面。你可以从文章档案继续探索。")}</p>{/if}
       {#key section}
       <div class="archive-heading">
         <div><p class="terminal-kicker"><span></span>{activeSection.kicker}</p><h1>{activeSection.title}<span class="heading-mark" aria-hidden="true">/</span></h1>{#if descriptions[section]}<p class="heading-description">{descriptions[section]}</p>{/if}</div>
         {#if section === "articles"}
-          <div class="category-tabs" aria-label="文章分类">
-            {#each [{ value: "all", label: "全部" }, { value: "linux", label: "Linux" }, { value: "hardware", label: "硬件设计" }] as tab}
+          <div class="category-tabs" aria-label={t("文章分类")}>
+            {#each [{ value: "all", label: t("全部") }, { value: "linux", label: "Linux" }, { value: "hardware", label: t("硬件设计") }] as tab}
               <button class:active={category === tab.value} aria-pressed={category === tab.value} onclick={() => { category = tab.value; seriesFilter = ""; setSection("articles"); storeFilters(); }}>{#if tab.value !== 'all'}<BrandIcon name={tab.value === 'linux' ? 'linux' : 'chip'} size={15} framed={false}/>{/if}{tab.label}</button>
             {/each}
           </div>
@@ -298,7 +304,7 @@
     </main>
   </div>
 
-  <footer class="terminal-footer"><span>Miao's Blog <i>·</i> Chen Miao</span><span class="footer-line" aria-hidden="true"></span><button class="motion-control" aria-label={systemReducedMotion ? '系统已减少动态效果' : effectsEnabled ? '暂停页面动效' : '开启页面动效'} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion} title={systemReducedMotion ? '跟随系统的减少动态效果设置' : '切换页面动效'}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? '动效暂停' : '动效开启'}</span></button><a class="feed-link" href={localePrefix === '/en' ? '/en/rss.xml' : '/rss.xml'}>RSS</a><span class="footer-words">文章 <i>/</i> 系列 <i>/</i> 关联</span></footer>
+  <footer class="terminal-footer"><span>Miao's Blog <i>·</i> Chen Miao</span><span class="footer-line" aria-hidden="true"></span><button class="motion-control" aria-label={systemReducedMotion ? t("系统已减少动态效果") : effectsEnabled ? t("暂停页面动效") : t("开启页面动效")} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion} title={systemReducedMotion ? t("跟随系统的减少动态效果设置") : t("切换页面动效")}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? t("动效暂停") : t("动效开启")}</span></button><a class="feed-link" href={localePrefix === '/en' ? '/en/rss.xml' : '/rss.xml'}>RSS</a><span class="footer-words">{t("文章")} <i>/</i> {t("系列")} <i>/</i> {t("关联")}</span></footer>
 </div>
 
 {/if}

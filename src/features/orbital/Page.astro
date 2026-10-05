@@ -4,8 +4,9 @@ import ArchiveTerminal from "@components/orbital/ArchiveTerminal.svelte";
 import { getOrbitalData } from "./data";
 import { contributionConfig, profileConfig, siteConfig, licenseConfig } from "../../config";
 import { contributionActivity } from "../../lib/contributions/snapshots";
-import { LOCALE_PREFIX, htmlLang, type Locale } from "../../constants/locales";
+import { LOCALES, LOCALE_PREFIX, htmlLang, type Locale } from "../../constants/locales";
 import { isWelcomeLocation, type Section } from "../../lib/content/navigation";
+import { createTranslations, languageUrl } from "./i18n";
 import "../../styles/tailwind.css";
 import "../../styles/orbital/index.css";
 import "@fontsource-variable/jetbrains-mono";
@@ -18,11 +19,12 @@ const post = entries.find((entry) => entry.slug === postSlug);
 const rendered = post ? await render(post) : null;
 const Content = rendered?.Content;
 const prefix = LOCALE_PREFIX[lang];
+const { t } = createTranslations(lang);
 const initialWelcome = !notFound && isWelcomeLocation(Astro.url.pathname, "", prefix);
 const heading = post?.data.title || series.find((entry) => entry.slug === seriesSlug)?.title
-  || ({ articles: "文章档案", series: "探索路径", graph: "知识地图", code: "代码与实践", about: "关于我" })[section];
-const title = notFound ? `页面未找到 · ${siteConfig.title}` : initialWelcome ? `欢迎登站 · ${siteConfig.title}` : `${heading} · ${siteConfig.title}`;
-const description = post?.data.description || "操作系统、Linux 内核、驱动、RISC-V 与底层工程的探索记录。";
+  || ({ articles: t("文章档案"), series: t("探索路径"), graph: t("知识地图"), code: t("代码与实践"), about: t("关于我") })[section];
+const title = notFound ? `${t("页面未找到")} · ${siteConfig.title}` : initialWelcome ? `${t("欢迎登站")} · ${siteConfig.title}` : `${heading} · ${siteConfig.title}`;
+const description = post?.data.description || t("操作系统、Linux 内核、驱动、RISC-V 与底层工程的探索记录。");
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
@@ -34,6 +36,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="description" content={description} />
     <meta name="theme-color" content="#17191b" />
     <link rel="canonical" href={canonical} />
+    {!notFound && LOCALES.map((locale) => <link rel="alternate" hreflang={htmlLang(locale)} href={new URL(languageUrl(Astro.url.pathname, locale), Astro.site)} />)}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
@@ -45,16 +48,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <noscript><style is:global>.terminal-shell, .skip-link { display: none !important; }</style></noscript>
   </head>
   <body class="orbital-site" data-article-path={post ? Astro.url.pathname : undefined}>
-    <ArchiveTerminal client:load {posts} {series} projects={contributionConfig.projects}
+    <ArchiveTerminal client:load {lang} {posts} {series} projects={contributionConfig.projects}
       activity={contributionActivity} detailsUrl="/contributions.json" profile={profileConfig}
       initialSection={section} initialSeries={seriesSlug} localePrefix={prefix} {notFound} {initialWelcome} />
     {post && Content && <section class="article-document">
-      <header><a href={`${prefix}/archive/`}>← 返回文章档案</a><h1 data-pagefind-meta="title">{post.data.title}</h1></header>
-      <article class="reader-body" data-reader-content data-pagefind-body><Content /></article>
-      <footer>本文采用 <a href={licenseConfig.url}>{licenseConfig.name}</a> 许可。</footer>
+      <header><a href={`${prefix}/archive/`}>{t("← 返回文章档案")}</a><h1 data-pagefind-meta="title">{post.data.title}</h1></header>
+      {post.id.endsWith(".en") !== (lang === "en") || lang === "ja" || lang === "zh_TW" ? <p>{t("这篇文章暂无当前语言译文，以下为中文原文。")}</p> : null}
+      <article class="reader-body" lang={post.id.endsWith(".en") ? "en" : "zh-CN"} data-reader-content data-pagefind-body><Content /></article>
+      <footer><a href={licenseConfig.url}>{t("本文采用 {v0} 许可。", { v0: licenseConfig.name })}</a></footer>
     </section>}
-    <noscript><nav class="static-archive" aria-label="文章永久链接">
-      <p>启用 JavaScript 可使用 Orbital 的交互阅读器；也可以直接阅读以下文章。</p>
+    <noscript><nav class="static-archive" aria-label={t("文章永久链接")}>
+      <p>{t("启用 JavaScript 可使用 Orbital 的交互阅读器；也可以直接阅读以下文章。")}</p>
       {posts.map((entry) => <a href={entry.url}>{entry.title}</a>)}
     </nav></noscript>
   </body>
