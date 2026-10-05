@@ -577,3 +577,185 @@
 		animation: none !important;
 	}
 }
+
+/* Acquisition feedback stays on frames and controls rather than looping over text. */
+.motion-ready:not(.motion-paused) :is(.dossier-hit, .contribution-record, .path-option, .project-port) {
+	transition: background-color 240ms, border-color 240ms, box-shadow 240ms;
+}
+.motion-ready:not(.motion-paused) :is(.dossier-hit, .contribution-record, .path-option):is(:hover, :focus-visible) {
+	box-shadow: inset 3px 0 #f0e43380;
+	background-color: #b8ca8f0a;
+}
+.motion-ready:not(.motion-paused) .primary-nav a > svg {
+	transition: transform 260ms cubic-bezier(.16,1,.3,1), color 180ms;
+}
+.motion-ready:not(.motion-paused) .primary-nav a:hover > svg {
+	transform: translateY(-3px);
+}
+.motion-ready:not(.motion-paused) .category-tabs button {
+	transition: color 200ms, background-color 200ms;
+}
+.motion-ready:not(.motion-paused) .category-tabs button.active {
+	animation: control-acquire 380ms ease-out both;
+}
+.motion-ready:not(.motion-paused) .is-selected .rail-node {
+	animation: node-acquire 600ms ease-out both;
+}
+.motion-ready:not(.motion-paused) :is(.rail-focus, .context-label i) {
+	animation: signal-breathe 4s ease-in-out infinite;
+}
+.motion-ready:not(.motion-paused) .mobile-read {
+	animation: panel-arrive 320ms cubic-bezier(.16,1,.3,1) both;
+}
+.reading-dialog:not(.motion-paused)[open] .reader-header {
+	animation: chrome-acquire 480ms ease-out both;
+}
+.reading-dialog:not(.motion-paused)[open] .reader-toc-heading {
+	animation: panel-arrive 440ms cubic-bezier(.16,1,.3,1) 100ms both;
+}
+.reading-dialog:not(.motion-paused)[open] .reader-title-block {
+	animation: panel-arrive 520ms cubic-bezier(.16,1,.3,1) 120ms both;
+}
+.reading-dialog:not(.motion-paused)[open] .reader-title-block::before {
+	transform-origin: left;
+	animation: rule-extend 650ms cubic-bezier(.16,1,.3,1) 180ms both;
+}
+.reading-dialog:not(.motion-paused) :is(.reader-toc nav button, .reader-close, .copy-btn, .reader-mobile-contents summary) {
+	transition: color 180ms, background-color 180ms, border-color 180ms;
+}
+.reading-dialog:not(.motion-paused) .reader-toc nav button.active {
+	animation: control-acquire 360ms ease-out both;
+}
+.reading-dialog:not(.motion-paused) .reader-progress-card > div > span {
+	transition: width 180ms ease-out;
+}
+.reading-dialog:not(.motion-paused) .reader-mobile-contents[open] nav {
+	animation: panel-arrive 240ms ease-out both;
+}
+.reading-dialog:not(.motion-paused) .copy-btn[data-copied] {
+	animation: control-acquire 400ms ease-out both;
+}
+.ambient-paused :is(.rail-focus, .context-label i) {
+	animation-play-state: paused !important;
+}
+@keyframes control-acquire {
+	from { box-shadow: inset 3px 0 #fff7a5, 0 0 16px #f0e43324; }
+	to { box-shadow: inset 0 0 transparent, 0 0 0 transparent; }
+}
+@keyframes chrome-acquire {
+	from { opacity: .3; background-position: -120px 0; }
+	to { opacity: 1; background-position: 0 0; }
+}
+@keyframes signal-breathe {
+	0%, 100% { opacity: .7; filter: drop-shadow(0 0 1px #f0e43330); }
+	50% { opacity: 1; filter: drop-shadow(0 0 5px #f0e43370); }
+}
+@media (prefers-reduced-motion: reduce) {
+	.orbital-site *, .orbital-site *::before, .orbital-site *::after {
+	 animation: none !important;
+	 transition: none !important;
+	 scroll-behavior: auto !important;
+	}
+}
+
+/* The station responds as a whole when moving between its five workspaces. */
+.orbital-site .terminal-main { position: relative; }
+.section-transfer {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	pointer-events: none;
+	z-index: 3;
+}
+.section-transfer i {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 1px;
+	opacity: 0;
+	background: linear-gradient(90deg, transparent, #f0e43370 25%, #e1efca60 65%, transparent);
+	box-shadow: 0 -12px 32px 4px #cbeab008;
+}
+.motion-ready:not(.motion-paused) .section-transfer i {
+	animation: workspace-scan 850ms cubic-bezier(.2,.65,.3,1) both;
+}
+.motion-ready:not(.motion-paused) .terminal-header {
+	animation: panel-arrive 600ms cubic-bezier(.16,1,.3,1) both;
+}
+.motion-ready:not(.motion-paused) .primary-nav a {
+	transition: background-color 240ms, color 200ms, filter 200ms;
+}
+.motion-ready:not(.motion-paused) .primary-nav a:hover {
+	filter: brightness(1.15);
+}
+.motion-ready:not(.motion-paused) .primary-nav a.active {
+	animation: navigation-acquire 550ms ease-out both;
+}
+.motion-ready:not(.motion-paused) .brand-mark {
+	transition: transform 450ms cubic-bezier(.16,1,.3,1), filter 250ms;
+}
+.motion-ready:not(.motion-paused) .brand:hover .brand-mark {
+	transform: translateY(-3px) rotate(-5deg);
+	filter: drop-shadow(0 0 8px #f0e43360);
+}
+.motion-ready:not(.motion-paused) :is(.context-panel, .path-hero, .patch-chamber, .topology-inspector) {
+	transition: border-color 260ms, box-shadow 260ms;
+}
+.motion-ready:not(.motion-paused) :is(.context-panel, .path-hero, .patch-chamber, .topology-inspector):hover {
+	border-color: #d3de8c65;
+	box-shadow: 0 0 28px #d7e57508;
+}
+.motion-ready:not(.motion-paused) .path-watermark {
+	animation: coordinate-acquire 600ms cubic-bezier(.16,1,.3,1) both;
+}
+.motion-ready:not(.motion-paused) :is(.path-reading-list button, .path-branch-shortcuts button, .identity-field, .identity-contact) {
+	transition: background-color 220ms, box-shadow 220ms, color 220ms;
+}
+.motion-ready:not(.motion-paused) :is(.path-reading-list button, .path-branch-shortcuts button, .identity-field, .identity-contact):is(:hover, :focus-visible) {
+	background-color: #c4d39b0c;
+	box-shadow: inset 2px 0 #e2e773;
+}
+.motion-ready:not(.motion-paused) :is(.path-article-number, .path-shortcut-node, .path-number) {
+	transition: color 220ms, transform 220ms;
+}
+.motion-ready:not(.motion-paused) :is(.path-reading-list button, .path-branch-shortcuts button, .path-option):hover :is(.path-article-number, .path-shortcut-node, .path-number) {
+	color: var(--signal);
+	transform: translateX(2px);
+}
+.motion-ready:not(.motion-paused) .project-port.active .brand-insignia {
+	animation: project-acquire 600ms cubic-bezier(.16,1,.3,1) both;
+}
+.motion-ready:not(.motion-paused) .contribution-record.active .record-point {
+	animation: coordinate-acquire 380ms ease-out both;
+}
+.motion-ready:not(.motion-paused) .topology-node :is(.stellar-hub, .topology-document-dot) {
+	transition: filter 250ms, box-shadow 250ms;
+}
+.motion-ready:not(.motion-paused) .topology-node:hover :is(.stellar-hub, .topology-document-dot) {
+	filter: drop-shadow(0 0 7px #ebec9470);
+}
+.motion-ready:not(.motion-paused) .topology-selection-mark {
+	animation: project-acquire 500ms cubic-bezier(.16,1,.3,1) both;
+}
+.motion-ready:not(.motion-paused) .identity-register i {
+	animation: signal-breathe 4s ease-in-out infinite;
+}
+.ambient-paused .identity-register i { animation-play-state: paused !important; }
+@keyframes workspace-scan {
+	0% { opacity: 0; transform: translateY(0); }
+	20% { opacity: .7; }
+	100% { opacity: 0; transform: translateY(420px); }
+}
+@keyframes navigation-acquire {
+	from { filter: brightness(1.5); }
+	to { filter: brightness(1); }
+}
+@keyframes coordinate-acquire {
+	from { opacity: 0; transform: translateY(10px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+@keyframes project-acquire {
+	from { opacity: .35; transform: scale(.85) rotate(-8deg); }
+	to { opacity: 1; transform: scale(1) rotate(0); }
+}

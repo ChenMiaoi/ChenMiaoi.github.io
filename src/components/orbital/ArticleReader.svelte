@@ -3,6 +3,7 @@
   const { t, dateLocale } = useTranslations();
   import { tick, onDestroy } from "svelte";
   import TerminalIcon from "./TerminalIcon.svelte";
+  import { revealSequence } from "./motion";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
   import type { ArchivePost } from "./types";
   import { loadArticle } from "../../lib/content/article-loader";
@@ -20,6 +21,8 @@
   $: readerHeadings = readerPost?.headings.filter((heading) => heading.depth <= 3) ?? [];
   $: firstHeadingDepth = Math.min(...readerHeadings.map((heading) => heading.depth), 3);
   let readerExit: Animation | null = null;
+  let headingAcquisition: Animation | null = null;
+  $: if (reducedMotion) headingAcquisition?.cancel();
   let loading = false;
   let failed = false;
   let requestId = 0;
@@ -27,6 +30,7 @@
 
   export async function open(post: ArchivePost, heading?: string) {
     notifyOnClose = true;
+    headingAcquisition?.cancel();
     const currentRequest = ++requestId;
     requestedHeading = heading;
     readerExit?.cancel();
@@ -83,6 +87,13 @@
     if (mobileContents) mobileContents.open = false;
     const heading = readerScroll?.querySelector(`[id="${CSS.escape(slug)}"]`);
     heading?.scrollIntoView({ behavior: reducedMotion ? "instant" : "smooth", block: "start" });
+    headingAcquisition?.cancel();
+    if (heading && !reducedMotion) {
+      headingAcquisition = heading.animate([
+        { backgroundColor: "#f0e43324", boxShadow: "inset 3px 0 #f0e433" },
+        { backgroundColor: "transparent", boxShadow: "inset 3px 0 transparent" },
+      ], { duration: 1100, easing: "ease-out" });
+    }
   }
 
   function jumpToStart() {
@@ -127,6 +138,7 @@
   onDestroy(() => {
     requestId++;
     readerExit?.cancel();
+    headingAcquisition?.cancel();
     if (typeof document !== "undefined") document.body.classList.remove("reader-open");
   });
 </script>
@@ -155,7 +167,7 @@
           </header>
           {#if readerPost.contentLang !== dateLocale}<p class="reader-language-note" lang={dateLocale}>{t("这篇文章暂无当前语言译文，以下为中文原文。")}</p>{/if}
           <details class="reader-mobile-contents" bind:this={mobileContents}><summary>{t("文内导航")}<TerminalIcon name="arrow" size={15}/></summary><nav aria-label={t("文内导航")}><button onclick={jumpToStart}>{t("文章开头")}</button>{#each readerHeadings as heading}<button class:active={activeHeading === heading.slug} onclick={() => jumpToHeading(heading.slug)}>{heading.text}</button>{/each}</nav></details>
-          <div class="reader-body" aria-busy={loading}>
+          <div class="reader-body" aria-busy={loading} use:revealSequence={{key: `${readerPost.slug}|${loading}`, enabled: !loading && !reducedMotion, selector: ":scope > p, :scope > section, :scope > .expressive-code"}}>
             {#if loading}<p role="status">{t("正在载入文章…")}</p>{:else if failed}<div role="alert"><p>{t("文章暂时无法载入。")}</p><button class="signal-button" onclick={() => readerPost && open(readerPost, requestedHeading)}>{t("重新加载")}</button><p><a href={readerPost.url}>{t("打开文章页面 ↗")}</a></p></div>{:else}{@html readerHtml}{/if}
           </div>
           <div class="reader-end"><span>END OF DOCUMENT</span><button onclick={() => closeReader()}>{t("返回文章档案")} <TerminalIcon name="back" size={17}/></button></div>

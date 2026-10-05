@@ -14,7 +14,7 @@
   import SourceDock from "./SourceDock.svelte";
   import ProfileDossier from "./ProfileDossier.svelte";
   import WelcomePortal from "./WelcomePortal.svelte";
-  import { navigationBeacon } from "./motion";
+  import { navigationBeacon, revealSequence } from "./motion";
   import type { ArchivePost, ArchiveSeries, ContributionActivitySnapshot } from "./types";
   import type { ContributionProject, ProfileConfig } from "../../types/config";
 
@@ -299,9 +299,10 @@
       </button>
     </aside>
 
-    <main id="terminal-main" class="terminal-main" bind:this={mainElement} tabindex="-1">
+    <main id="terminal-main" class="terminal-main" bind:this={mainElement} tabindex="-1" use:revealSequence={{key: section, enabled: motionReady && !reducedMotion, selector: ".project-port, .identity-field-copy, .identity-contact-text"}}>
       {#if notFound}<p class="route-notice" role="status">{t("没有找到这个页面。你可以从文章档案继续探索。")}</p>{/if}
       {#key section}
+      <span class="section-transfer" aria-hidden="true"><i></i></span>
       <div class="archive-heading">
         <div><p class="terminal-kicker"><span></span>{activeSection.kicker}</p><h1>{activeSection.title}<span class="heading-mark" aria-hidden="true">/</span></h1>{#if descriptions[section]}<p class="heading-description">{descriptions[section]}</p>{/if}</div>
         {#if section === "articles"}

@@ -2,6 +2,7 @@
   import { useTranslations } from "../../features/orbital/i18n/context";
   const { t } = useTranslations();
   import { tick } from "svelte";
+  import { revealSequence } from "./motion";
   import { fly } from "svelte/transition";
   import TerminalIcon from "./TerminalIcon.svelte";
   import type { ArchivePost, ArchiveSeries } from "./types";
@@ -202,7 +203,7 @@
     <div class="topology-map-label"><span>CONSTELLATION <i>/</i> {t("知识星图")}</span><span>{t("{v0} 个系列节点", { v0: collectionNodes.length })} <i>·</i> {t("{v0} 篇文章", { v0: articleNodes.length })}</span></div>
     <div class="topology-viewport" class:dragging bind:this={viewport} use:observeViewport role="region" aria-label={t("{v0}关系图，可滚动或拖动查看", { v0: scopeTitle })} tabindex="0" onpointerdown={startDrag} onpointermove={moveDrag} onpointerup={endDrag} onpointercancel={endDrag} onlostpointercapture={endDrag}>
       <div class="topology-plane" style={`width:${sceneWidth * zoom}px;height:${map.height * zoom}px`}>
-        <div class="topology-scene" style={`width:${sceneWidth}px;height:${map.height}px;transform:scale(${zoom})`}>
+        <div class="topology-scene" use:revealSequence={{key: current?.slug ?? "", enabled: !reducedMotion, selector: ".stellar-series-label, .topology-article-title", wait: 80}} style={`width:${sceneWidth}px;height:${map.height}px;transform:scale(${zoom})`}>
           <svg class="stellar-environment" viewBox={`0 0 ${sceneWidth} ${map.height}`} aria-hidden="true">
             {#each Array.from({length:48}, (_, index) => index) as index}<circle class="stellar-dust" cx={(index * 137.51 + 23) % sceneWidth} cy={(index * 83.17 + 41) % 600} r={index % 7 === 0 ? 1.2 : .6}/>{/each}
             {#if map.nodes[0]}
