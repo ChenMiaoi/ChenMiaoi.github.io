@@ -133,7 +133,7 @@
 <svelte:document onclick={readerAction} />
 <dialog bind:this={dialog} class="reading-dialog" class:motion-paused={reducedMotion} onclose={readerClosed} oncancel={(event) => { event.preventDefault(); closeReader(); }} aria-labelledby="reader-title">
   {#if readerPost}
-    <header class="reader-header"><button onclick={() => closeReader()}><TerminalIcon name="back" size={19}/><span>{t("返回档案")}</span></button><span class="reader-status"><i aria-hidden="true"></i> READING MODE</span><LanguageSwitcher {reducedMotion}/><button class="reader-close" onclick={() => closeReader()} aria-label={t("关闭阅读面板")}><TerminalIcon name="close" size={21}/></button></header>
+    <header class="reader-header"><button onclick={() => closeReader()}><TerminalIcon name="back" size={19}/><span>{t("返回档案")}</span></button><span class="reader-status"><i aria-hidden="true"></i> ARCHIVE / READER</span><span class="reader-header-progress" aria-label={t("阅读进度")}>{Math.round(readingProgress)}%<small>/ 100</small></span><LanguageSwitcher {reducedMotion}/><button class="reader-close" onclick={() => closeReader()} aria-label={t("关闭阅读面板")}><TerminalIcon name="close" size={21}/></button></header>
     <div class="reading-meter" aria-hidden="true"><span style={`width:${readingProgress}%`}></span></div>
     <div class="reader-layout">
       <aside class="reader-toc">
@@ -149,7 +149,7 @@
       <div class="reader-scroll" bind:this={readerScroll} onscroll={updateProgress} tabindex="0" role="region" aria-label={t("文章")}>
         <article class="reader-article" lang={readerPost.contentLang}>
           <header class="reader-title-block">
-            <p class="reader-eyebrow"><span aria-hidden="true"></span> FIELD NOTES <span class="reader-document-number">/ {new Date(readerPost.timestamp).getUTCFullYear()}</span></p>
+            <p class="reader-eyebrow"><span aria-hidden="true"></span> TECHNICAL ARCHIVE <span class="reader-document-number">DOC / {new Date(readerPost.timestamp).toISOString().slice(0, 10).replaceAll("-", ".")}</span></p>
             <h1 id="reader-title">{readerPost.title}</h1>
             <div class="reader-article-meta"><time datetime={new Date(readerPost.timestamp).toISOString().slice(0, 10)}>{readerPost.date}</time><span aria-hidden="true">/</span><span class="reader-series-name">{readerPost.seriesTitle}</span></div>
           </header>

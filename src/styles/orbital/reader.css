@@ -1,4 +1,4 @@
-/* A quiet paper surface inside the site's terminal frame. */
+/* Archive terminal: quiet text surface, instrumented frame and navigation. */
 .orbital-site.reader-open {
 	overflow: hidden;
 }
@@ -10,10 +10,11 @@
 	max-height: none;
 	padding: 0;
 	margin: auto;
-	border: 1px solid #72827b66;
-	border-radius: 10px;
-	background: #192224;
-	color: #e4e9df;
+	border: 1px solid #9bb5b44d;
+	border-radius: 0;
+	clip-path: polygon(0 18px, 18px 0, calc(100% - 28px) 0, 100% 28px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
+	background: #101a1e;
+	color: #e0e8e5;
 	box-shadow: 0 32px 120px #000a;
 	overflow: hidden;
 }
@@ -34,7 +35,7 @@
 	gap: 24px;
 	padding: 10px 22px;
 	min-height: 64px;
-	border-bottom: 1px solid #a0ad8326;
+	border-bottom: 1px solid #9bb5b426;
 	flex-shrink: 0;
 }
 
@@ -43,7 +44,7 @@
 	align-items: center;
 	gap: 10px;
 	font-size: 12px;
-	color: #d9e0cb;
+	color: #cbd8d2;
 }
 
 .orbital-site .reader-header button:hover {
@@ -61,7 +62,7 @@
 	margin-right: auto;
 	font: 9px var(--mono);
 	letter-spacing: 1.8px;
-	color: #a3b2a5;
+	color: #9bafa9;
 }
 
 .orbital-site .reader-status i {
@@ -73,8 +74,8 @@
 
 .orbital-site .reader-close {
 	padding: 9px !important;
-	border: 1px solid #a0ad8326;
-	border-radius: 5px;
+	border: 1px solid #9bb5b426;
+	border-radius: 0;
 }
 
 .orbital-site .reader-header .language-switcher {
@@ -83,7 +84,7 @@
 
 .orbital-site .reading-meter {
 	height: 2px;
-	background: #0c1516;
+	background: #0b1216;
 	flex-shrink: 0;
 }
 
@@ -99,25 +100,25 @@
 	grid-template-columns: 224px minmax(0, 1fr);
 	flex: 1;
 	min-height: 0;
-	background: #f6f5ef;
+	background: #141e22;
 }
 
 .orbital-site .reader-toc {
 	display: flex;
 	flex-direction: column;
 	padding: 40px 22px 24px;
-	border-right: 1px solid #dce0d6;
-	background: #edeee6;
-	color: #293633;
-	overflow: auto;
+	border-right: 1px solid #8da5a52e;
+	background: #10191d;
+	color: #d1ddd7;
+	overflow: hidden;
 	scrollbar-width: thin;
-	scrollbar-color: #b6bcb0 transparent;
+	scrollbar-color: #58716b transparent;
 }
 
 .orbital-site .reader-toc .terminal-kicker {
 	font: 9px var(--mono);
 	letter-spacing: 2px;
-	color: #6f7d70;
+	color: #8baba1;
 	margin: 0;
 }
 
@@ -130,6 +131,10 @@
 .orbital-site .reader-toc nav {
 	display: grid;
 	gap: 5px;
+	min-height: 0;
+	overflow: auto;
+	scrollbar-width: thin;
+	scrollbar-color: #58716b transparent;
 }
 
 .orbital-site .reader-toc nav button {
@@ -139,28 +144,29 @@
 	width: 100%;
 	padding: 10px 11px;
 	border-left: 2px solid transparent;
-	border-radius: 0 4px 4px 0;
+	border-radius: 0;
+	clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
 	font-size: 12px;
 	line-height: 1.7;
-	color: #6a756b;
+	color: #a7bbb3;
 	overflow-wrap: anywhere;
 }
 
 .orbital-site .reader-toc .toc-number {
 	flex-shrink: 0;
 	font: 9px var(--mono);
-	color: #929d8e;
+	color: #6d8d84;
 }
 
 .orbital-site .reader-toc nav button:hover {
-	color: #253b2b;
-	background: #dbe0d366;
+	color: #e0e8df;
+	background: #adc6ad0d;
 }
 
 .orbital-site .reader-toc nav button.active {
-	color: #26382b;
-	border-left-color: #788344;
-	background: #dce2d3;
+	color: #f0e433;
+	border-left-color: #f0e433;
+	background: #e4db3312;
 	font-weight: 600;
 }
 
@@ -171,12 +177,14 @@
 
 .orbital-site .reader-progress-card {
 	margin-top: auto;
-	padding-top: 40px;
+	padding-top: 22px;
+	flex-shrink: 0;
+	border-top: 1px solid #8da5a52e;
 }
 
 .orbital-site .reader-progress-card > span {
 	display: block;
-	color: #788273;
+	color: #93aaa1;
 	font-size: 10px;
 }
 
@@ -184,7 +192,7 @@
 	display: block;
 	margin: 10px 0 14px;
 	font: 28px var(--mono);
-	color: #55634d;
+	color: #e0e8df;
 }
 
 .orbital-site .reader-progress-card small {
@@ -194,28 +202,28 @@
 
 .orbital-site .reader-progress-card > div {
 	height: 3px;
-	background: #d7ddcf;
+	background: #34433f;
 }
 
 .orbital-site .reader-progress-card > div > span {
 	display: block;
 	height: 100%;
-	background: #788344;
+	background: #f0e433;
 }
 
 .orbital-site .reader-scroll {
 	overflow-y: auto;
 	overflow-x: hidden;
-	color: #29332f;
-	color-scheme: light;
+	color: #cbd5d0;
+	color-scheme: dark;
 	scrollbar-width: thin;
-	scrollbar-color: #b6bcb0 transparent;
+	scrollbar-color: #58716b transparent;
 	scroll-behavior: smooth;
 }
 
 .orbital-site .reader-scroll:focus-visible {
 	outline: none;
-	box-shadow: inset 0 0 0 1px #78834455;
+	box-shadow: inset 0 0 0 1px #f0e43355;
 }
 
 .orbital-site .reader-article {
@@ -225,7 +233,7 @@
 }
 
 .orbital-site .reader-title-block {
-	border-bottom: 1px solid #d9dfd1;
+	border-bottom: 1px solid #8da5a52e;
 	padding-bottom: 30px;
 	margin-bottom: 30px;
 }
@@ -236,19 +244,19 @@
 	gap: 10px;
 	font: 9px var(--mono);
 	letter-spacing: 2px;
-	color: #6f7c63;
+	color: #99b2a6;
 	margin: 0 0 20px;
 }
 
 .orbital-site .reader-eyebrow > span:first-child {
 	width: 22px;
 	height: 3px;
-	background: #8b923c;
+	background: #f0e433;
 }
 
 .orbital-site .reader-document-number {
 	margin-left: auto;
-	color: #939b8a;
+	color: #93aaa1;
 }
 
 .orbital-site .reader-title-block h1 {
@@ -256,7 +264,7 @@
 	line-height: 1.35;
 	font-weight: 750;
 	letter-spacing: -.035em;
-	color: #1d2b26;
+	color: #edf1e8;
 	margin: 0 0 23px;
 	text-wrap: balance;
 	overflow-wrap: anywhere;
@@ -268,13 +276,13 @@
 	align-items: baseline;
 	gap: 12px;
 	font: 10px var(--mono);
-	color: #7c8676;
+	color: #99aca4;
 	line-height: 1.8;
 }
 
 .orbital-site .reader-article-meta .reader-series-name {
 	font-family: inherit;
-	color: #5f6e56;
+	color: #bbcabf;
 }
 
 .orbital-site .reader-mobile-contents {
@@ -285,8 +293,8 @@
 	font-size: 16px;
 	line-height: 1.95;
 	overflow-wrap: break-word;
-	--codeblock-bg: #202a2b;
-	--codeblock-topbar-bg: #293437;
+	--codeblock-bg: #0e181c;
+	--codeblock-topbar-bg: #19292b;
 }
 
 .orbital-site .reader-body p {
@@ -296,9 +304,15 @@
 .orbital-site .reader-body > p:first-child {
 	font-size: 17px;
 	line-height: 1.95;
-	color: #4e5e50;
+	color: #aebfb6;
 	margin-top: 0;
 	margin-bottom: 32px;
+}
+
+.orbital-site .reader-body h4 {
+	color: #d9e4d7;
+	margin: 32px 0 16px;
+	font-size: 17px;
 }
 
 .orbital-site .reader-body h1, .orbital-site .reader-body h2, .orbital-site .reader-body h3 {
@@ -306,7 +320,7 @@
 	line-height: 1.5;
 	margin: 48px 0 20px;
 	font-weight: 700;
-	color: #22382d;
+	color: #e3eade;
 }
 
 .orbital-site .reader-body h1 {
@@ -316,7 +330,7 @@
 .orbital-site .reader-body h2 {
 	font-size: 24px;
 	padding-bottom: 12px;
-	border-bottom: 1px solid #dce0d6;
+	border-bottom: 1px solid #8da5a52e;
 }
 
 .orbital-site .reader-body h3 {
@@ -324,9 +338,9 @@
 }
 
 .orbital-site .reader-body a {
-	color: #526c37;
+	color: #d7d46b;
 	text-decoration: underline;
-	text-decoration-color: #526c3755;
+	text-decoration-color: #d7d46b55;
 	text-underline-offset: 4px;
 }
 
@@ -344,36 +358,36 @@
 }
 
 .orbital-site .reader-body img {
-	border-radius: 6px;
+	border-radius: 2px;
 	margin: 12px auto;
 }
 
 .orbital-site .reader-body code:not(pre code) {
 	font-size: .86em;
-	background: #e7eade;
-	color: #3d5537;
+	background: #a7c1a710;
+	color: #c5d6a6;
 	padding: 2px 5px;
-	border: 1px solid #d9dfd1;
-	border-radius: 4px;
+	border: 1px solid #8da5a52e;
+	border-radius: 2px;
 }
 
 .orbital-site .reader-body pre {
 	position: relative;
 	overflow: auto;
 	padding: 20px;
-	background: #202a2b;
-	color: #e4e9de;
-	border-radius: 7px;
+	background: #0e181c;
+	color: #dce7dd;
+	border-radius: 2px;
 	font-size: 12px;
 }
 
 .orbital-site .reader-body blockquote {
-	border-left: 2px solid #9ba77d;
+	border-left: 2px solid #f0e433;
 	margin: 28px 0;
 	padding: 1px 22px;
-	background: #e9ede1;
-	color: #56654d;
-	border-radius: 0 6px 6px 0;
+	background: #98b5a00a;
+	color: #b3c7b9;
+	border-radius: 0;
 }
 
 .orbital-site .reader-body ul, .orbital-site .reader-body ol {
@@ -394,7 +408,7 @@
 }
 
 .orbital-site .reader-body li::marker {
-	color: #87976d;
+	color: #d3d360;
 }
 
 .orbital-site .reader-body li > ul, .orbital-site .reader-body li > ol {
@@ -410,13 +424,13 @@
 }
 
 .orbital-site .reader-body td, .orbital-site .reader-body th {
-	border: 1px solid #d0d8c8;
+	border: 1px solid #8da5a52e;
 	padding: 10px 14px;
 	vertical-align: top;
 }
 
 .orbital-site .reader-body th {
-	background: #e6eadf;
+	background: #1b2b2c;
 	text-align: left;
 }
 
@@ -427,17 +441,17 @@
 }
 
 .orbital-site .reader-body .expressive-code .frame, .orbital-site .reader-body .expressive-code pre {
-	background: #202a2b !important;
-	border-radius: 7px !important;
+	background: #0e181c !important;
+	border-radius: 2px !important;
 }
 
 .orbital-site .reader-body .expressive-code .frame {
-	border: 1px solid #344441;
-	box-shadow: 0 4px 14px #26392a0d;
+	border: 1px solid #7c9b8f40;
+	box-shadow: 0 4px 14px #0002;
 }
 
 .orbital-site .reader-body .expressive-code .gutter .ln {
-	color: #7a8c83 !important;
+	color: #68877a !important;
 }
 
 .orbital-site .reader-body .expressive-code [data-language]::before {
@@ -462,14 +476,14 @@
 	height: 30px;
 	display: grid;
 	place-items: center;
-	background: #35453e;
-	border: 1px solid #6c7c6866;
-	border-radius: 5px;
+	background: #273a34;
+	border: 1px solid #a8b88c40;
+	border-radius: 0;
 	color: #dae4d0;
 }
 
 .orbital-site .reader-body .copy-btn:hover {
-	background: #4b5d44;
+	background: #43553b;
 }
 
 .orbital-site .reader-body .copy-btn svg {
@@ -493,7 +507,7 @@
 .orbital-site .reader-end {
 	margin-top: 56px;
 	padding-top: 24px;
-	border-top: 1px solid #d9dfd1;
+	border-top: 1px solid #8da5a52e;
 	display: flex;
 	justify-content: space-between;
 	gap: 15px;
@@ -503,7 +517,7 @@
 .orbital-site .reader-end > span {
 	font: 9px var(--mono);
 	letter-spacing: 2px;
-	color: #87937b;
+	color: #91a69c;
 }
 
 .orbital-site .reader-end button {
@@ -511,12 +525,12 @@
 	align-items: center;
 	gap: 10px;
 	font-size: 12px;
-	color: #586946;
+	color: #c8cf90;
 	padding: 10px 0;
 }
 
 .orbital-site .reader-scroll :is(button, summary):focus-visible, .orbital-site .reader-toc button:focus-visible {
-	outline: 2px solid #788344;
+	outline: 2px solid #f0e433;
 	outline-offset: 3px;
 }
 
@@ -536,7 +550,7 @@
 	}
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
 	.orbital-site .reading-dialog {
 		width: calc(100vw - 24px);
 		height: calc(100dvh - 24px);
@@ -557,10 +571,10 @@
 	}
 	.orbital-site .reader-mobile-contents {
 		display: block;
-		border: 1px solid #d9dfd1;
-		border-radius: 5px;
+		border: 1px solid #8da5a52e;
+		border-radius: 0;
 		margin-bottom: 24px;
-		color: #627257;
+		color: #a7bbb3;
 	}
 	.orbital-site .reader-mobile-contents summary {
 		display: flex;
@@ -591,7 +605,7 @@
 		line-height: 1.6;
 	}
 	.orbital-site .reader-mobile-contents button.active {
-		color: #31472c;
+		color: #f0e433;
 		font-weight: 600;
 	}
 }
@@ -608,6 +622,7 @@
 		height: 100dvh;
 		border: 0;
 		border-radius: 0;
+		clip-path: none;
 	}
 	.orbital-site .reader-header {
 		padding: 8px 14px;
@@ -639,4 +654,55 @@
 	.orbital-site .reader-end {
 		flex-wrap: wrap;
 	}
+}
+
+.orbital-site .reader-header {
+	background: linear-gradient(100deg, #1c292c, #10191d);
+	box-shadow: inset 3px 0 var(--signal);
+}
+.orbital-site .reader-header-progress {
+	display: flex;
+	align-items: baseline;
+	gap: 4px;
+	color: var(--signal);
+	font: 12px var(--mono);
+	white-space: nowrap;
+}
+.orbital-site .reader-header-progress small { font-size: 9px; color: #93aaa1; }
+.orbital-site .reader-toc-heading { flex-shrink: 0; }
+.orbital-site .reader-toc nav button.active .toc-number { color: var(--signal); }
+.orbital-site .reader-progress-card strong { margin: 8px 0 12px; }
+.orbital-site .reader-title-block {
+	position: relative;
+	border-top: 1px solid #8da5a52e;
+	padding-top: 22px;
+	background: linear-gradient(110deg, #a2b59305, transparent);
+}
+.orbital-site .reader-title-block::before {
+	content: "";
+	position: absolute;
+	width: 28px;
+	height: 2px;
+	top: -1px;
+	left: 0;
+	background: var(--signal);
+}
+.orbital-site .reader-document-number { letter-spacing: 1px; font-size: 9px; }
+.orbital-site .reader-body h2 { border-left: 2px solid var(--signal); padding-left: 14px; }
+.orbital-site .reader-body strong { color: #edf1e8; }
+.orbital-site .reader-body hr { border: 0; border-top: 1px solid #8da5a52e; margin: 36px 0; }
+.orbital-site .reader-body table { scrollbar-width: thin; scrollbar-color: #58716b transparent; }
+.orbital-site .reader-body tbody tr:nth-child(even) { background: #9cb99b05; }
+.orbital-site .reader-scroll .reader-language-note { color: #b6c597; border-left: 2px solid #a3b474; padding: 8px 14px; background: #a3b4740a; font-size: 12px; }
+.orbital-site .reader-body .katex { color: inherit; }
+.orbital-site .reader-body .katex-display { overflow-x: auto; overflow-y: hidden; }
+@media (max-width: 900px) {
+	.orbital-site .reader-header { gap: 12px; }
+	.orbital-site .reader-header-progress { margin-right: auto; font-size: 11px; }
+	.orbital-site .reader-document-number { letter-spacing: 0; font-size: 8px; }
+	.orbital-site .reader-mobile-contents { background: #9cb99b05; }
+}
+@media (max-width: 480px) {
+	.orbital-site .reader-header { gap: 9px; }
+	.orbital-site .reader-header-progress small { display: none; }
 }
