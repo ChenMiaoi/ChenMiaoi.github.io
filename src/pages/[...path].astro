@@ -1,11 +1,12 @@
 ---
+import ArchiveRedirect from "../features/orbital/ArchiveRedirect.astro";
 import Page from "../features/orbital/Page.astro";
 import { getRawSortedPosts, getSeriesTree } from "../utils/content-utils";
 import { getPostUrlBySlug } from "../utils/url-utils";
 import { LOCALES, LOCALE_PREFIX, type Locale } from "../constants/locales";
 import { sectionPaths, type Section } from "../lib/content/navigation";
 
-interface Props { lang: Locale; section?: Section; seriesSlug?: string; postSlug?: string }
+interface Props { lang: Locale; section?: Section; seriesSlug?: string; postSlug?: string; redirectTo?: string }
 export async function getStaticPaths() {
   const paths: { params: { path: string | undefined }; props: Props }[] = [];
   for (const lang of LOCALES) {
@@ -15,6 +16,7 @@ export async function getStaticPaths() {
     };
     for (const [section, path] of Object.entries(sectionPaths)) add(prefix + path, { section: section as Section });
     add(`${prefix}/`);
+    add(`${prefix}/archive/`, { redirectTo: prefix + sectionPaths.articles });
     const posts = await getRawSortedPosts(lang);
     for (const post of posts) add(getPostUrlBySlug(post.slug, post.data.published, lang), { postSlug: post.slug });
     for (const series of (await getSeriesTree(lang)).nodes.values()) add(`${prefix}/series/${series.slug}/`, { seriesSlug: series.slug });
@@ -24,4 +26,4 @@ export async function getStaticPaths() {
   return paths;
 }
 ---
-<Page {...Astro.props} />
+{Astro.props.redirectTo ? <ArchiveRedirect target={Astro.props.redirectTo} lang={Astro.props.lang} /> : <Page {...Astro.props} />}

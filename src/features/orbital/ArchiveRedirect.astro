@@ -1,0 +1,24 @@
+---
+import { htmlLang, type Locale } from "../../constants/locales";
+import { createTranslations } from "./i18n";
+
+interface Props { target: string; lang: Locale }
+const { target, lang } = Astro.props;
+const { t } = createTranslations(lang);
+---
+<!doctype html>
+<html lang={htmlLang(lang)}>
+  <head>
+    <meta charset="utf-8" />
+    <title>{t("文章")}</title>
+    <link rel="canonical" href={new URL(target, Astro.site)} />
+    <meta name="robots" content="noindex" />
+    <script is:inline define:vars={{ target }}>
+      window.location.replace(target + window.location.search + window.location.hash);
+    </script>
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+  </head>
+  <body data-archive-redirect={target}>
+    <a href={target}>{t("文章")}</a>
+  </body>
+</html>

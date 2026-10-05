@@ -1,7 +1,7 @@
 export type Section = "articles" | "series" | "graph" | "code" | "about";
 
 export const sectionPaths: Record<Section, string> = {
-	articles: "/archive/",
+	articles: "/articles/",
 	series: "/series/",
 	graph: "/graph/",
 	code: "/contribution/",

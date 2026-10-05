@@ -52,7 +52,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       activity={contributionActivity} detailsUrl="/contributions.json" profile={profileConfig}
       initialSection={section} initialSeries={seriesSlug} localePrefix={prefix} {notFound} {initialWelcome} />
     {post && Content && <section class="article-document">
-      <header><a href={`${prefix}/archive/`}>{t("← 返回文章档案")}</a><h1 data-pagefind-meta="title">{post.data.title}</h1></header>
+      <header><a href={`${prefix}/articles/`}>{t("← 返回文章档案")}</a><h1 data-pagefind-meta="title">{post.data.title}</h1></header>
       {post.id.endsWith(".en") !== (lang === "en") || lang === "ja" || lang === "zh_TW" ? <p>{t("这篇文章暂无当前语言译文，以下为中文原文。")}</p> : null}
       <article class="reader-body" lang={post.id.endsWith(".en") ? "en" : "zh-CN"} data-reader-content data-pagefind-body><Content /></article>
       <footer><a href={licenseConfig.url}>{t("本文采用 {v0} 许可。", { v0: licenseConfig.name })}</a></footer>

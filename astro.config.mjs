@@ -83,6 +83,7 @@ expressiveCode({
 		}),
         svelte(),
 		sitemap({
+			filter: (page) => !/\/archive\/$/.test(new URL(page).pathname),
 			i18n: {
 				defaultLocale: "zh_CN",
 				locales: {

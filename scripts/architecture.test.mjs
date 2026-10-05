@@ -57,9 +57,9 @@ test("Orbital restores public sections, series and dated articles from the URL",
     assert.equal(resolveOrbitalLocation("/series/", posts).section, "series");
     assert.equal(resolveOrbitalLocation(posts[0].url, posts).post, posts[0]);
     assert.equal(resolveOrbitalLocation("/en/about/", [], "/en").section, "about");
-    assert.equal(resolveOrbitalLocation("/archive/", []).section, "articles");
+    assert.equal(resolveOrbitalLocation("/articles/", []).section, "articles");
     assert.equal(resolveOrbitalLocation("/en/series/test/", [], "/en").series, "test");
-    assert.equal(sectionPaths.articles, "/archive/");
+    assert.equal(sectionPaths.articles, "/articles/");
 });
 
 test("welcome entrances preserve deep links and legacy search URLs", () => {
@@ -69,7 +69,7 @@ test("welcome entrances preserve deep links and legacy search URLs", () => {
         for (const search of ["?q=linux", "?tag=Rust", "?category=hardware", "?q="]) {
             assert.equal(isWelcomeLocation(`${prefix}/`, search, prefix), false);
         }
-        for (const path of ["/archive/", "/contribution/", "/series/", "/graph/", "/about/", "/2026/09/20/memory/"]) {
+        for (const path of ["/articles/", "/contribution/", "/series/", "/graph/", "/about/", "/2026/09/20/memory/"]) {
             assert.equal(isWelcomeLocation(prefix + path, "", prefix), false);
         }
     }
@@ -91,8 +91,8 @@ test("both contribution views resolve every configured record from validated sna
 
 test("language switching preserves deep links, filters and headings without duplicating locale prefixes", () => {
 	assert.equal(
-		languageUrl("/en/archive/?q=Linux&category=hardware", "ja"),
-		"/ja/archive/?q=Linux&category=hardware",
+		languageUrl("/en/articles/?q=Linux&category=hardware", "ja"),
+		"/ja/articles/?q=Linux&category=hardware",
 	);
 	assert.equal(
 		languageUrl("/ja/series/linux-memory/", "zh_CN"),

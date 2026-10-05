@@ -22,10 +22,11 @@ await assert.rejects(access(resolve(production, "design-preview/index.html")), "
 const htmlFiles = (await readdir(production, { recursive: true })).filter((file) => file.endsWith(".html"));
 for (const file of htmlFiles) {
 	const html = await readFile(resolve(production, file), "utf8");
+	if (html.includes("data-archive-redirect")) continue;
 	assert.match(html, /class="orbital-site"/, `Non-Orbital page: ${file}`);
 	assert.doesNotMatch(html, /ObservatoryHero|observatory\.css|orbital-preview|design-preview|设计预览/, file);
 }
-for (const path of ["", "en/", "ja/", "zh_TW/", "archive/", "series/", "graph/", "contribution/", "about/"]) {
+for (const path of ["", "en/", "ja/", "zh_TW/", "articles/", "series/", "graph/", "contribution/", "about/"]) {
 	await access(resolve(production, path, "index.html"));
 }
 for (const prefix of ["", "en/", "ja/", "zh_TW/"]) {
@@ -40,10 +41,14 @@ for (const prefix of ["", "en/", "ja/", "zh_TW/"]) {
 	assert.ok(welcome.includes(`<html lang="${lang}"`), `Wrong document language: ${prefix}`);
 	assert.ok(welcome.includes(`<title>${entrance} · Miao&#39;s Blog</title>`) || welcome.includes(`<title>${entrance} · Miao's Blog</title>`), `Untranslated entrance title: ${prefix}`);
 	assert.ok(welcome.includes(`aria-label="${switchLabel}"`), `Language switch missing: ${prefix}`);
-	assert.ok(welcome.includes(`href="/${prefix}archive/"`));
-	const archive = await readFile(resolve(production, prefix, "archive/index.html"), "utf8");
+	assert.ok(welcome.includes(`href="/${prefix}articles/"`));
+	const archive = await readFile(resolve(production, prefix, "articles/index.html"), "utf8");
 	assert.match(archive, /class="terminal-shell/);
 	assert.ok(archive.includes(`<title>${heading} · Miao&#39;s Blog</title>`) || archive.includes(`<title>${heading} · Miao's Blog</title>`), `Untranslated archive title: ${prefix}`);
+	const legacy = await readFile(resolve(production, prefix, "archive/index.html"), "utf8");
+	assert.ok(legacy.includes(`data-archive-redirect="/${prefix}articles/"`));
+	assert.ok(legacy.includes(`content="0;url=/${prefix}articles/"`));
+	assert.ok(legacy.includes(`href="https://nyachen.cn/${prefix}articles/"`));
 	await access(resolve(production, prefix, "2026/09/20/linux-physical-memory/index.html"));
 	assert.doesNotMatch(archive, /class="welcome-portal/);
 }

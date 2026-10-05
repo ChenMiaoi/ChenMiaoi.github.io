@@ -28,7 +28,7 @@ These articles offer a starting point for the topics I study and write about. Th
 - [The Six Core Objects of VFS](https://nyachen.cn/2026/08/26/linux-modern-vfs-six-core-objects/): understanding Linux's shared filesystem abstractions through their object relationships.
 - [Hardware Description Languages for RISC-V: Verilog, Chisel, and Bluespec SystemVerilog](https://nyachen.cn/2026/07/22/riscv-hardware-languages-overview/): an overview of different ways to describe hardware and how to approach learning them.
 
-More writing is available in the [archive](https://nyachen.cn/archive/) and [topic series](https://nyachen.cn/series/).
+More writing is available in the [articles](https://nyachen.cn/articles/) and [topic series](https://nyachen.cn/series/).
 
 ## Open-source work
 
