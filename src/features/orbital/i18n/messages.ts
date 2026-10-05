@@ -1,5 +1,7 @@
 // Shared interface copy. Each message has English, Traditional Chinese and Japanese translations.
 export const messages = {
+	文章开头: ["Introduction", "文章開頭", "はじめに"],
+	阅读进度: ["Reading progress", "閱讀進度", "読書の進捗"],
 	保留当前页面: ["Keep this page", "保留目前頁面", "ページを引き継ぎます"],
 	"正在切换到 {v0}": [
 		"Switching to {v0}",
