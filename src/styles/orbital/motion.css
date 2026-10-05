@@ -680,8 +680,9 @@
 .motion-ready:not(.motion-paused) .section-transfer i {
 	animation: workspace-scan 850ms cubic-bezier(.2,.65,.3,1) both;
 }
+/* Keep fixed language transitions anchored to the viewport. */
 .motion-ready:not(.motion-paused) .terminal-header {
-	animation: panel-arrive 600ms cubic-bezier(.16,1,.3,1) both;
+	animation: surface-arrive 600ms ease-out backwards;
 }
 .motion-ready:not(.motion-paused) .primary-nav a {
 	transition: background-color 240ms, color 200ms, filter 200ms;
