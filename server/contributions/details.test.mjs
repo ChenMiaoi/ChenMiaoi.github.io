@@ -72,6 +72,7 @@ test('a push during detail collection cannot publish mixed commit and file versi
 test('same search timestamp never hides a new head and older detail formats are upgraded', async () => {
   for (const old of [
     { detailVersion: 2, headSha: previousHead, baseSha: base },
+    { detailVersion: 2, headSha: head, baseSha: base },
     { headSha: head, baseSha: base },
   ]) {
     const { api, calls } = fixtureApi();

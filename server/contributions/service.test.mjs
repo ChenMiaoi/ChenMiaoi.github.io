@@ -82,7 +82,7 @@ test('partial search, private repositories and failed detail requests preserve p
 
 test('unchanged open work validates head/base but reuses full details', async () => {
   const upgraded = structuredClone(seed);
-  Object.assign(upgraded.details.records[0], { detailVersion: 2, fetchedAt: new Date().toISOString(), headSha: 'a'.repeat(40), baseSha: 'b'.repeat(40) });
+  Object.assign(upgraded.details.records[0], { detailVersion: 3, fetchedAt: new Date().toISOString(), headSha: 'a'.repeat(40), baseSha: 'b'.repeat(40) });
   const api = async (path) => {
     if (path.includes("/check-runs?")) return [{ total_count: 0, check_runs: [] }];
     if (/\/commits\/[^/]+\/status\?/.test(path)) return [{ total_count: 0, sha: path.split("/commits/")[1].split("/")[0], statuses: [] }];

@@ -1,6 +1,6 @@
 import { readPullRequestStatus } from './pull-request-status.mjs';
 import { activitySchema, detailsSchema } from '../../src/lib/contributions/schema.ts';
-import { createDetailReader } from './details.mjs';
+import { createDetailReader, detailVersion } from './details.mjs';
 import { activitySearches } from '../../src/lib/contributions/search.ts';
 
 export async function syncContributions({ config, projects, previous, api, detailCache = new Map(), now = () => new Date().toISOString() }) {
@@ -55,7 +55,7 @@ export async function syncContributions({ config, projects, previous, api, detai
     if (record.html_url !== item.url || record.repository?.private || record.base?.repo?.private) throw new Error('Record is no longer public at the expected URL');
     const state = record.merged_at ? 'merged' : record.state === 'closed' ? 'closed' : record.draft ? 'draft' : 'open';
     const recent = old?.fetchedAt && Date.parse(now()) - Date.parse(old.fetchedAt) < 24 * 60 * 60 * 1000;
-    const reusable = recent && old.detailVersion === 2 && old.updatedAt === record.updated_at && old.state === state &&
+    const reusable = recent && old.detailVersion === detailVersion && old.updatedAt === record.updated_at && old.state === state &&
       (item.kind !== 'pr' || (old.headSha === record.head.sha && old.baseSha === record.base.sha));
     const detail = detailsSchema.shape.records.element.parse(reusable ? old : await readDetail(item, record));
     if (reusable && item.kind === "pr") {

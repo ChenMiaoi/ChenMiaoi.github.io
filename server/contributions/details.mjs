@@ -1,4 +1,6 @@
 import { readPullRequestStatus } from './pull-request-status.mjs';
+import { referenceCandidates } from './references.mjs';
+export const detailVersion = 3;
 // Shared by local snapshot refresh and the VPS service.
 export function createDetailReader(api, repositories) {
 const allowed = new Set(repositories);
@@ -13,21 +15,7 @@ const fileRecord = (file) => ({
 });
 
 async function relatedRecords(body, repository, timeline, ownUrl) {
-	const candidates = new Map();
-	for (const match of body.matchAll(
-		/https:\/\/github\.com\/([^/\s]+\/[^/\s]+)\/(?:issues|pull)\/(\d+)\b/g,
-	)) {
-		if (allowed.has(match[1]))
-			candidates.set(`${match[1]}#${match[2]}`, {
-				repository: match[1],
-				number: Number(match[2]),
-			});
-	}
-	for (const match of body.matchAll(/(?<![\w/])#(\d+)\b/g))
-		candidates.set(`${repository}#${match[1]}`, {
-			repository,
-			number: Number(match[1]),
-		});
+	const candidates = referenceCandidates(body, repository, repositories);
 	const linked = new Map();
 	for (const event of timeline) {
 		const issue =
@@ -46,7 +34,7 @@ async function relatedRecords(body, repository, timeline, ownUrl) {
 			});
 	}
 	// Display source references, not inferred implementation/closure relationships.
-	for (const candidate of [...candidates.values()].slice(0, 12)) {
+	for (const candidate of candidates.slice(0, 12)) {
 		const issue = await api(
 			`repos/${candidate.repository}/issues/${candidate.number}`,
 		);
@@ -148,7 +136,7 @@ async function fetchDetails(descriptor, existingRecord) {
 	}
 	return {
 		pullRequest: kind === "pr" ? await readPullRequestStatus(api, repository, descriptor.number, record) : undefined,
-		detailVersion: 2,
+		detailVersion,
 		fetchedAt: new Date().toISOString(),
 		url,
 		kind,

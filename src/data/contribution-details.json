@@ -1792,27 +1792,6 @@
 					"title": "[clang] Fix pragma attribute crashes caused by nested _Pragma",
 					"kind": "pr",
 					"relation": "cross-reference"
-				},
-				{
-					"url": "https://github.com/llvm/llvm-project/pull/10",
-					"number": 10,
-					"title": "Fix typo: 'soruce' -> 'source'",
-					"kind": "pr",
-					"relation": "mentioned"
-				},
-				{
-					"url": "https://github.com/llvm/llvm-project/pull/11",
-					"number": 11,
-					"title": "fix for gcc 8",
-					"kind": "pr",
-					"relation": "mentioned"
-				},
-				{
-					"url": "https://github.com/llvm/llvm-project/pull/12",
-					"number": 12,
-					"title": "Fix \"Allman\" style example",
-					"kind": "pr",
-					"relation": "mentioned"
 				}
 			],
 			"sha": null
@@ -2608,27 +2587,6 @@
 					"title": "[clang] Reject enum element types in ext_vector_type",
 					"kind": "pr",
 					"relation": "cross-reference"
-				},
-				{
-					"url": "https://github.com/llvm/llvm-project/pull/10",
-					"number": 10,
-					"title": "Fix typo: 'soruce' -> 'source'",
-					"kind": "pr",
-					"relation": "mentioned"
-				},
-				{
-					"url": "https://github.com/llvm/llvm-project/pull/11",
-					"number": 11,
-					"title": "fix for gcc 8",
-					"kind": "pr",
-					"relation": "mentioned"
-				},
-				{
-					"url": "https://github.com/llvm/llvm-project/pull/12",
-					"number": 12,
-					"title": "Fix \"Allman\" style example",
-					"kind": "pr",
-					"relation": "mentioned"
 				}
 			],
 			"sha": null

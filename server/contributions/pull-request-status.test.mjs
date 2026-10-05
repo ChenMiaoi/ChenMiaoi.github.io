@@ -53,7 +53,7 @@ test('no checks and neutral/skipped/cancelled outcomes never appear as all passi
 
 test('same PR timestamp and SHA still refresh CI while retaining expensive details', async () => {
   const old = { url, kind: 'pr', title: 'Change', state: 'open', updatedAt: date, fetchedAt: new Date().toISOString(),
-    detailVersion: 2, headSha: head, baseSha: base, sha: null, body: 'Description', author: 'writer',
+    detailVersion: 3, headSha: head, baseSha: base, sha: null, body: 'Description', author: 'writer',
     files: [], filesComplete: true, stats: null, comments: [], commentsTotal: 0, references: [] };
   const previous = { activity: { account: 'writer', repositories: [repository], syncedAt: date, items: [] }, details: { records: [old] } };
   const ciApi = fixture({ failed: false });
