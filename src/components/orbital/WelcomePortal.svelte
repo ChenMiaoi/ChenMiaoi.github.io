@@ -58,7 +58,6 @@
           <span><strong>{t("进入档案")}</strong></span>
           <TerminalIcon name="arrow" size={23}/>
         </a>
-        <span class="portal-action-note">{t("保持好奇")}<br/><span>{t("继续探索")}</span></span>
       </div>
       <p class="portal-signature"><span></span> {author} <i>/</i> {t("让我驱动你的世界。")}</p>
     </div>

@@ -345,7 +345,7 @@
     </main>
   </div>
 
-  <footer class="terminal-footer"><span>Miao's Blog <i>·</i> Chen Miao</span><span class="footer-line" aria-hidden="true"></span><button class="motion-control" aria-label={systemReducedMotion ? t("系统已减少动态效果") : effectsEnabled ? t("暂停页面动效") : t("开启页面动效")} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion} title={systemReducedMotion ? t("跟随系统的减少动态效果设置") : t("切换页面动效")}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? t("动效暂停") : t("动效开启")}</span></button><a class="feed-link" href={localePrefix === '/en' ? '/en/rss.xml' : '/rss.xml'}>RSS</a><span class="footer-words">{t("文章")} <i>/</i> {t("系列")} <i>/</i> {t("关联")}</span></footer>
+  <footer class="terminal-footer"><span>Miao's Blog <i>·</i> Chen Miao</span><span class="footer-line" aria-hidden="true"></span><button class="motion-control" aria-label={systemReducedMotion ? t("系统已减少动态效果") : effectsEnabled ? t("暂停页面动效") : t("开启页面动效")} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion} title={systemReducedMotion ? t("跟随系统的减少动态效果设置") : t("切换页面动效")}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? t("动效暂停") : t("动效开启")}</span></button><a class="feed-link" href={localePrefix === '/en' ? '/en/rss.xml' : '/rss.xml'}>{t("订阅更新")}</a></footer>
 </div>
 
 {/if}

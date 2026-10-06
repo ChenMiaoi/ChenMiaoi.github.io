@@ -44,8 +44,6 @@
 .orbital-site .portal-enter:hover { background: #fff581; transform: translateY(-2px); }
 .portal-enter:hover > svg { transform: translateX(4px); }
 .portal-enter:focus-visible { outline-offset: 8px; clip-path: none; }
-.portal-action-note { font-size: var(--text-note); line-height: 1.9; letter-spacing: .06em; color: #c4c7c9; }
-.portal-action-note span { font: var(--text-control) var(--mono); letter-spacing: .06em; color: #9ea1a3; }
 .orbital-site .portal-signature { display: flex; align-items: center; gap: 12px; font: var(--text-caption) var(--mono); margin-top: 34px; color: #a7aaac; }
 .portal-signature > span { width: 26px; height: 1px; background: #c0c3c555; }
 .portal-instrument { position: relative; width: min(116%, max(340px, calc(100svh - 370px))); max-width: 650px; justify-self: end; margin-left: -5%; aspect-ratio: 1; }
@@ -112,7 +110,6 @@
   .portal-header-label { display: none; }
   .portal-header { height: 90px; }
   .portal-copy h1 { font-size: 43px; }
-  .portal-action-note { display: none; }
   .portal-coordinate { font-size: var(--text-caption); }
 }
 @media (max-width: 720px) {
@@ -135,8 +132,6 @@
   .portal-enter strong { font-size: 14px; }
   .portal-enter-index { font-size: 20px; }
   .portal-enter > svg { width: 18px; margin-left: 6px; }
-  .portal-action-note { display: block; font-size: var(--text-note); }
-  .portal-action-note span { font-size: var(--text-control); }
   .orbital-site .portal-signature { margin-top: 23px; font-size: var(--text-caption); gap: 8px; }
   .portal-signature > span { width: 15px; }
   .portal-footer { min-height: 66px; font-size: var(--text-caption); gap: 15px; justify-content: space-between; }
@@ -144,5 +139,5 @@
   .portal-footer .motion-control { font-size: var(--text-control); }
 }
 @media (max-width: 380px) { .orbital-site .portal-brand { gap: 6px; } }
-@media (max-width: 360px) { .welcome-portal { padding: 0 18px; } .portal-action-note { display: none; } }
+@media (max-width: 360px) { .welcome-portal { padding: 0 18px; } }
 @media (prefers-reduced-motion: reduce) { .welcome-portal, .welcome-portal * { animation: none !important; transition: none !important; } }

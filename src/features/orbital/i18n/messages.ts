@@ -5,6 +5,7 @@ export const messages = {
 	系统与笔记: ["SYSTEMS & NOTES", "系統與筆記", "システムとノート"],
 	个人档案库: ["PERSONAL ARCHIVE", "個人檔案庫", "個人アーカイブ"],
 	导航: ["NAVIGATION", "導覽", "ナビゲーション"],
+	订阅更新: ["Subscribe to updates", "訂閱更新", "更新を購読"],
 	"Miao 的个人档案": ["MIAO'S PERSONAL ARCHIVE", "Miao 的個人檔案", "Miao の個人アーカイブ"],
 	"写作 / 档案": ["WRITING / ARCHIVE", "寫作 / 檔案", "執筆 / アーカイブ"],
 	"系列 / 目录": ["COLLECTIONS / DIRECTORY", "系列 / 目錄", "シリーズ / 一覧"],

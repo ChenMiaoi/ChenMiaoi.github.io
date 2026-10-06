@@ -176,7 +176,7 @@
 .orbital-site :is(.dossier-description, .context-eyebrow, .context-meta, .dossier-series,
 	.heading-description, .identity-bio, .identity-statement, .focus-project,
 	.reader-article-meta, .reader-eyebrow, .reader-toc nav button, .language-panel-footer,
-	.portal-action-note, .portal-signature) {
+	.portal-signature) {
 	color: var(--muted);
 }
 
