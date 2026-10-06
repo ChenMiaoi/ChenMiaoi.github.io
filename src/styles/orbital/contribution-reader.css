@@ -187,9 +187,7 @@
 
 .contribution-prose {
 	color: #cfd2d4;
-	font: 14px / 1.85 "Segoe UI",
-		"Microsoft YaHei",
-		sans-serif;
+	font: 14px / 1.85 var(--sans);
 	overflow-wrap: anywhere;
 }
 
@@ -542,7 +540,7 @@
 
 .discussion-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: -4px 0 24px; padding-bottom: 12px; border-bottom: 1px solid #acafb120; }
 .discussion-filters, .discussion-options { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
-.discussion-toolbar button { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 7px 10px; border: 0; border-radius: 4px; color: #a8abad; font: 12px / 1.5 "Segoe UI", "Microsoft YaHei", sans-serif; cursor: pointer; }
+.discussion-toolbar button { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 7px 10px; border: 0; border-radius: 4px; color: var(--muted); font: 12px / 1.5 var(--sans); cursor: pointer; }
 .discussion-filters button { background: transparent; }
 .discussion-filters button span { color: #95989a; font-size: 10px; }
 .discussion-toolbar button:hover { color: #e1e4e6; background: #c8cbcd0d; }
@@ -591,7 +589,7 @@
 	.reader-comment > summary:hover { background: #acafb108; }
 }
 .reader-comment.comment-bot:not([open]) .comment-excerpt { color: #9a9d9f; }
-.comment-disclosure { display: flex; align-items: center; gap: 5px; margin-top: 3px; color: #a8abad; font: 11px / 1.8 "Segoe UI", "Microsoft YaHei", sans-serif; }
+.comment-disclosure { display: flex; align-items: center; gap: 5px; margin-top: 3px; color: var(--muted); font: 11px / 1.8 var(--sans); }
 .comment-disclosure svg { transition: transform .15s; }
 .comment-hide, .reader-comment[open] .comment-show { display: none; }
 .reader-comment[open] .comment-hide { display: inline; }
@@ -615,7 +613,7 @@
 .comment-bot .comment-avatar { color: #a9acae; background: #1f2224; }
 .comment-summary { min-width: 0; }
 .comment-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 9px; }
-.reader-comment .comment-heading strong { font: 600 14px / 1.5 "Segoe UI", "Microsoft YaHei", sans-serif; color: #dfe2e4; overflow-wrap: anywhere; }
+.reader-comment .comment-heading strong { font: 600 14px / 1.5 var(--sans); color: var(--paper); overflow-wrap: anywhere; }
 .comment-meta time { font: 11px / 1.8 var(--mono); color: #909395; white-space: nowrap; }
 .comment-role { font-size: 10px; color: #a5a8aa; padding: 1px 5px; border-radius: 3px; background: #acafb10d; }
 .comment-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 4px; }

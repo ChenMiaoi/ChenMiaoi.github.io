@@ -10,6 +10,11 @@ import { createTranslations, languageUrl } from "./i18n";
 import "../../styles/tailwind.css";
 import "../../styles/orbital/index.css";
 import "@fontsource-variable/jetbrains-mono";
+import "@fontsource-variable/noto-sans-sc";
+import "@fontsource-variable/noto-serif-sc";
+import "@fontsource-variable/source-serif-4";
+import "@fontsource-variable/source-serif-4/wght-italic.css";
+import "@fontsource-variable/oswald";
 import "katex/dist/katex.min.css";
 
 interface Props { lang?: Locale; section?: Section; seriesSlug?: string; postSlug?: string; notFound?: boolean; projectId?: string }
@@ -34,7 +39,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {notFound && <meta name="robots" content="noindex" />}
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#0d1113" />
+    <meta name="theme-color" content="#0b1012" />
     <link rel="canonical" href={canonical} />
     {!notFound && LOCALES.map((locale) => <link rel="alternate" hreflang={htmlLang(locale)} href={new URL(languageUrl(Astro.url.pathname, locale), Astro.site)} />)}
     <meta property="og:title" content={title} />

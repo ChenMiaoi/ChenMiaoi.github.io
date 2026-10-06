@@ -479,8 +479,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 5px;
-	font: 11px / 1.4 "Microsoft YaHei",
-		sans-serif;
+	font: 11px / 1.4 var(--sans);
 	letter-spacing: 0;
 	color: #d1d4d6;
 }

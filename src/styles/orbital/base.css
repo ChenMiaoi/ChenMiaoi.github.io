@@ -7,12 +7,12 @@
   max-width: 960px;
   margin: 32px auto;
   padding: 28px;
-  background: #1c2527;
+  background: var(--surface);
   line-height: 1.8;
 }
 .article-document h1 { font-size: 2rem; margin: 1rem 0; }
 /* Static articles share the same dark palette as the interactive reader. */
-.article-document { background: #141e22; color: #cbd5d0; color-scheme: dark; }
+.article-document { color: var(--text); color-scheme: dark; }
 .static-archive a { display: block; padding: 8px 0; }
 .orbital-ready .article-document { display: none; }
 .route-notice { color: var(--signal); padding: 12px 0; }
@@ -21,6 +21,7 @@
 	margin: 0;
 	color: var(--text);
 	font-family: var(--sans);
+	font-optical-sizing: auto;
 	-webkit-font-smoothing: antialiased;
 	color-scheme: dark;
 }
@@ -32,7 +33,9 @@
 }
 
 .orbital-site button,
-.orbital-site input {
+.orbital-site input,
+.orbital-site select,
+.orbital-site textarea {
 	font: inherit;
 }
 

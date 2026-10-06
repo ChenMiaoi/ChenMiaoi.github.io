@@ -32,8 +32,7 @@
 }
 
 .identity-register > span:last-child {
-	font: 11px "Microsoft YaHei",
-		sans-serif;
+	font: 11px var(--sans);
 	letter-spacing: 1px;
 }
 

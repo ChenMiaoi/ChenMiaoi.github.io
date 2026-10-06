@@ -19,9 +19,16 @@ skip the departure animation. The welcome screen remains usable without JavaScri
 Orbital is the only production interface.
 
 The site shares one visual system across the entrance, section views and readers.
-`src/styles/orbital/tokens.css` defines the neutral charcoal/cool-gray palette,
-lemon-yellow signal, serif display stack, sans-serif body stack and monospace code
-stack. `theme.css` applies the shared heading hierarchy and navigation proportions;
+`src/styles/orbital/tokens.css` defines the cool charcoal surfaces, warm-white
+headings, four foreground levels and lemon-yellow signal. Self-hosted variable
+fonts pair Noto Serif SC / Source Serif 4 headings with Noto Sans SC prose and
+controls, Oswald display numbers and JetBrains Mono code. The blog wordmark uses
+Source Serif's italic; compact card titles use a lighter serif weight than page
+headings. Fontsource's Unicode ranges load only the required font segments, with
+system fonts available while they load. Font licenses are included under
+`public/fonts/licenses/`. Reading links use a softer yellow, and
+merged/closed records retain distinct semantic colors. `theme.css` applies the
+shared heading hierarchy and navigation proportions;
 feature styles retain their layout and semantic status colors. New sections should
 use these shared tokens rather than introducing their own palette or sidebar sizing.
 

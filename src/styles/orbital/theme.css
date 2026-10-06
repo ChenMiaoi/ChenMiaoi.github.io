@@ -13,7 +13,36 @@
 
 .orbital-site .heading-title,
 .orbital-site .reader-title-block h1 {
-	letter-spacing: .01em;
+	letter-spacing: .015em;
+	font-weight: 700;
+}
+
+.orbital-site :is(.dossier-content, .path-name, .stellar-series-label) strong {
+	font-weight: 620;
+}
+
+.orbital-site .chapter-caption strong {
+	font-weight: 700;
+	letter-spacing: -.025em;
+}
+
+.orbital-site .brand strong {
+	font-family: var(--display);
+	font-style: italic;
+	font-weight: 700;
+	letter-spacing: -.025em;
+	color: var(--paper);
+}
+
+.orbital-site :is(.mission-metrics strong, .chapter-number, .path-watermark, .portrait-image > span) {
+	font-family: var(--numeric);
+	font-variant-numeric: lining-nums tabular-nums;
+	letter-spacing: -.025em;
+}
+
+.orbital-site .mission-metrics strong {
+	font-weight: 500;
+	color: var(--paper);
 }
 
 .orbital-site :is(code, kbd, pre, samp) {
@@ -45,18 +74,19 @@
 }
 
 .orbital-site :is(.reading-dialog, .reader-layout) {
-	background: #14191c;
+	background: var(--surface);
 	color: var(--text);
 	border-color: var(--rule);
 }
 
 .orbital-site :is(.reader-toc, .reader-body pre) {
-	background: #101518;
+	background: var(--surface-inset);
 }
 
 .orbital-site .reader-body {
-	--codeblock-bg: #111619;
-	--codeblock-topbar-bg: #1b2024;
+	--codeblock-bg: var(--surface-inset);
+	--codeblock-topbar-bg: var(--surface-raised);
+	font-family: var(--sans);
 	color: var(--text);
 }
 
@@ -76,7 +106,7 @@
 }
 
 .orbital-site .terminal-sidebar .primary-nav a {
-	background: linear-gradient(90deg, #242a2ddd, #242a2d45);
+	background: linear-gradient(90deg, #20292edd, #141c2045);
 	color: var(--text);
 	border-color: var(--rule);
 	font-family: var(--sans);
@@ -89,12 +119,12 @@
 }
 
 .orbital-site .terminal-sidebar .primary-nav a:hover {
-	background: #444e54c9;
+	background: #34424bc9;
 	color: var(--paper);
 }
 
 .orbital-site .terminal-sidebar .primary-nav a.active:hover {
-	background: #fff566;
+	background: var(--signal-hover);
 	color: var(--ink);
 }
 
@@ -119,20 +149,143 @@
 }
 
 .orbital-site :is(.article-document, .static-archive) {
-	background: #14191c;
+	background: var(--surface);
 	color: var(--text);
 	font-family: var(--sans);
 }
 
 .orbital-site .mission-state {
-	color: #c4c78e;
+	color: var(--status-open);
 }
 
-.orbital-site .mission-state.state-merged { color: #c9b4d4; }
-.orbital-site .mission-state.state-closed { color: #8fa4b1; }
+.orbital-site :is(.mission-state.state-merged, .collaboration-state.merged) { color: var(--status-merged); }
+.orbital-site :is(.mission-state.state-closed, .collaboration-state.closed) { color: var(--status-closed); }
+
+/* Four foreground levels keep prose, controls and instrument labels distinct. */
+.orbital-site :is(.dossier-description, .context-eyebrow, .context-meta, .dossier-series,
+	.heading-description, .identity-bio, .identity-statement, .focus-project,
+	.reader-article-meta, .reader-eyebrow, .reader-toc nav button, .language-panel-footer,
+	.portal-action-note, .portal-signature) {
+	color: var(--muted);
+}
+
+.orbital-site :is(.terminal-kicker, .sidebar-label, .dossier-meta,
+	.mission-entry-meta, .mission-metrics span, .chapter-category, .chapter-counts,
+	.reader-status, .language-current small, .language-channel-copy small) {
+	color: var(--muted);
+}
+
+.orbital-site :is(.section-coordinate, .dossier-index, .mission-crown,
+	.portal-header-label, .portal-orbit-subtitle, .portal-footer-index) {
+	color: var(--subtle);
+}
+
+.orbital-site :is(.context-excerpt, .contribution-prose, .mission-entry strong) {
+	color: var(--text);
+}
+
+.orbital-site :is(.is-selected .dossier-content strong, .mission-entry[aria-pressed="true"] strong,
+	.reader-body strong, .portal-copy h1 span) {
+	color: var(--paper);
+}
+
+.orbital-site :is(.signal-button, .portal-enter, .identity-primary) {
+	background: var(--signal);
+	color: var(--ink);
+}
+
+.orbital-site :is(.signal-button, .portal-enter, .identity-primary):hover {
+	background: var(--signal-hover);
+	color: var(--ink);
+}
+
+.orbital-site .source-mode-tabs button[aria-pressed="true"],
+.orbital-site .mission-chapter.chapter-selected {
+	border-color: var(--signal);
+}
+
+.orbital-site .mission-chapter.chapter-selected {
+	box-shadow: inset 0 0 0 1px var(--signal);
+}
+
+.orbital-site .chapter-selected .chapter-symbol {
+	color: var(--signal);
+}
+
+.orbital-site .mission-chapter::before,
+.orbital-site .mission-crown i {
+	background: var(--signal);
+}
+
+.orbital-site .mission-control {
+	--archive-line: var(--rule);
+	background: linear-gradient(125deg, #141c20f5, #0b1012f0);
+	color: var(--text);
+}
+
+.orbital-site .language-options,
+.orbital-site .language-options::before {
+	background: var(--surface);
+	border-color: var(--edge);
+}
+
+.orbital-site .language-options a[aria-current="true"],
+.orbital-site .language-options a.language-tuning {
+	background: var(--signal-soft);
+	border-color: #f4eb3255;
+}
+
+.orbital-site .reader-toc nav button.active {
+	color: var(--signal);
+}
+
+.orbital-site :is(.reader-body, .contribution-prose) a {
+	color: var(--link);
+	text-decoration-color: #e5db8e66;
+}
+
+.orbital-site :is(.reader-body, .contribution-prose) a:hover {
+	color: var(--signal-hover);
+	text-decoration-color: currentColor;
+}
+
+.orbital-site .reader-body blockquote {
+	color: var(--muted);
+	background: var(--archive-surface);
+	border-color: var(--signal);
+}
+
+.orbital-site .reader-body > p:first-child {
+	color: var(--muted);
+}
+
+.orbital-site .reader-body :is(hr, td, th) {
+	border-color: var(--rule);
+}
+
+.orbital-site .reader-body th {
+	background: var(--surface-raised);
+	color: var(--paper);
+}
+
+.orbital-site .reader-body code:not(pre code) {
+	color: var(--paper);
+	background: #a7b6bf10;
+	border-color: var(--rule);
+}
+
+.orbital-site .reader-body .expressive-code :is(.frame, pre) {
+	background: var(--surface-inset) !important;
+}
+
+.orbital-site .reader-language-note {
+	color: var(--muted);
+	border-color: var(--signal);
+	background: var(--signal-soft);
+}
 
 .orbital-site .welcome-shade {
-	background: linear-gradient(90deg, #0b1013e8 2%, #101519ac 42%, #10151933 76%), linear-gradient(0deg, #0b1013ed, #10151905 60%, #0b101350);
+	background: linear-gradient(90deg, #0b1012ed 2%, #0e1518b0 42%, #0e151833 76%), linear-gradient(0deg, #0b1012ed, #0e151805 60%, #0b101250);
 }
 
 .orbital-site .portal-copy h1 {
@@ -187,9 +340,9 @@
 		font-size: 14px;
 		gap: 0;
 		overflow: hidden;
-		background: linear-gradient(125deg, #314047f2, #101a21f5);
-		border-color: #a6bdc66b;
-		box-shadow: inset 2px 0 #a1bac788, inset 0 1px #d9ecf122;
+		background: linear-gradient(125deg, #202b32f2, #0e1518f5);
+		border-color: #a7b6bf66;
+		box-shadow: inset 2px 0 #a7b6bf70, inset 0 1px #f3f0e81a;
 		clip-path: polygon(8px 0, calc(100% - 12px) 0, 100% 12px,
 			100% calc(100% - 12px), calc(100% - 12px) 100%, 8px 100%,
 			0 calc(100% - 8px), 0 8px);
@@ -238,9 +391,9 @@
 		width: 100%;
 		transform: none;
 		border-color: var(--signal);
-		background: linear-gradient(120deg, #3e4b4fe8, #19272deb);
-		box-shadow: inset 2px 0 var(--signal), inset 0 1px #f7ed8e88,
-			inset 0 0 22px #f3e72e18;
+		background: linear-gradient(120deg, #303c43e8, #141c20eb);
+		box-shadow: inset 2px 0 var(--signal), inset 0 1px #f4eb3266,
+			inset 0 0 22px var(--signal-soft);
 		outline: none;
 		filter: none;
 	}
@@ -252,10 +405,10 @@
 	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a.active {
 		background: var(--signal);
 		border-color: var(--signal);
-		box-shadow: inset 3px 0 #424547;
+		box-shadow: inset 3px 0 var(--ink);
 	}
 	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a.active:is(:hover, :focus-visible) {
-		background: #fff566;
+		background: var(--signal-hover);
 		color: var(--ink);
 	}
 	.orbital-site .terminal-shell.motion-paused .primary-nav a,
@@ -267,7 +420,7 @@
 		margin-top: auto;
 	}
 	.orbital-site .terminal-shell .archive-heading .heading-title {
-		font-size: clamp(32px, 2.3vw, 44px);
+		font-size: clamp(34px, 2.7vw, 48px);
 	}
 }
 
@@ -293,6 +446,15 @@
 		gap: 5px;
 	}
 	.orbital-site .terminal-sidebar .primary-nav a {
+		font-size: 11px;
+	}
+	.orbital-site:lang(en) .terminal-sidebar .primary-nav a {
 		font-size: 10px;
+	}
+}
+
+@media (max-width: 480px) {
+	.orbital-site .reader-body {
+		font-size: 16px;
 	}
 }

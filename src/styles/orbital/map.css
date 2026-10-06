@@ -56,9 +56,7 @@
 	background: #1c1f21b0;
 	color: #e4e7e9;
 	border: 1px solid #a8abad60;
-	font: 12px "Segoe UI",
-		"Microsoft YaHei",
-		sans-serif;
+	font: 12px var(--sans);
 	width: 220px;
 	padding: 10px 30px 10px 13px;
 	border-radius: 0;
@@ -133,8 +131,7 @@
 }
 
 .orbital-site .topology-tools .topology-reset {
-	font: 10px "Microsoft YaHei",
-		sans-serif;
+	font: 10px var(--sans);
 	width: auto;
 	padding-inline: 11px;
 	margin-left: 6px;
@@ -184,8 +181,7 @@
 }
 
 .topology-map-label > span:last-child {
-	font: 9px "Microsoft YaHei",
-		sans-serif;
+	font: 9px var(--sans);
 	letter-spacing: 0.4px;
 	color: #8f9294;
 }

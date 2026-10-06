@@ -1,22 +1,31 @@
 /* tokens: owns the final orbital tokens rules, including responsive states. */
 
 .orbital-site {
-	--sans: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
-	--display: Georgia, "Noto Serif SC", "Songti SC", SimSun, serif;
-	--canvas: #0d1113;
-	--text: #d5dadd;
-	--muted: #9da8ad;
-	--subtle: #7a858c;
-	--rule: #c7ced32b;
-	--codeblock-bg: #111619;
-	--codeblock-topbar-bg: #1b2024;
-	--primary: #f0e433;
-	--signal: #f0e433;
-	--paper: #eeede7;
-	--ink: #17191b;
-	--surface: #202426;
-	--edge: #373c3e;
-	--mono: "JetBrains Mono Variable", monospace;
+	--sans: "Noto Sans SC Variable", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+	--display: "Source Serif 4 Variable", "Noto Serif SC Variable", Georgia, "Songti SC", SimSun, serif;
+	--numeric: "Oswald Variable", var(--sans);
+	--mono: "JetBrains Mono Variable", "Noto Sans SC Variable", monospace;
+	--canvas: #0b1012;
+	--surface: #141c20;
+	--surface-raised: #20292e;
+	--surface-inset: #0e1518;
+	--text: #dce0df;
+	--paper: #f3f0e8;
+	--muted: #aab3b8;
+	--subtle: #87939a;
+	--rule: #a7b6bf38;
+	--edge: #435159;
+	--codeblock-bg: var(--surface-inset);
+	--codeblock-topbar-bg: var(--surface-raised);
+	--signal: #f4eb32;
+	--primary: var(--signal);
+	--signal-hover: #fff66b;
+	--signal-soft: #f4eb3214;
+	--link: #e5db8e;
+	--ink: #13191c;
+	--status-open: #e9df66;
+	--status-merged: #cbb4e5;
+	--status-closed: #a6b3be;
 	--panel-cut: polygon(
 		0 18px,
 		18px 0,
@@ -27,7 +36,7 @@
 		0 100%
 	);
 	--archive-rule: var(--rule);
-	--archive-surface: linear-gradient(110deg, #171d2166, #171d210a);
-	--archive-selected: linear-gradient(110deg, #bac6c420, #252b2f26);
+	--archive-surface: linear-gradient(110deg, #20292e66, #141c200a);
+	--archive-selected: linear-gradient(110deg, #aab9c024, #20292e38);
 	--archive-muted: var(--muted);
 }
