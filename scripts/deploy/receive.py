@@ -5,6 +5,7 @@ import contextlib
 import datetime
 import fcntl
 import hashlib
+from html.parser import HTMLParser
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -23,6 +24,41 @@ RELEASE_ID = re.compile(r'[0-9a-f]{40}-[1-9][0-9]*-[1-9][0-9]*\Z')
 MAX_ARCHIVE = 256 * 1024 * 1024
 MAX_EXPANDED = 512 * 1024 * 1024
 REQUIRED = ('index.html', 'content-index.json', 'sitemap-index.xml', 'pagefind/pagefind.js')
+HOME_PREFIXES = ('/', '/en/', '/zh_TW/', '/ja/')
+
+
+class HomepageMarkers(HTMLParser):
+    def __init__(self, html):
+        super().__init__()
+        self.orbital = False
+        self.redirect = None
+        self.refreshes = []
+        self.feed(html)
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == 'body':
+            self.orbital = 'orbital-site' in (attrs.get('class') or '').split()
+            self.redirect = attrs.get('data-archive-redirect')
+        elif tag == 'meta' and (attrs.get('http-equiv') or '').lower() == 'refresh':
+            self.refreshes.append(attrs.get('content') or '')
+
+
+def validate_homepages(load_page):
+    homepage = HomepageMarkers(load_page('/'))
+    # Older releases render the welcome page at / and remain valid rollback targets.
+    if homepage.orbital:
+        return False
+    for prefix in HOME_PREFIXES:
+        page = homepage if prefix == '/' else HomepageMarkers(load_page(prefix))
+        target = prefix + 'hello-world/'
+        refresh = re.fullmatch(r'\s*0\s*;\s*url\s*=\s*(/[^;\s]+)\s*',
+                               page.refreshes[0], re.IGNORECASE) if len(page.refreshes) == 1 else None
+        if page.redirect != target or not refresh or refresh[1] != target:
+            raise ValueError(f'Production homepage {prefix} must be Orbital or redirect to {target}')
+        if not HomepageMarkers(load_page(target)).orbital:
+            raise ValueError(f'Welcome page {target} must be Orbital')
+    return True
 
 
 def activate_runtime(site):
@@ -61,8 +97,9 @@ def check_origin(release):
     metadata = json.loads(fetch('/deployment.json'))
     if metadata['release'] != release:
         raise RuntimeError('Origin is serving a different release')
-    for path in ('/', '/en/', '/pagefind/pagefind.js'):
-        fetch(path)
+    if not validate_homepages(lambda path: fetch(path).decode('utf-8')):
+        fetch('/en/')
+    fetch('/pagefind/pagefind.js')
     if metadata.get('runtime'):
         health = json.loads(fetch('/api/contributions/health'))
         if health.get('release') != release or not health.get('ok'):
@@ -144,8 +181,12 @@ class Deployer:
             required = site / filename
             if not required.is_file() or required.stat().st_size == 0:
                 raise ValueError(f'Missing required build output: {filename}')
-        if 'class="orbital-site"' not in (site / 'index.html').read_text():
-            raise ValueError('Production homepage must be Orbital')
+        def load_page(path):
+            page = site / path.lstrip('/') / 'index.html'
+            if not page.is_file():
+                raise ValueError(f'Missing required homepage output: {path}')
+            return page.read_text(encoding='utf-8')
+        validate_homepages(load_page)
         if (site / 'runtime').exists() and not (site / 'runtime/server.mjs').is_file():
             raise ValueError('Missing contribution runtime entrypoint')
         return site

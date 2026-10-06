@@ -14,19 +14,33 @@ def release(number):
     return f'{number:040x}-{number}-1'
 
 
-def archive(extra=(), omit=()):
+def archive(extra=(), omit=(), files=None):
     output = io.BytesIO()
+    contents = dict.fromkeys((*receive.REQUIRED, 'en/index.html'),
+                            b'<html><body class="orbital-site">site</body></html>')
+    contents.update(files or {})
     with tarfile.open(fileobj=output, mode='w:gz') as tar:
-        for name in (*receive.REQUIRED, 'en/index.html'):
+        for name, data in contents.items():
             if name in omit:
                 continue
-            data = b'<html><body class="orbital-site">site</body></html>'
             member = tarfile.TarInfo('./' + name)
             member.size = len(data)
             tar.addfile(member, io.BytesIO(data))
         for member in extra:
             tar.addfile(member, io.BytesIO(b'x' * member.size))
     return output.getvalue()
+
+
+def welcome_files():
+    files = {}
+    for prefix in receive.HOME_PREFIXES:
+        target = prefix + 'hello-world/'
+        files[prefix.lstrip('/') + 'index.html'] = (
+            f'<html><head><meta http-equiv="refresh" content="0;url={target}"></head>'
+            f'<body data-archive-redirect="{target}"><a href="{target}">Welcome</a></body></html>'
+        ).encode()
+        files[target.lstrip('/') + 'index.html'] = b'<html><body class="orbital-site orbital-ready">Welcome</body></html>'
+    return files
 
 
 class DeploymentTests(unittest.TestCase):
@@ -70,6 +84,60 @@ class DeploymentTests(unittest.TestCase):
         member.size = 10
         with self.assertRaisesRegex(ValueError, 'must be Orbital'):
             self.upload(data=archive([member], omit=('index.html',)))
+
+    def test_welcome_routes_deploy_and_rollback_to_original_homepage(self):
+        self.upload(1)
+        self.upload(2, data=archive(files=welcome_files()))
+        self.assertEqual(self.deployer.target('current').name, release(2))
+        self.deployer.rollback()
+        self.assertEqual(self.deployer.target('current').name, release(1))
+
+    def test_rejects_missing_or_non_orbital_welcome_page_in_each_locale(self):
+        for prefix in receive.HOME_PREFIXES:
+            landing = prefix.lstrip('/') + 'hello-world/index.html'
+            with self.subTest(prefix=prefix, missing=True), self.assertRaisesRegex(ValueError, 'Missing required homepage'):
+                self.upload(data=archive(files=welcome_files(), omit=(landing,)))
+            files = welcome_files()
+            files[landing] = b'<html><body>Wrong application</body></html>'
+            with self.subTest(prefix=prefix, missing=False), self.assertRaisesRegex(ValueError, 'must be Orbital'):
+                self.upload(data=archive(files=files))
+        self.assertEqual(self.deployer.status(), {'current': 'empty'})
+
+    def test_rejects_wrong_redirect_or_refresh_in_each_locale(self):
+        for prefix in receive.HOME_PREFIXES:
+            name = prefix.lstrip('/') + 'index.html'
+            target = prefix + 'hello-world/'
+            for replacement in ('https://example.com/', '/articles/', '/../hello-world/', '/en/hello-world/' if prefix != '/en/' else '/hello-world/'):
+                files = welcome_files()
+                files[name] = files[name].replace(target.encode(), replacement.encode())
+                with self.subTest(prefix=prefix, replacement=replacement), self.assertRaisesRegex(ValueError, 'must be Orbital or redirect'):
+                    self.upload(data=archive(files=files))
+            files = welcome_files()
+            files[name] = files[name].replace(f'0;url={target}'.encode(), b'0;url=/articles/')
+            with self.subTest(prefix=prefix, mismatch=True), self.assertRaisesRegex(ValueError, 'must be Orbital or redirect'):
+                self.upload(data=archive(files=files))
+        self.assertEqual(self.deployer.status(), {'current': 'empty'})
+
+    def test_ignores_orbital_markers_in_scripts_and_comments(self):
+        html = b'<html><script>const html = \'<body class="orbital-site">\';</script><!-- <body class="orbital-site"> --><body>Wrong application</body></html>'
+        with self.assertRaisesRegex(ValueError, 'must be Orbital'):
+            self.upload(data=archive(files={'index.html': html}))
+
+    def test_origin_checks_welcome_destinations_and_supports_old_homepage(self):
+        for files, expected in ((welcome_files(), [*receive.HOME_PREFIXES, *(prefix + 'hello-world/' for prefix in receive.HOME_PREFIXES)]),
+                                ({'index.html': b'<body class="orbital-site">', 'en/index.html': b'<body class="orbital-site">'}, ['/', '/en/'])):
+            paths = []
+            def fetch(args):
+                path = args[-1].removeprefix('https://nyachen.cn')
+                paths.append(path)
+                if path == '/deployment.json':
+                    return json.dumps({'release': release(1)}).encode()
+                if path == '/pagefind/pagefind.js':
+                    return b'pagefind'
+                return files[path.lstrip('/') + 'index.html']
+            with self.subTest(redirected=len(files) > 2), patch.object(receive.subprocess, 'check_output', side_effect=fetch):
+                receive.check_origin(release(1))
+            self.assertCountEqual(paths, ['/deployment.json', '/pagefind/pagefind.js', *expected])
 
     def test_failed_healthcheck_restores_previous_site(self):
         self.upload(1)

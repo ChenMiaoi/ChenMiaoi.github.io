@@ -23,9 +23,13 @@ Canonical URLs continue to point to `https://nyachen.cn`.
   forward ports, or edit Nginx, certificates, other applications or databases.
   Runtime setup grants only restart/stop of `nyachen-contributions.service`.
 - The receiver verifies the archive checksum, rejects unsafe paths and links,
-  checks required build outputs and the Orbital homepage marker, and atomically switches `current`.
+  checks required build outputs and the Orbital homepage, and atomically switches
+  `current`. Both the original welcome page at `/` and the current root redirect to
+  `/hello-world/` are accepted. Redirect builds must include matching redirects and
+  real Orbital welcome pages for all four locales; arbitrary destinations are rejected.
 - Direct origin HTTPS checks verify `deployment.json`, the homepage, English
-  homepage, Pagefind and the contribution service release. Failure switches both
+  homepage, each localized welcome destination for redirect builds, Pagefind and
+  the contribution service release. Failure switches both
   the website and service back and fails CI. Public Cloudflare
   cache behavior is separate; origin checks deliberately bypass it.
 
