@@ -463,7 +463,7 @@
 	min-height: 32px;
 	padding: 0 4px;
 	color: #a8bdb2;
-	font-size: 10px;
+	font-size: var(--text-control);
 	white-space: nowrap;
 }
 .motion-control[aria-pressed="true"] > svg {
@@ -863,9 +863,9 @@
 .motion-ready:not(.motion-paused) .brand-mark {
 	transition: transform 450ms cubic-bezier(.16,1,.3,1), filter 250ms;
 }
-.motion-ready:not(.motion-paused) .brand:hover .brand-mark {
-	transform: translateY(-3px) rotate(-5deg);
-	filter: drop-shadow(0 0 8px #f0e43360);
+.motion-ready:not(.motion-paused) .brand:is(:hover, :focus-visible) .brand-mark {
+	transform: scale(1.04);
+	filter: drop-shadow(0 0 9px #f4eb3266);
 }
 .motion-ready:not(.motion-paused) :is(.context-panel, .path-hero, .patch-chamber, .topology-inspector) {
 	transition: border-color 260ms, box-shadow 260ms;

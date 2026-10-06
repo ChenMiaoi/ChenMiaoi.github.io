@@ -43,7 +43,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 10px;
-	font-size: 12px;
+	font-size: var(--text-control);
 	color: #d2d5d7;
 }
 
@@ -60,8 +60,8 @@
 	align-items: center;
 	gap: 9px;
 	margin-right: auto;
-	font: 9px var(--mono);
-	letter-spacing: 1.8px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 	color: #a7aaac;
 }
 
@@ -113,8 +113,8 @@
 }
 
 .orbital-site .reader-toc .terminal-kicker {
-	font: 9px var(--mono);
-	letter-spacing: 2px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 	color: #a0a3a5;
 	margin: 0;
 }
@@ -143,7 +143,7 @@
 	border-left: 2px solid transparent;
 	border-radius: 0;
 	clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
-	font-size: 12px;
+	font-size: var(--text-control);
 	line-height: 1.7;
 	color: #b3b6b8;
 	overflow-wrap: anywhere;
@@ -151,7 +151,7 @@
 
 .orbital-site .reader-toc .toc-number {
 	flex-shrink: 0;
-	font: 9px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #838688;
 }
 
@@ -169,7 +169,7 @@
 
 .orbital-site .reader-toc nav button.subheading {
 	padding-left: 22px;
-	font-size: 11px;
+	font-size: var(--text-control);
 }
 
 .orbital-site .reader-progress-card {
@@ -182,7 +182,7 @@
 .orbital-site .reader-progress-card > span {
 	display: block;
 	color: #a1a4a6;
-	font-size: 10px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .reader-progress-card strong {
@@ -193,7 +193,7 @@
 }
 
 .orbital-site .reader-progress-card small {
-	font-size: 12px;
+	font-size: var(--text-caption);
 	margin-left: 4px;
 }
 
@@ -239,8 +239,8 @@
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	font: 9px var(--mono);
-	letter-spacing: 2px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 	color: #a9acae;
 	margin: 0 0 20px;
 }
@@ -272,7 +272,7 @@
 	flex-wrap: wrap;
 	align-items: baseline;
 	gap: 12px;
-	font: 10px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #a4a7a9;
 	line-height: 1.8;
 }
@@ -379,7 +379,7 @@
 	background: #131618;
 	color: #e1e4e6;
 	border-radius: 2px;
-	font-size: 12px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .reader-body blockquote {
@@ -459,7 +459,7 @@
 	right: 48px;
 	top: 12px;
 	margin-right: 0;
-	font-size: 10px;
+	font-size: var(--text-caption);
 	letter-spacing: 1px;
 	color: #b0b3b5;
 	background: transparent;
@@ -516,8 +516,8 @@
 }
 
 .orbital-site .reader-end > span {
-	font: 9px var(--mono);
-	letter-spacing: 2px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 	color: #9ea1a3;
 }
 
@@ -525,7 +525,7 @@
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	font-size: 12px;
+	font-size: var(--text-control);
 	color: #c6c9cb;
 	padding: 10px 0;
 }
@@ -583,7 +583,7 @@
 		align-items: center;
 		cursor: pointer;
 		padding: 11px 14px;
-		font-size: 12px;
+		font-size: var(--text-caption);
 		list-style: none;
 	}
 	.orbital-site .reader-mobile-contents summary::-webkit-details-marker {
@@ -602,7 +602,7 @@
 	}
 	.orbital-site .reader-mobile-contents button {
 		padding: 8px 0;
-		font-size: 12px;
+		font-size: var(--text-control);
 		line-height: 1.6;
 	}
 	.orbital-site .reader-mobile-contents button.active {
@@ -630,7 +630,7 @@
 		gap: 12px;
 	}
 	.orbital-site .reader-header > button:first-child {
-		font-size: 11px;
+		font-size: var(--text-control);
 		gap: 7px;
 	}
 	.orbital-site .reader-article {
@@ -666,10 +666,10 @@
 	align-items: baseline;
 	gap: 4px;
 	color: var(--signal);
-	font: 12px var(--mono);
+	font: var(--text-caption) var(--mono);
 	white-space: nowrap;
 }
-.orbital-site .reader-header-progress small { font-size: 9px; color: #a1a4a6; }
+.orbital-site .reader-header-progress small { font-size: var(--text-caption); color: #a1a4a6; }
 .orbital-site .reader-toc-heading { flex-shrink: 0; }
 .orbital-site .reader-toc nav button.active .toc-number { color: var(--signal); }
 .orbital-site .reader-progress-card strong { margin: 8px 0 12px; }
@@ -688,19 +688,19 @@
 	left: 0;
 	background: var(--signal);
 }
-.orbital-site .reader-document-number { letter-spacing: 1px; font-size: 9px; }
+.orbital-site .reader-document-number { letter-spacing: 1px; font-size: var(--text-caption); }
 .orbital-site .reader-body h2 { border-left: 2px solid var(--signal); padding-left: 14px; }
 .orbital-site .reader-body strong { color: #eceff1; }
 .orbital-site .reader-body hr { border: 0; border-top: 1px solid #9da0a22e; margin: 36px 0; }
 .orbital-site .reader-body table { scrollbar-width: thin; scrollbar-color: #686b6d transparent; }
 .orbital-site .reader-body tbody tr:nth-child(even) { background: #aeb1b305; }
-.orbital-site .reader-scroll .reader-language-note { color: #bbbec0; border-left: 2px solid #a9acae; padding: 8px 14px; background: #a9acae0a; font-size: 12px; }
+.orbital-site .reader-scroll .reader-language-note { color: #bbbec0; border-left: 2px solid #a9acae; padding: 8px 14px; background: #a9acae0a; font-size: var(--text-caption); }
 .orbital-site .reader-body .katex { color: inherit; }
 .orbital-site .reader-body .katex-display { overflow-x: auto; overflow-y: hidden; }
 @media (max-width: 900px) {
 	.orbital-site .reader-header { gap: 12px; }
-	.orbital-site .reader-header-progress { margin-right: auto; font-size: 11px; }
-	.orbital-site .reader-document-number { letter-spacing: 0; font-size: 8px; }
+	.orbital-site .reader-header-progress { margin-right: auto; font-size: var(--text-caption); }
+	.orbital-site .reader-document-number { letter-spacing: 0; font-size: var(--text-caption); }
 	.orbital-site .reader-mobile-contents { background: #aeb1b305; }
 }
 @media (max-width: 480px) {

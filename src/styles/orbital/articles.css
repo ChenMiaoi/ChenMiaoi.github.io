@@ -23,12 +23,12 @@
 	display: flex;
 	align-items: center;
 	gap: 12px;
-	font-size: 11px;
+	font-size: var(--text-caption);
 	color: #c9ccce;
 }
 
 .archive-toolbar small {
-	font: 9px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #7e8183;
 }
 
@@ -36,7 +36,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 9px;
-	font-size: 10px;
+	font-size: var(--text-control);
 	color: #949799;
 }
 
@@ -122,7 +122,7 @@
 	left: -27px;
 	bottom: 21px;
 	color: #737678;
-	font: 8px var(--mono);
+	font: var(--text-caption) var(--mono);
 	writing-mode: vertical-rl;
 	letter-spacing: 1px;
 }
@@ -133,13 +133,13 @@
 	justify-content: space-between;
 	gap: 10px;
 	margin-bottom: 15px;
-	font: 9px var(--mono);
+	font: var(--text-caption) var(--mono);
 	letter-spacing: 0.3px;
 	color: #8f9294;
 }
 
 .dossier-meta > span {
-	font-size: 8px;
+	font-size: var(--text-caption);
 	letter-spacing: 1px;
 }
 
@@ -160,7 +160,7 @@
 
 .dossier-description {
 	color: #a2a5a7;
-	font-size: 12px;
+	font-size: var(--text-caption);
 	line-height: 1.9;
 	display: -webkit-box;
 	-webkit-line-clamp: 2;
@@ -170,7 +170,7 @@
 
 .dossier-series {
 	color: #8a8d8f;
-	font-size: 10px;
+	font-size: var(--text-caption);
 	margin-top: 19px;
 	display: block;
 	line-height: 1.7;
@@ -229,7 +229,7 @@
 	justify-content: center;
 	padding: 20px 0;
 	color: #878a8c;
-	font-size: 11px;
+	font-size: var(--text-caption);
 	gap: 15px;
 }
 
@@ -252,7 +252,7 @@
 	gap: 15px;
 	height: 36px;
 	padding-bottom: 16px;
-	font-size: 11px;
+	font-size: var(--text-caption);
 	color: #c9ccce;
 }
 
@@ -269,7 +269,7 @@
 }
 
 .context-label small {
-	font: 8px var(--mono);
+	font: var(--text-caption) var(--mono);
 	letter-spacing: 1px;
 	color: #848789;
 }
@@ -294,7 +294,7 @@
 }
 
 .context-eyebrow {
-	font-size: 11px;
+	font-size: var(--text-caption);
 	color: #5e6163;
 	letter-spacing: 1px;
 	line-height: 1.7;
@@ -310,7 +310,7 @@
 	align-items: center;
 	gap: 9px;
 	flex-wrap: wrap;
-	font: 10px var(--mono);
+	font: var(--text-caption) var(--mono);
 	line-height: 1.9;
 }
 
@@ -340,7 +340,7 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	font-size: 12px;
+	font-size: var(--text-control);
 	line-height: 1.7;
 	padding: 8px 0;
 	gap: 12px;
@@ -354,7 +354,7 @@
 }
 
 .context-chapters p {
-	font-size: 12px;
+	font-size: var(--text-caption);
 	color: #585b5d;
 }
 
@@ -363,8 +363,8 @@
 }
 
 .read-action small {
-	font: 7px var(--mono);
-	letter-spacing: 1.8px;
+	font: var(--text-control) var(--mono);
+	letter-spacing: .06em;
 	color: #8f9294;
 	margin-top: 6px;
 }
@@ -383,7 +383,7 @@
 	align-items: center;
 	gap: 15px;
 	padding: 12px 16px;
-	font-size: 12px;
+	font-size: var(--text-caption);
 	background: #2d3032;
 	margin-bottom: 23px;
 	border-left: 2px solid var(--signal);
@@ -493,7 +493,7 @@
 	}
 	.dossier-index {
 		left: -19px;
-		font-size: 7px;
+		font-size: var(--text-caption);
 	}
 	.dossier-content strong {
 		font-size: 18px;
@@ -502,10 +502,10 @@
 		font-size: 25px;
 	}
 	.dossier-description {
-		font-size: 12px;
+		font-size: var(--text-caption);
 	}
 	.dossier-meta {
-		font-size: 9px;
+		font-size: var(--text-caption);
 	}
 }
 
@@ -532,12 +532,12 @@
 
 .orbital-site .archive-toolbar > span {
 	color: #e3e6e8;
-	font-size: 12px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .archive-toolbar button {
 	color: #c9ccce;
-	font-size: 10px;
+	font-size: var(--text-control);
 }
 
 .orbital-site .archive-rail {
@@ -636,7 +636,7 @@
 }
 
 .orbital-site .dossier-meta {
-	font-size: 11px;
+	font-size: var(--text-caption);
 	min-height: 16px;
 	padding-right: 0;
 }
@@ -646,7 +646,7 @@
 }
 
 .orbital-site .dossier-date {
-	font-size: 11px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .dossier-content {
@@ -666,7 +666,7 @@
 	left: -27px;
 	bottom: 30px;
 	color: #b0b3b5;
-	font-size: 7px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .is-selected .dossier-hit {
@@ -727,7 +727,7 @@
 }
 
 .orbital-site .context-label {
-	font-size: 10px;
+	font-size: var(--text-caption);
 	color: #cacdcf;
 }
 
@@ -767,7 +767,7 @@
 
 .orbital-site .context-chapters h3 {
 	color: #9ea1a3;
-	font-size: 10px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .context-chapters button {
@@ -776,7 +776,7 @@
 
 .orbital-site .context-chapters p {
 	color: #dcdfe1;
-	font-size: 12px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .context-chapters button:hover {
@@ -802,8 +802,8 @@
 
 .orbital-site .read-action small {
 	color: #585b5d;
-	font-size: 7px;
-	letter-spacing: 1.2px;
+	font-size: var(--text-control);
+	letter-spacing: .06em;
 }
 
 .orbital-site .read-action svg {
@@ -820,7 +820,7 @@
 .document-jog > span {
 	display: flex;
 	gap: 10px;
-	font: 10px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #dde0e2;
 }
 
@@ -909,11 +909,11 @@
 		font-size: 24px;
 	}
 	.orbital-site .context-excerpt {
-		font-size: 12px;
+		font-size: var(--text-caption);
 	}
 	.orbital-site .context-label small {
 		letter-spacing: 0.4px;
-		font-size: 6px;
+		font-size: var(--text-caption);
 	}
 }
 
@@ -945,7 +945,7 @@
 			0 100%
 		);
 		margin-right: 18px;
-		font-size: 12px;
+		font-size: var(--text-control);
 		min-height: 43px;
 	}
 }
@@ -957,7 +957,7 @@
 		height: 37px;
 	}
 	.orbital-site .archive-toolbar > span {
-		font-size: 11px;
+		font-size: var(--text-caption);
 	}
 	.orbital-site .archive-rail {
 		padding-left: 18px;
@@ -976,20 +976,20 @@
 		min-height: 237px;
 	}
 	.orbital-site .dossier-meta > span {
-		font-size: 6px;
+		font-size: var(--text-caption);
 	}
 	.orbital-site .dossier-series {
 		margin-left: -19px;
 		margin-right: -19px;
 		width: calc(100% + 38px);
 		padding-left: 19px;
-		font-size: 9px;
+		font-size: var(--text-caption);
 	}
 	.orbital-site .dossier-description {
-		font-size: 11px;
+		font-size: var(--text-caption);
 	}
 	.orbital-site .is-selected .dossier-description {
-		font-size: 12px;
+		font-size: var(--text-caption);
 	}
 	.orbital-site .is-selected .dossier-arrow {
 		padding: 8px 2px;
@@ -1050,12 +1050,12 @@
 .orbital-site .dossier-meta > span {
 	padding-top: 0;
 	color: var(--archive-muted);
-	font-size: 8px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .is-selected .dossier-meta > span {
 	padding-top: 0;
-	font-size: 8px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .is-selected .dossier-meta > span {
@@ -1080,7 +1080,7 @@
 .orbital-site .dossier-description,
 .orbital-site .is-selected .dossier-description {
 	color: var(--archive-muted);
-	font-size: 12px;
+	font-size: var(--text-caption);
 	line-height: 1.85;
 	-webkit-line-clamp: 1;
 }
@@ -1093,7 +1093,7 @@
 	background: none;
 	border: 0;
 	clip-path: none;
-	font-size: 11px;
+	font-size: var(--text-caption);
 	color: #a1a4a6;
 }
 
@@ -1148,14 +1148,14 @@
 }
 
 .orbital-site .context-label small {
-	font-size: 8px;
+	font-size: var(--text-caption);
 	letter-spacing: 1px;
 }
 
 .orbital-site .context-eyebrow {
 	margin-top: 30px;
 	color: var(--archive-muted);
-	font-size: 11px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .context-content h2 {
@@ -1165,7 +1165,7 @@
 }
 
 .orbital-site .context-meta {
-	font-size: 11px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .context-excerpt {
@@ -1181,7 +1181,7 @@
 }
 
 .orbital-site .context-chapters button {
-	font-size: 13px;
+	font-size: var(--text-control);
 }
 
 .orbital-site .read-action {

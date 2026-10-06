@@ -46,7 +46,7 @@
 }
 
 .topology-scope > span {
-	font: 10px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #a3a6a8;
 	white-space: nowrap;
 }
@@ -56,7 +56,7 @@
 	background: #1c1f21b0;
 	color: #e4e7e9;
 	border: 1px solid #a8abad60;
-	font: 12px var(--sans);
+	font: var(--text-caption) var(--sans);
 	width: 220px;
 	padding: 10px 30px 10px 13px;
 	border-radius: 0;
@@ -78,7 +78,7 @@
 	gap: 16px;
 	white-space: nowrap;
 	color: #aeb1b3;
-	font-size: 10px;
+	font-size: var(--text-caption);
 }
 
 .topology-key > span {
@@ -124,14 +124,14 @@
 }
 
 .topology-tools > span {
-	font: 9px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #aeb1b3;
 	min-width: 34px;
 	text-align: center;
 }
 
 .orbital-site .topology-tools .topology-reset {
-	font: 10px var(--sans);
+	font: var(--text-caption) var(--sans);
 	width: auto;
 	padding-inline: 11px;
 	margin-left: 6px;
@@ -170,8 +170,8 @@
 	gap: 20px;
 	padding: 18px 25px 0;
 	color: #a5a8aa;
-	font: 8px var(--mono);
-	letter-spacing: 1.4px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 }
 
 .topology-map-label i {
@@ -181,7 +181,7 @@
 }
 
 .topology-map-label > span:last-child {
-	font: 9px var(--sans);
+	font: var(--text-caption) var(--sans);
 	letter-spacing: 0.4px;
 	color: #8f9294;
 }
@@ -338,9 +338,9 @@
 }
 
 .core-overline {
-	font-size: 9px;
+	font-size: var(--text-caption);
 	color: #b5b8ba;
-	letter-spacing: 3px;
+	letter-spacing: .06em;
 }
 
 .root-node strong {
@@ -353,8 +353,8 @@
 }
 
 .root-node small {
-	font: 7px var(--mono);
-	letter-spacing: 1.5px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 	color: #b5b8ba;
 }
 
@@ -408,7 +408,7 @@
 }
 
 .stellar-series-label small {
-	font: 8px var(--mono);
+	font: var(--text-caption) var(--mono);
 	display: block;
 	margin-top: 4px;
 	color: #929597;
@@ -423,7 +423,7 @@
 	width: 20px;
 	height: 20px;
 	color: #bec1c3;
-	font: 7px var(--mono);
+	font: var(--text-caption) var(--mono);
 	background: #222527e8;
 	border: 1px solid #aeb1b37a;
 	border-radius: 50%;
@@ -448,7 +448,7 @@
 	right: 0;
 	top: 50%;
 	transform: translateY(-50%);
-	font-size: 12px;
+	font-size: var(--text-caption);
 	line-height: 1.7;
 	color: #c5c8ca;
 	text-wrap: pretty;
@@ -502,7 +502,7 @@
 	gap: 20px;
 	padding: 10px 24px 18px;
 	color: #a0a3a5;
-	font-size: 9px;
+	font-size: var(--text-caption);
 }
 
 .topology-map-foot > span:first-child {
@@ -561,7 +561,7 @@
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	font-size: 9px;
+	font-size: var(--text-caption);
 	color: #aeb1b3;
 	margin-bottom: 9px;
 }
@@ -592,7 +592,7 @@
 .topology-selection-parent {
 	display: block;
 	color: #939698;
-	font-size: 9px;
+	font-size: var(--text-caption);
 	line-height: 1.8;
 	margin-top: 7px;
 }
@@ -605,7 +605,7 @@
 	background: var(--signal);
 	color: #292c2e;
 	padding: 14px 18px;
-	font-size: 12px;
+	font-size: var(--text-control);
 	font-weight: 650;
 	white-space: nowrap;
 	clip-path: polygon(
@@ -626,7 +626,7 @@
 	align-items: center;
 	gap: 12px;
 	padding: 0 16px 18px;
-	font-size: 10px;
+	font-size: var(--text-caption);
 	color: #b1b4b6;
 }
 
@@ -643,7 +643,7 @@
 	border: 1px solid #a4a7a951;
 	border-radius: 0;
 	padding: 10px 9px;
-	font-size: 11px;
+	font-size: var(--text-caption);
 }
 
 @media (max-width: 1190px) {
@@ -704,7 +704,7 @@
 	}
 	.topology-key {
 		gap: 10px;
-		font-size: 9px;
+		font-size: var(--text-caption);
 	}
 	.topology-tools {
 		gap: 3px;
@@ -712,15 +712,15 @@
 	.orbital-site .topology-tools .topology-reset {
 		padding-inline: 8px;
 		margin-left: 2px;
-		font-size: 9px;
+		font-size: var(--text-caption);
 	}
 	.topology-map-label {
 		padding: 16px 15px 8px;
-		font-size: 6px;
+		font-size: var(--text-caption);
 		letter-spacing: 1px;
 	}
 	.topology-map-label > span:last-child {
-		font-size: 7px;
+		font-size: var(--text-caption);
 	}
 	.topology-map-label > span:first-child {
 		max-width: 120px;
@@ -731,7 +731,7 @@
 	}
 	.topology-map-foot {
 		padding-inline: 16px;
-		font-size: 8px;
+		font-size: var(--text-caption);
 		gap: 10px;
 	}
 	.topology-inspector {
@@ -751,7 +751,7 @@
 		font-size: 19px;
 	}
 	.orbital-site .topology-selection-description {
-		font-size: 12px;
+		font-size: var(--text-caption);
 	}
 }
 

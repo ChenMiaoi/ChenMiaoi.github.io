@@ -23,7 +23,7 @@
 	display: flex;
 	align-items: center;
 	gap: 11px;
-	font-size: 12px;
+	font-size: var(--text-caption);
 	color: #d9dcde;
 }
 
@@ -34,7 +34,7 @@
 }
 
 .path-toolbar small {
-	font: 9px var(--mono);
+	font: var(--text-caption) var(--mono);
 	letter-spacing: 1px;
 	color: #aeb1b3;
 	padding-left: 8px;
@@ -45,7 +45,7 @@
 	align-items: center;
 	gap: 9px;
 	color: #bbbec0;
-	font-size: 11px;
+	font-size: var(--text-control);
 	min-height: 32px;
 }
 
@@ -97,13 +97,13 @@
 	align-items: center;
 	color: #cacdcf;
 	margin: 0 2px 18px;
-	font-size: 11px;
+	font-size: var(--text-caption);
 }
 
 .path-directory-caption small {
-	font: 8px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #999c9e;
-	letter-spacing: 1.8px;
+	letter-spacing: .06em;
 }
 
 .path-options {
@@ -156,7 +156,7 @@
 }
 
 .path-number {
-	font: 11px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #acafb1;
 }
 
@@ -175,7 +175,7 @@
 }
 
 .path-name small {
-	font-size: 11px;
+	font-size: var(--text-caption);
 	color: #abaeb0;
 }
 
@@ -193,7 +193,7 @@
 	align-items: center;
 	color: #a1a4a6;
 	padding: 17px 2px 0;
-	font-size: 10px;
+	font-size: var(--text-caption);
 	flex: 0 0 auto;
 }
 
@@ -238,8 +238,8 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
-	font: 8px var(--mono);
-	letter-spacing: 1.4px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 	color: #c1c4c6;
 	position: relative;
 	z-index: 1;
@@ -284,7 +284,7 @@
 
 .orbital-site .path-description {
 	color: #c1c4c6;
-	font-size: 12px;
+	font-size: var(--text-caption);
 	line-height: 1.85;
 	margin-top: 0;
 	position: relative;
@@ -308,7 +308,7 @@
 	background: var(--signal);
 	color: #2b2e30;
 	padding: 10px 15px;
-	font-size: 12px;
+	font-size: var(--text-caption);
 	font-weight: 650;
 	min-height: 40px;
 	clip-path: polygon(
@@ -329,7 +329,7 @@
 	display: flex;
 	gap: 11px;
 	color: #babdbf;
-	font-size: 10px;
+	font-size: var(--text-caption);
 }
 
 .path-hero-actions i {
@@ -364,7 +364,7 @@
 	min-width: 0;
 	position: relative;
 	color: #dde0e2;
-	font-size: 11px;
+	font-size: var(--text-control);
 	line-height: 1.6;
 }
 
@@ -373,7 +373,7 @@
 	place-items: center;
 	width: 25px;
 	height: 25px;
-	font: 8px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: var(--signal);
 	background: #393c3e;
 	border: 1px solid #b9bcbe87;
@@ -390,7 +390,7 @@
 
 .path-branch-shortcuts small {
 	color: #9c9fa1;
-	font-size: 8px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .path-branch-shortcuts button:hover {
@@ -422,14 +422,14 @@
 }
 
 .orbital-site .path-outline-heading h3 {
-	font-size: 12px;
+	font-size: var(--text-caption);
 	font-weight: 500;
 	color: #cccfd1;
 }
 
 .path-outline-heading > span {
-	font: 7px var(--mono);
-	letter-spacing: 1.5px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 	color: #8e9193;
 }
 
@@ -487,7 +487,7 @@
 	display: grid;
 	place-items: center;
 	color: var(--signal);
-	font: 9px var(--mono);
+	font: var(--text-caption) var(--mono);
 	border: 1px solid #cacdcf70;
 	background: #313436;
 	clip-path: polygon(
@@ -503,7 +503,7 @@
 .path-branch-heading > div > span {
 	display: block;
 	color: #979a9c;
-	font-size: 8px;
+	font-size: var(--text-caption);
 	letter-spacing: 1px;
 	margin-bottom: 6px;
 }
@@ -520,7 +520,7 @@
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	font-size: 9px;
+	font-size: var(--text-control);
 	color: #aeb1b3;
 	white-space: nowrap;
 	padding: 8px 0 8px 8px;
@@ -560,7 +560,7 @@
 
 .path-article-number {
 	color: #8d9092;
-	font: 8px / 2.85 var(--mono);
+	font: var(--text-caption) / 2.85 var(--mono);
 }
 
 .path-reading-list svg {
@@ -574,7 +574,7 @@
 	align-items: center;
 	justify-content: center;
 	gap: 12px;
-	font-size: 9px;
+	font-size: var(--text-caption);
 	color: #8a8d8f;
 	padding-bottom: 10px;
 }
@@ -588,7 +588,7 @@
 
 .orbital-site .path-empty {
 	color: #a8abad;
-	font-size: 12px;
+	font-size: var(--text-caption);
 	line-height: 1.8;
 	padding: 12px 0 20px;
 }
@@ -696,15 +696,15 @@
 		margin-bottom: 12px;
 	}
 	.path-toolbar > span {
-		font-size: 11px;
+		font-size: var(--text-caption);
 		gap: 7px;
 	}
 	.path-toolbar small {
-		font-size: 7px;
+		font-size: var(--text-caption);
 		padding-left: 2px;
 	}
 	.orbital-site .path-toolbar button {
-		font-size: 10px;
+		font-size: var(--text-control);
 		gap: 7px;
 	}
 	.path-options {
@@ -717,13 +717,13 @@
 		gap: 7px;
 	}
 	.path-number {
-		font-size: 9px;
+		font-size: var(--text-caption);
 	}
 	.path-name strong {
 		font-size: 13px;
 	}
 	.path-name small {
-		font-size: 11px;
+		font-size: var(--text-caption);
 	}
 	.path-name {
 		gap: 5px;
@@ -732,7 +732,7 @@
 		padding: 20px 21px;
 	}
 	.path-hero-line {
-		font-size: 7px;
+		font-size: var(--text-caption);
 		letter-spacing: 0.7px;
 	}
 	.path-watermark {
@@ -744,7 +744,7 @@
 	}
 	.orbital-site .path-subtitle,
 .orbital-site .path-description {
-		font-size: 12px;
+		font-size: var(--text-caption);
 	}
 	.path-hero-actions {
 		gap: 15px;
@@ -755,13 +755,13 @@
 		gap: 14px;
 	}
 	.path-hero-actions > span {
-		font-size: 9px;
+		font-size: var(--text-caption);
 		gap: 7px;
 	}
 	.orbital-site .path-start {
 		padding-inline: 14px;
 		gap: 22px;
-		font-size: 11px;
+		font-size: var(--text-caption);
 	}
 	.path-outline {
 		padding-inline: 15px;
@@ -787,7 +787,7 @@
 		gap: 10px;
 	}
 	.orbital-site .path-branch-shortcuts button {
-		font-size: 10px;
+		font-size: var(--text-control);
 		flex-direction: column;
 		align-items: flex-start;
 	}

@@ -190,7 +190,7 @@
 	display: flex;
 	align-items: center;
 	gap: 7px;
-	font: 10px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #8f9294;
 }
 
@@ -215,7 +215,7 @@
 
 .port-count {
 	position: relative;
-	font: 11px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #acafb1;
 	border: 1px solid #a4a7a940;
 	padding: 3px 5px;
@@ -245,7 +245,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
-	font-size: 11px;
+	font-size: var(--text-caption);
 	color: #bcbfc1;
 	white-space: nowrap;
 	align-self: center;
@@ -291,7 +291,7 @@
 }
 
 .contribution-rail > header small {
-	font: 9px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #9fa2a4;
 	letter-spacing: 1px;
 }
@@ -307,7 +307,7 @@
 .orbital-site .contribution-kind-filter button {
 	padding: 6px 9px;
 	color: #b6b9bb;
-	font-size: 12px;
+	font-size: var(--text-control);
 	border: 1px solid #b2b5b738;
 	background: #21242680;
 }
@@ -320,7 +320,7 @@
 
 .contribution-kind-filter small {
 	margin-left: 5px;
-	font: 11px var(--mono);
+	font: var(--text-caption) var(--mono);
 }
 
 .source-view .contribution-records {
@@ -394,7 +394,7 @@
 	color: #b3b6b8;
 	background: #232628e8;
 	border: 1px solid #96999b73;
-	font: 10px var(--mono);
+	font: var(--text-caption) var(--mono);
 	clip-path: polygon(
 		6px 0,
 		100% 0,
@@ -426,7 +426,7 @@
 }
 
 .record-text time {
-	font: 11px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #babdbf;
 }
 
@@ -443,7 +443,7 @@
 
 .record-text code {
 	display: block;
-	font: 11px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #a8abad;
 	margin-top: 7px;
 }
@@ -479,7 +479,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 5px;
-	font: 11px / 1.4 var(--sans);
+	font: var(--text-control) / 1.4 var(--sans);
 	letter-spacing: 0;
 	color: #d1d4d6;
 }
@@ -577,7 +577,7 @@
 	padding: 0 42px 0 27px;
 	border-bottom: 1px solid #c9ccce26;
 	color: #cfd2d4;
-	font: 11px var(--mono);
+	font: var(--text-caption) var(--mono);
 }
 
 .chamber-aperture {
@@ -645,7 +645,7 @@
 }
 
 .chamber-footer > span {
-	font-size: 11px;
+	font-size: var(--text-caption);
 	color: #b2b5b7;
 }
 
@@ -656,12 +656,12 @@
 }
 
 .chamber-footer > div > span {
-	font: 11px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #d3d6d8;
 }
 
 .chamber-footer > code {
-	font: 11px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #acafb1;
 	overflow-wrap: anywhere;
 }
@@ -702,7 +702,7 @@
 	color: #a9acae;
 	border-top: 0;
 	background: transparent;
-	font-size: 10px;
+	font-size: var(--text-caption);
 	line-height: 1.7;
 }
 
@@ -725,7 +725,7 @@
 }
 
 .rail-empty small {
-	font-size: 12px;
+	font-size: var(--text-caption);
 	margin-top: 11px;
 	color: #9ea1a3;
 }
@@ -736,7 +736,7 @@
 
 .patch-empty .patch-eyebrow {
 	color: #aaadaf;
-	font: 10px var(--mono);
+	font: var(--text-caption) var(--mono);
 	letter-spacing: 1px;
 	margin-bottom: 18px;
 }
@@ -908,7 +908,7 @@
 	.port-count {
 		border: 0;
 		padding: 0;
-		font-size: 10px;
+		font-size: var(--text-caption);
 		margin-left: 0;
 	}
 	.active .port-count {
@@ -920,7 +920,7 @@
 	}
 	.source-repository {
 		padding: 12px 0 0;
-		font-size: 11px;
+		font-size: var(--text-caption);
 		margin-left: auto;
 		border: 0;
 	}
@@ -936,7 +936,7 @@
 		gap: 10px;
 	}
 	.chamber-address {
-		font-size: 10px;
+		font-size: var(--text-caption);
 	}
 }
 

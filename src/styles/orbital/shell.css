@@ -84,9 +84,9 @@
 
 .brand small {
 	display: block;
-	font: 8px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #9b9ea0;
-	letter-spacing: 2.4px;
+	letter-spacing: .06em;
 	margin-top: 10px;
 }
 
@@ -131,7 +131,7 @@
 }
 
 .search-frame kbd {
-	font: 9px var(--mono);
+	font: var(--text-caption) var(--mono);
 	white-space: nowrap;
 	color: #7e8183;
 	border: 1px solid #474a4c;
@@ -143,7 +143,7 @@
 	display: inline-flex;
 	gap: 12px;
 	align-items: center;
-	font-size: 12px;
+	font-size: var(--text-control);
 }
 
 .github-link svg {
@@ -166,8 +166,8 @@
 }
 
 .orbital-site .sidebar-label {
-	font: 8px var(--mono);
-	letter-spacing: 2px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 }
 
 .terminal-sidebar nav {
@@ -192,7 +192,7 @@
 
 .terminal-sidebar nav a small {
 	margin-left: auto;
-	font: 8px var(--mono);
+	font: var(--text-caption) var(--mono);
 	opacity: 0.5;
 }
 
@@ -242,8 +242,8 @@
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	font: 9px var(--mono);
-	letter-spacing: 2.7px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 	color: #9a9d9f;
 }
 
@@ -277,7 +277,7 @@
 .category-tabs {
 	display: flex;
 	gap: 24px;
-	font-size: 13px;
+	font-size: var(--text-control);
 	white-space: nowrap;
 	padding-bottom: 2px;
 }
@@ -308,8 +308,8 @@
 }
 
 .section-coordinate {
-	font: 8px var(--mono);
-	letter-spacing: 2px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 	color: #6a6d6f;
 	padding-bottom: 4px;
 }
@@ -323,7 +323,7 @@
 	color: #202325;
 	padding: 14px 24px;
 	min-height: 48px;
-	font-size: 13px;
+	font-size: var(--text-control);
 	font-weight: 600;
 	transition: background 0.2s,
 		transform 0.2s;
@@ -341,7 +341,7 @@
 	height: 68px;
 	border-top: 1px solid #ffffff12;
 	color: #818486;
-	font-size: 9px;
+	font-size: var(--text-caption);
 	letter-spacing: 0.5px;
 }
 
@@ -356,7 +356,7 @@
 }
 
 .feed-link {
-	font-size: 9px;
+	font-size: var(--text-control);
 	color: #85888a;
 }
 
@@ -434,14 +434,14 @@
 		gap: 27px;
 	}
 	.terminal-sidebar nav a {
-		font-size: 12px;
+		font-size: var(--text-caption);
 		gap: 8px;
 	}
 	.terminal-sidebar nav svg {
 		width: 17px;
 	}
 	.orbital-site .sidebar-label {
-		font-size: 7px;
+		font-size: var(--text-caption);
 		letter-spacing: 1px;
 		margin-left: 8px;
 	}
@@ -477,7 +477,7 @@
 		display: none;
 	}
 	.github-link {
-		font-size: 11px;
+		font-size: var(--text-control);
 	}
 	.terminal-workspace {
 		display: block;
@@ -503,7 +503,7 @@
 		gap: 8px;
 		min-height: 52px;
 		padding: 9px 3px;
-		font-size: 11px;
+		font-size: var(--text-caption);
 	}
 	.terminal-sidebar nav a.active::before {
 		inset: auto 18px 0;
@@ -518,8 +518,8 @@
 		margin-bottom: 25px;
 	}
 	.terminal-kicker {
-		font-size: 8px;
-		letter-spacing: 2px;
+		font-size: var(--text-caption);
+		letter-spacing: .06em;
 	}
 	.heading-mark {
 		font-size: 37px;
@@ -529,7 +529,7 @@
 	}
 	.category-tabs {
 		width: 100%;
-		font-size: 12px;
+		font-size: var(--text-control);
 		gap: 29px;
 	}
 	.category-tabs button {
@@ -538,7 +538,7 @@
 	.terminal-footer {
 		height: 60px;
 		gap: 10px;
-		font-size: 8px;
+		font-size: var(--text-caption);
 	}
 	.footer-words {
 		display: none;
@@ -601,7 +601,7 @@
 }
 
 .orbital-site .brand small {
-	font-size: 8px;
+	font-size: var(--text-caption);
 	color: #b8bbbd;
 }
 
@@ -631,8 +631,8 @@
 }
 
 .header-hairline > span {
-	font: 7px var(--mono);
-	letter-spacing: 1.5px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 	color: #b1b4b6;
 	white-space: nowrap;
 }
@@ -670,7 +670,7 @@
 .orbital-site .sidebar-label {
 	margin: 0 0 25px 28px;
 	color: #a6a9ab;
-	font-size: 8px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .terminal-sidebar nav {
@@ -738,8 +738,8 @@
 
 .orbital-site .terminal-kicker {
 	color: #bbbec0;
-	font-size: 9px;
-	letter-spacing: 3px;
+	font-size: var(--text-caption);
+	letter-spacing: .06em;
 }
 
 .orbital-site .archive-heading .heading-title {
@@ -756,7 +756,7 @@
 
 .orbital-site .heading-description {
 	color: #b3b6b8;
-	font-size: 12px;
+	font-size: var(--text-caption);
 }
 
 .orbital-site .category-tabs {
@@ -766,7 +766,7 @@
 
 .orbital-site .category-tabs button {
 	color: #c4c7c9;
-	font-size: 13px;
+	font-size: var(--text-control);
 }
 
 .orbital-site .category-tabs button.active {
@@ -848,7 +848,7 @@
 	.orbital-site .terminal-sidebar nav a {
 		padding-left: 11px;
 		gap: 9px;
-		font-size: 12px;
+		font-size: var(--text-caption);
 	}
 }
 
@@ -916,7 +916,7 @@
 		padding: 10px 2px;
 		gap: 8px;
 		min-height: 59px;
-		font-size: 10px;
+		font-size: var(--text-caption);
 		clip-path: polygon(
 			5px 0,
 			100% 0,
@@ -948,11 +948,11 @@
 		font-size: 37px;
 	}
 	.orbital-site .terminal-kicker {
-		font-size: 8px;
-		letter-spacing: 2px;
+		font-size: var(--text-caption);
+		letter-spacing: .06em;
 	}
 	.orbital-site .heading-description {
-		font-size: 11px;
+		font-size: var(--text-caption);
 		line-height: 1.9;
 	}
 	.orbital-site .category-tabs {
@@ -960,7 +960,7 @@
 		padding: 0;
 	}
 	.orbital-site .category-tabs button {
-		font-size: 12px;
+		font-size: var(--text-control);
 	}
 	.orbital-site .terminal-footer {
 		min-height: 65px;
@@ -1002,7 +1002,7 @@
 	}
 	.series-view .archive-heading .terminal-kicker {
 		grid-column: 1 / -1;
-		font-size: 8px;
+		font-size: var(--text-caption);
 	}
 	.orbital-site .series-view .archive-heading .heading-title {
 		font-size: clamp(30px, 2.4vw, 36px);
@@ -1013,7 +1013,7 @@
 		margin: 0 0 3px;
 		padding: 0;
 		border: 0;
-		font-size: 12px;
+		font-size: var(--text-caption);
 		line-height: 1.6;
 	}
 	.series-view .section-coordinate {
@@ -1118,7 +1118,7 @@
 	}
 	.source-view .archive-heading .terminal-kicker {
 		grid-column: 1 / -1;
-		font-size: 8px;
+		font-size: var(--text-caption);
 	}
 	.orbital-site .source-view .archive-heading .heading-title {
 		font-size: clamp(30px, 2.4vw, 36px);
@@ -1129,7 +1129,7 @@
 		margin: 0 0 3px;
 		padding: 0;
 		border: 0;
-		font-size: 12px;
+		font-size: var(--text-caption);
 		max-width: 330px;
 		line-height: 1.6;
 	}
@@ -1189,7 +1189,7 @@
 	}
 	.about-view .archive-heading .terminal-kicker {
 		grid-column: 1 / -1;
-		font-size: 8px;
+		font-size: var(--text-caption);
 	}
 	.orbital-site .about-view .archive-heading .heading-title {
 		font-size: clamp(30px, 2.4vw, 36px);
@@ -1253,7 +1253,7 @@
 	padding: 3px;
 	border: 1px solid #bec1c369;
 	background: #212426;
-	font: 11px var(--mono);
+	font: var(--text-caption) var(--mono);
 }
 
 .sidebar-avatar::after {
@@ -1294,7 +1294,7 @@
 	align-items: center;
 	gap: 7px;
 	color: #b5b8ba;
-	font-size: 11px;
+	font-size: var(--text-caption);
 	line-height: 1.5;
 }
 
@@ -1381,7 +1381,7 @@
 		margin: 0 0 3px;
 		padding: 0;
 		border: 0;
-		font-size: 12px;
+		font-size: var(--text-caption);
 		line-height: 1.6;
 	}
 	.graph-view .section-coordinate {

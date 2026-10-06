@@ -40,7 +40,7 @@
 .orbital-site .context-language-note {
 	color: var(--muted);
 	font-family: var(--sans);
-	font-size: 12px;
+	font-size: var(--text-caption);
 	line-height: 1.6;
 	margin-top: 12px;
 }
@@ -394,7 +394,7 @@
 		position: absolute;
 		top: 5px;
 		right: 13px;
-		font-size: 8px;
+		font-size: var(--text-caption);
 		letter-spacing: 1px;
 		opacity: .7;
 	}
@@ -454,13 +454,26 @@
 
 @media (max-width: 650px) {
 	.orbital-site .terminal-sidebar .primary-nav {
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
 		gap: 5px;
 	}
 	.orbital-site .terminal-sidebar .primary-nav a {
-		font-size: 11px;
+		min-width: 0;
+		min-height: 88px;
+		font-size: var(--text-control);
+	}
+	.orbital-site:lang(en) .terminal-sidebar .primary-nav {
+		grid-template-columns: 1.1fr 1fr 1.6fr 1.05fr 1fr;
 	}
 	.orbital-site:lang(en) .terminal-sidebar .primary-nav a {
-		font-size: 10px;
+		font-size: var(--text-control);
+		padding-inline: 1px;
+	}
+	.orbital-site .terminal-sidebar .primary-nav a > span {
+		width: 100%;
+		white-space: normal;
+		overflow-wrap: anywhere;
 	}
 }
 

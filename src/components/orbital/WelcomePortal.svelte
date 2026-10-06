@@ -55,7 +55,7 @@
       <div class="portal-action-row">
         <a class="portal-enter" href={archiveUrl} onclick={enter} aria-label={t("进入档案")}>
           <span class="portal-enter-index" aria-hidden="true">↗</span>
-          <span><strong>{t("进入档案")}</strong><small>{t("进入档案")}</small></span>
+          <span><strong>{t("进入档案")}</strong></span>
           <TerminalIcon name="arrow" size={23}/>
         </a>
         <span class="portal-action-note">{t("保持好奇")}<br/><span>{t("继续探索")}</span></span>

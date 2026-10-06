@@ -14,8 +14,8 @@
 	padding: 14px 0;
 	border-block: 1px solid var(--identity-line);
 	color: #a8abad;
-	font: 10px var(--mono);
-	letter-spacing: 1.4px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 }
 
 .identity-register > span {
@@ -32,12 +32,12 @@
 }
 
 .identity-register > span:last-child {
-	font: 11px var(--sans);
+	font: var(--text-caption) var(--sans);
 	letter-spacing: 1px;
 }
 
 .identity-register b {
-	font: 11px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #d3d6d8;
 	margin-left: 12px;
 }
@@ -162,8 +162,8 @@
 	left: 50%;
 	transform: translateX(-50%);
 	white-space: nowrap;
-	font: 8px var(--mono);
-	letter-spacing: 2px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 	color: #9fa2a4;
 }
 
@@ -172,7 +172,7 @@
 	align-items: center;
 	gap: 13px;
 	color: #d3d6d8;
-	font: 12px var(--mono);
+	font: var(--text-caption) var(--mono);
 	margin-top: 22px;
 }
 
@@ -193,8 +193,8 @@
 
 .identity-eyebrow {
 	color: #b2b5b7;
-	font: 9px var(--mono);
-	letter-spacing: 2px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 	margin-bottom: 17px;
 }
 
@@ -268,7 +268,7 @@
 	padding: 12px 18px;
 	background: var(--signal);
 	color: #272a2c;
-	font-size: 13px;
+	font-size: var(--text-control);
 	font-weight: 650;
 	clip-path: polygon(
 		0 0,
@@ -291,7 +291,7 @@
 	min-height: 44px;
 	color: #d6d9db;
 	border-bottom: 1px solid #bec1c366;
-	font-size: 13px;
+	font-size: var(--text-control);
 }
 
 .orbital-site .identity-secondary:hover {
@@ -327,9 +327,9 @@
 }
 
 .identity-section-title > span {
-	font: 8px var(--mono);
+	font: var(--text-caption) var(--mono);
 	color: #9b9ea0;
-	letter-spacing: 1.5px;
+	letter-spacing: .06em;
 }
 
 .orbital-site .identity-field {
@@ -350,7 +350,7 @@
 	place-items: center;
 	flex: 0 0 32px;
 	height: 32px;
-	font: 10px var(--mono);
+	font: var(--text-caption) var(--mono);
 	border: 1px solid #bec1c34d;
 	color: #c8cbcd;
 	clip-path: polygon(6px 0, 100% 0, 100% 100%, 0 100%, 0 6px);
@@ -366,7 +366,7 @@
 .identity-field small {
 	display: block;
 	color: #a1a4a6;
-	font-size: 11px;
+	font-size: var(--text-caption);
 	line-height: 1.6;
 	margin-top: 6px;
 }
@@ -408,7 +408,7 @@
 .identity-contact small {
 	display: block;
 	color: #a0a3a5;
-	font: 11px / 1.6 var(--mono);
+	font: var(--text-caption) / 1.6 var(--mono);
 	margin-top: 5px;
 	overflow-wrap: anywhere;
 }
@@ -429,8 +429,8 @@
 	gap: 15px;
 	padding-top: 14px;
 	color: #8c8f91;
-	font: 8px var(--mono);
-	letter-spacing: 2px;
+	font: var(--text-caption) var(--mono);
+	letter-spacing: .06em;
 }
 
 .identity-signoff i {
@@ -472,8 +472,8 @@
 		height: 190px;
 	}
 	.identity-eyebrow {
-		font-size: 8px;
-		letter-spacing: 1.5px;
+		font-size: var(--text-caption);
+		letter-spacing: .06em;
 	}
 	.identity-introduction h2 > span {
 		margin-left: 4px;
@@ -513,12 +513,12 @@
 
 @media (max-width: 650px) {
 	.identity-register {
-		font-size: 8px;
+		font-size: var(--text-caption);
 		letter-spacing: 0.8px;
 		padding-block: 12px;
 	}
 	.identity-register > span:last-child {
-		font-size: 9px;
+		font-size: var(--text-caption);
 		letter-spacing: 0;
 	}
 	.identity-register b {
@@ -563,7 +563,7 @@
 	}
 	.identity-eyebrow {
 		max-width: calc(100% - 120px);
-		font-size: 7px;
+		font-size: var(--text-caption);
 		line-height: 1.8;
 		letter-spacing: 1px;
 		margin-bottom: 12px;
