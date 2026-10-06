@@ -15,6 +15,19 @@ series: riscv-cpu-microarchitecture
 seriesOrder: 1
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "A RISC-V CPU Roadmap: From Five-Stage Pipelines to Out-of-Order Multi-Issue"
+    description: "Connect RTL datapaths, QEMU, simulation and verification with the CPU behavior visible to Linux, progressing from pipelines to out-of-order multi-issue execution."
+    tags: ["RISC-V","CPU","Five-stage pipeline","Out-of-order execution","Verilog"]
+  zh_TW:
+    title: "RISC-V CPU 學習路線：從五級管線到亂序多發射"
+    description: "建立從 RTL 資料路徑到 QEMU、模擬驗證和 Linux 執行時行為的連接，逐步學習管線與亂序多發射執行。"
+    tags: ["RISC-V","CPU","五級管線","亂序執行","Verilog"]
+  ja:
+    title: "RISC-V CPU の学習ロードマップ：5段パイプラインからアウトオブオーダー・複数発行まで"
+    description: "RTL データパス、QEMU、シミュレーションと検証を Linux から見える CPU の動作へつなげ、パイプラインからアウトオブオーダー・複数発行へ進みます。"
+    tags: ["RISC-V","CPU","5段パイプライン","アウトオブオーダー実行","Verilog"]
 ---
 
 # 为什么还需要一套 CPU 专辑

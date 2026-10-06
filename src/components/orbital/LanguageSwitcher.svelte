@@ -6,6 +6,7 @@
 
   import TerminalIcon from "./TerminalIcon.svelte";
   export let reducedMotion = true;
+  export let heading: string | undefined = undefined;
   const { t, locale } = useTranslations();
   const codes: Record<Locale, string> = { zh_CN: "CN", en: "EN", zh_TW: "TW", ja: "JP" };
   let currentLocation = `${LOCALE_PREFIX[locale]}/`;
@@ -16,7 +17,7 @@
   let container: HTMLDivElement;
   let departure: ReturnType<typeof setTimeout> | undefined;
   function updateLocation() {
-    currentLocation = window.location.pathname + window.location.search + window.location.hash;
+    currentLocation = languageUrl(window.location.pathname + window.location.search + window.location.hash, locale, heading);
   }
   async function toggle() {
     updateLocation();
@@ -62,7 +63,7 @@
   </button>
   {#if expanded}
     <nav class="language-options" bind:this={panel} aria-label={t("选择语言")} onfocusout={(event) => { if (event.relatedTarget instanceof Node && !container.contains(event.relatedTarget)) close(); }}>
-      <header class="language-panel-heading"><span>{t("选择语言")}</span><small aria-hidden="true">LOCALE / 04</small></header>
+      <header class="language-panel-heading"><span>{t("选择语言")}</span><small aria-hidden="true">{t("语言")} / 04</small></header>
       <div class="language-channels">
         {#each LOCALES as target, index}
           <a class:language-tuning={switching === target} href={languageUrl(currentLocation, target)} lang={htmlLang(target)} hreflang={htmlLang(target)} aria-current={target === locale ? "true" : undefined} aria-label={LOCALE_NAMES[target]} style={`--channel-index:${index}`} onclick={(event) => select(event, target)}>

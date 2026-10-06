@@ -27,7 +27,7 @@
 </script>
 
 <section class="identity-dossier" aria-label={t("个人档案")}>
-  <header class="identity-register"><span><i aria-hidden="true"></i>PERSONAL ARCHIVE</span><span>{t("笔记背后的记录者")} <b aria-hidden="true">/ 05</b></span></header>
+  <header class="identity-register"><span><i aria-hidden="true"></i>{t("个人档案库")}</span><span>{t("笔记背后的记录者")} <b aria-hidden="true">/ 05</b></span></header>
 
   <div class="identity-stage">
     <div class="portrait-apparatus">
@@ -42,12 +42,12 @@
         <div class="portrait-image">{#if profile.avatar}<img src={profile.avatar} alt={t("{v0} 的博客头像", { v0: profile.name })} width="210" height="210"/>{:else}<span>{initials}</span>{/if}</div>
         <span class="portrait-bracket portrait-bracket-top" aria-hidden="true"></span><span class="portrait-bracket portrait-bracket-bottom" aria-hidden="true"></span>
       </div>
-      <span class="portrait-coordinate" aria-hidden="true">PORTRAIT / AUTHOR</span>
+      <span class="portrait-coordinate" aria-hidden="true">{t("肖像 / 作者")}</span>
       <p class="portrait-caption">{handle ? `@${handle}` : profile.name}<span aria-hidden="true"></span></p>
     </div>
 
     <div class="identity-introduction">
-      <p class="identity-eyebrow">THE PERSON BEHIND THE NOTES</p>
+      <p class="identity-eyebrow">{t("笔记背后的记录者")}</p>
       <h2>{profile.name}<span aria-hidden="true">_</span></h2>
       <p class="identity-statement">{t("记录系统的")}<span>{t("内部世界。")}</span></p>
       {#if profile.bio}<p class="identity-bio">{profile.bio}</p>{/if}
@@ -60,17 +60,17 @@
 
   <div class="identity-lower">
     <section class="identity-fields" aria-labelledby="identity-fields-heading">
-      <header class="identity-section-title"><h3 id="identity-fields-heading">{t("笔记里的方向")}</h3><span>FIELD NOTES</span></header>
+      <header class="identity-section-title"><h3 id="identity-fields-heading">{t("笔记里的方向")}</h3><span>{t("领域笔记")}</span></header>
       <button class="identity-field" onclick={() => onExplore("linux")}><BrandIcon name="linux"/><span class="identity-field-copy"><strong>{t("操作系统")}</strong><small>{t("Linux · 内存与文件系统")}</small></span><TerminalIcon name="arrow" size={18}/></button>
       <button class="identity-field" onclick={() => onExplore("hardware")}><BrandIcon name="chip"/><span class="identity-field-copy"><strong>{t("硬件与底层架构")}</strong><small>RISC-V · Verilog / Chisel / BSV</small></span><TerminalIcon name="arrow" size={18}/></button>
       <button class="identity-field" onclick={() => onNavigate("code")}><BrandIcon name="code"/><span class="identity-field-copy"><strong>{t("开源实践")}</strong><small>Linux · LLVM · Cargo</small></span><TerminalIcon name="arrow" size={18}/></button>
     </section>
     <section class="identity-contacts" aria-labelledby="identity-contacts-heading">
-      <header class="identity-section-title"><h3 id="identity-contacts-heading">{t("在其他地方")}</h3><span>ELSEWHERE</span></header>
+      <header class="identity-section-title"><h3 id="identity-contacts-heading">{t("在其他地方")}</h3><span>{t("其他平台")}</span></header>
       {#each profile.links as link}
         <a class="identity-contact" href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer"><BrandIcon name={linkIcon(link)}/><span class="identity-contact-text"><strong>{linkName(link.name)}</strong><small>{linkDetail(link.url)}</small></span><TerminalIcon name="external" size={18}/></a>
       {/each}
     </section>
   </div>
-  <div class="identity-signoff" aria-hidden="true"><span>SYSTEMS & NOTES</span><i></i><span>{initials}</span></div>
+  <div class="identity-signoff" aria-hidden="true"><span>{t("系统与笔记")}</span><i></i><span>{initials}</span></div>
 </section>

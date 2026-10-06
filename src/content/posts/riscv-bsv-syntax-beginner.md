@@ -14,6 +14,19 @@ series: riscv-bsv-syntax
 seriesOrder: 1
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "Getting Started with BSV: Describing Hardware with Rules"
+    description: "Learn Bluespec SystemVerilog interfaces, methods, rules, registers and scheduling from scratch, using counters and FIFOs to establish the basics."
+    tags: ["RISC-V","BSV","Bluespec","RTL","Hardware design"]
+  zh_TW:
+    title: "BSV 語法入門：用規則描述硬體行為"
+    description: "從零開始學習 Bluespec SystemVerilog，理解 interface、method、rule、暫存器和規則排程，並用計數器和 FIFO 認識 BSV 的基本寫法。"
+    tags: ["RISC-V","BSV","Bluespec","RTL","硬體設計"]
+  ja:
+    title: "BSV 入門：ルールでハードウェアの動作を記述する"
+    description: "interface、method、rule、レジスタ、ルールのスケジューリングを基礎から学び、カウンタと FIFO で Bluespec SystemVerilog の書き方を理解します。"
+    tags: ["RISC-V","BSV","Bluespec","RTL","ハードウェア設計"]
 ---
 
 BSV（Bluespec SystemVerilog）和 Verilog 都能描述 RTL，但写代码时关注的事情不一样。

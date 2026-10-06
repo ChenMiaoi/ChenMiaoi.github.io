@@ -186,6 +186,15 @@ pnpm sync:contribution-details
 
 需要自动修复时使用 `pnpm lint:fix` 或 `pnpm format`。后者会格式化整个 `src/`，提交前应检查修改范围。
 
+### 多语言目录
+
+文章与系列的 frontmatter 使用 `translations.en`、`translations.zh_TW` 和
+`translations.ja` 保存目录标题、摘要和可选的标签译文。目录翻译与正文语言
+独立；未提供正文译文时，阅读器继续显示中文原文并提示原文语言。新增公开条目
+时应同时补齐三份目录译文，搜索会同时匹配原文和各语言的目录关键词。
+个人简介的译文在 `src/config.ts` 的 `profileConfig.bioTranslations` 中维护。
+`scripts/i18n.test.mjs` 检查目录译文完整性与界面文字的翻译接入。
+
 ### 构建与部署
 
 正式站点地址在 `astro.config.mjs` 中配置为 `https://nyachen.cn`。构建后的 `dist/` 可由静态 Web 服务器托管；`rag/index.json` 是独立服务使用的索引，不在 `dist/` 内。

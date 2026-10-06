@@ -1,3 +1,5 @@
+import type { Locale } from "../constants/locales";
+
 export type ContributionItem = {
 	sha: string;
 	date: string;
@@ -29,6 +31,7 @@ export type ProfileConfig = {
 	avatar?: string;
 	name: string;
 	bio?: string;
+	bioTranslations?: Partial<Record<Locale, string>>;
 	links: {
 		name: string;
 		url: string;

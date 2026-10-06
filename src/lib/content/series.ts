@@ -9,6 +9,7 @@ export type SeriesInfo = {
 	slug: string;
 	title: string;
 	description: string;
+	searchText?: string;
 	image: string;
 	posts: SeriesPost[]; // in reading order
 };

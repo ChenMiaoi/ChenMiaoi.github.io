@@ -13,6 +13,19 @@ series: riscv-bsv-syntax
 seriesOrder: 2
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "Advanced BSV: Type Classes, Rule Scheduling and Parameterized Modules"
+    description: "Explore BSV type classes, structured data, ActionValue, rule conflicts, interface composition, parameterization, clocks and resets."
+    tags: ["BSV","Bluespec","RTL","RISC-V"]
+  zh_TW:
+    title: "BSV 進階語法：型別類別、規則排程與參數化模組"
+    description: "深入學習 BSV 的型別類別、結構化資料、ActionValue、規則衝突、介面組合、參數化和時脈重設語法。"
+    tags: ["BSV","Bluespec","RTL","RISC-V"]
+  ja:
+    title: "BSV 応用：型クラス、ルールのスケジューリング、パラメータ化モジュール"
+    description: "型クラス、構造化データ、ActionValue、ルールの競合、インターフェースの合成、パラメータ化、クロックとリセットを掘り下げます。"
+    tags: ["BSV","Bluespec","RTL","RISC-V"]
 ---
 
 上一篇文章介绍了 `rule`、`method` 和寄存器。这一篇处理 BSV 中更容易让初学者停下来的部分：类型类、规则冲突、接口组合和参数化。

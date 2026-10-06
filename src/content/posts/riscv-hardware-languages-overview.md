@@ -14,6 +14,19 @@ series: riscv-hardware-languages
 seriesOrder: 1
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "RISC-V Hardware Languages: Verilog, Chisel and Bluespec SystemVerilog"
+    description: "Compare the roles of Verilog, Chisel and Bluespec SystemVerilog, and plan three implementations of the same RISC-V CPU."
+    tags: ["RISC-V","Verilog","Chisel","BSV","RTL"]
+  zh_TW:
+    title: "RISC-V 硬體設計語言總覽：Verilog、Chisel 與 Bluespec SystemVerilog"
+    description: "介紹 Verilog、Chisel 與 Bluespec SystemVerilog（BSV）的定位，並規劃如何用三種方式實作同一套 RISC-V CPU。"
+    tags: ["RISC-V","Verilog","Chisel","BSV","RTL"]
+  ja:
+    title: "RISC-V のハードウェア記述言語：Verilog、Chisel、Bluespec SystemVerilog"
+    description: "Verilog、Chisel、Bluespec SystemVerilog の位置づけを比較し、同じ RISC-V CPU を三つの方法で実装する道筋を示します。"
+    tags: ["RISC-V","Verilog","Chisel","BSV","RTL"]
 ---
 
 # 为什么需要单独讨论硬件设计语言

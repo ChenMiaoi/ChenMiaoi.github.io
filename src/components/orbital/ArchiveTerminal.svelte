@@ -39,11 +39,11 @@
   let hydrated = false;
   let mainElement: HTMLElement;
   const navigation: { id: Section; label: string; icon: string; kicker: string; title: string }[] = [
-    { id: "articles", label: t("文章"), icon: "article", kicker: "WRITING / ARCHIVE", title: t("文章档案") },
-    { id: "series", label: t("系列"), icon: "series", kicker: "COLLECTIONS / DIRECTORY", title: t("探索路径") },
-    { id: "graph", label: t("知识地图"), icon: "graph", kicker: "KNOWLEDGE / CONNECTIONS", title: t("知识地图") },
-    { id: "code", label: t("开源"), icon: "code", kicker: "SOURCE / OPEN", title: t("代码与实践") },
-    { id: "about", label: t("关于"), icon: "about", kicker: "PROFILE / CHEN MIAO", title: t("关于我") },
+    { id: "articles", label: t("文章"), icon: "article", kicker: t("写作 / 档案"), title: t("文章档案") },
+    { id: "series", label: t("系列"), icon: "series", kicker: t("系列 / 目录"), title: t("探索路径") },
+    { id: "graph", label: t("知识地图"), icon: "graph", kicker: t("知识 / 关联"), title: t("知识地图") },
+    { id: "code", label: t("开源"), icon: "code", kicker: t("开源 / 实践"), title: t("代码与实践") },
+    { id: "about", label: t("关于"), icon: "about", kicker: t("作者 / {v0}", { v0: profile.name.toUpperCase() }), title: t("关于我") },
   ];
   let section: Section = initialSection;
   let query = "";
@@ -282,9 +282,9 @@
   <header class="terminal-header">
     <button class="brand" aria-label={t("Miao's Blog，返回文章档案")} onclick={() => navigate("articles")}>
       <svg class="brand-mark" viewBox="0 0 52 52" aria-hidden="true"><path d="M35 4h10L17 36H7zM19 30h9L12 48H2z" fill="currentColor"/><path d="M34 29h12L31 47H19z" fill="#f3dc26"/></svg>
-      <span><strong>Miao's Blog</strong><small>SYSTEMS & NOTES</small></span>
+      <span><strong>Miao's Blog</strong><small>{t("系统与笔记")}</small></span>
     </button>
-    <span class="header-hairline" aria-hidden="true"><i></i><span>PERSONAL ARCHIVE</span></span>
+    <span class="header-hairline" aria-hidden="true"><i></i><span>{t("个人档案库")}</span></span>
     <div class="header-tools">
       <LanguageSwitcher {reducedMotion}/>
       <div class="search-frame">
@@ -298,7 +298,7 @@
 
   <div class="terminal-workspace">
     <aside class="terminal-sidebar">
-      <p class="sidebar-label">NAVIGATION</p>
+      <p class="sidebar-label">{t("导航")}</p>
       <nav class="primary-nav" aria-label={t("主导航")} use:navigationBeacon={section}>
         <span class="nav-tracer" aria-hidden="true"></span>
         {#each navigation as item, index}
@@ -327,7 +327,7 @@
               <button class:active={category === tab.value} aria-pressed={category === tab.value} onclick={() => { category = tab.value; seriesFilter = ""; setSection("articles"); storeFilters(); }}>{#if tab.value !== 'all'}<BrandIcon name={tab.value === 'linux' ? 'linux' : 'chip'} size={15} framed={false}/>{/if}{tab.label}</button>
             {/each}
           </div>
-        {:else}<span class="section-coordinate">MIAO'S PERSONAL ARCHIVE</span>{/if}
+        {:else}<span class="section-coordinate">{t("Miao 的个人档案")}</span>{/if}
       </div>
       {/key}
 

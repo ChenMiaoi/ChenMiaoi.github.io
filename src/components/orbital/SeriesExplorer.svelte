@@ -50,8 +50,8 @@
     (a.order ?? Number.POSITIVE_INFINITY) - (b.order ?? Number.POSITIVE_INFINITY) || a.title.localeCompare(b.title);
   const comparePosts = (a: ArchivePost, b: ArchivePost) =>
     (a.seriesOrder ?? Number.POSITIVE_INFINITY) - (b.seriesOrder ?? Number.POSITIVE_INFINITY) || a.timestamp - b.timestamp || a.slug.localeCompare(b.slug);
-  const shortTitle = (title: string) => title.split("：")[0];
-  const subtitle = (title: string) => title.includes("：") ? title.slice(title.indexOf("：") + 1) : "";
+  const shortTitle = (title: string) => title.split(/[：:]/)[0];
+  const subtitle = (title: string) => /[：:]/.test(title) ? title.slice(title.search(/[：:]/) + 1).trim() : "";
 
   type ReadingGroup = { series: ArchiveSeries; depth: number; posts: ArchivePost[] };
   function readingGroups(node: ArchiveSeries, depth = 0): ReadingGroup[] {
@@ -100,7 +100,7 @@
         {#key current.slug}
           <div class="path-manifest-content" in:fly={{ x: reducedMotion ? 0 : 10, duration: reducedMotion ? 0 : 280 }}>
             <header class="path-hero">
-              <div class="path-hero-line"><span>COLLECTION / {String(currentIndex).padStart(2, "0")}</span><span>{current.posts.length} DOCUMENTS</span></div>
+              <div class="path-hero-line"><span>{t("系列 /")} {String(currentIndex).padStart(2, "0")}</span><span>{t("{v0} 份文档", { v0: current.posts.length })}</span></div>
               <span class="path-watermark" aria-hidden="true">{String(currentIndex).padStart(2, "0")}</span>
               <h2 id="path-title">{shortTitle(current.title)}</h2>
               {#if subtitle(current.title)}<p class="path-subtitle">{subtitle(current.title)}</p>{/if}
@@ -119,7 +119,7 @@
             {/if}
 
             <div class="path-outline">
-              <div class="path-outline-heading"><h3>{t("阅读目录")}</h3><span>SERIES CONTENTS</span></div>
+              <div class="path-outline-heading"><h3>{t("阅读目录")}</h3><span>{t("阅读目录")}</span></div>
               <div class="path-chapters" bind:this={chapterPane} use:revealOnView={{key: current.slug, enabled: !reducedMotion, selector: '.path-reading-list button > span:nth-of-type(2)', wait: 180}} tabindex="0" role="region" aria-label={t("{v0}的阅读目录", { v0: shortTitle(current.title) })}>
                 {#each groups as group, groupIndex (group.series.slug)}
                   <section class="path-branch" data-series={group.series.slug} class:located={locatedSeries === group.series.slug} class:root-branch={group.depth === 0} style={`--branch-delay:${Math.min(groupIndex, 5) * 100}ms`}>

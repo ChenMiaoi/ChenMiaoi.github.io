@@ -36,6 +36,14 @@
 	color: var(--paper);
 }
 
+.orbital-site .context-language-note {
+	color: var(--muted);
+	font-family: var(--sans);
+	font-size: 12px;
+	line-height: 1.6;
+	margin-top: 12px;
+}
+
 .orbital-site :is(.mission-metrics strong, .chapter-number, .path-watermark, .portrait-image > span) {
 	font-family: var(--numeric);
 	font-variant-numeric: lining-nums tabular-nums;

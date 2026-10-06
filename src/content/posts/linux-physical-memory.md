@@ -11,6 +11,19 @@ series: linux-memory-management
 seriesOrder: 1
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "Linux Physical Memory"
+    description: "Physical memory is memory that at least one processor core can address. This article explains how the Linux kernel manages, allocates and abstracts it."
+    tags: ["Linux","Memory management"]
+  zh_TW:
+    title: "Linux 物理記憶體"
+    description: "物理記憶體是系統中能夠被至少一個處理器核心任意定址的全部記憶體。本章介紹核心如何管理、分配並抽象這一資源。"
+    tags: ["Linux","記憶體管理"]
+  ja:
+    title: "Linux の物理メモリ"
+    description: "物理メモリは、少なくとも一つのプロセッサコアからアドレス指定できるメモリです。Linux カーネルによる管理、割り当て、抽象化を解説します。"
+    tags: ["Linux","メモリ管理"]
 ---
 
 物理内存是指系统中能够被至少一个处理器核心任意寻址的全部内存。通常它由RAM 模块构成，也可能包括其他形式的随机访问存储设备。本章将介绍内核如何管理、分配并抽象这一资源。

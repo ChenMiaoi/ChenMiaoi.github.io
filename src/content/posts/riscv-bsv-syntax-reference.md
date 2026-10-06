@@ -13,6 +13,19 @@ series: riscv-bsv-syntax
 seriesOrder: 3
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "BSV Syntax Reference: Type Classes, Method Guards and Rule Scheduling"
+    description: "A detailed guide to Bluespec SystemVerilog packages, interfaces, methods, ActionValue, rules, guards, type classes, tagged unions, vectors and scheduling."
+    tags: ["BSV","Bluespec","RTL","RISC-V"]
+  zh_TW:
+    title: "BSV 語法詳解：型別類別、方法守衛與規則排程"
+    description: "詳細解釋 Bluespec SystemVerilog 的 package、interface、method、ActionValue、rule、guard、型別類別、tagged union、Vector 與排程語法。"
+    tags: ["BSV","Bluespec","RTL","RISC-V"]
+  ja:
+    title: "BSV 構文詳解：型クラス、メソッドのガード、ルールのスケジューリング"
+    description: "package、interface、method、ActionValue、rule、guard、型クラス、tagged union、Vector、スケジューリングの構文を詳しく解説します。"
+    tags: ["BSV","Bluespec","RTL","RISC-V"]
 ---
 
 BSV 最需要建立的语法直觉是：方法调用不仅可能读值，还可能产生状态更新；规则不仅有显式条件，还会吸收所调用方法的 guard；多条规则能否同周期执行取决于读写冲突和调度信息。本章把这些容易被一眼略过的部分展开。

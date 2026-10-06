@@ -13,6 +13,19 @@ series: riscv-source-and-practice
 seriesOrder: 1
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "A RISC-V Roadmap: From the ISA to Systems Practice"
+    description: "Build a learning path from basic instructions and privileged architecture to QEMU, assembly and xv6 experiments."
+    tags: ["RISC-V","ISA","QEMU","xv6"]
+  zh_TW:
+    title: "RISC-V 學習路線：從指令集到系統實作"
+    description: "建立從基礎指令、特權架構到 QEMU、組合語言和 xv6 實驗的學習路線。"
+    tags: ["RISC-V","ISA","QEMU","xv6"]
+  ja:
+    title: "RISC-V の学習ロードマップ：命令セットからシステム実践へ"
+    description: "基本命令と特権アーキテクチャから、QEMU、アセンブリ、xv6 の実験へ進む学習の道筋を示します。"
+    tags: ["RISC-V","ISA","QEMU","xv6"]
 ---
 
 # 为什么单独学习 RISC-V

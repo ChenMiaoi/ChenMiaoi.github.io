@@ -202,7 +202,7 @@
         </svg>
       {/if}
       <aside class="contribution-rail" aria-label={t("{v0}贡献记录", { v0: project.name })}>
-        <header><span>{allRecords.some((item) => item.kind !== 'commit') ? t("协作轨迹") : t("提交轨迹")}</span><small>{number(records.length)} / RECORDS</small></header>
+        <header><span>{allRecords.some((item) => item.kind !== 'commit') ? t("协作轨迹") : t("提交轨迹")}</span><small>{number(records.length)} {t("/ 记录")}</small></header>
         {#if recordKinds.length > 1}
           <div class="contribution-kind-filter" aria-label={t("筛选贡献类型")}>
             <button class:active={kindFilter === 'all'} aria-pressed={kindFilter === 'all'} onclick={() => filterKind("all")}>{t("全部")} <small>{allRecords.length}</small></button>

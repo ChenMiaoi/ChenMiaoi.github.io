@@ -14,6 +14,19 @@ series: linux-boot-source-lab
 seriesOrder: 1
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "How Linux Boots: From Power-On to the init Process"
+    description: "Follow the Linux boot chain on RISC-V through firmware, bootloaders, the kernel, initramfs, init and userspace, with a roadmap for QEMU and Buildroot experiments."
+    tags: ["Linux","Boot sequence","Kernel","QEMU","Buildroot"]
+  zh_TW:
+    title: "Linux 是如何啟動的：從上電到 init 程序"
+    description: "以 RISC-V 為主要實驗架構，認識韌體、開機載入程式、核心、initramfs、init 與使用者空間，並建立後續 QEMU 和 Buildroot 實驗的路線。"
+    tags: ["Linux","啟動流程","核心","QEMU","Buildroot"]
+  ja:
+    title: "Linux はどう起動するのか：電源投入から init プロセスまで"
+    description: "RISC-V を実験の軸に、ファームウェア、ブートローダー、カーネル、initramfs、init、ユーザー空間をたどり、QEMU と Buildroot の実験へつなげます。"
+    tags: ["Linux","起動プロセス","カーネル","QEMU","Buildroot"]
 ---
 
 # 这不是一套“Linux 命令入门”

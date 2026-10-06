@@ -19,7 +19,7 @@
     cx: number; cy: number; above?: boolean; leftLabel?: boolean;
     collection?: ArchiveSeries; post?: ArchivePost; ordinal: number;
   };
-  const shortTitle = (title: string) => title.split("：")[0];
+  const shortTitle = (title: string) => title.split(/[：:]/)[0];
   const seriesOrder = (a: ArchiveSeries, b: ArchiveSeries) =>
     (a.order ?? Number.POSITIVE_INFINITY) - (b.order ?? Number.POSITIVE_INFINITY) || a.title.localeCompare(b.title);
   const articleOrder = (a: ArchivePost, b: ArchivePost) =>
@@ -206,7 +206,7 @@
   </div>
 
   <div class="topology-map">
-    <div class="topology-map-label"><span>CONSTELLATION <i>/</i> {t("知识星图")}</span><span>{t("{v0} 个系列节点", { v0: collectionNodes.length })} <i>·</i> {t("{v0} 篇文章", { v0: articleNodes.length })}</span></div>
+    <div class="topology-map-label"><span>{t("星图")} <i>/</i> {t("知识星图")}</span><span>{t("{v0} 个系列节点", { v0: collectionNodes.length })} <i>·</i> {t("{v0} 篇文章", { v0: articleNodes.length })}</span></div>
     <div class="topology-viewport" class:dragging bind:this={viewport} use:observeViewport role="region" aria-label={t("{v0}关系图，可滚动或拖动查看", { v0: scopeTitle })} tabindex="0" onpointerdown={startDrag} onpointermove={moveDrag} onpointerup={endDrag} onpointercancel={endDrag} onlostpointercapture={endDrag}>
       <div class="topology-plane" style={`width:${sceneWidth * zoom}px;height:${map.height * zoom}px`}>
         <div class="topology-scene" use:revealSequence={{key: current?.slug ?? "", enabled: !reducedMotion, selector: ".stellar-series-label, .topology-article-title", wait: 80}} style={`width:${sceneWidth}px;height:${map.height}px;transform:scale(${zoom})`}>
@@ -234,8 +234,8 @@
             {/key}
           </svg>
           {#each map.nodes as node (node.id)}
-            <button class="topology-node" class:root-node={node.depth === 0} class:series-node={node.kind === 'series'} class:article-node={node.kind === 'post'} class:label-above={node.above} class:label-left={node.leftLabel} class:selected={selected?.id === node.id} class:on-path={activePath.has(node.id)} class:previewed={previewPath.has(node.id)} style={`left:${node.x}px;top:${node.y}px;width:${node.w}px;height:${node.h}px;--anchor-x:${node.cx-node.x}px;--anchor-y:${node.cy-node.y}px`} aria-label={`${node.kind === 'post' ? t("预览文章") : t("查看节点")}：${node.title}`} aria-pressed={selected?.id === node.id} title={node.title} onpointermove={(event) => { if (event.pointerType === 'mouse' && !dragging) hoveredId = node.id; }} onpointerleave={() => { if (hoveredId === node.id) hoveredId = ''; }} onfocus={() => { focusedId = node.id; hoveredId = ''; }} onblur={() => { if (focusedId === node.id) focusedId = ''; }} onclick={() => { selectedId = node.id; }}>
-              {#if node.depth === 0}<span class="core-overline">{t("当前主题")}</span><strong>{node.label}</strong><small>{String(node.collection?.posts.length ?? 0).padStart(2, '0')} / ARTICLES</small>
+            <button class="topology-node" class:root-node={node.depth === 0} class:series-node={node.kind === 'series'} class:article-node={node.kind === 'post'} class:label-above={node.above} class:label-left={node.leftLabel} class:selected={selected?.id === node.id} class:on-path={activePath.has(node.id)} class:previewed={previewPath.has(node.id)} style={`left:${node.x}px;top:${node.y}px;width:${node.w}px;height:${node.h}px;--anchor-x:${node.cx-node.x}px;--anchor-y:${node.cy-node.y}px`} aria-label={t(node.kind === 'post' ? "预览：{v0}" : "查看节点：{v0}", { v0: node.title })} aria-pressed={selected?.id === node.id} title={node.title} onpointermove={(event) => { if (event.pointerType === 'mouse' && !dragging) hoveredId = node.id; }} onpointerleave={() => { if (hoveredId === node.id) hoveredId = ''; }} onfocus={() => { focusedId = node.id; hoveredId = ''; }} onblur={() => { if (focusedId === node.id) focusedId = ''; }} onclick={() => { selectedId = node.id; }}>
+              {#if node.depth === 0}<span class="core-overline">{t("当前主题")}</span><strong>{node.label}</strong><small>{t("{v0} 篇文章", { v0: node.collection?.posts.length ?? 0 })}</small>
               {:else if node.kind === "series"}<span class="stellar-hub" aria-hidden="true"><i></i></span><span class="stellar-series-label"><strong>{node.label}</strong><small>{t("{v0} 篇文章", { v0: node.collection?.posts.length ?? 0 })}</small></span>
               {:else}<span class="topology-document-dot" aria-hidden="true">{String(node.ordinal).padStart(2, '0')}</span><span class="topology-article-title">{node.label}</span>{/if}
             </button>

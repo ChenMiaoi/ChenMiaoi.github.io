@@ -11,6 +11,19 @@ tags:
 category: hardware-language
 series: riscv-verilog-syntax
 seriesOrder: 1
+translations:
+  en:
+    title: "Getting Started with Verilog: From a First Module to Synthesizable RTL"
+    description: "Learn modules, signals, combinational and sequential logic, arrays and finite-state machines from scratch, using a simple counter to develop an RTL mindset."
+    tags: ["RISC-V","Verilog","RTL","Hardware design"]
+  zh_TW:
+    title: "Verilog 語法入門：從第一個模組到可合成 RTL"
+    description: "從零開始學習 Verilog，理解模組、訊號、組合邏輯、時序邏輯、陣列和有限狀態機，並用簡單計數器建立 RTL 思維。"
+    tags: ["RISC-V","Verilog","RTL","硬體設計"]
+  ja:
+    title: "Verilog 入門：最初のモジュールから合成可能な RTL まで"
+    description: "モジュール、信号、組み合わせ回路、順序回路、配列、有限状態機械を基礎から学び、簡単なカウンタで RTL の考え方を身につけます。"
+    tags: ["RISC-V","Verilog","RTL","ハードウェア設計"]
 ---
 
 如果你第一次接触 Verilog，最容易产生的误会是：它看起来像 C，但运行方式完全不同。

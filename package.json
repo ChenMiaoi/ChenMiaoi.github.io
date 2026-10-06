@@ -24,7 +24,7 @@
     "test:contribution-reader": "node scripts/test-contribution-reader.mjs",
     "lint:fix": "biome lint --write ./src",
     "format:check": "biome format ./src/lib",
-    "test": "node --test scripts/architecture.test.mjs scripts/test-contribution-reader.mjs src/plugins/remark-post-headings.test.mjs",
+    "test": "node --test scripts/architecture.test.mjs scripts/i18n.test.mjs scripts/test-contribution-reader.mjs src/plugins/remark-post-headings.test.mjs",
     "test:build": "node scripts/check-build.mjs",
     "verify": "pnpm lint && pnpm format:check && pnpm check && pnpm test && pnpm test:server && pnpm build && pnpm test:build && pnpm build:vps"
   },

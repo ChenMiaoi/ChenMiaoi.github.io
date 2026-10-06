@@ -13,6 +13,19 @@ series: riscv-chisel-syntax
 seriesOrder: 2
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "Chisel Syntax Reference: Scala, Hardware Nodes and Parameterized Construction"
+    description: "Understand the boundary between Scala and Chisel, then explore types, connections, conditions, registers, Bundle, Vec, memories, interfaces, parameterization and verification."
+    tags: ["Chisel","Scala","RTL","RISC-V"]
+  zh_TW:
+    title: "Chisel 語法詳解：Scala、硬體節點與參數化建構"
+    description: "從 Scala 與 Chisel 的階段邊界出發，詳解型別、連接、條件、暫存器、Bundle、Vec、記憶體、介面、參數化和驗證語法。"
+    tags: ["Chisel","Scala","RTL","RISC-V"]
+  ja:
+    title: "Chisel 構文詳解：Scala、ハードウェアノード、パラメータ化"
+    description: "Scala と Chisel の段階の境界を踏まえ、型、接続、条件、レジスタ、Bundle、Vec、メモリ、インターフェース、パラメータ化、検証を解説します。"
+    tags: ["Chisel","Scala","RTL","RISC-V"]
 ---
 
 Chisel 最奇妙的语法来自两个世界叠在一起：Scala 程序在 elaboration 阶段运行，`UInt`、`Bool`、`Reg` 和 `Bundle` 则代表将要生成的硬件。先分清“现在运行的 Scala”和“未来运行的电路”，大多数语法才不会混淆。

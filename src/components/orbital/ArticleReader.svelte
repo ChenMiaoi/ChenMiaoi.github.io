@@ -233,11 +233,11 @@
 <dialog bind:this={dialog} class="reading-dialog" class:motion-paused={reducedMotion} onclose={readerClosed} oncancel={(event) => { event.preventDefault(); closeReader(); }} aria-labelledby="reader-title">
   <span class="reader-copy-status" role="status" aria-live="polite" aria-atomic="true">{copyStatus}</span>
   {#if readerPost}
-    <header class="reader-header"><button onclick={() => closeReader()}><TerminalIcon name="back" size={19}/><span>{t("返回档案")}</span></button><span class="reader-status"><i aria-hidden="true"></i> ARCHIVE / READER</span><span class="reader-header-progress" aria-label={t("阅读进度")}>{Math.round(readingProgress)}%<small>/ 100</small></span><LanguageSwitcher {reducedMotion}/><button class="reader-close" onclick={() => closeReader()} aria-label={t("关闭阅读面板")}><TerminalIcon name="close" size={21}/></button></header>
+    <header class="reader-header"><button onclick={() => closeReader()}><TerminalIcon name="back" size={19}/><span>{t("返回档案")}</span></button><span class="reader-status"><i aria-hidden="true"></i> {t("档案 / 阅读")}</span><span class="reader-header-progress" aria-label={t("阅读进度")}>{Math.round(readingProgress)}%<small>/ 100</small></span><LanguageSwitcher {reducedMotion} heading={loading ? undefined : activeHeading}/><button class="reader-close" onclick={() => closeReader()} aria-label={t("关闭阅读面板")}><TerminalIcon name="close" size={21}/></button></header>
     <div class="reading-meter" aria-hidden="true"><span style={`width:${readingProgress}%`}></span></div>
     <div class="reader-layout">
       <aside class="reader-toc">
-        <div class="reader-toc-heading"><p class="terminal-kicker">ON THIS PAGE</p><h2>{t("文内导航")}</h2></div>
+        <div class="reader-toc-heading"><p class="terminal-kicker">{t("本页目录")}</p><h2>{t("文内导航")}</h2></div>
         <nav aria-label={t("文内导航")} use:readingBeacon={{key: activeHeading, open: readerOpen}}>
           <span class="toc-tracer" aria-hidden="true"></span>
           <button class:active={!activeHeading} aria-current={!activeHeading ? 'location' : undefined} onclick={jumpToStart}><span class="toc-number">00</span><span>{t("文章开头")}</span></button>
@@ -248,18 +248,18 @@
         <div class="reader-progress-card"><span>{t("阅读进度")}</span><strong>{Math.round(readingProgress)}<small>%</small></strong><div aria-hidden="true"><span style={`width:${readingProgress}%`}></span></div></div>
       </aside>
       <div class="reader-scroll" bind:this={readerScroll} onscroll={updateProgress} tabindex="0" role="region" aria-label={t("文章")}>
-        <article class="reader-article" lang={readerPost.contentLang}>
+        <article class="reader-article" lang={dateLocale}>
           <header class="reader-title-block">
-            <p class="reader-eyebrow"><span aria-hidden="true"></span> TECHNICAL ARCHIVE <span class="reader-document-number">DOC / {new Date(readerPost.timestamp).toISOString().slice(0, 10).replaceAll("-", ".")}</span></p>
+            <p class="reader-eyebrow"><span aria-hidden="true"></span> {t("技术档案")} <span class="reader-document-number">{t("文档 /")} {new Date(readerPost.timestamp).toISOString().slice(0, 10).replaceAll("-", ".")}</span></p>
             <h1 id="reader-title">{readerPost.title}</h1>
             <div class="reader-article-meta"><time datetime={new Date(readerPost.timestamp).toISOString().slice(0, 10)}>{readerPost.date}</time><span aria-hidden="true">/</span><span class="reader-series-name">{readerPost.seriesTitle}</span></div>
           </header>
           {#if readerPost.contentLang !== dateLocale}<p class="reader-language-note" lang={dateLocale}>{t("这篇文章暂无当前语言译文，以下为中文原文。")}</p>{/if}
           <details class="reader-mobile-contents" bind:this={mobileContents}><summary>{t("文内导航")}<TerminalIcon name="arrow" size={15}/></summary><nav aria-label={t("文内导航")}><button onclick={jumpToStart}>{t("文章开头")}</button>{#each readerHeadings as heading}<button class:active={activeHeading === heading.slug} onclick={() => jumpToHeading(heading.slug)}>{heading.text}</button>{/each}</nav></details>
-          <div class="reader-body" aria-busy={loading} use:revealOnView={{key: `${readerPost.slug}|${loading}`, enabled: readerOpen && !loading && !reducedMotion, selector: "img, svg[role='img'], .mermaid"}}>
+          <div class="reader-body" lang={readerPost.contentLang} aria-busy={loading} use:revealOnView={{key: `${readerPost.slug}|${loading}`, enabled: readerOpen && !loading && !reducedMotion, selector: "img, svg[role='img'], .mermaid"}}>
             {#if loading}<p role="status">{t("正在载入文章…")}</p>{:else if failed}<div role="alert"><p>{t("文章暂时无法载入。")}</p><button class="signal-button" onclick={() => readerPost && open(readerPost, requestedHeading)}>{t("重新加载")}</button><p><a href={readerPost.url}>{t("打开文章页面 ↗")}</a></p></div>{:else}{@html readerHtml}{/if}
           </div>
-          <div class="reader-end"><span>END OF DOCUMENT</span><button onclick={() => closeReader()}>{t("返回文章档案")} <TerminalIcon name="back" size={17}/></button></div>
+          <div class="reader-end"><span>{t("文档结束")}</span><button onclick={() => closeReader()}>{t("返回文章档案")} <TerminalIcon name="back" size={17}/></button></div>
         </article>
       </div>
     </div>

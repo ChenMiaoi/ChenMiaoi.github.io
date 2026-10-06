@@ -14,6 +14,19 @@ series: riscv-chisel-syntax
 seriesOrder: 1
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "Getting Started with Chisel: Building Hardware with Scala"
+    description: "Learn Module, UInt, connections, registers, Bundle, Vec and Decoupled interfaces, and use Scala abstractions to construct simple RTL."
+    tags: ["RISC-V","Chisel","Scala","RTL","Hardware design"]
+  zh_TW:
+    title: "Chisel 語法入門：用 Scala 建構硬體"
+    description: "從零開始學習 Chisel，理解 Module、UInt、連接符、暫存器、Bundle、Vec 和 Decoupled 介面，並用 Scala 的抽象能力建構簡單 RTL。"
+    tags: ["RISC-V","Chisel","Scala","RTL","硬體設計"]
+  ja:
+    title: "Chisel 入門：Scala でハードウェアを構築する"
+    description: "Module、UInt、接続、レジスタ、Bundle、Vec、Decoupled インターフェースを学び、Scala の抽象化で簡単な RTL を構築します。"
+    tags: ["RISC-V","Chisel","Scala","RTL","ハードウェア設計"]
 ---
 
 Chisel 不是“把 Verilog 关键字翻译成 Scala”。它是一套用 Scala 程序构造硬件的工具和语言库。

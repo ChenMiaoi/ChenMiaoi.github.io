@@ -41,30 +41,30 @@
   <header class="portal-header">
     <a class="brand portal-brand" href={archiveUrl} onclick={(event) => enter(event, true)} aria-label={t("Miao's Blog，进入文章档案")}>
       <svg class="brand-mark" viewBox="0 0 52 52" aria-hidden="true"><path d="M35 4h10L17 36H7zM19 30h9L12 48H2z" fill="currentColor"/><path d="M34 29h12L31 47H19z" fill="#f0e433"/></svg>
-      <span><strong>Miao's Blog</strong><small>SYSTEMS & NOTES</small></span>
+      <span><strong>Miao's Blog</strong><small>{t("系统与笔记")}</small></span>
     </a>
-    <span class="portal-header-label" aria-hidden="true"><i></i> A PERSONAL SPACE FOR EXPLORATION</span>
+    <span class="portal-header-label" aria-hidden="true"><i></i> {t("个人的探索空间")}</span>
     <a class="portal-skip" href={archiveUrl} onclick={(event) => enter(event, true)}>{t("直接进入")} <TerminalIcon name="arrow" size={16}/></a>
     <LanguageSwitcher {reducedMotion}/>
   </header>
 
   <main class="portal-main">
     <div class="portal-copy">
-      <p class="portal-eyebrow"><span></span> HELLO, EXPLORER <i>/</i> {t("欢迎登站")}</p>
-      <h1>{t("原天地之美")}<br/>{t("而达")}<span>{t("万物之理")}</span><b aria-hidden="true">。</b></h1>
+      <p class="portal-eyebrow"><span></span> {t("你好，探索者")} <i>/</i> {t("欢迎登站")}</p>
+      <h1>{t("原天地之美")}<br/>{t("而达")}<span>{t("万物之理")}</span><b aria-hidden="true">{t("。")}</b></h1>
       <div class="portal-action-row">
         <a class="portal-enter" href={archiveUrl} onclick={enter} aria-label={t("进入档案")}>
           <span class="portal-enter-index" aria-hidden="true">↗</span>
-          <span><strong>{t("进入档案")}</strong><small>ENTER THE ARCHIVE</small></span>
+          <span><strong>{t("进入档案")}</strong><small>{t("进入档案")}</small></span>
           <TerminalIcon name="arrow" size={23}/>
         </a>
-        <span class="portal-action-note">{t("保持好奇")}<br/><span>KEEP EXPLORING</span></span>
+        <span class="portal-action-note">{t("保持好奇")}<br/><span>{t("继续探索")}</span></span>
       </div>
-      <p class="portal-signature"><span></span> {author} <i>/</i> Let me drive your world.</p>
+      <p class="portal-signature"><span></span> {author} <i>/</i> {t("让我驱动你的世界。")}</p>
     </div>
 
     <div class="portal-instrument" aria-hidden="true">
-      <span class="portal-orbit-caption">THE WORLD BENEATH THE CODE</span>
+      <span class="portal-orbit-caption">{t("代码之下的世界")}</span>
       <svg class="portal-orbits" viewBox="0 0 640 640" fill="none">
         <defs>
           <radialGradient id="portal-core-glow"><stop stop-color="#e7ef8a" stop-opacity=".13"/><stop offset="1" stop-color="#d9e9ae" stop-opacity="0"/></radialGradient>
@@ -101,15 +101,15 @@
         <path d="M563 407h43l19 19M120 171H69l-22-22" stroke="#cbd6b9" stroke-opacity=".5"/>
       </svg>
       <span class="portal-orbit-word">ORBITAL</span>
-      <span class="portal-orbit-subtitle">NOTES FROM THE INNER UNIVERSE</span>
-      <span class="portal-coordinate coordinate-top">01 <i>/</i> SYSTEMS</span>
-      <span class="portal-coordinate coordinate-bottom">∞ <i>/</i> CURIOSITY</span>
+      <span class="portal-orbit-subtitle">{t("内部世界的笔记")}</span>
+      <span class="portal-coordinate coordinate-top">01 <i>/</i> {t("系统")}</span>
+      <span class="portal-coordinate coordinate-bottom">∞ <i>/</i> {t("好奇心")}</span>
     </div>
   </main>
 
   <footer class="portal-footer">
     <span>{t("一个人的探索，也期待与你相遇。")}</span>
-    <span class="portal-footer-index" aria-hidden="true">MIAO / PERSONAL ARCHIVE</span>
+    <span class="portal-footer-index" aria-hidden="true">{t("Miao / 个人档案")}</span>
     <button class="motion-control" aria-label={systemReducedMotion ? t("系统已减少动态效果") : reducedMotion ? t("开启页面动效") : t("暂停页面动效")} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? t("动效暂停") : t("动效开启")}</span></button>
   </footer>
 </div>

@@ -30,10 +30,11 @@ async function buildOrbitalData(lang: Locale) {
 		return {
 			contentLang: post.id.endsWith(".en") ? "en" as const : "zh-CN" as const,
 			slug: post.slug, title: post.data.title,
+			searchText: `${post.searchText} ${tree.nodes.get(post.data.series || "")?.searchText ?? ""}`,
 			date: post.data.published.toISOString().slice(0, 10).replaceAll("-", "."),
 			timestamp: post.data.published.getTime(),
 			description: post.data.description || excerpt.match(/^.*?[。！？]/)?.[0] || excerpt,
-			excerpt: excerpt || post.data.description,
+			excerpt: post.data.translations?.[lang as "en" | "zh_TW" | "ja"]?.description || excerpt || post.data.description,
 			category: post.data.category || "", series: post.data.series || "",
 			seriesTitle: tree.nodes.get(post.data.series || "")?.title || t("独立文章"),
 			seriesOrder: post.data.seriesOrder, tags: post.data.tags,

@@ -13,6 +13,11 @@ export const profileConfig: ProfileConfig = {
 	avatar: "/avatar.jpg", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
 	name: "Chen Miao",
 	bio: "A programmer fascinated by operating systems and low-level architecture.",
+	bioTranslations: {
+		zh_CN: "专注于操作系统与底层架构的程序员。",
+		zh_TW: "專注於作業系統與底層架構的程式設計師。",
+		ja: "OS と低レベルアーキテクチャに関心を持つプログラマーです。",
+	},
 	links: [
 		{
 			name: "GitHub",

@@ -2,6 +2,7 @@ export type ArchivePost = {
   contentLang: "en" | "zh-CN";
   slug: string;
   title: string;
+  searchText: string;
   date: string;
   timestamp: number;
   description: string;

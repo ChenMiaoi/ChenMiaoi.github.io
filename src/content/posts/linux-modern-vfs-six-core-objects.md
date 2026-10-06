@@ -13,6 +13,19 @@ series: linux-modern-vfs
 seriesOrder: 1
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "The Six Core Objects of VFS"
+    description: "Starting with paths, mounts and file descriptors, explore the roles and relationships of file, path, mount, dentry, inode and super_block in Linux VFS."
+    tags: ["Linux","VFS","File systems","Kernel source"]
+  zh_TW:
+    title: "VFS 的六大核心物件"
+    description: "從路徑、掛載和檔案描述符出發，理解 Linux VFS 中 file、path、mount、dentry、inode 與 super_block 六個關鍵結構的職責和關係。"
+    tags: ["Linux","VFS","檔案系統","核心原始碼"]
+  ja:
+    title: "VFS の六つの主要オブジェクト"
+    description: "パス、マウント、ファイルディスクリプタを手掛かりに、Linux VFS の file、path、mount、dentry、inode、super_block の役割と関係を解説します。"
+    tags: ["Linux","VFS","ファイルシステム","カーネルソース"]
 ---
 
 VFS（Virtual File System）是 Linux 中最重要的子系统之一。

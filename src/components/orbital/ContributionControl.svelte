@@ -26,13 +26,13 @@
   const pad = (value: number) => String(value).padStart(2, "0");
   const status = (value: string) => ({ open: t("进行中"), draft: t("草稿"), merged: t("已合并"), closed: t("已关闭"), commit: t("提交记录") } as Record<string, string>)[value];
   const relation = (relations?: string[]) => relations?.includes("author") ? t("我发起") : relations?.includes("assignee") ? t("指派给我") : relations?.includes("commenter") ? t("我参与讨论") : t("提交记录");
-  const chapterNames: Record<string, string> = { linux: "KERNEL / SYSTEM", "llvm-project": "COMPILER / TOOLCHAIN", cargo: "BUILD / PACKAGE" };
+  const chapterNames: Record<string, string> = { linux: t("内核 / 系统"), "llvm-project": t("编译器 / 工具链"), cargo: t("构建 / 包管理") };
   const coverPosition: Record<string, string> = { linux: "0%", "llvm-project": "50%", cargo: "100%" };
   const projectLabel = (id: string, name: string) => id === "llvm-project" ? "LLVM" : name;
 </script>
 
 <section class="mission-control" aria-label={t("开源任务控制台")}>
-  <div class="mission-crown"><span><i aria-hidden="true"></i>CONTRIBUTION ARCHIVE</span><span>{activity.account} <b aria-hidden="true">//</b> {pad(projects.length)} PROJECTS</span></div>
+  <div class="mission-crown"><span><i aria-hidden="true"></i>{t("贡献档案")}</span><span>{activity.account} <b aria-hidden="true">//</b> {t("{v0} 个项目", { v0: pad(projects.length) })}</span></div>
   <div class="mission-metrics" aria-label={t("协作统计")} aria-live="polite" aria-atomic="true">
     <div><strong>{pad(totals.issues)}</strong><span>{t("参与 Issue")}</span></div>
     <div><strong>{pad(totals.prs)}</strong><span>{t("收录 PR")}</span></div>
@@ -45,13 +45,13 @@
         <span class="chapter-art" aria-hidden="true"></span>
         <span class="chapter-number" aria-hidden="true">{pad(index + 1)}</span>
         <span class="chapter-symbol" aria-hidden="true"><BrandIcon name={sector.project.id} size={20} framed={false}/></span>
-        <span class="chapter-caption"><span class="chapter-category">{chapterNames[sector.project.id] ?? 'OPEN SOURCE'}</span><strong>{projectLabel(sector.project.id, sector.project.name)}</strong><span class="chapter-counts">{#if sector.issues}<span>{pad(sector.issues)} Issue</span>{/if}{#if sector.prs}<span>{pad(sector.prs)} PR</span>{/if}{#if sector.commits}<span>{pad(sector.commits)} {t("提交记录")}</span>{/if}</span></span>
+        <span class="chapter-caption"><span class="chapter-category">{chapterNames[sector.project.id] ?? t("开源")}</span><strong>{projectLabel(sector.project.id, sector.project.name)}</strong><span class="chapter-counts">{#if sector.issues}<span>{pad(sector.issues)} Issue</span>{/if}{#if sector.prs}<span>{pad(sector.prs)} PR</span>{/if}{#if sector.commits}<span>{pad(sector.commits)} {t("提交记录")}</span>{/if}</span></span>
       </button>
     {/each}
   </div>
   <div class="mission-workspace">
     <section class="mission-queue" aria-label={t("协作任务列表")}>
-      <header class="mission-queue-heading"><div class="mission-tabs" role="group" aria-label={t("选择任务队列")}><button aria-pressed={tab === 'active'} onclick={() => tab = 'active'}>{t("当前协作")} <span>{activeCount}</span></button><button aria-pressed={tab === 'archive'} onclick={() => tab = 'archive'}>{t("成果档案")}</button></div><span>{pad(missions.length)} RECORDS</span></header>
+      <header class="mission-queue-heading"><div class="mission-tabs" role="group" aria-label={t("选择任务队列")}><button aria-pressed={tab === 'active'} onclick={() => tab = 'active'}>{t("当前协作")} <span>{activeCount}</span></button><button aria-pressed={tab === 'archive'} onclick={() => tab = 'archive'}>{t("成果档案")}</button></div><span>{t("{v0} 条记录", { v0: pad(missions.length) })}</span></header>
       <div class="mission-log-scroll" tabindex="0" role="region" aria-label={t("协作任务列表")}>
         {#each missions as mission (mission.url ?? mission.id)}
           <button class="mission-entry" aria-pressed={focusedMission?.url === mission.url && focusedMission?.id === mission.id} onclick={() => focusedId = mission.url ?? mission.id}>
@@ -63,7 +63,7 @@
       </div>
     </section>
     <section class="mission-briefing" aria-label={t("任务简报")}>
-      <header class="briefing-heading"><h2>{t("任务简报")}</h2><span>RECORD / DETAIL</span></header>
+      <header class="briefing-heading"><h2>{t("任务简报")}</h2><span>{t("记录 / 详情")}</span></header>
       <div class="mission-focus">
         {#if focusedMission}
           <p class="focus-project">{focusedMission.projectName}</p><h3>{focusedMission.title}</h3>

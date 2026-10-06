@@ -54,7 +54,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   </head>
   <body class="orbital-site" data-article-path={post ? Astro.url.pathname : undefined}>
     <ArchiveTerminal client:load {lang} {posts} {series} projects={contributionConfig.projects}
-      activity={contributionActivity} detailsUrl="/contributions.json" profile={profileConfig}
+      activity={contributionActivity} detailsUrl="/contributions.json" profile={{ ...profileConfig, bio: profileConfig.bioTranslations?.[lang] ?? profileConfig.bio }}
       initialSection={section} initialSeries={seriesSlug} initialProject={projectId} localePrefix={prefix} {notFound} {initialWelcome} hasArticle={!!post} />
     {post && Content && <section class="article-document">
       <header><a href={`${prefix}/articles/`}>{t("← 返回文章档案")}</a><h1 data-pagefind-meta="title">{post.data.title}</h1></header>

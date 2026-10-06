@@ -66,7 +66,7 @@
     {#if detail}
       {#if record.kind === 'pr'}
         <section class="reader-pr-status" aria-label={t("PR 进展")}>
-          <div class="reader-section-label"><span>{t("PR 进展")}</span><small>PR OVERVIEW</small></div>
+          <div class="reader-section-label"><span>{t("PR 进展")}</span><small>{t("PR 概览")}</small></div>
           {#if pr}
             <div class="pr-overview-grid"><div><small>{t("持续集成")}</small><strong class={`ci-summary ci-${ci.state}`}><i aria-hidden="true"></i>{ciLabel(ci.state)}</strong><span>{t("{v0} 通过 · {v1} 未通过 · {v2} 等待 · {v3} 其他", {v0:ci.passed,v1:ci.failed,v2:ci.pending,v3:ci.neutral})}</span></div><div><small>{t("合并状态")}</small><strong>{state === 'merged' ? t("已合并") : state === 'closed' ? t("已关闭") : mergeLabel(pr.mergeState)}</strong><span>{t("冲突检测")}: {pr.mergeable === null ? t("尚未确认") : pr.mergeable ? t("无冲突") : t("存在冲突")}</span></div></div>
             <div class="pr-branches"><span>{t("目标分支")}</span><code>{pr.baseRef || '—'}</code><span aria-hidden="true">←</span><code>{pr.headRef || '—'}</code></div>
@@ -80,13 +80,13 @@
         </section>
       {/if}
 
-      <section class="reader-description" aria-label={t("说明原文")}><div class="reader-section-label"><span>{t("说明原文")}</span><small>DESCRIPTION</small></div>{#if detail.bodyHtml}<div class="contribution-prose">{@html detail.bodyHtml}</div>{:else}<p class="reader-muted">{t("原始记录没有提供进一步说明。")}</p>{/if}
+      <section class="reader-description" aria-label={t("说明原文")}><div class="reader-section-label"><span>{t("说明原文")}</span><small>{t("内容说明")}</small></div>{#if detail.bodyHtml}<div class="contribution-prose">{@html detail.bodyHtml}</div>{:else}<p class="reader-muted">{t("原始记录没有提供进一步说明。")}</p>{/if}
         {#if detail.trailers}<details class="commit-trailers"><summary>{t("提交附注与签署信息")}<TerminalIcon name="arrow" size={13}/></summary><pre>{detail.trailers}</pre></details>{/if}
       </section>
 
       {#if detail.commits?.length}
         <section class="reader-commits" aria-label={t("提交历史")}>
-          <div class="reader-section-label"><span>{t("提交历史")} <b>{detail.commitsTotal ?? detail.commits.length}</b></span><small>COMMITS</small></div>
+          <div class="reader-section-label"><span>{t("提交历史")} <b>{detail.commitsTotal ?? detail.commits.length}</b></span><small>{t("提交历史")}</small></div>
           {#if detail.commitsComplete === false}<p class="reader-muted">{t("当前收录 {v0} / {v1} 次提交。", { v0: detail.commits.length, v1: detail.commitsTotal ?? detail.commits.length })}<a href={`${record.url}/commits`} target="_blank" rel="noreferrer">{t("查看完整历史 ↗")}</a></p>{/if}
           {#each [...detail.commits].reverse() as commit}
             <a class="reader-commit" href={commit.url} target="_blank" rel="noreferrer"><code>{commit.sha.slice(0, 10)}</code><span><strong>{commit.title}</strong><small>{commit.author} · <time datetime={commit.date}>{discussionDate(commit.date)}</time>{#if commit.sha === detail.headSha} {t("· 最新提交")}{/if}</small></span><TerminalIcon name="external" size={14}/></a>
@@ -115,12 +115,12 @@
       {/if}
 
       {#if detail.references.length}
-        <section class="reader-references" aria-label={t("关联记录")}><div class="reader-section-label"><span>{t("关联记录")}</span><small>REFERENCES</small></div>{#each detail.references as reference}<a href={reference.url} target="_blank" rel="noreferrer"><span><small>{reference.kind === 'pr' ? 'PR' : 'Issue'} #{reference.number} <i>·</i> {reference.relation === 'cross-reference' ? t("交叉引用") : t("原文引用")}</small><strong>{reference.title}</strong></span><TerminalIcon name="external" size={15}/></a>{/each}</section>
+        <section class="reader-references" aria-label={t("关联记录")}><div class="reader-section-label"><span>{t("关联记录")}</span><small>{t("关联记录")}</small></div>{#each detail.references as reference}<a href={reference.url} target="_blank" rel="noreferrer"><span><small>{reference.kind === 'pr' ? 'PR' : 'Issue'} #{reference.number} <i>·</i> {reference.relation === 'cross-reference' ? t("交叉引用") : t("原文引用")}</small><strong>{reference.title}</strong></span><TerminalIcon name="external" size={15}/></a>{/each}</section>
       {/if}
 
       {#if detail.comments.length}
         <section class="reader-comments" aria-label={t("讨论与评审")}>
-          <div class="reader-section-label"><span>{t("讨论与评审")} <b>{comments.length}</b></span><small>DISCUSSION</small></div>
+          <div class="reader-section-label"><span>{t("讨论与评审")} <b>{comments.length}</b></span><small>{t("讨论")}</small></div>
           <div class="discussion-toolbar">
             <div class="discussion-filters" role="group" aria-label={t("筛选讨论")}>
               <button aria-pressed={discussionFilter === 'all'} onclick={() => discussionFilter = 'all'}>{t("全部")} <span>{comments.length}</span></button>

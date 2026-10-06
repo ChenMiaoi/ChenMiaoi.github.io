@@ -20,6 +20,9 @@ export function createTranslations(locale: Locale) {
 		"{v0} 篇笔记": "{v0} note",
 		"{v0} 条路径": "{v0} path",
 		"{v0} 个系列节点": "{v0} series node",
+		"{v0} 个项目": "{v0} PROJECT",
+		"{v0} 条记录": "{v0} RECORD",
+		"{v0} 份文档": "{v0} DOCUMENT",
 		"{v0} 条 · 最新在前": "{v0} comment · newest first",
 	};
 	const t: Translator = (message, values = {}) => {
@@ -38,8 +41,9 @@ export function createTranslations(locale: Locale) {
 }
 
 // Keep the complete public location, including search filters and reader headings.
-export function languageUrl(location: string, locale: Locale) {
+export function languageUrl(location: string, locale: Locale, heading?: string) {
 	const url = new URL(location, "https://orbital.local");
+	if (heading !== undefined) url.hash = heading;
 	const { path } = stripLocalePrefix(url.pathname);
 	return `${LOCALE_PREFIX[locale]}${path}${url.search}${url.hash}`;
 }

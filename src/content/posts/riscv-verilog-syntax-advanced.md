@@ -13,6 +13,19 @@ series: riscv-verilog-syntax
 seriesOrder: 2
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "Advanced Verilog: Types, Parameterization and Synthesizable Structures"
+    description: "Explore Verilog and SystemVerilog types, bit widths, expressions, parameters, generate blocks, arrays, interfaces and synthesizable RTL in greater depth."
+    tags: ["Verilog","SystemVerilog","RTL","RISC-V"]
+  zh_TW:
+    title: "Verilog 進階語法：型別、參數化與可合成結構"
+    description: "繼續學習 Verilog 和 SystemVerilog 的型別、位元寬度、運算式、參數、generate、陣列、介面組織與可合成 RTL 細節。"
+    tags: ["Verilog","SystemVerilog","RTL","RISC-V"]
+  ja:
+    title: "Verilog 応用：型、パラメータ化、合成可能な構造"
+    description: "Verilog と SystemVerilog の型、ビット幅、式、パラメータ、generate、配列、インターフェース、合成可能な RTL を詳しく学びます。"
+    tags: ["Verilog","SystemVerilog","RTL","RISC-V"]
 ---
 
 上一篇文章解决了“模块能不能写出来”的问题。这一篇继续处理更容易出错的地方：位宽、符号、赋值时机、参数化和模块边界。

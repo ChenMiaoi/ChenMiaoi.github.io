@@ -2,6 +2,17 @@ import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
+const translatedMetadata = z.object({
+	title: z.string(),
+	description: z.string().optional(),
+	tags: z.array(z.string()).optional(),
+});
+const metadataTranslations = z.object({
+	en: translatedMetadata.optional(),
+	zh_TW: translatedMetadata.optional(),
+	ja: translatedMetadata.optional(),
+}).optional();
+
 const postsCollection = defineCollection({
 	loader: glob({ pattern: "**/*.md", base: "./src/content/posts" }),
 	schema: z.object({
@@ -10,6 +21,7 @@ const postsCollection = defineCollection({
 		updated: z.date().optional(),
 		draft: z.boolean().optional().default(false),
 		description: z.string().optional().default(""),
+		translations: metadataTranslations,
 		image: z.string().optional().default(""),
 		tags: z.array(z.string()).optional().default([]),
 		category: z.string().optional().nullable().default(""),
@@ -35,6 +47,7 @@ const seriesCollection = defineCollection({
 	schema: z.object({
 		title: z.string(),
 		description: z.string().optional().default(""),
+		translations: metadataTranslations,
 		image: z.string().optional().default(""),
 		// Nesting: slug of the parent series. Depth is capped at
 		// SERIES_MAX_DEPTH (see content-utils); violations fail the build.

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { useTranslations } from "../../features/orbital/i18n/context";
-  const { t } = useTranslations();
+  const { t, dateLocale } = useTranslations();
   import { tick } from "svelte";
   import TerminalIcon from "./TerminalIcon.svelte";
   import { revealOnView } from "./motion";
@@ -29,7 +29,7 @@
   let contextPanel: HTMLDivElement;
 
   $: filteredPosts = posts.filter((post) => {
-    const text = `${post.title} ${post.description} ${post.tags.join(" ")} ${post.seriesTitle}`.toLowerCase();
+    const text = `${post.searchText} ${post.seriesTitle}`.toLowerCase();
     const categoryMatch = category === "all" || (category === "hardware" ? /riscv|硬件/i.test(post.series + post.category) : post.category.toLowerCase() === category.toLowerCase());
     const seriesMatch = !seriesFilter || series.find((item) => item.slug === seriesFilter)?.posts.includes(post.slug);
     return categoryMatch && seriesMatch && text.includes(query.trim().toLowerCase());
@@ -119,7 +119,7 @@
                   <button class="dossier-hit" aria-label={t("预览：{v0}", { v0: post.title })} aria-pressed={selectedPost?.slug === post.slug} onclick={() => { selectedSlug = post.slug; }} onkeydown={(event) => moveSelection(event,index)}>
                     <span class="dossier-lock" aria-hidden="true"></span>
                     <span class="dossier-index" aria-hidden="true">{String(filteredPosts.indexOf(post) + 1).padStart(2, "0")}</span>
-                    <span class="dossier-meta"><time class="dossier-date" datetime={post.date.replaceAll(".", "-")}>{post.date}</time><span>{selectedPost?.slug === post.slug ? t("正在预览") : post.category === 'linux' ? 'LINUX' : 'HARDWARE'}</span></span>
+                    <span class="dossier-meta"><time class="dossier-date" datetime={post.date.replaceAll(".", "-")}>{post.date}</time><span>{selectedPost?.slug === post.slug ? t("正在预览") : post.category === 'linux' ? 'LINUX' : t("硬件")}</span></span>
                     <span class="dossier-content"><strong>{post.title}</strong><span class="dossier-description">{post.description}</span></span>
                     <span class="dossier-series">{post.seriesTitle}</span>
                     <span class="dossier-arrow"><TerminalIcon name="arrow" size={21}/></span>
@@ -141,7 +141,7 @@
           <aside class="context-column" aria-label={t("当前文章预览")}>
             {#if selectedPost}
               <div class="context-panel" bind:this={contextPanel}>
-                <div class="context-label"><span><i></i>{t("当前档案")}</span><small>DOCUMENT / {String(selectedIndex).padStart(2, '0')}</small></div>
+                <div class="context-label"><span><i></i>{t("当前档案")}</span><small>{t("文档 /")} {String(selectedIndex).padStart(2, '0')}</small></div>
                 {#key selectedPost.slug}
                   <div class="context-content" class:context-receiving={motionReady && !reducedMotion}>
                     <span class="context-reception" aria-hidden="true"></span>
@@ -149,14 +149,15 @@
                     <h2>{selectedPost.title}</h2>
                     <p class="context-meta">{selectedPost.date}<span>/</span>{selectedPost.tags.slice(0,2).join(' · ')}</p>
                     <p class="context-excerpt">{selectedPost.excerpt}</p>
+                    {#if selectedPost.contentLang !== dateLocale}<p class="context-language-note">{t("正文为中文原文。")}</p>{/if}
                     <div class="context-chapters"><h3>{selectedPost.headings.length ? t("从这里开始") : t("文章主题")}</h3>
                       {#if selectedPost.headings.length}
                         {#each selectedPost.headings.filter((heading) => heading.depth <= 2).slice(0, 2) as heading}
-                          <button onclick={() => openReader(selectedPost, heading.slug)}>{heading.text}<TerminalIcon name="arrow" size={16}/></button>
+                          <button lang={selectedPost.contentLang} onclick={() => openReader(selectedPost, heading.slug)}>{heading.text}<TerminalIcon name="arrow" size={16}/></button>
                         {/each}
                       {:else}<p>{selectedPost.tags.join(" / ") || selectedPost.seriesTitle}</p>{/if}
                     </div>
-                    <button class="signal-button read-action" onclick={() => openReader(selectedPost)}><span>{t("进入阅读")}<small>OPEN DOCUMENT</small></span><TerminalIcon name="external" size={22}/></button>
+                    <button class="signal-button read-action" onclick={() => openReader(selectedPost)}><span>{t("进入阅读")}<small>{t("阅读文档")}</small></span><TerminalIcon name="external" size={22}/></button>
                   </div>
                 {/key}
               </div>

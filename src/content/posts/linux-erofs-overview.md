@@ -13,6 +13,19 @@ series: linux-erofs
 seriesOrder: 1
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "EROFS Overview: A Read-Only Image as a Directly Accessible Compressed Archive"
+    description: "Explore the goals and layered architecture of EROFS, and why immutable images, inline data and transparent compression share one format."
+    tags: ["Linux","File systems","EROFS","Kernel source"]
+  zh_TW:
+    title: "EROFS 總覽：把唯讀映像當成「可直接存取的壓縮封存檔」"
+    description: "從一個具體問題出發，理解 EROFS 的設計目標、分層架構，以及為什麼它把不可變映像、內嵌資料和透明壓縮放進同一個格式。"
+    tags: ["Linux","檔案系統","EROFS","核心原始碼"]
+  ja:
+    title: "EROFS 概要：読み取り専用イメージを直接アクセス可能な圧縮アーカイブとして捉える"
+    description: "EROFS の設計目標と階層構造をたどり、不変のイメージ、インラインデータ、透過的な圧縮を一つの形式にまとめる理由を解説します。"
+    tags: ["Linux","ファイルシステム","EROFS","カーネルソース"]
 ---
 
 EROFS，全称 Enhanced Read-Only File System，是一种面向“只读镜像”的 Linux 文件系统。它的目标不是为频繁写入的数据库、用户目录提供一个通用的可写文件系统，而是把已经构建好的文件树，以一种紧凑、稳定、适合读取的方式发布出去。系统镜像、固件、容器镜像、应用沙箱和只读数据集，都属于它擅长的场景。

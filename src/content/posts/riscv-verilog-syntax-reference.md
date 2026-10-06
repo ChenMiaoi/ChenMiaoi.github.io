@@ -13,6 +13,19 @@ series: riscv-verilog-syntax
 seriesOrder: 3
 lang: zh_CN
 draft: false
+translations:
+  en:
+    title: "Verilog/SystemVerilog Syntax Reference: From Lexical Rules to Synthesizable RTL"
+    description: "A systematic guide to literals, bit widths, four-state values, assignments, procedural blocks, arrays, parameterization, generate, interfaces, functions, tasks and assertions."
+    tags: ["Verilog","SystemVerilog","RTL","RISC-V"]
+  zh_TW:
+    title: "Verilog/SystemVerilog 語法詳解：從詞法到可合成 RTL"
+    description: "系統整理 Verilog 與 SystemVerilog 的字面值、位元寬度、四態值、賦值、程序區塊、陣列、參數化、generate、介面、函式、任務和斷言語法。"
+    tags: ["Verilog","SystemVerilog","RTL","RISC-V"]
+  ja:
+    title: "Verilog/SystemVerilog 構文詳解：字句から合成可能な RTL まで"
+    description: "リテラル、ビット幅、4状態値、代入、手続きブロック、配列、パラメータ化、generate、インターフェース、関数、タスク、アサーションを体系的に解説します。"
+    tags: ["Verilog","SystemVerilog","RTL","RISC-V"]
 ---
 
 前两章建立了 RTL 直觉。本章作为查阅型语法参考，把实际阅读 RISC-V RTL 时最容易踩坑的边角补齐。所有语法都要回到同一个问题：它最终是连线、组合网络、寄存器，还是只存在于仿真器中的行为？
