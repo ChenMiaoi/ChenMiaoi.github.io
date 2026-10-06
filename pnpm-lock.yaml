@@ -47,6 +47,9 @@ importers:
       '@fontsource-variable/source-serif-4':
         specifier: 5.3.0
         version: 5.3.0
+      '@fontsource/allura':
+        specifier: 5.3.0
+        version: 5.3.0
       '@shikijs/langs':
         specifier: 4.5.0
         version: 4.5.0
@@ -683,6 +686,9 @@ packages:
 
   '@fontsource-variable/source-serif-4@5.3.0':
     resolution: {integrity: sha512-9vch9WqxjaaA+1o9Ur8pOgIGbCYLjRReOUel23A6lOpD1syptgjtkORevvNmldJ5kGXQL29onQUqI5Ltz0s3bQ==}
+
+  '@fontsource/allura@5.3.0':
+    resolution: {integrity: sha512-UqloNNVxl03+psvtIXCYuo7/v2mD9XmX2HGiczhK6NmDDwbFJJDjrbHZ5tpNuVXKsMEQPc46tZu3hewYN82/YA==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -3817,6 +3823,8 @@ snapshots:
   '@fontsource-variable/oswald@5.3.0': {}
 
   '@fontsource-variable/source-serif-4@5.3.0': {}
+
+  '@fontsource/allura@5.3.0': {}
 
   '@img/colour@1.1.0': {}
 

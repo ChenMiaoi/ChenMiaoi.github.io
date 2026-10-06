@@ -3,6 +3,7 @@
 .orbital-site {
 	--sans: "Noto Sans SC Variable", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
 	--display: "Source Serif 4 Variable", "Noto Serif SC Variable", Georgia, "Songti SC", SimSun, serif;
+	--wordmark: "Allura", "Segoe Script", "Snell Roundhand", cursive;
 	--numeric: "Oswald Variable", var(--sans);
 	--mono: "JetBrains Mono Variable", "Noto Sans SC Variable", monospace;
 	--canvas: #0b1012;

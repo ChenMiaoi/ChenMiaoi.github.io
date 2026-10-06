@@ -22,8 +22,9 @@ The site shares one visual system across the entrance, section views and readers
 `src/styles/orbital/tokens.css` defines the cool charcoal surfaces, warm-white
 headings, four foreground levels and lemon-yellow signal. Self-hosted variable
 fonts pair Noto Serif SC / Source Serif 4 headings with Noto Sans SC prose and
-controls, Oswald display numbers and JetBrains Mono code. The blog wordmark uses
-Source Serif's italic; compact card titles use a lighter serif weight than page
+controls, Oswald display numbers and JetBrains Mono code. The blog wordmark and
+profile signature use the self-hosted Allura script, with natural letter spacing
+to keep its connections intact; compact card titles use a lighter serif weight than page
 headings. Fontsource's Unicode ranges load only the required font segments, with
 system fonts available while they load. Font licenses are included under
 `public/fonts/licenses/`. Reading links use a softer yellow, and
