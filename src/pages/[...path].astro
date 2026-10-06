@@ -6,9 +6,10 @@ import Page from "../features/orbital/Page.astro";
 import { getRawSortedPosts, getSeriesTree } from "../utils/content-utils";
 import { getPostUrlBySlug } from "../utils/url-utils";
 import { LOCALES, LOCALE_PREFIX, type Locale } from "../constants/locales";
-import { sectionPaths, type Section } from "../lib/content/navigation";
+import { sectionPaths, welcomePath, type Section } from "../lib/content/navigation";
+import type { Message } from "../features/orbital/i18n";
 
-interface Props { lang: Locale; section?: Section; seriesSlug?: string; postSlug?: string; redirectTo?: string; label?: "开源"; projectId?: string }
+interface Props { lang: Locale; section?: Section; seriesSlug?: string; postSlug?: string; redirectTo?: string; filteredTarget?: string; label?: Message; projectId?: string }
 export async function getStaticPaths() {
   const paths: { params: { path: string | undefined }; props: Props }[] = [];
   for (const lang of LOCALES) {
@@ -22,7 +23,8 @@ export async function getStaticPaths() {
     }
     add(prefix + sectionPaths.code, { section: "code" });
     for (const project of contributionConfig.projects) add(contributionUrl(project.id, "", "all", prefix), { section: "code", projectId: project.id });
-    add(`${prefix}/`);
+    add(prefix + welcomePath);
+    add(`${prefix}/`, { redirectTo: prefix + welcomePath, filteredTarget: prefix + sectionPaths.articles, label: "欢迎登站" });
     add(`${prefix}/archive/`, { redirectTo: prefix + sectionPaths.articles });
     const posts = await getRawSortedPosts(lang);
     for (const post of posts) add(getPostUrlBySlug(post.slug, post.data.published, lang), { postSlug: post.slug });
@@ -33,4 +35,4 @@ export async function getStaticPaths() {
   return paths;
 }
 ---
-{Astro.props.redirectTo ? <ArchiveRedirect target={Astro.props.redirectTo} lang={Astro.props.lang} label={Astro.props.label} /> : <Page {...Astro.props} />}
+{Astro.props.redirectTo ? <ArchiveRedirect target={Astro.props.redirectTo} filteredTarget={Astro.props.filteredTarget} lang={Astro.props.lang} label={Astro.props.label} /> : <Page {...Astro.props} />}

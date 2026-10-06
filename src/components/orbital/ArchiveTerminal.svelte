@@ -1,7 +1,7 @@
 <script lang="ts">
   import { provideTranslations } from "../../features/orbital/i18n/context";
   import type { Locale } from "../../constants/locales";
-  import LanguageSwitcher from "./LanguageSwitcher.svelte";
+  import SiteHeader from "./SiteHeader.svelte";
   export let lang: Locale = "zh_CN";
   const { t } = provideTranslations(lang);
   import { onMount, tick } from "svelte";
@@ -26,7 +26,8 @@
   export let profile: ProfileConfig;
 
   import { contributionUrl, resolveContributionSelection } from "../../lib/contributions/navigation";
-  import { sectionPaths, resolveOrbitalLocation, isWelcomeLocation, type Section } from "../../lib/content/navigation";
+  import { sectionPaths, welcomePath, resolveOrbitalLocation, isWelcomeLocation, type Section } from "../../lib/content/navigation";
+  import { createDeferredNavigation, WELCOME_RETURN_DURATION } from "../../lib/content/navigation-transition";
   export let initialSection: Section = "articles";
   export let initialSeries = "";
   export let initialProject = "";
@@ -36,6 +37,9 @@
   export let hasArticle = false;
   let welcome = initialWelcome;
   let archiveArrival = false;
+  let welcomeArrival = false;
+  let returningToWelcome = false;
+  let welcomePortal: WelcomePortal;
   let hydrated = false;
   let mainElement: HTMLElement;
   const navigation: { id: Section; label: string; icon: string; kicker: string; title: string }[] = [
@@ -66,8 +70,10 @@
   let cameraX = 0;
   let cameraY = 0;
   let cameraFrame = 0;
+  const welcomeReturn = createDeferredNavigation(finishWelcomeReturn, WELCOME_RETURN_DURATION);
   $: reducedMotion = systemReducedMotion || !effectsEnabled;
   $: if (reducedMotion) archiveArrival = false;
+  $: if (reducedMotion && returningToWelcome) welcomeReturn.finish();
   $: ambientPaused = readerOpen || !pageVisible;
   $: activeSection = navigation.find((item) => item.id === section) ?? navigation[0];
   const descriptions: Record<Section, string> = {
@@ -112,6 +118,33 @@
     await tick();
     window.scrollTo({ top: 0, behavior: "instant" });
     mainElement?.focus({ preventScroll: true });
+  }
+
+  function cancelWelcomeReturn() {
+    welcomeReturn.cancel();
+    returningToWelcome = false;
+    welcomeArrival = false;
+  }
+
+  async function finishWelcomeReturn() {
+    const animated = !reducedMotion;
+    const path = localePrefix + welcomePath;
+    if (window.location.pathname + window.location.search + window.location.hash !== path) history.pushState(null, "", path);
+    restoreLocation();
+    welcomeArrival = animated;
+    resetCamera();
+    await tick();
+    window.scrollTo({ top: 0, behavior: "instant" });
+    welcomePortal?.focusMain();
+  }
+
+  function returnToWelcome(event: MouseEvent) {
+    if (notFound || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    if (welcome || returningToWelcome) return;
+    returningToWelcome = true;
+    archiveArrival = false;
+    welcomeReturn.start(reducedMotion);
   }
 
   async function openAuthor() {
@@ -159,13 +192,20 @@
     document.title = `${series.find((item) => item.slug === slug)?.title} · Miao's Blog`;
   }
 
-  function search() {
-    if (section !== "articles") {
+  async function search(value: string, submitted = false) {
+    const fromWelcome = welcome;
+    query = value;
+    if (fromWelcome && !submitted) return;
+    if (fromWelcome || section !== "articles") {
       category = "all";
     }
     seriesFilter = "";
     setSection("articles", true);
     storeFilters();
+    if (fromWelcome) {
+      await tick();
+      searchInput?.focus({ preventScroll: true });
+    }
   }
 
   function openReader(post: ArchivePost, heading?: string) {
@@ -193,15 +233,18 @@
   }
 
   function shortcuts(event: KeyboardEvent) {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !readerOpen && !welcome) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !readerOpen) {
       event.preventDefault();
       searchInput?.focus();
     }
   }
 
   function restoreLocation() {
+      cancelWelcomeReturn();
       welcome = !notFound && isWelcomeLocation(window.location.pathname, window.location.search, localePrefix);
       if (welcome) {
+        welcomePortal?.cancelDeparture();
+        query = "";
         if (readerOpen) reader.close(false);
         document.title = t("欢迎登站 · Miao's Blog");
         return;
@@ -253,6 +296,7 @@
     pointer.addEventListener("change", updatePointer);
     document.addEventListener("visibilitychange", updateVisibility);
     return () => {
+      cancelWelcomeReturn();
       window.removeEventListener("popstate", restoreLocation);
       media.removeEventListener("change", updateMotion);
       pointer.removeEventListener("change", updatePointer);
@@ -273,28 +317,13 @@
   <i class="station-edge-signal"></i>
 </div>
 {#if welcome}
-  <WelcomePortal {localePrefix} {reducedMotion} {motionReady} {ambientPaused} {systemReducedMotion} {toggleMotion} {cameraX} {cameraY} onEnter={enterArchive} author={profile.name}/>
+  <WelcomePortal bind:this={welcomePortal} bind:searchInput {query} onSearch={search} {localePrefix} {reducedMotion} {motionReady} {ambientPaused} {systemReducedMotion} {toggleMotion} {cameraX} {cameraY} arriving={welcomeArrival} onReturn={returnToWelcome} onEnter={enterArchive} author={profile.name}/>
 {:else}
 <a class="skip-link" href="#terminal-main">{t("跳到文章")}</a>
 
-<div class="terminal-shell" class:station-arriving={archiveArrival} onanimationend={(event) => { if (event.target === event.currentTarget) archiveArrival = false; }} class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:ambient-paused={ambientPaused} class:archive-view={section === 'articles'} class:series-view={section === 'series'} class:graph-view={section === 'graph'} class:source-view={section === 'code'} class:about-view={section === 'about'}>
+<div class="terminal-shell" class:station-arriving={archiveArrival} class:station-returning={returningToWelcome} inert={returningToWelcome} aria-busy={returningToWelcome} style={`--welcome-return-duration:${WELCOME_RETURN_DURATION}ms`} onanimationend={(event) => { if (event.target === event.currentTarget) archiveArrival = false; }} class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:ambient-paused={ambientPaused} class:archive-view={section === 'articles'} class:series-view={section === 'series'} class:graph-view={section === 'graph'} class:source-view={section === 'code'} class:about-view={section === 'about'}>
   <svg class="terminal-orbit" viewBox="0 0 1600 1000" preserveAspectRatio="none" aria-hidden="true"><g class="orbit-rail"><path d="M136 123C38 280 20 705 143 902"/><path d="M127 121C24 305 17 716 137 907"/><path class="orbit-transmission" d="M136 123C38 280 20 705 143 902" pathLength="1"/><circle cx="136" cy="123" r="5"/><circle cx="143" cy="902" r="5"/></g><path class="orbit-ground" d="M215 950H1450l75-75"/></svg>
-  <header class="terminal-header">
-    <button class="brand" aria-label={t("Miao's Blog，返回文章档案")} onclick={() => navigate("articles")}>
-      <img class="brand-mark" src="/images/orbital/miao-mark.svg" alt="" width="60" height="48"/>
-      <span><strong>Miao's Blog</strong></span>
-    </button>
-    <span class="header-hairline" aria-hidden="true"><i></i><span>{t("个人档案库")}</span></span>
-    <div class="header-tools">
-      <LanguageSwitcher {reducedMotion}/>
-      <div class="search-frame">
-        <TerminalIcon name="search" size={20}/>
-        <input bind:this={searchInput} bind:value={query} oninput={search} aria-label={t("搜索文章")} placeholder={t("搜索文章")} type="search" autocomplete="off" />
-        <kbd>Ctrl K</kbd>
-      </div>
-      <a class="github-link" href="https://github.com/ChenMiaoi" target="_blank" rel="noreferrer"><BrandIcon name="github" size={18} framed={false}/>GitHub <TerminalIcon name="external" size={17}/></a>
-    </div>
-  </header>
+  <SiteHeader {localePrefix} {reducedMotion} {query} bind:searchInput onReturn={returnToWelcome} onSearch={search}/>
 
   <div class="terminal-workspace">
     <aside class="terminal-sidebar">

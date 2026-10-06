@@ -6,15 +6,29 @@ Run locally from the repository root:
 pnpm.cmd dev --host 127.0.0.1 --port 4321
 ```
 
-Open <http://127.0.0.1:4321/>.
+Open <http://127.0.0.1:4321/hello-world/>.
 
-The home route now opens the orbital welcome portal. Enter the archive to reach
-`/archive/`. The entrance focuses on the welcome message and entry action. A restrained
+The orbital welcome portal lives at `/hello-world/`, including its localized
+routes under `/en/`, `/zh_TW/` and `/ja/`. The home routes redirect to these
+entrances; legacy home URLs with search or category filters redirect to
+`/articles/` while preserving the query and fragment. Enter the archive to reach
+`/articles/`. The entrance focuses on the welcome message and entry action. A restrained
 orbital instrument, staggered copy and a short departure share the site's existing
 scenery and motion preference. Direct section/article links bypass the welcome
 screen, as do legacy home URLs containing search or category filters. Back/forward
-restore the entrance and archive by URL; reduced motion and the direct-entry link
-skip the departure animation. The welcome screen remains usable without JavaScript.
+restore the entrance and archive by URL; reduced motion skips the departure
+animation. The welcome screen remains usable without JavaScript.
+The wordmark returns to the current locale's welcome route within the same page:
+the archive fades out before the welcome copy and instrument arrive, keeping the
+station scenery continuous. Modified clicks retain native link behavior. Back/forward,
+reduced motion and component destruction cancel pending navigation delays.
+
+The welcome and all section views share `SiteHeader.svelte` and the same shell
+width, gutters and header height. Branding, language selection, article search
+and GitHub stay in the same positions, including the shared mobile layout.
+Welcome search opens the article archive on Enter, preserving the query and
+input focus; typing alone keeps the welcome screen in place for IME composition.
+Ctrl/Cmd+K focuses search on both the welcome and section views.
 
 Orbital is the only production interface.
 

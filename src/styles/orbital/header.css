@@ -1,0 +1,59 @@
+/* Shared header geometry keeps the welcome and section views aligned. */
+.orbital-site :is(.terminal-shell, .welcome-portal) {
+	width: 100%;
+	max-width: var(--shell-max-width);
+	margin-inline: auto;
+	padding-inline: var(--shell-gutter);
+}
+
+@media (max-width: 380px) {
+	.orbital-site .terminal-header .language-orbit {
+		display: none;
+	}
+}
+
+.orbital-site .terminal-header {
+	height: var(--header-height);
+	flex: 0 0 var(--header-height);
+	gap: clamp(20px, 2.7vw, 46px);
+}
+
+.orbital-site .header-tools {
+	min-width: 0;
+	gap: clamp(14px, 1.8vw, 30px);
+}
+
+.orbital-site .search-frame {
+	width: clamp(170px, 18vw, 255px);
+	margin: 0;
+}
+
+@media (max-width: 650px) {
+	.orbital-site .terminal-header {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-areas: "brand language" "search github";
+		height: auto;
+		flex-basis: auto;
+		gap: 14px 12px;
+	}
+	.orbital-site .terminal-header .brand {
+		grid-area: brand;
+		gap: 8px;
+	}
+	.orbital-site .terminal-header .brand strong {
+		font-size: clamp(25px, 7vw, 34px);
+	}
+	.orbital-site .header-tools .language-switcher {
+		grid-area: language;
+		margin-left: 0;
+	}
+	.orbital-site .terminal-header .search-frame {
+		grid-area: search;
+		width: 100%;
+	}
+	.orbital-site .terminal-header .github-link {
+		grid-area: github;
+		justify-self: end;
+	}
+}

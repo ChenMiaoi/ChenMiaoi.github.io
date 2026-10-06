@@ -9,6 +9,9 @@
 	--text-caption: 13px;
 	--text-control: 14px;
 	--text-note: 15px;
+	--shell-max-width: 1700px;
+	--shell-gutter: 48px;
+	--header-height: 106px;
 	--canvas: #0b1012;
 	--surface: #141c20;
 	--surface-raised: #20292e;
@@ -43,4 +46,17 @@
 	--archive-surface: linear-gradient(110deg, #20292e66, #141c200a);
 	--archive-selected: linear-gradient(110deg, #aab9c024, #20292e38);
 	--archive-muted: var(--muted);
+}
+
+@media (min-width: 1000px) {
+	.orbital-site { --header-height: 84px; }
+}
+@media (min-width: 1450px) {
+	.orbital-site { --shell-gutter: 58px; }
+}
+@media (max-width: 1190px) {
+	.orbital-site { --shell-gutter: 28px; }
+}
+@media (max-width: 650px) {
+	.orbital-site { --shell-gutter: 20px; }
 }

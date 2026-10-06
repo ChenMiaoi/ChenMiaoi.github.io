@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile, access, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
+import { runInNewContext } from "node:vm";
 
 const production = resolve("dist");
 const { documents } = JSON.parse(await readFile(resolve(production, "content-index.json"), "utf8"));
@@ -44,8 +45,23 @@ for (const prefix of ["", "en/", "ja/", "zh_TW/"]) {
 		"ja/": ["ja", "ようこそ", "記事アーカイブ", "言語を選択"],
 		"zh_TW/": ["zh-TW", "歡迎登站", "文章檔案", "選擇語言"],
 	}[prefix];
-	const welcome = await readFile(resolve(production, prefix, "index.html"), "utf8");
+	const home = await readFile(resolve(production, prefix, "index.html"), "utf8");
+	const entrancePath = `/${prefix}hello-world/`;
+	assert.ok(home.includes(`data-archive-redirect="${entrancePath}"`), `Home redirect missing: ${prefix}`);
+	assert.ok(home.includes(`content="0;url=${entrancePath}"`), `No-script home redirect missing: ${prefix}`);
+	assert.ok(home.includes(`href="https://nyachen.cn${entrancePath}"`), `Home canonical missing: ${prefix}`);
+	const redirectScript = /<script\b[^>]*>([\s\S]*?)<\/script>/.exec(home)?.[1];
+	assert.ok(redirectScript, `Home redirect script missing: ${prefix}`);
+	for (const search of ["", "?utm_source=link", "?q=Linux&category=hardware", "?q=", "?tag=Rust", "?category=kernel"]) {
+		let destination;
+		const hash = "#intro";
+		runInNewContext(redirectScript, { URLSearchParams, window: { location: { search, hash, replace: (url) => { destination = url; } } } }, { timeout: 1000 });
+		const target = ["", "?utm_source=link"].includes(search) ? entrancePath : `/${prefix}articles/`;
+		assert.equal(destination, target + search + hash, `Home redirect loses location: ${prefix}${search}`);
+	}
+	const welcome = await readFile(resolve(production, prefix, "hello-world/index.html"), "utf8");
 	assert.match(welcome, /class="welcome-portal/, `Welcome missing: ${prefix}`);
+	assert.ok(welcome.includes(`href="https://nyachen.cn${entrancePath}"`), `Welcome canonical missing: ${prefix}`);
 	assert.ok(welcome.includes(`<html lang="${lang}"`), `Wrong document language: ${prefix}`);
 	assert.ok(welcome.includes(`<title>${entrance} · Miao&#39;s Blog</title>`) || welcome.includes(`<title>${entrance} · Miao's Blog</title>`), `Untranslated entrance title: ${prefix}`);
 	assert.ok(welcome.includes(`aria-label="${switchLabel}"`), `Language switch missing: ${prefix}`);
@@ -53,6 +69,15 @@ for (const prefix of ["", "en/", "ja/", "zh_TW/"]) {
 	const archive = await readFile(resolve(production, prefix, "articles/index.html"), "utf8");
 	assert.match(archive, /class="terminal-shell/);
 	assert.ok(archive.includes(`<title>${heading} · Miao&#39;s Blog</title>`) || archive.includes(`<title>${heading} · Miao's Blog</title>`), `Untranslated archive title: ${prefix}`);
+	const welcomeHeader = /<header class="terminal-header">[\s\S]*?<\/header>/.exec(welcome)?.[0];
+	assert.ok(welcomeHeader, `Shared welcome header missing: ${prefix}`);
+	const normalizeHeader = (header) => header.replace(/<!--[\s\S]*?-->/g, "").replace(/\s+/g, " ");
+	for (const section of ["articles", "series", "graph", "contribution", "about"]) {
+		const sectionPage = await readFile(resolve(production, prefix, section, "index.html"), "utf8");
+		const sectionHeader = /<header class="terminal-header">[\s\S]*?<\/header>/.exec(sectionPage)?.[0];
+		assert.ok(sectionHeader, `Section header missing: ${prefix}${section}`);
+		assert.equal(normalizeHeader(sectionHeader), normalizeHeader(welcomeHeader), `Welcome header differs from ${prefix}${section}`);
+	}
 	const legacy = await readFile(resolve(production, prefix, "archive/index.html"), "utf8");
 	assert.ok(legacy.includes(`data-archive-redirect="/${prefix}articles/"`));
 	assert.ok(legacy.includes(`content="0;url=/${prefix}articles/"`));

@@ -2,8 +2,8 @@
 import { htmlLang, type Locale } from "../../constants/locales";
 import { createTranslations, type Message } from "./i18n";
 
-interface Props { target: string; lang: Locale; label?: Message }
-const { target, lang, label = "文章" } = Astro.props;
+interface Props { target: string; lang: Locale; label?: Message; filteredTarget?: string }
+const { target, lang, label = "文章", filteredTarget = "" } = Astro.props;
 const { t } = createTranslations(lang);
 ---
 <!doctype html>
@@ -13,8 +13,10 @@ const { t } = createTranslations(lang);
     <title>{t(label)}</title>
     <link rel="canonical" href={new URL(target, Astro.site)} />
     <meta name="robots" content="noindex" />
-    <script is:inline define:vars={{ target }}>
-      window.location.replace(target + window.location.search + window.location.hash);
+    <script is:inline define:vars={{ target, filteredTarget }}>
+      const params = new URLSearchParams(window.location.search);
+      const destination = filteredTarget && ["q", "tag", "category"].some((key) => params.has(key)) ? filteredTarget : target;
+      window.location.replace(destination + window.location.search + window.location.hash);
     </script>
     <meta http-equiv="refresh" content={`0;url=${target}`} />
   </head>

@@ -3,8 +3,9 @@
   const { t } = useTranslations();
   import { onDestroy } from "svelte";
   import TerminalIcon from "./TerminalIcon.svelte";
-  import LanguageSwitcher from "./LanguageSwitcher.svelte";
+  import SiteHeader from "./SiteHeader.svelte";
   import { sectionPaths } from "../../lib/content/navigation";
+  import { createDeferredNavigation } from "../../lib/content/navigation-transition";
 
   export let localePrefix = "";
   export let author: string;
@@ -14,41 +15,47 @@
   export let systemReducedMotion = true;
   export let toggleMotion: () => void;
   export let onEnter: (animated?: boolean) => void;
+  export let onReturn: (event: MouseEvent) => void;
+  export let query = "";
+  export let searchInput: HTMLInputElement | undefined = undefined;
+  export let onSearch: (value: string, submitted?: boolean) => void;
+  export let arriving = false;
   export let cameraX = 0;
   export let cameraY = 0;
   let departing = false;
-  let departureTimer: ReturnType<typeof setTimeout> | undefined;
+  let arrivalActive = arriving;
+  let mainElement: HTMLElement;
+  const departure = createDeferredNavigation(() => onEnter(true), 680);
   $: archiveUrl = localePrefix + sectionPaths.articles;
-  $: if (departing && reducedMotion) {
-    clearTimeout(departureTimer);
-    onEnter();
+  $: if (departing && reducedMotion) departure.finish();
+  $: if (reducedMotion) arrivalActive = false;
+
+  export function focusMain() {
+    mainElement?.focus({ preventScroll: true });
   }
 
-  function enter(event: MouseEvent, immediate = false) {
+  export function cancelDeparture() {
+    departure.cancel();
+    departing = false;
+  }
+
+  function enter(event: MouseEvent) {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     if (departing) return;
-    if (reducedMotion || immediate) { onEnter(); return; }
+    if (reducedMotion) { onEnter(); return; }
     departing = true;
-    departureTimer = setTimeout(() => onEnter(true), 680);
+    departure.start();
   }
 
-  onDestroy(() => clearTimeout(departureTimer));
+  onDestroy(() => departure.cancel());
 </script>
 
-<div class="welcome-portal" class:portal-moving={motionReady && !reducedMotion} class:portal-idle={ambientPaused} class:portal-departing={departing} style={`--instrument-x:${reducedMotion ? 0 : cameraX}px;--instrument-y:${reducedMotion ? 0 : cameraY}px`}>
+<div class="welcome-portal" class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:portal-moving={motionReady && !reducedMotion} class:portal-idle={ambientPaused} class:portal-returning={arrivalActive && !reducedMotion} class:portal-departing={departing} inert={departing} onanimationend={(event) => { if (event.target === event.currentTarget && event.animationName === "portal-return") arrivalActive = false; }} style={`--instrument-x:${reducedMotion ? 0 : cameraX}px;--instrument-y:${reducedMotion ? 0 : cameraY}px`}>
   <div class="portal-grid" aria-hidden="true"></div>
-  <header class="portal-header">
-    <a class="brand portal-brand" href={archiveUrl} onclick={(event) => enter(event, true)} aria-label={t("Miao's Blog，进入文章档案")}>
-      <img class="brand-mark" src="/images/orbital/miao-mark.svg" alt="" width="60" height="48"/>
-      <span><strong>Miao's Blog</strong></span>
-    </a>
-    <span class="portal-header-label" aria-hidden="true"><i></i> {t("个人的探索空间")}</span>
-    <a class="portal-skip" href={archiveUrl} onclick={(event) => enter(event, true)}>{t("直接进入")} <TerminalIcon name="arrow" size={16}/></a>
-    <LanguageSwitcher {reducedMotion}/>
-  </header>
+  <SiteHeader {localePrefix} {reducedMotion} {query} bind:searchInput {onReturn} {onSearch}/>
 
-  <main class="portal-main">
+  <main class="portal-main" bind:this={mainElement} tabindex="-1">
     <div class="portal-copy">
       <p class="portal-eyebrow"><span></span> {t("你好，探索者")} <i>/</i> {t("欢迎登站")}</p>
       <h1>{t("原天地之美")}<br/>{t("而达")}<span>{t("万物之理")}</span><b aria-hidden="true">{t("。")}</b></h1>

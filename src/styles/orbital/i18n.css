@@ -99,8 +99,6 @@
   .orbital-site .terminal-footer { flex-wrap: wrap; height: auto; padding-block: 14px; gap: 10px; }
   .portal-footer { flex-wrap: wrap; padding-block: 12px; row-gap: 12px; }
   .portal-footer > span:first-child { flex: 1 1 100%; }
-  .portal-header { flex-wrap: wrap; height: auto; min-height: 106px; padding: 14px 0; }
-  .portal-header .language-switcher { margin-left: auto; }
   .orbital-site:lang(en) .portal-copy h1 { font-size: clamp(27px, 7.5vw, 40px); }
   .orbital-site:lang(en) .terminal-sidebar nav a { font-size: var(--text-caption); }
   .orbital-site:lang(en) .terminal-sidebar nav a span { text-align: center; }

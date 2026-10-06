@@ -190,10 +190,10 @@ export const messages = {
 		"内なる世界を記録する。",
 	],
 	跳到文章: ["Skip to articles", "跳到文章", "記事へスキップ"],
-	"Miao's Blog，返回文章档案": [
-		"Miao's Blog, back to the archive",
-		"Miao's Blog，返回文章檔案",
-		"Miao's Blog、記事一覧に戻る",
+	"Miao's Blog，返回欢迎页": [
+		"Miao's Blog, return to the welcome page",
+		"Miao's Blog，返回歡迎頁",
+		"Miao's Blog、ようこそページに戻る",
 	],
 	搜索文章: ["Search articles", "搜尋文章", "記事を検索"],
 	主导航: ["Main navigation", "主導覽", "メインナビゲーション"],

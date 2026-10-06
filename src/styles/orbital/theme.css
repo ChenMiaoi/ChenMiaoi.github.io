@@ -187,7 +187,7 @@
 }
 
 .orbital-site :is(.section-coordinate, .dossier-index, .mission-crown,
-	.portal-header-label, .portal-orbit-subtitle, .portal-footer-index) {
+	.portal-orbit-subtitle, .portal-footer-index) {
 	color: var(--subtle);
 }
 

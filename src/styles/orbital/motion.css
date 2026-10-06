@@ -135,9 +135,12 @@
 .motion-ready:not(.motion-paused) .context-receiving > .context-reception { animation: preview-receive 620ms ease-out 180ms both; }
 .station-arriving.motion-ready:not(.motion-paused) { animation: station-dock 720ms cubic-bezier(.16,1,.3,1) backwards; }
 .station-arriving.motion-ready:not(.motion-paused) .terminal-sidebar { animation: station-rail-deploy 640ms cubic-bezier(.16,1,.3,1) 120ms backwards; }
+.station-returning.motion-ready:not(.motion-paused) { animation: station-return var(--welcome-return-duration, 420ms) cubic-bezier(.4,0,1,1) both; }
+.station-scene.motion-running { transition: opacity 560ms ease; }
 @keyframes preview-materialize { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
 @keyframes preview-receive { 0% { opacity: 0; clip-path: inset(0 100% 96% 0); } 35% { opacity: .5; clip-path: inset(0 0 0 0); } 100% { opacity: 0; clip-path: inset(0 0 0 0); } }
 @keyframes station-dock { from { opacity: 0; transform: scale(1.035) translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes station-return { to { opacity: 0; transform: translateY(10px) scale(.985); } }
 @keyframes station-rail-deploy { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
 .motion-ready:not(.motion-paused) .terminal-sidebar nav .active > svg {
 	animation: icon-acquire 360ms ease-out backwards;

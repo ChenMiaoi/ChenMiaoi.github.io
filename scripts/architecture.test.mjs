@@ -8,7 +8,8 @@ import { contributionConfig, contributionSyncConfig } from "../src/lib/contribut
 import { contributionActivity, contributionDetails } from "../src/lib/contributions/snapshots.ts";
 import { detailsSchema } from "../src/lib/contributions/schema.ts";
 import { resolveContributionProjects, projectRecords } from "../src/lib/contributions/projects.ts";
-import { isWelcomeLocation, resolveOrbitalLocation, sectionPaths } from "../src/lib/content/navigation.ts";
+import { isWelcomeLocation, resolveOrbitalLocation, sectionPaths, welcomePath } from "../src/lib/content/navigation.ts";
+import { createDeferredNavigation, WELCOME_RETURN_DURATION } from "../src/lib/content/navigation-transition.ts";
 import { createTranslations, languageUrl } from "../src/features/orbital/i18n/index.ts";
 import { messages } from "../src/features/orbital/i18n/messages.ts";
 import { contributionUrl, resolveContributionSelection } from "../src/lib/contributions/navigation.ts";
@@ -106,19 +107,82 @@ test("Orbital restores public sections, series and dated articles from the URL",
     assert.equal(sectionPaths.articles, "/articles/");
 });
 
-test("welcome entrances preserve deep links and legacy search URLs", () => {
+test("hello-world welcome routes preserve locale, deep links and search behavior", () => {
+    assert.equal(welcomePath, "/hello-world/");
     for (const prefix of ["", "/en", "/ja", "/zh_TW"]) {
-        assert.equal(isWelcomeLocation(`${prefix}/`, "", prefix), true);
-        assert.equal(isWelcomeLocation(`${prefix}/`, "?utm_source=link", prefix), true);
+        const entrance = prefix + welcomePath;
+        assert.equal(isWelcomeLocation(entrance, "", prefix), true);
+        assert.equal(isWelcomeLocation(entrance.slice(0, -1), "", prefix), true);
+        assert.equal(isWelcomeLocation(entrance, "?utm_source=link", prefix), true);
+        assert.equal(isWelcomeLocation(`${prefix}/`, "", prefix), false);
         for (const search of ["?q=linux", "?tag=Rust", "?category=hardware", "?q="]) {
-            assert.equal(isWelcomeLocation(`${prefix}/`, search, prefix), false);
+            assert.equal(isWelcomeLocation(entrance, search, prefix), false);
         }
-        for (const path of ["/articles/", "/contribution/", "/series/", "/graph/", "/about/", "/2026/09/20/memory/"]) {
+        for (const path of ["/articles/", "/contribution/", "/series/", "/graph/", "/about/", "/2026/09/20/memory/", "/hello-world-again/"]) {
             assert.equal(isWelcomeLocation(prefix + path, "", prefix), false);
         }
+        assert.equal(languageUrl(`${entrance}?utm_source=link#intro`, "en"), "/en/hello-world/?utm_source=link#intro");
+        assert.equal(languageUrl(entrance, "zh_CN"), welcomePath);
     }
-    assert.equal(isWelcomeLocation("/en", "", "/en"), true);
+    assert.equal(isWelcomeLocation("/en", "", "/en"), false);
     assert.equal(isWelcomeLocation("/enough/", "", "/en"), false);
+});
+
+function navigationClock() {
+    const jobs = [];
+    const cancelled = [];
+    const clock = {
+        schedule(callback, duration) { const job = { callback, duration }; jobs.push(job); return job; },
+        cancel(job) { cancelled.push(job); },
+    };
+    return { clock, jobs, cancelled };
+}
+
+test("animated navigation waits for departure and ignores repeated activation", () => {
+    const { clock, jobs } = navigationClock();
+    let visits = 0;
+    const transition = createDeferredNavigation(() => visits++, WELCOME_RETURN_DURATION, clock);
+    assert.equal(transition.start(), true);
+    assert.equal(transition.start(), false);
+    assert.equal(visits, 0);
+    assert.equal(jobs.length, 1);
+    assert.equal(jobs[0].duration, WELCOME_RETURN_DURATION);
+    jobs[0].callback();
+    jobs[0].callback();
+    assert.equal(visits, 1);
+});
+
+test("reduced motion skips or finishes a departure without duplicate navigation", () => {
+    const { clock, jobs, cancelled } = navigationClock();
+    let visits = 0;
+    const transition = createDeferredNavigation(() => visits++, WELCOME_RETURN_DURATION, clock);
+    transition.start(true);
+    assert.equal(visits, 1);
+    assert.equal(jobs.length, 0);
+    transition.start();
+    assert.equal(transition.finish(), true);
+    assert.deepEqual(cancelled, [jobs[0]]);
+    assert.equal(transition.finish(), false);
+    jobs[0].callback();
+    assert.equal(visits, 2);
+});
+
+test("back navigation and unmount cancel stale departures without overriding later navigation", () => {
+    const { clock, jobs, cancelled } = navigationClock();
+    let visits = 0;
+    const transition = createDeferredNavigation(() => visits++, WELCOME_RETURN_DURATION, clock);
+    transition.start();
+    transition.cancel();
+    transition.start();
+    jobs[0].callback();
+    assert.equal(visits, 0);
+    jobs[1].callback();
+    assert.equal(visits, 1);
+    transition.start();
+    transition.cancel();
+    jobs[2].callback();
+    assert.equal(visits, 1);
+    assert.deepEqual(cancelled, [jobs[0], jobs[2]]);
 });
 
 test("both contribution views resolve every configured record from validated snapshots", () => {
