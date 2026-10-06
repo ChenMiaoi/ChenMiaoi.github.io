@@ -5,6 +5,7 @@
   import { fly } from "svelte/transition";
   import TerminalIcon from "./TerminalIcon.svelte";
   import { revealSequence, revealOnView } from "./motion";
+  import { sortSeriesByRecency } from "../../lib/content/series-recency";
   import type { ArchivePost, ArchiveSeries } from "./types";
 
   export let posts: ArchivePost[];
@@ -46,29 +47,28 @@
     target.querySelector<HTMLButtonElement>(".path-reading-list button")?.focus({ preventScroll: true });
   }
 
-  const compareSeries = (a: ArchiveSeries, b: ArchiveSeries) =>
-    (a.order ?? Number.POSITIVE_INFINITY) - (b.order ?? Number.POSITIVE_INFINITY) || a.title.localeCompare(b.title);
   const comparePosts = (a: ArchivePost, b: ArchivePost) =>
     (a.seriesOrder ?? Number.POSITIVE_INFINITY) - (b.seriesOrder ?? Number.POSITIVE_INFINITY) || a.timestamp - b.timestamp || a.slug.localeCompare(b.slug);
   const shortTitle = (title: string) => title.split(/[：:]/)[0];
   const subtitle = (title: string) => /[：:]/.test(title) ? title.slice(title.search(/[：:]/) + 1).trim() : "";
 
   type ReadingGroup = { series: ArchiveSeries; depth: number; posts: ArchivePost[] };
-  function readingGroups(node: ArchiveSeries, depth = 0): ReadingGroup[] {
-    const children = series.filter((item) => item.parent === node.slug).sort(compareSeries);
-    const groups = children.flatMap((child) => readingGroups(child, depth + 1));
-    const directPosts = posts.filter((post) => post.series === node.slug).sort(comparePosts);
+  function readingGroups(node: ArchiveSeries, directory: ArchiveSeries[], articles: ArchivePost[], depth = 0): ReadingGroup[] {
+    const children = directory.filter((item) => item.parent === node.slug);
+    const groups = children.flatMap((child) => readingGroups(child, directory, articles, depth + 1));
+    const directPosts = articles.filter((post) => post.series === node.slug).sort(comparePosts);
     if (directPosts.length || !children.length) groups.push({ series: node, depth, posts: directPosts });
     return groups;
   }
 
-  $: roots = series.filter((item) => !item.parent && (showEmpty || item.posts.length)).sort(compareSeries);
-  $: current = roots.find((item) => item.slug === selection) ?? [...roots].sort((a, b) => b.posts.length - a.posts.length)[0];
+  $: orderedSeries = sortSeriesByRecency(series, posts);
+  $: roots = orderedSeries.filter((item) => !item.parent && (showEmpty || item.posts.length));
+  $: current = roots.find((item) => item.slug === selection) ?? roots[0];
   $: currentIndex = current ? roots.indexOf(current) + 1 : 0;
   $: if (current) resetLocator(current.slug);
   function resetLocator(_slug: string) { locatedSeries = ""; }
-  $: children = current ? series.filter((item) => item.parent === current.slug).sort(compareSeries) : [];
-  $: groups = current ? readingGroups(current) : [];
+  $: children = current ? orderedSeries.filter((item) => item.parent === current.slug) : [];
+  $: groups = current ? readingGroups(current, orderedSeries, posts) : [];
   $: firstPost = current ? posts.filter((post) => post.series === current.slug).sort(comparePosts)[0] ?? groups.flatMap((group) => group.posts)[0] : undefined;
   $: documentCount = new Set(roots.flatMap((root) => root.posts)).size;
   $: if (current && seriesRail) revealSeries(current.slug);

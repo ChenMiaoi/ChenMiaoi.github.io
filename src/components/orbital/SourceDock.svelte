@@ -3,7 +3,7 @@
   const { t } = useTranslations();
   import { summarizeChecks } from "../../lib/contributions/checks";
   import { onMount, tick } from "svelte";
-  import { projectRecords } from "../../lib/contributions/projects";
+  import { projectRecords, sortContributionProjects } from "../../lib/contributions/projects";
   import type { ContributionFeed } from "../../lib/contributions/types";
   import TerminalIcon from "./TerminalIcon.svelte";
   import BrandIcon from "./BrandIcon.svelte";
@@ -39,7 +39,8 @@
   let deck: HTMLDivElement;
   let tether: { width: number; height: number; path: string; x: number; y: number; endX: number; endY: number } | undefined;
 
-  $: project = projects.find((item) => item.id === projectId) ?? projects[0];
+  $: orderedProjects = sortContributionProjects(projects, activity);
+  $: project = orderedProjects.find((item) => item.id === projectId) ?? orderedProjects[0];
   $: allRecords = project ? projectRecords(project, activity) : [];
   $: recordKinds = [...new Set(allRecords.map((item) => item.kind))];
   $: records = allRecords.filter((item) => kindFilter === "all" || item.kind === kindFilter);
@@ -180,7 +181,7 @@
   {:else}
   <header class="source-console-bar">
     <nav class="project-docks" aria-label={t("选择开源项目")}>
-      {#each projects as item}
+      {#each orderedProjects as item (item.id)}
         <button class="project-port" class:active={project?.id === item.id} aria-label={t("选择项目：{v0}", { v0: item.name })} aria-pressed={project?.id === item.id} onclick={() => chooseProject(item.id)}>
           <BrandIcon name={item.id} size={26}/>
           <strong>{item.name}</strong>

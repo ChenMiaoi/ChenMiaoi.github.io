@@ -2,6 +2,20 @@ import type { ContributionProject } from "../../types/config";
 import type { contributionDetails } from "./snapshots";
 import type { ContributionActivitySnapshot, SourceRecord } from "./types";
 
+function recordTimestamp(date?: string) {
+	const timestamp = date ? Date.parse(date) : Number.NaN;
+	return Number.isFinite(timestamp) ? timestamp : Number.NEGATIVE_INFINITY;
+}
+
+type DatedRecord = Pick<SourceRecord, "date" | "id" | "url">;
+
+export function compareContributionRecords(a: DatedRecord, b: DatedRecord) {
+	return (
+		recordTimestamp(b.date) - recordTimestamp(a.date) ||
+		(a.url ?? a.id).localeCompare(b.url ?? b.id)
+	);
+}
+
 export function projectRecords(
 	item: ContributionProject,
 	snapshot: ContributionActivitySnapshot,
@@ -34,9 +48,22 @@ export function projectRecords(
 			state: entry.state,
 			relations: entry.relations,
 		}));
-	return [...commits, ...collaboration].sort((a, b) =>
-		b.date.localeCompare(a.date),
-	);
+	return [...commits, ...collaboration].sort(compareContributionRecords);
+}
+
+export function sortContributionProjects(
+	projects: readonly ContributionProject[],
+	snapshot: ContributionActivitySnapshot,
+) {
+	return projects
+		.map((project) => ({
+			project,
+			latest: recordTimestamp(projectRecords(project, snapshot)[0]?.date),
+		}))
+		.sort(
+			(a, b) => b.latest - a.latest || a.project.id.localeCompare(b.project.id),
+		)
+		.map(({ project }) => project);
 }
 
 export function resolveContributionProjects(

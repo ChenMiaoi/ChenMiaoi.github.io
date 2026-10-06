@@ -1,5 +1,9 @@
 import type { ContributionProject } from "../../types/config";
-import { projectRecords } from "./projects.ts";
+import {
+	compareContributionRecords,
+	projectRecords,
+	sortContributionProjects,
+} from "./projects.ts";
 import type {
 	ContributionActivitySnapshot,
 	ContributionDetailsSnapshot,
@@ -11,7 +15,8 @@ export function contributionOverview(
 	details: ContributionDetailsSnapshot,
 ) {
 	const byUrl = new Map(details.records.map((record) => [record.url, record]));
-	const sectors = projects.map((project) => {
+	const orderedProjects = sortContributionProjects(projects, activity);
+	const sectors = orderedProjects.map((project) => {
 		const unique = new Map(
 			projectRecords(project, activity).map((record) => [
 				record.url ?? record.id,
@@ -50,6 +55,6 @@ export function contributionOverview(
 		sectors,
 		records: sectors
 			.flatMap((sector) => sector.records)
-			.sort((a, b) => b.date.localeCompare(a.date)),
+			.sort(compareContributionRecords),
 	};
 }

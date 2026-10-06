@@ -40,7 +40,7 @@
     <div><strong>{pad(totals.commits)}</strong><span>{t("收录提交")}</span></div>
   </div>
   <div class="mission-chapters" role="group" aria-label={t("分项目统计")}>
-    {#each overview.sectors as sector, index}
+    {#each overview.sectors as sector, index (sector.project.id)}
       <button class="mission-chapter" class:chapter-selected={sectorId === sector.project.id} aria-label={t("选择项目：{v0}", {v0: sector.project.name})} aria-pressed={sectorId === sector.project.id} style={`--cover-position:${coverPosition[sector.project.id] ?? '50%'}`} onclick={() => sectorId = sectorId === sector.project.id ? "all" : sector.project.id}>
         <span class="chapter-art" aria-hidden="true"></span>
         <span class="chapter-number" aria-hidden="true">{pad(index + 1)}</span>

@@ -33,6 +33,7 @@ async function buildOrbitalData(lang: Locale) {
 			searchText: `${post.searchText} ${tree.nodes.get(post.data.series || "")?.searchText ?? ""}`,
 			date: post.data.published.toISOString().slice(0, 10).replaceAll("-", "."),
 			timestamp: post.data.published.getTime(),
+			updatedTimestamp: (post.data.updated ?? post.data.published).getTime(),
 			description: post.data.description || excerpt.match(/^.*?[。！？]/)?.[0] || excerpt,
 			excerpt: post.data.translations?.[lang as "en" | "zh_TW" | "ja"]?.description || excerpt || post.data.description,
 			category: post.data.category || "", series: post.data.series || "",

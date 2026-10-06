@@ -83,6 +83,9 @@ Previous/next controls reveal the corresponding record in the rail and reset the
 reader; on mobile the rail scrolls horizontally and the reader follows page scrolling.
 This view uses `SourceDock.svelte`, `ContributionReader.svelte`, `src/styles/orbital/source.css`
 and `src/styles/orbital/contribution-reader.css`.
+Project cards and tabs put the most recently updated record first, using Issue/PR
+updates or commit dates. The record archive defaults to the first project;
+explicit project and record selections stay selected when the order changes.
 It also reads `src/data/contribution-activity.json`, the public GitHub snapshot
 used by the existing contribution page. The LLVM and Cargo docks include authored
 or assigned open issues and pull requests from their upstream repositories, plus
@@ -131,8 +134,10 @@ Desktop panels use the remaining viewport height with independent scrolling;
 on narrow screens the series selector becomes a single horizontal rail that keeps
 the current selection visible. Branch shortcuts jump to child-series chapters,
 and article titles open the reader directly. Directory
-ordering uses series `order`; article ordering respects `seriesOrder` and publication
-dates. Empty series can be included with the directory toggle. Its layout is in
+ordering uses each series' latest published or updated article, including child
+series, with `order` and slug breaking ties. The first series is selected by
+default; article reading order still respects `seriesOrder` and publication dates.
+Empty series sort last and can be included with the directory toggle. Its layout is in
 `src/styles/orbital/series.css` and `src/components/orbital/SeriesExplorer.svelte`.
 The profile is the visual reference for all sections. The shared finishing layer in
 `src/styles/orbital/articles.css` uses translucent graphite surfaces, fine

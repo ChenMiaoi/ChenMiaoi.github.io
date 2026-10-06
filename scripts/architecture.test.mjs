@@ -3,11 +3,12 @@ import test from "node:test";
 import { postPath } from "../src/lib/content/paths.ts";
 import { selectPosts } from "../src/lib/content/posts.ts";
 import { createSeriesTree, flattenSeriesPosts } from "../src/lib/content/series.ts";
+import { sortSeriesByRecency } from "../src/lib/content/series-recency.ts";
 import { createResourceCache } from "../src/lib/content/client-cache.ts";
 import { contributionConfig, contributionSyncConfig } from "../src/lib/contributions/config.ts";
 import { contributionActivity, contributionDetails } from "../src/lib/contributions/snapshots.ts";
 import { detailsSchema } from "../src/lib/contributions/schema.ts";
-import { resolveContributionProjects, projectRecords } from "../src/lib/contributions/projects.ts";
+import { resolveContributionProjects, projectRecords, sortContributionProjects } from "../src/lib/contributions/projects.ts";
 import { isWelcomeLocation, resolveOrbitalLocation, sectionPaths, welcomePath } from "../src/lib/content/navigation.ts";
 import { createDeferredNavigation, WELCOME_RETURN_DURATION } from "../src/lib/content/navigation-transition.ts";
 import { createTranslations, languageUrl } from "../src/features/orbital/i18n/index.ts";
@@ -84,6 +85,56 @@ test("series reading order visits child directories before direct posts", () => 
 	entries.get("child").posts = [post("second", 2), post("first", 1)];
 	const tree = createSeriesTree(entries, new Map([["child", { parent: "root" }]]));
 	assert.deepEqual(flattenSeriesPosts(tree.roots[0]).map((p) => p.slug), ["first", "second", "root-post"]);
+});
+test("series discovery follows recent articles and descendant updates instead of volume or manual order", () => {
+    const timestamp = (date) => Date.parse(date);
+    const posts = [
+        ...['old-one', 'old-two', 'old-three'].map(slug => ({ slug, timestamp: timestamp('2026-01-01') })),
+        { slug: 'new', timestamp: timestamp('2026-09-20') },
+        { slug: 'descendant', timestamp: timestamp('2026-07-01'), updatedTimestamp: timestamp('2026-10-01') },
+    ];
+    const directory = [
+        { slug: 'popular', order: 1, posts: ['old-one', 'old-two', 'old-three'] },
+        { slug: 'recent', order: 2, posts: ['new'] },
+        { slug: 'parent', order: 3, posts: ['descendant'] },
+        { slug: 'child', parent: 'parent', order: 4, posts: ['descendant'] },
+        { slug: 'empty', order: 0, posts: [] },
+    ];
+    const original = structuredClone({ directory, posts });
+    const ordered = sortSeriesByRecency(directory, posts);
+    assert.deepEqual(ordered.filter(item => !item.parent).map(item => item.slug), ['parent', 'recent', 'popular', 'empty']);
+    assert.deepEqual({ directory, posts }, original);
+});
+test("series date ties stay stable and published notes precede empty paths even before the Unix epoch", () => {
+    const posts = [{ slug: 'early', timestamp: Date.parse('1960-01-01'), updatedTimestamp: Date.parse('1959-01-01') }];
+    const directory = [
+        { slug: 'empty', order: 0, posts: [] },
+        { slug: 'b', posts: ['early'] },
+        { slug: 'a', posts: ['early'] },
+        { slug: 'ordered', order: 1, posts: ['early'] },
+    ];
+    assert.deepEqual(sortSeriesByRecency(directory, posts).map(item => item.slug), ['ordered', 'a', 'b', 'empty']);
+});
+test("contribution records compare actual instants across date-only commits and timezone offsets", () => {
+    const project = { id: 'one', name: 'One', repository: 'https://github.com/example/one', items: [{ sha: 'abc1234', title: 'Commit', date: '2026-10-06' }] };
+    const item = (number, updatedAt) => ({ number, updatedAt, repository: 'example/one', kind: 'issue', title: 'Work', url: `https://github.com/example/one/issues/${number}`, draft: false, state: 'open', relations: [] });
+    const snapshot = { items: [item(1, '2026-10-06T03:00:00Z'), item(2, '2026-10-05T23:30:00-05:00')] };
+    assert.deepEqual(projectRecords(project, snapshot).map(record => record.id), ['issue:2', 'issue:1', 'commit:abc1234']);
+});
+test("contribution project cards and archive tabs follow the latest record and react to new activity", () => {
+    const project = (id, date) => ({ id, name: id, repository: `https://github.com/example/${id}`, items: date ? [{ sha: 'abc1234', title: 'Commit', date }] : [] });
+    const projects = [project('old', '2026-01-01'), project('utc'), project('offset'), project('empty')];
+    const item = (repository, updatedAt, number = 1) => ({ repository, updatedAt, number, kind: 'pr', title: 'Work', url: `https://github.com/${repository}/pull/${number}`, draft: false, state: 'open', relations: [] });
+    const activity = { items: [item('example/utc', '2026-10-06T03:00:00Z'), item('example/offset', '2026-10-05T23:30:00-05:00')] };
+    const original = structuredClone({ projects, activity });
+    const expected = ['offset', 'utc', 'old', 'empty'];
+    assert.deepEqual(sortContributionProjects(projects, activity).map(project => project.id), expected);
+    const overview = contributionOverview(projects, activity, { records: [] });
+    assert.deepEqual(overview.sectors.map(sector => sector.project.id), expected);
+    assert.deepEqual(overview.records.map(record => record.projectId), ['offset', 'utc', 'old']);
+    assert.deepEqual({ projects, activity }, original);
+    const refreshed = { items: [...activity.items, item('example/old', '2026-10-07T00:00:00Z')] };
+    assert.deepEqual(sortContributionProjects(projects, refreshed).map(project => project.id), ['old', 'offset', 'utc', 'empty']);
 });
 test("content cache shares in-flight reads and allows retry after failure", async () => {
 	let calls = 0;

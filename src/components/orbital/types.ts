@@ -5,6 +5,7 @@ export type ArchivePost = {
   searchText: string;
   date: string;
   timestamp: number;
+  updatedTimestamp?: number;
   description: string;
   excerpt: string;
   category: string;
