@@ -37,6 +37,13 @@ assert.match(
 );
 
 // Highlighting must retain indentation, escaped characters and every newline.
+const references = renderContributionMarkdown('Fixes #225037; related llvm/llvm-project#228863.\n\n`#10`\n\n```text\n#11 stack frame\n```\n\n    #12 indented code\n\n[Already linked #13](https://example.org/original) and <code>#14</code> <a href="https://example.org/raw">#15</a>. Ignore name#16, #0 and #123abc.', source);
+assert.match(references, /href="https:\/\/github.com\/example\/project\/issues\/225037"[^>]*>#225037<\/a>/);
+assert.match(references, /href="https:\/\/github.com\/llvm\/llvm-project\/issues\/228863"[^>]*>llvm\/llvm-project#228863<\/a>/);
+assert.equal((references.match(/href="https:\/\/github.com\//g) ?? []).length, 2);
+assert.match(references, /<code>#10<\/code>/);
+assert.doesNotMatch(renderContributionMarkdown('#42', 'https://example.org/page'), /<a/);
+
 for (const language of ["c", "c++", "cc", "rust", "bash", "python", "asm", "llvm", "diff"]) {
 	const code = '\tconst char *s = "<&>";\n\n  return 42;\n';
 	const highlighted = renderContributionMarkdown(`\`\`\`${language}\n${code}\`\`\``, source);
