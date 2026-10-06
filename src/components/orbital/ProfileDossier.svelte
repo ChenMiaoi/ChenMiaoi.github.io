@@ -42,7 +42,6 @@
         <div class="portrait-image">{#if profile.avatar}<img src={profile.avatar} alt={t("{v0} 的博客头像", { v0: profile.name })} width="210" height="210"/>{:else}<span>{initials}</span>{/if}</div>
         <span class="portrait-bracket portrait-bracket-top" aria-hidden="true"></span><span class="portrait-bracket portrait-bracket-bottom" aria-hidden="true"></span>
       </div>
-      <span class="portrait-coordinate" aria-hidden="true">{t("肖像 / 作者")}</span>
       <p class="portrait-caption">{handle ? `@${handle}` : profile.name}<span aria-hidden="true"></span></p>
     </div>
 

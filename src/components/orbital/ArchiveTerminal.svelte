@@ -338,9 +338,9 @@
       </nav>
       <button class="sidebar-note author-entry" aria-label={t("关于作者：{v0}", { v0: profile.name })} onclick={openAuthor}>
         <span class="sidebar-avatar" aria-hidden="true">
-          {#if profile.avatar}<img src={profile.avatar} alt="" width="36" height="36"/>{:else}<span>{profile.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}</span>{/if}
+          {#if profile.avatar}<img src={profile.avatar} alt="" width="180" height="180" decoding="async"/>{:else}<span>{profile.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}</span>{/if}
         </span>
-        <span class="sidebar-author-copy"><strong>{profile.name}</strong><span>{t("关于作者")}<TerminalIcon name="arrow" size={14}/></span></span>
+        <span class="sidebar-author-copy"><strong>{profile.name}</strong><span>{t("关于作者")}<TerminalIcon name="arrow" size={18}/></span></span>
       </button>
     </aside>
 

@@ -156,17 +156,6 @@
 	border-bottom: 2px solid #e0e3e5;
 }
 
-.portrait-coordinate {
-	position: absolute;
-	top: 10px;
-	left: 50%;
-	transform: translateX(-50%);
-	white-space: nowrap;
-	font: var(--text-caption) var(--mono);
-	letter-spacing: .06em;
-	color: #9fa2a4;
-}
-
 .portrait-caption {
 	display: flex;
 	align-items: center;
@@ -554,8 +543,7 @@
 		height: 140px;
 		top: 50%;
 	}
-	.portrait-coordinate,
-.portrait-caption {
+	.portrait-caption {
 		display: none;
 	}
 	.identity-introduction {

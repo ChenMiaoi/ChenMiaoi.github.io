@@ -870,6 +870,27 @@
 	transform: scale(1.04);
 	filter: drop-shadow(0 0 9px #f4eb3266);
 }
+.motion-ready:not(.motion-paused) .author-entry::before {
+	transition: width 350ms cubic-bezier(.16,1,.3,1);
+}
+.motion-ready:not(.motion-paused) .author-entry:is(:hover, :focus-visible)::before {
+	width: 44px;
+}
+.motion-ready:not(.motion-paused) .author-entry .sidebar-avatar {
+	transition: border-color 300ms, box-shadow 300ms;
+}
+.motion-ready:not(.motion-paused) .author-entry .sidebar-avatar img {
+	transition: transform 500ms cubic-bezier(.16,1,.3,1);
+}
+.motion-ready:not(.motion-paused) .author-entry:is(:hover, :focus-visible) .sidebar-avatar img {
+	transform: scale(1.035);
+}
+.motion-ready:not(.motion-paused) .author-entry .sidebar-author-copy svg {
+	transition: transform 260ms;
+}
+.motion-ready:not(.motion-paused) .author-entry:is(:hover, :focus-visible) .sidebar-author-copy svg {
+	transform: translateX(3px);
+}
 .motion-ready:not(.motion-paused) :is(.context-panel, .path-hero, .patch-chamber, .topology-inspector) {
 	transition: border-color 260ms, box-shadow 260ms;
 }

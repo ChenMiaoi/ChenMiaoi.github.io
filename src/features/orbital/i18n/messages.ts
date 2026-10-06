@@ -30,7 +30,6 @@ export const messages = {
 	内容说明: ["DESCRIPTION", "內容說明", "説明"],
 	星图: ["CONSTELLATION", "星圖", "星図"],
 	语言: ["LANGUAGE", "語言", "言語"],
-	"肖像 / 作者": ["PORTRAIT / AUTHOR", "肖像 / 作者", "肖像 / 著者"],
 	领域笔记: ["FIELD NOTES", "領域筆記", "分野のノート"],
 	其他平台: ["ELSEWHERE", "其他平台", "ほかの場所"],
 	"系列 /": ["COLLECTION /", "系列 /", "シリーズ /"],

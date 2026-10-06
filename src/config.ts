@@ -10,7 +10,7 @@ export const siteConfig = {
 export { contributionConfig } from "./lib/contributions/config";
 
 export const profileConfig: ProfileConfig = {
-	avatar: "/avatar.jpg", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+	avatar: "/images/orbital/author-avatar.webp", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
 	name: "Chen Miao",
 	bio: "A programmer fascinated by operating systems and low-level architecture.",
 	bioTranslations: {
