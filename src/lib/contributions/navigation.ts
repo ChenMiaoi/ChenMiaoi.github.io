@@ -14,7 +14,7 @@ export function contributionUrl(
 	}
 	if (kind !== "all" && kinds.includes(kind as (typeof kinds)[number]))
 		params.set("kind", kind);
-	return `${prefix}/contribution/${encodeURIComponent(project)}/${params.size ? `?${params}` : ""}`;
+	return `${prefix}/contribution/${project ? `${encodeURIComponent(project)}/` : ""}${params.size ? `?${params}` : ""}`;
 }
 
 export function resolveContributionSelection(search: string) {

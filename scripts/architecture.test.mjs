@@ -12,8 +12,27 @@ import { isWelcomeLocation, resolveOrbitalLocation, sectionPaths } from "../src/
 import { createTranslations, languageUrl } from "../src/features/orbital/i18n/index.ts";
 import { messages } from "../src/features/orbital/i18n/messages.ts";
 import { contributionUrl, resolveContributionSelection } from "../src/lib/contributions/navigation.ts";
+import { contributionOverview } from "../src/lib/contributions/overview.ts";
+
+test("mission statistics deduplicate records and distinguish unknown, closed and merged outcomes", () => {
+    const projects = [{ id:'one',name:'One',repository:'https://github.com/example/one',items:[{sha:'abc1234',title:'Commit',date:'2026-10-01'}] },{id:'two',name:'Two',repository:'https://github.com/example/two',items:[]}];
+    const item = (number,kind,state,repository='example/one') => ({number,kind,state,repository,url:`https://github.com/${repository}/${kind === 'pr' ? 'pull' : 'issues'}/${number}`,title:'Work',updatedAt:'2026-10-06T00:00:00Z',draft:false,relations:['commenter']});
+    const merged = item(3,'pr','merged');
+    const activity = {account:'me',syncedAt:'2026-10-06T00:00:00Z',items:[item(1,'issue','open'),item(2,'issue',undefined),merged,merged,item(4,'pr','closed'),item(5,'pr','draft'),item(6,'issue','open','example/two')]};
+    const original = structuredClone(activity);
+    const overview = contributionOverview(projects,activity,{records:[{url:activity.items[0].url,state:'closed'}]});
+    assert.deepEqual(overview.sectors.map(({issues,prs,closedIssues,mergedPRs,closedPRs,commits,active,unknown}) => ({issues,prs,closedIssues,mergedPRs,closedPRs,commits,active,unknown})),[
+        {issues:2,prs:3,closedIssues:1,mergedPRs:1,closedPRs:1,commits:1,active:1,unknown:1},
+        {issues:1,prs:0,closedIssues:0,mergedPRs:0,closedPRs:0,commits:0,active:1,unknown:0},
+    ]);
+    assert.equal(overview.records.length,7);
+    assert.equal(overview.records.find(record => record.number === 2).state,'unknown');
+    assert.deepEqual(activity,original);
+});
 
 test("contribution links round-trip project, record and filter across every locale", () => {
+    assert.equal(contributionUrl(''),'/contribution/');
+    assert.equal(contributionUrl('', '', 'all', '/en'),'/en/contribution/');
     for (const prefix of ["", "/en", "/ja", "/zh_TW"]) {
         for (const record of ["pr:228734", "issue:202079", "commit:a44bfed9df8"]) {
             const location = new URL(contributionUrl("llvm-project", record, record.split(":")[0], prefix), "https://example.com");

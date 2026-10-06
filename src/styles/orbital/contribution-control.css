@@ -1,0 +1,88 @@
+.orbital-site .source-mode-tabs { display:flex; gap:22px; align-items:center; flex:0 0 auto; margin-bottom:18px; }
+.orbital-site .source-mode-tabs button { padding:0 0 9px; font:12px/1.5 var(--mono); color:#9c9fa1; border-bottom:2px solid transparent; cursor:pointer; }
+.orbital-site .source-mode-tabs button[aria-pressed="true"] { color:#e2e5e7; border-color:#dbe67e; }
+.orbital-site .source-mode-tabs button:hover { color:#e7eaec; }
+.orbital-site .control-mode::before,.orbital-site .control-mode::after { display:none; }
+.orbital-site .mission-control { --archive-line:#cacdcf2b; position:relative; display:flex; flex-direction:column; flex:1; min-height:0; min-width:0; padding:0 22px 12px; color:#d8dbdd; background:linear-gradient(125deg,#131618f5,#0c0f11f0); border:1px solid var(--archive-line); clip-path:polygon(16px 0,calc(100% - 22px) 0,100% 22px,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%,0 16px); }
+.orbital-site .mission-crown { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; flex:0 0 auto; min-height:36px; font:8px/1.6 var(--mono); letter-spacing:1.3px; color:#96999b; border-bottom:1px solid var(--archive-line); }
+.orbital-site .mission-crown > span:first-child { display:flex; align-items:center; gap:8px; }
+.orbital-site .mission-crown i { width:4px; height:4px; background:#eeea35; }
+.orbital-site .mission-crown b { font-weight:400; padding:0 7px; color:#686b6d; }
+.orbital-site .mission-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); flex:0 0 auto; padding:18px 0; border-bottom:1px solid var(--archive-line); }
+.orbital-site .mission-metrics > div { display:flex; align-items:center; flex-wrap:wrap; gap:5px 12px; min-width:0; padding-left:18px; border-left:1px solid var(--archive-line); }
+.orbital-site .mission-metrics > div:first-child { border:0; padding-left:0; }
+.orbital-site .mission-metrics strong { font:500 34px/1.2 var(--mono); letter-spacing:-2px; color:#e8ebed; }
+.orbital-site .mission-metrics span { font-size:11px; color:#c3c6c8; }
+.orbital-site .mission-chapters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:16px; flex:0 0 auto; }
+.orbital-site .mission-chapter { position:relative; isolation:isolate; display:flex; flex-direction:column; justify-content:flex-end; height:clamp(180px,26vh,290px); min-width:0; padding:16px; text-align:left; border:1px solid #95989a55; background:#16191b; cursor:pointer; overflow:hidden; clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); }
+.orbital-site .chapter-art { position:absolute; inset:0; z-index:-2; background-image:url('/images/contributions/project-chapters.webp'); background-size:300% 100%; background-position:var(--cover-position) center; filter:saturate(.65); transition:filter .2s; }
+.orbital-site .mission-chapter::after { content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(180deg,#090c0e38 0%,#090c0e00 30%,#0c0f1184 62%,#0b0e10f5 100%); }
+.orbital-site .mission-chapter::before { content:""; position:absolute; left:0; top:0; height:3px; width:0; background:#eee82e; transition:width .2s; }
+.orbital-site .mission-chapter.chapter-selected { border-color:#c9c7a39c; }
+.orbital-site .mission-chapter.chapter-selected::before { width:30%; }
+.orbital-site .mission-chapter:hover .chapter-art { filter:saturate(.8) brightness(1.14); }
+.orbital-site .chapter-number { position:absolute; left:14px; top:10px; color:#c9ccce59; font:700 53px/1 var(--mono); letter-spacing:-4px; }
+.orbital-site .chapter-symbol { position:absolute; right:13px; top:15px; color:#dadddf9c; }
+.orbital-site .chapter-selected .chapter-symbol { color:#ece86a; }
+.orbital-site .chapter-caption { display:flex; flex-direction:column; gap:7px; min-width:0; }
+.orbital-site .chapter-category { font:7px/1.5 var(--mono); letter-spacing:1.3px; color:#abaeb0; }
+.orbital-site .chapter-caption strong { font-size:27px; line-height:1.2; font-weight:600; color:#e8ebed; }
+.orbital-site .chapter-counts { display:flex; flex-wrap:wrap; gap:4px 10px; color:#d3d6d8; font:10px/1.6 var(--mono); }
+.orbital-site .chapter-counts > span + span::before { content:"·"; margin-right:10px; color:#818486; }
+.orbital-site .mission-project-filter { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin:12px 0; flex:0 0 auto; }
+.orbital-site .mission-project-filter button { color:#95989a; font-size:10px; padding:2px 0; cursor:pointer; border-bottom:1px solid transparent; }
+.orbital-site .mission-project-filter button[aria-pressed="true"] { color:#dee1e3; border-color:#c2c5c7; }
+.orbital-site .mission-project-filter > span { font:8px/1.5 var(--mono); color:#7b7e80; }
+.orbital-site .mission-workspace { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:18px; flex:1; min-height:0; }
+.orbital-site .mission-queue { display:flex; flex-direction:column; min-width:0; min-height:0; }
+.orbital-site .mission-queue-heading { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; border-bottom:1px solid var(--archive-line); min-height:38px; flex:0 0 auto; }
+.orbital-site .mission-queue-heading > span { font:7px var(--mono); letter-spacing:1px; color:#7c7f81; }
+.orbital-site .mission-tabs { display:flex; gap:20px; }
+.orbital-site .mission-tabs button { color:#979a9c; font-size:12px; padding:7px 0 10px; cursor:pointer; border-bottom:2px solid transparent; }
+.orbital-site .mission-tabs button[aria-pressed="true"] { color:#dfe2e4; border-color:#e5e238; }
+.orbital-site .mission-tabs button span { font:9px var(--mono); color:#8f9294; margin-left:4px; }
+.orbital-site .mission-log-scroll { flex:1; min-height:0; overflow:auto; margin-top:10px; scrollbar-width:thin; scrollbar-color:#a0a3a544 transparent; overscroll-behavior:contain; }
+.orbital-site .mission-entry { display:grid; grid-template-columns:20px minmax(0,1fr) 12px; gap:10px; align-items:center; width:100%; padding:13px 10px; text-align:left; border-bottom:1px solid #aaadaf22; cursor:pointer; background:transparent; }
+.orbital-site .mission-entry:hover { background:#c6c9cb08; }
+.orbital-site .mission-entry[aria-pressed="true"] { background:#c0c3c514; }
+.orbital-site .mission-kind { font:21px var(--mono); color:#b3b6b8; }
+.orbital-site .mission-entry-meta { display:flex; align-items:center; flex-wrap:wrap; gap:5px 10px; font:8px/1.5 var(--mono); color:#909395; }
+.orbital-site .mission-entry-meta code { color:#b2b5b7; }
+.orbital-site .mission-entry strong { display:block; font-size:12px; font-weight:400; color:#d2d5d7; line-height:1.65; margin-top:4px; overflow-wrap:anywhere; }
+.orbital-site .mission-entry[aria-pressed="true"] strong { color:#e5e8ea; }
+.orbital-site .mission-entry > svg { color:#989b9d; }
+.orbital-site .mission-briefing { display:flex; flex-direction:column; min-width:0; min-height:0; padding-left:18px; border-left:1px solid var(--archive-line); }
+.orbital-site .briefing-heading { display:flex; justify-content:space-between; align-items:center; gap:6px; min-height:38px; border-bottom:1px solid var(--archive-line); flex:0 0 auto; }
+.orbital-site .briefing-heading h2 { font-size:12px; font-weight:500; line-height:1.5; color:#e1e4e6; margin:0; }
+.orbital-site .briefing-heading h2::before { content:""; display:inline-block; height:10px; border-left:2px dotted #dcdb5e; margin-right:8px; }
+.orbital-site .briefing-heading > span { font:6px var(--mono); letter-spacing:1px; color:#747779; }
+.orbital-site .mission-focus { padding-top:16px; overflow:auto; flex:1; min-height:0; scrollbar-width:thin; scrollbar-color:#a0a3a544 transparent; }
+.orbital-site .focus-project { margin:0; color:#949799; font:9px/1.5 var(--mono); }
+.orbital-site .mission-focus h3 { margin:10px 0 12px; color:#e4e7e9; font-size:17px; line-height:1.5; font-weight:500; overflow-wrap:anywhere; }
+.orbital-site .focus-reference { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; }
+.orbital-site .focus-reference code { font:9px var(--mono); color:#aeb1b3; }
+.orbital-site .mission-state { font-size:9px; color:#bfc2c4; }
+.orbital-site .mission-state::before { content:""; display:inline-block; width:3px; height:3px; background:currentColor; margin:0 6px 2px 0; }
+.orbital-site .mission-state.state-merged { color:#c9b4d4; }
+.orbital-site .mission-state.state-closed { color:#8fa4b1; }
+.orbital-site .focus-facts { margin:18px 0; padding:12px 0; border-block:1px solid var(--archive-line); display:grid; gap:8px; }
+.orbital-site .focus-facts > div { display:flex; justify-content:space-between; gap:12px; font-size:9px; line-height:1.6; }
+.orbital-site .focus-facts dt { color:#8b8e90; }
+.orbital-site .focus-facts dd { margin:0; color:#c1c4c6; text-align:right; }
+.orbital-site .mission-open { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:9px 12px; font-size:10px; color:#e2e5e7; border:1px solid #abaeb080; background:#c6c9cb04; cursor:pointer; margin-bottom:5px; }
+.orbital-site .mission-open:hover { background:#c6c9cb12; border-color:#c5c8ca; }
+.orbital-site .mission-no-records { min-height:120px; display:grid; place-content:center; text-align:center; color:#999c9e; font-size:11px; }
+.orbital-site .mission-no-records > span { font-size:24px; }
+.orbital-site .mission-briefing-empty { color:#8d9092; font-size:11px; }
+.orbital-site .mission-scope { display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; border-top:1px solid var(--archive-line); padding-top:10px; margin-top:14px; font-size:8px; color:#7f8284; line-height:1.6; flex:0 0 auto; }
+.orbital-site .source-mode-tabs button:focus-visible,.orbital-site .mission-control :is(button,[tabindex]):focus-visible { outline:1px solid #bec1c3; outline-offset:3px; }
+.orbital-site .mission-chapter:focus-visible { outline-offset:-5px; }
+@media (min-width:1000px) and (max-height:850px) { .orbital-site .mission-control { padding-inline:20px; } .orbital-site .mission-crown { min-height:30px; } .orbital-site .mission-metrics { padding:11px 0; } .orbital-site .mission-metrics strong { font-size:28px; } .orbital-site .mission-chapters { margin-top:12px; } .orbital-site .mission-chapter { height:160px; padding:12px; } .orbital-site .chapter-caption strong { font-size:23px; } .orbital-site .chapter-category { font-size:6px; } .orbital-site .chapter-caption { gap:4px; } .orbital-site .chapter-number { font-size:42px; } .orbital-site .mission-project-filter { margin-block:8px; } .orbital-site .mission-focus { padding-top:10px; } .orbital-site .mission-focus h3 { font-size:15px; } .orbital-site .focus-facts { margin-block:12px; } }
+@media (max-width:999px) { .orbital-site .mission-control { flex:none; } .orbital-site .mission-chapter { height:225px; padding:12px; } .orbital-site .chapter-caption strong { font-size:23px; } .orbital-site .mission-metrics strong { font-size:28px; } .orbital-site .mission-metrics > div { padding-left:12px; gap:5px; } .orbital-site .mission-metrics span { font-size:9px; } .orbital-site .mission-workspace { min-height:340px; } .orbital-site .mission-log-scroll,.orbital-site .mission-focus { max-height:360px; } }
+@media (max-width:650px) { .orbital-site .mission-control { padding:0 14px 12px; } .orbital-site .mission-crown { font-size:6px; letter-spacing:.8px; } .orbital-site .mission-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px 12px; padding-block:18px; } .orbital-site .mission-metrics > div:nth-child(3) { border:0; padding-left:0; } .orbital-site .mission-metrics strong { font-size:30px; } .orbital-site .mission-metrics span { font-size:10px; } .orbital-site .mission-chapters { display:flex; overflow-x:auto; gap:10px; padding-bottom:8px; scroll-snap-type:x mandatory; scrollbar-width:thin; scrollbar-color:#a0a3a544 transparent; } .orbital-site .mission-chapter { flex:0 0 76%; height:260px; scroll-snap-align:start; } .orbital-site .chapter-caption strong { font-size:29px; } .orbital-site .mission-workspace { grid-template-columns:1fr; gap:20px; } .orbital-site .mission-briefing { padding:0; border-left:0; } .orbital-site .mission-log-scroll { max-height:290px; flex:none; } .orbital-site .mission-focus { max-height:none; overflow:visible; } .orbital-site .mission-scope { font-size:7px; } .orbital-site .mission-project-filter > span { font-size:7px; } }
+@media (prefers-reduced-motion:reduce) { .orbital-site .chapter-art,.orbital-site .mission-chapter::before { transition:none; } }.orbital-site .mission-project-filter small { margin-left:auto; font:8px/1.5 var(--mono); color:#939698; } .orbital-site .mission-briefing > .mission-open { flex:0 0 auto; align-self:flex-start; margin-top:10px; }
+.orbital-site .chapter-art { background-size:300% auto; } @media (min-width:1000px) and (max-height:850px) { .orbital-site .mission-crown { min-height:24px; } .orbital-site .mission-metrics { padding-block:8px; } .orbital-site .mission-metrics strong { font-size:25px; } .orbital-site .mission-chapter { height:110px; padding:9px 12px; } .orbital-site .chapter-number { font-size:34px; } .orbital-site .chapter-category { display:none; } .orbital-site .chapter-caption strong { font-size:21px; } .orbital-site .mission-project-filter { margin-block:6px; } .orbital-site .mission-queue-heading,.orbital-site .briefing-heading { min-height:32px; } .orbital-site .mission-scope { margin-top:10px; padding-top:8px; } }
+.orbital-site .chapter-art { background-size:auto 100%; background-repeat:no-repeat; } @media (min-width:1000px) and (max-height:850px) { .orbital-site .chapter-art { background-size:300% auto; } } @media (min-width:651px) and (max-width:900px) { .orbital-site .mission-workspace { grid-template-columns:1fr; gap:20px; } .orbital-site .mission-briefing { padding:0; border:0; } .orbital-site .mission-focus { max-height:none; } .orbital-site .mission-log-scroll { max-height:340px; flex:none; } } .orbital-site .mission-chapter { container-type:size; } .orbital-site .chapter-art { inset:auto; left:50%; top:50%; transform:translate(-50%,-50%); width:calc(max(100cqw,100cqh) + 34px); height:calc(max(100cqw,100cqh) + 34px); background-size:300% 100%; }
+
+@media (min-width:1400px) { .orbital-site .mission-control { padding-inline:26px; } .orbital-site .mission-crown { font-size:9px; min-height:40px; } .orbital-site .mission-metrics { padding-block:20px; } .orbital-site .mission-metrics strong { font-size:40px; } .orbital-site .mission-metrics span { font-size:13px; } .orbital-site .chapter-caption strong { font-size:32px; } .orbital-site .chapter-category { font-size:8px; } .orbital-site .chapter-counts { font-size:12px; } .orbital-site .mission-project-filter button { font-size:12px; } .orbital-site .mission-project-filter > span,.orbital-site .mission-project-filter small { font-size:10px; } .orbital-site .mission-tabs button,.orbital-site .briefing-heading h2 { font-size:14px; } .orbital-site .mission-entry { padding-block:15px; } .orbital-site .mission-entry strong { font-size:14px; } .orbital-site .mission-entry-meta { font-size:10px; } .orbital-site .mission-focus h3 { font-size:20px; } .orbital-site .focus-project,.orbital-site .focus-reference code,.orbital-site .mission-state { font-size:11px; } .orbital-site .focus-facts > div { font-size:11px; } .orbital-site .mission-open { font-size:12px; padding:10px 14px; } .orbital-site .mission-scope { font-size:9px; } }
+.orbital-site .mission-control { --archive-serif:Georgia,"Noto Serif SC","Songti SC",SimSun,serif; background:linear-gradient(180deg,#0d1012a3,#0d1012e0); border:0; clip-path:none; padding-inline:0; } .orbital-site .chapter-caption strong { font-family:var(--archive-serif); font-weight:700; font-size:34px; letter-spacing:-.8px; } .orbital-site .mission-tabs button,.orbital-site .briefing-heading h2 { font-family:var(--archive-serif); font-size:16px; font-weight:600; } .orbital-site .mission-entry-meta { font-size:10px; } .orbital-site .mission-entry strong { font-size:13px; } .orbital-site .focus-facts > div { font-size:11px; } .orbital-site .mission-queue-heading > span,.orbital-site .briefing-heading > span { font-size:8px; } @media (min-width:1400px) { .orbital-site .mission-control { padding-inline:0; } .orbital-site .chapter-caption strong { font-size:40px; } .orbital-site .mission-tabs button,.orbital-site .briefing-heading h2 { font-size:19px; } .orbital-site .mission-workspace { gap:28px; } .orbital-site .mission-focus { flex:0 1 auto; } .orbital-site .mission-briefing > .mission-open { margin-top:20px; } } @media (max-width:650px) { .orbital-site .chapter-caption strong { font-size:32px; } .orbital-site .mission-tabs button,.orbital-site .briefing-heading h2 { font-size:16px; } .orbital-site .mission-control { padding-inline:10px; } } @media (min-width:1000px) and (max-height:850px) { .orbital-site .chapter-caption strong { font-size:26px; } }

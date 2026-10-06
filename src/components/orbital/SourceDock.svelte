@@ -9,6 +9,7 @@
   import BrandIcon from "./BrandIcon.svelte";
   import { revealOnView } from "./motion";
   import ContributionReader from "./ContributionReader.svelte";
+  import ContributionControl from "./ContributionControl.svelte";
   import type { ContributionProject } from "../../types/config";
   import type { ContributionActivitySnapshot, ContributionDetailsSnapshot, SourceRecord } from "./types";
 
@@ -25,6 +26,15 @@
   export let reducedMotion = false;
   export let selectedId = "";
   export let kindFilter = "all";
+  let showDashboard = !projectId && !selectedId;
+  let dashboardRoute = `${projectId ?? ''}|${selectedId}|${kindFilter}`;
+  $: {
+    const nextRoute = `${projectId ?? ''}|${selectedId}|${kindFilter}`;
+    if (nextRoute !== dashboardRoute) {
+      showDashboard = !projectId && !selectedId;
+      dashboardRoute = nextRoute;
+    }
+  }
   export let onNavigate: (project: string, record: string, kind: string) => void = () => {};
   let recordRail: HTMLDivElement;
   let deck: HTMLDivElement;
@@ -35,7 +45,7 @@
   $: recordKinds = [...new Set(allRecords.map((item) => item.kind))];
   $: records = allRecords.filter((item) => kindFilter === "all" || item.kind === kindFilter);
   $: selected = selectedId ? records.find((item) => item.id === selectedId) : records[0];
-  $: if (typeof document !== "undefined") document.title = `${selectedId && selected ? selected.title : project?.name ?? t("代码与实践")} · Miao's Blog`;
+  $: if (typeof document !== "undefined") document.title = `${showDashboard ? t("任务控制台") : selectedId && selected ? selected.title : project?.name ?? t("代码与实践")} · Miao's Blog`;
   $: selectedDetail = details.records.find((item) => item.url === selected?.url);
   $: selectedIndex = records.findIndex((item) => item.id === selected?.id);
   $: if (selected && recordRail) revealSelection(selected.id);
@@ -51,6 +61,22 @@
     selectedId = "";
     kindFilter = "all";
     onNavigate(id, "", "all");
+  }
+
+  function openMission(id: string, record: string) {
+    showDashboard = false;
+    projectId = id;
+    selectedId = record;
+    kindFilter = 'all';
+    onNavigate(id, record, 'all');
+  }
+
+  function showControl() {
+    projectId = undefined;
+    selectedId = '';
+    kindFilter = 'all';
+    showDashboard = true;
+    onNavigate('', '', 'all');
   }
 
   function step(direction: number) {
@@ -141,7 +167,7 @@
   });
 </script>
 
-<section class="source-dock" aria-label={t("开源贡献接入站")}>
+<section class="source-dock" class:control-mode={showDashboard} aria-label={t("开源贡献接入站")}>
   <div class="projection-environment" aria-hidden="true">
     <svg class="projection-orbits" viewBox="0 0 900 900" fill="none">
       <circle cx="450" cy="450" r="355"/>
@@ -151,6 +177,10 @@
       <g class="projection-orbit-arc"><path d="M450 95A355 355 0 0 1 787 339M450 805A355 355 0 0 1 113 561"/><circle cx="787" cy="339" r="5"/></g>
     </svg>
   </div>
+  <nav class="source-mode-tabs" aria-label={t("切换开源视图")}><button aria-pressed={showDashboard} onclick={showControl}>{t("任务控制台")}</button><button aria-pressed={!showDashboard} onclick={() => { showDashboard = false; if (!projectId) chooseProject(project.id); }}>{t("记录档案")}</button></nav>
+  {#if showDashboard}
+    <ContributionControl {projects} {activity} {details} loading={loadingDetails} failed={detailsError} onOpen={openMission}/>
+  {:else}
   <header class="source-console-bar">
     <nav class="project-docks" aria-label={t("选择开源项目")}>
       {#each projects as item}
@@ -227,7 +257,8 @@
       </div>
     </div>
   {:else}<p class="dock-note">{t("尚未配置开源项目。")}</p>{/if}
-  {#if allRecords.some((item) => item.kind !== 'commit')}
+  {/if}
+  {#if showDashboard || allRecords.some((item) => item.kind !== 'commit')}
     <p class="dock-note" role="status"><span aria-hidden="true"></span>{t("状态同步于 {v0}（北京时间）。", { v0: syncDate })}{#if refreshFailed}{t("暂时无法刷新，正在显示上次记录。")}{/if}</p>
   {/if}
 </section>

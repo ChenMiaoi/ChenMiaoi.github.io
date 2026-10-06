@@ -30,6 +30,9 @@ for (const path of ["", "en/", "ja/", "zh_TW/", "articles/", "series/", "graph/"
 	await access(resolve(production, path, "index.html"));
 }
 for (const prefix of ["", "en/", "ja/", "zh_TW/"]) {
+    const controlPage = await readFile(resolve(production, prefix, "contribution", "index.html"), "utf8");
+    assert.match(controlPage, /class="mission-control"/);
+    assert.doesNotMatch(controlPage, /data-archive-redirect/);
     for (const project of ["linux", "llvm-project", "cargo"]) {
         const projectPage = await readFile(resolve(production, prefix, "contribution", project, "index.html"), "utf8");
         assert.match(projectPage, /class="source-dock"/);

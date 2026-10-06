@@ -20,8 +20,7 @@ export async function getStaticPaths() {
       if (section === "code") continue;
       add(prefix + path, { section: section as Section });
     }
-    const defaultProject = contributionConfig.projects[0];
-    if (defaultProject) add(prefix + sectionPaths.code, { redirectTo: contributionUrl(defaultProject.id, "", "all", prefix), label: "开源" });
+    add(prefix + sectionPaths.code, { section: "code" });
     for (const project of contributionConfig.projects) add(contributionUrl(project.id, "", "all", prefix), { section: "code", projectId: project.id });
     add(`${prefix}/`);
     add(`${prefix}/archive/`, { redirectTo: prefix + sectionPaths.articles });

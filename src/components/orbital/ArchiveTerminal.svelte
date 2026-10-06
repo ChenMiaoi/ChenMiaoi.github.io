@@ -52,7 +52,7 @@
   let returnPath = `${localePrefix}${sectionPaths.articles}`;
   let resetKey = 0;
   let reader: ArticleReader;
-  let sourceProject = initialProject || projects[0]?.id;
+  let sourceProject = initialProject;
   let sourceRecord = "";
   let sourceKind = "all";
   let searchInput: HTMLInputElement;
@@ -80,9 +80,9 @@
   function setSection(next: Section, preserveQuery = false) {
     welcome = false;
     section = next;
-    const projectName = next === "code" ? projects.find((item) => item.id === (sourceProject || projects[0]?.id))?.name : "";
+    const projectName = next === "code" ? projects.find((item) => item.id === sourceProject)?.name : "";
     const path = next === "code"
-      ? contributionUrl(sourceProject || projects[0]?.id || "", sourceRecord, sourceKind, localePrefix)
+      ? contributionUrl(sourceProject || "", sourceRecord, sourceKind, localePrefix)
       : localePrefix + sectionPaths[next];
     if (window.location.pathname !== path || (!preserveQuery && window.location.search) || window.location.hash) history.pushState(null, "", path);
     document.title = `${projectName || navigation.find((item) => item.id === next)?.title} · Miao's Blog`;
@@ -98,7 +98,7 @@
 
   function navigate(next: Section) {
     if (next === "code") {
-      sourceProject = projects[0]?.id;
+      sourceProject = undefined;
       sourceRecord = "";
       sourceKind = "all";
     }
@@ -215,7 +215,7 @@
       } else {
         section = target.section;
         if (section === "code") {
-          sourceProject = target.contributionProject || projects[0]?.id;
+          sourceProject = target.contributionProject;
           const selection = resolveContributionSelection(window.location.search);
           sourceRecord = selection.record;
           sourceKind = selection.kind;
