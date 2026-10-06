@@ -1,6 +1,9 @@
 <script lang="ts">
   import { useTranslations } from "../../features/orbital/i18n/context";
   import { contributionOverview } from "../../lib/contributions/overview";
+  import { recordPresentation } from "../../lib/contributions/presentation";
+  import ContributionIcon from "./ContributionIcon.svelte";
+  import ContributionStatus from "./ContributionStatus.svelte";
   import type { ContributionProject } from "../../types/config";
   import type { ContributionActivitySnapshot, ContributionDetailsSnapshot } from "./types";
   import BrandIcon from "./BrandIcon.svelte";
@@ -56,9 +59,10 @@
       <header class="mission-queue-heading"><div class="mission-tabs" role="group" aria-label={t("选择任务队列")}><button aria-pressed={tab === 'active'} onclick={() => tab = 'active'}>{t("当前协作")} <span>{activeCount}</span></button><button aria-pressed={tab === 'archive'} onclick={() => tab = 'archive'}>{t("成果档案")}</button></div><span>{t("{v0} 条记录", { v0: pad(missions.length) })}</span></header>
       <div class="mission-log-scroll" tabindex="0" role="region" aria-label={t("协作任务列表")}>
         {#each missions as mission (mission.url ?? mission.id)}
+          {@const visual = recordPresentation(mission.kind, mission.state)}
           <button class="mission-entry" aria-pressed={focusedMission?.url === mission.url && focusedMission?.id === mission.id} onclick={() => focusedId = mission.url ?? mission.id}>
-            <span class="mission-kind" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d={mission.kind === 'issue' ? 'M4 4h16v12H12l-4 4v-4H4z M8 8h1m3 0h1m3 0h1' : mission.kind === 'pr' ? 'M6 7v10 M6 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4 M6 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4 M18 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4 M18 17V9c0-3-3-4-6-4 m3-3-3 3 3 3' : 'M3 12h5m8 0h5 M8 12a4 4 0 1 0 8 0 4 4 0 0 0-8 0'}/></svg></span>
-            <span class="mission-entry-body"><span class="mission-entry-meta"><code>{mission.kind === 'commit' ? mission.reference.slice(0, 10) : mission.reference}</code><span>{sectorId === 'all' ? mission.projectName : status(mission.state)}</span></span><strong>{mission.title}</strong></span>
+            <span class="mission-kind" aria-hidden="true"><ContributionIcon name={visual.icon} tone={visual.tone} size={20}/></span>
+            <span class="mission-entry-body"><span class="mission-entry-meta"><code>{mission.kind === 'commit' ? mission.reference.slice(0, 10) : mission.reference}</code>{#if sectorId === 'all'}<span>{mission.projectName}</span>{:else}<ContributionStatus label={status(mission.state)} icon={visual.icon} tone={visual.tone}/>{/if}</span><strong>{mission.title}</strong></span>
             <TerminalIcon name="arrow" size={14}/>
           </button>
         {:else}<div class="mission-no-records"><span aria-hidden="true">◇</span><p>{loading ? t("正在读取记录内容…") : failed ? t("记录内容暂时无法读取。") : t("当前分区暂无此类记录。")}</p></div>{/each}
@@ -68,8 +72,9 @@
       <header class="briefing-heading"><h2>{t("任务简报")}</h2><span>{t("记录 / 详情")}</span></header>
       <div class="mission-focus">
         {#if focusedMission}
+          {@const visual = recordPresentation(focusedMission.kind, focusedMission.state)}
           <p class="focus-project">{focusedMission.projectName}</p><h3>{focusedMission.title}</h3>
-          <div class="focus-reference"><code>{focusedMission.kind === 'commit' ? focusedMission.reference.slice(0, 10) : focusedMission.reference}</code><span class={`mission-state state-${focusedMission.state}`}>{status(focusedMission.state)}</span></div>
+          <div class="focus-reference"><code>{focusedMission.kind === 'commit' ? focusedMission.reference.slice(0, 10) : focusedMission.reference}</code><ContributionStatus label={status(focusedMission.state)} icon={visual.icon} tone={visual.tone}/></div>
           <dl class="focus-facts"><div><dt>{t("我的参与")}</dt><dd>{relation(focusedMission.relations)}</dd></div><div><dt>{t("更新于")}</dt><dd><time datetime={focusedMission.date}>{focusedMission.date.slice(0, 10)}</time></dd></div>{#if focusedDetail}<div><dt>{t("讨论记录")}</dt><dd>{focusedDetail.commentsTotal}</dd></div>{/if}</dl>
           {#if mergedCommitUrl}<div class="focus-reference"><span>{t("合并提交")}</span><a href={mergedCommitUrl} target="_blank" rel="noreferrer"><code>{focusedDetail?.mergeCommitSha?.slice(0, 10)}</code></a></div>{/if}
 

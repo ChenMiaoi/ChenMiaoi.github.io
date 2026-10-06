@@ -619,8 +619,6 @@
 .comment-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
 .comment-kind { display: inline-flex; align-items: center; gap: 6px; color: #a7aaac; font-size: var(--text-caption); line-height: 1.5; }
 .comment-kind::before { content: ""; width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .6; }
-.comment-kind.review-approved { color: #cacdcf; }
-.comment-kind.review-changes { color: #e4aea0; }
 .comment-path { display: block; margin-top: 10px; padding: 4px 8px; border-left: 2px solid #acafb135; background: #acafb106; color: #a3a6a8; font: var(--text-caption) / 1.7 var(--mono); overflow-wrap: anywhere; }
 
 .comment-excerpt {
@@ -760,12 +758,6 @@
 .pr-overview-grid small { color: #a5a8aa; font-size: var(--text-caption); margin-bottom: 10px; }
 .pr-overview-grid strong { font-size: 14px; font-weight: 600; }
 .pr-overview-grid span { font-size: var(--text-caption); color: #a0a3a5; margin-top: 10px; line-height: 1.8; }
-.ci-summary i, .check-indicator { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.ci-summary i { margin-right: 8px; }
-.ci-passed { color: #a9ce96; }
-.ci-failed { color: #e4a397; }
-.ci-pending { color: #e1d88e; }
-.ci-neutral, .ci-none { color: #a0b0a6; }
 .pr-branches { display: flex; align-items: baseline; flex-wrap: wrap; gap: 9px; font-size: var(--text-caption); color: #a5a8aa; }
 .pr-branches code { color: #cacdcf; overflow-wrap: anywhere; }
 .pr-meta-line { font-size: var(--text-caption); color: #bfc2c4; line-height: 1.8; }
@@ -784,9 +776,7 @@
 .pr-check-row a svg { display: inline; margin-left: 5px; }
 .pr-check-row a:hover { color: var(--signal); }
 .pr-check-row small { display: block; color: #9b9ea0; font-size: var(--text-caption); margin-top: 5px; line-height: 1.7; overflow-wrap: anywhere; }
-.check-indicator { flex: 0 0 6px; }
 .check-result { font-size: var(--text-caption); flex-shrink: 0; }
 @media (max-width: 650px) { .pr-overview-grid { grid-template-columns: 1fr; } }
 
 .record-ci { display: inline-flex; align-items: center; gap: 5px; margin-left: 10px; font-size: var(--text-caption); line-height: 1.8; }
-.record-ci i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }

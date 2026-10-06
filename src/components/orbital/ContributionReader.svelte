@@ -2,6 +2,9 @@
   import { useTranslations } from "../../features/orbital/i18n/context";
   const { t, dateLocale } = useTranslations();
   import { checkState, summarizeChecks } from "../../lib/contributions/checks";
+  import { checkPresentation, recordPresentation, reviewPresentation } from "../../lib/contributions/presentation";
+  import ContributionIcon from "./ContributionIcon.svelte";
+  import ContributionStatus from "./ContributionStatus.svelte";
   import TerminalIcon from "./TerminalIcon.svelte";
   import BrandIcon from "./BrandIcon.svelte";
   import { contributionDiffLines } from "../../utils/contribution-diff";
@@ -19,6 +22,7 @@
   let copyAttempt = 0;
   $: kind = record.kind === "commit" ? t("提交") : record.kind === "pr" ? "PR" : "Issue";
   $: state = detail?.state ?? record.state ?? (record.draft ? "draft" : "open");
+  $: recordVisual = recordPresentation(record.kind, state, record.draft);
   $: upstreamCommitUrl = record.kind === 'pr' && state === 'merged' && detail?.mergeCommitSha
     ? record.url?.replace(/\/pull\/\d+$/, `/commit/${detail.mergeCommitSha}`) : undefined;
   $: stateLabel = ({ open: t("进行中"), draft: t("草稿"), merged: t("已合并"), closed: t("已关闭"), commit: t("提交记录") } as Record<string, string>)[state] ?? "";
@@ -26,7 +30,7 @@
   const date = (value: string) => value.slice(0, 10).replaceAll("-", "/");
   const discussionDate = (value: string) => new Intl.DateTimeFormat(dateLocale, { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(value));
   const fullDiscussionDate = (value: string) => new Intl.DateTimeFormat(dateLocale, { timeZone: 'Asia/Shanghai', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
-  const reviewLabel = (value?: string | null) => ({ APPROVED: t("批准"), CHANGES_REQUESTED: t("要求修改"), DISMISSED: t("评审已撤销"), COMMENTED: t("评审意见") } as Record<string, string>)[value ?? ''] ?? t("评审");
+  const reviewLabel = (value?: string | null) => ({ APPROVED: t("已批准"), CHANGES_REQUESTED: t("要求修改"), DISMISSED: t("评审已撤销"), COMMENTED: t("评审意见") } as Record<string, string>)[value ?? ''] ?? t("评审");
   let discussionFilter: 'all' | 'own' | 'review' = 'all';
   let hideBots = false;
   let oldestFirst = false;
@@ -58,7 +62,7 @@
 
 <article class="contribution-reader" aria-label={t("{v0}内容阅读器", { v0: kind })}>
   <header class="contribution-reader-heading">
-    <div class="reader-record-topline"><span class="reader-record-type">{kind} {t("/ 原始记录")}</span>{#if record.kind !== 'commit'}<span class="collaboration-state" class:draft={state === 'draft'} class:merged={state === 'merged'} class:closed={state === 'closed'}>{stateLabel}</span>{/if}<button class="record-copy" aria-label={t("复制{v0}{v1}", { v0: kind, v1: record.kind === 'commit' ? ' SHA' : t("编号") })} onclick={copyReference}><code>{record.reference}</code><span>{copyState || t("复制")}</span></button><span class="copy-feedback" role="status">{copyState}</span></div>
+    <div class="reader-record-topline"><span class="reader-record-type"><ContributionIcon name={recordVisual.icon} tone={recordVisual.tone} size={20}/>{kind} {t("/ 原始记录")}</span>{#if record.kind !== 'commit'}<ContributionStatus label={stateLabel} icon={recordVisual.icon} tone={recordVisual.tone}/>{/if}<button class="record-copy" aria-label={t("复制{v0}{v1}", { v0: kind, v1: record.kind === 'commit' ? ' SHA' : t("编号") })} onclick={copyReference}><code>{record.reference}</code><span>{copyState || t("复制")}</span></button><span class="copy-feedback" role="status">{copyState}</span></div>
     <h2>{detail?.title ?? record.title}</h2>
     <div class="reader-record-footer"><div class="reader-record-attribution">{#if detail}<span>{t("原文作者")} <b>{detail.author}</b></span>{/if}{#if record.relations?.length}<span>{record.relations.map((relation) => relation === 'author' ? t("我发起") : relation === 'assignee' ? t("指派给我") : relation === 'commenter' ? t("我参与讨论") : '').filter(Boolean).join(' · ')}</span>{/if}<time datetime={detail?.updatedAt ?? record.date}>{record.kind === 'commit' ? t("提交于") : t("更新于")} {date(detail?.updatedAt ?? record.date)}</time></div>
     <div class="reader-source-links">{#if record.url}<a href={record.url} target="_blank" rel="noreferrer"><BrandIcon name="github" size={14} framed={false}/>{t("在 GitHub 查看")}<TerminalIcon name="external" size={14}/></a>{/if}{#if record.discussionUrl}<a href={record.discussionUrl} target="_blank" rel="noreferrer">{record.discussionLabel?.startsWith('PR #') ? record.discussionLabel : t("邮件讨论")}<TerminalIcon name="external" size={14}/></a>{/if}{#if upstreamCommitUrl}<a href={upstreamCommitUrl} target="_blank" rel="noreferrer">{t("合并提交")} <code>{detail?.mergeCommitSha?.slice(0, 10)}</code><TerminalIcon name="external" size={14}/></a>{/if}</div></div>
@@ -70,12 +74,12 @@
         <section class="reader-pr-status" aria-label={t("PR 进展")}>
           <div class="reader-section-label"><span>{t("PR 进展")}</span><small>{t("PR 概览")}</small></div>
           {#if pr}
-            <div class="pr-overview-grid"><div><small>{t("持续集成")}</small><strong class={`ci-summary ci-${ci.state}`}><i aria-hidden="true"></i>{ciLabel(ci.state)}</strong><span>{t("{v0} 通过 · {v1} 未通过 · {v2} 等待 · {v3} 其他", {v0:ci.passed,v1:ci.failed,v2:ci.pending,v3:ci.neutral})}</span></div><div><small>{t("合并状态")}</small><strong>{state === 'merged' ? t("已合并") : state === 'closed' ? t("已关闭") : mergeLabel(pr.mergeState)}</strong><span>{t("冲突检测")}: {pr.mergeable === null ? t("尚未确认") : pr.mergeable ? t("无冲突") : t("存在冲突")}</span></div></div>
+            <div class="pr-overview-grid"><div><small>{t("持续集成")}</small><strong class="ci-summary"><ContributionStatus label={ciLabel(ci.state)} {...checkPresentation(ci.state)}/></strong><span>{t("{v0} 通过 · {v1} 未通过 · {v2} 等待 · {v3} 其他", {v0:ci.passed,v1:ci.failed,v2:ci.pending,v3:ci.neutral})}</span></div><div><small>{t("合并状态")}</small><strong>{#if state === 'merged' || state === 'closed'}<ContributionStatus label={stateLabel} icon={recordVisual.icon} tone={recordVisual.tone}/>{:else}{mergeLabel(pr.mergeState)}{/if}</strong><span>{t("冲突检测")}: {pr.mergeable === null ? t("尚未确认") : pr.mergeable ? t("无冲突") : t("存在冲突")}</span></div></div>
             <div class="pr-branches"><span>{t("目标分支")}</span><code>{pr.baseRef || '—'}</code><span aria-hidden="true">←</span><code>{pr.headRef || '—'}</code></div>
             {#if pr.requestedReviewers.length}<p class="pr-meta-line"><span>{t("待评审人")}</span>{pr.requestedReviewers.join(' · ')}</p>{/if}
             {#if pr.labels.length}<div class="pr-labels">{#each pr.labels as label}<span>{label}</span>{/each}</div>{/if}
             <details class="pr-checks" open={ci.state === 'failed'}><summary><span>{t("检查详情")} <b>{ci.total}</b></span><TerminalIcon name="arrow" size={14}/></summary><div class="pr-check-list">
-              {#each pr.checks as check}<div class="pr-check-row"><span class={`check-indicator ci-${checkState(check)}`} aria-hidden="true"></span><div>{#if check.url}<a href={check.url} target="_blank" rel="noopener noreferrer">{check.name}<TerminalIcon name="external" size={12}/></a>{:else}<strong>{check.name}</strong>{/if}<small>{check.ref === 'merge' ? t("合并测试") : 'HEAD'} · {check.sha.slice(0, 10)}{#if check.description} · {check.description}{/if}</small></div><span class={`check-result ci-${checkState(check)}`}>{checkLabel(check.status,check.conclusion)}</span></div>{/each}
+              {#each pr.checks as check}{@const visual = checkPresentation(checkState(check))}<div class="pr-check-row"><ContributionIcon name={visual.icon} tone={visual.tone} size={18}/><div>{#if check.url}<a href={check.url} target="_blank" rel="noopener noreferrer">{check.name}<TerminalIcon name="external" size={12}/></a>{:else}<strong>{check.name}</strong>{/if}<small>{check.ref === 'merge' ? t("合并测试") : 'HEAD'} · {check.sha.slice(0, 10)}{#if check.description} · {check.description}{/if}</small></div><span class={`check-result status-${visual.tone}`}>{checkLabel(check.status,check.conclusion)}</span></div>{/each}
               {#if !ci.total}<p class="reader-muted">{t("该版本没有公开的检查记录。")}</p>{/if}
             </div></details>
           {:else}<p class="reader-muted">{t("CI 与合并状态尚未同步。")}</p>{/if}
@@ -141,7 +145,7 @@
                 <span class="comment-avatar" aria-hidden="true"><span>{comment.bot ? '↳' : comment.author.slice(0, 2).toUpperCase()}</span>{#if !comment.bot}<img src={`https://github.com/${encodeURIComponent(comment.author)}.png?size=80`} alt="" loading="lazy" referrerpolicy="no-referrer" onerror={(event) => event.currentTarget.hidden = true}/>{/if}</span>
                 <span class="comment-summary">
                   <span class="comment-heading"><strong>{comment.author}</strong>{#if comment.author === account}<span class="comment-role">{t("我")}</span>{:else if comment.author === detail.author}<span class="comment-role">{t("原文作者")}</span>{/if}{#if comment.bot}<span class="comment-role">{t("机器人")}</span>{/if}</span>
-                  <span class="comment-meta"><time datetime={comment.createdAt} title={fullDiscussionDate(comment.createdAt)}>{discussionDate(comment.createdAt)}</time><span class="comment-kind" class:review-approved={comment.kind === 'review' && comment.reviewState === 'APPROVED'} class:review-changes={comment.kind === 'review' && comment.reviewState === 'CHANGES_REQUESTED'}>{comment.kind === 'review' ? reviewLabel(comment.reviewState) : comment.path ? t("行内讨论") : t("讨论")}</span></span>
+                  <span class="comment-meta"><time datetime={comment.createdAt} title={fullDiscussionDate(comment.createdAt)}>{discussionDate(comment.createdAt)}</time><span class="comment-kind" class:is-review={comment.kind === 'review'}>{#if comment.kind === 'review'}<ContributionStatus label={reviewLabel(comment.reviewState)} {...reviewPresentation(comment.reviewState)}/>{:else}{comment.path ? t("行内讨论") : t("讨论")}{/if}</span></span>
                   {#if comment.path}<code class="comment-path">{comment.path}</code>{/if}
                   {#if comment.excerpt}<span class="comment-excerpt">{comment.excerpt}</span>{/if}
                 </span>

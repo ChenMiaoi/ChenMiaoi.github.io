@@ -165,13 +165,6 @@
 	font-family: var(--sans);
 }
 
-.orbital-site .mission-state {
-	color: var(--status-open);
-}
-
-.orbital-site :is(.mission-state.state-merged, .collaboration-state.merged) { color: var(--status-merged); }
-.orbital-site :is(.mission-state.state-closed, .collaboration-state.closed) { color: var(--status-closed); }
-
 /* Four foreground levels keep prose, controls and instrument labels distinct. */
 .orbital-site :is(.dossier-description, .context-eyebrow, .context-meta, .dossier-series,
 	.heading-description, .identity-bio, .identity-statement, .focus-project,

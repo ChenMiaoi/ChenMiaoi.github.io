@@ -462,6 +462,7 @@ export const messages = {
 	已关闭: ["Closed", "已關閉", "クローズ済み"],
 	提交记录: ["Commit record", "提交記錄", "コミット記録"],
 	批准: ["Approved", "批准", "承認済み"],
+	已批准: ["Approved", "已批准", "承認済み"],
 	要求修改: ["Changes requested", "要求修改", "変更を要求"],
 	评审已撤销: ["Review dismissed", "評審已撤銷", "レビュー取消済み"],
 	评审意见: ["Review comment", "評審意見", "レビューコメント"],

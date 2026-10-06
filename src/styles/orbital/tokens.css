@@ -30,9 +30,13 @@
 	--signal-soft: #f4eb3214;
 	--link: #e5db8e;
 	--ink: #13191c;
-	--status-open: #e9df66;
-	--status-merged: #cbb4e5;
+	--status-open: #8ddbb0;
+	--status-merged: #c5a7f5;
 	--status-closed: #a6b3be;
+	--status-failed: #f19b96;
+	--status-pending: #e9cf79;
+	--status-neutral: #a6b3be;
+	--status-commit: #93cbd5;
 	--panel-cut: polygon(
 		0 18px,
 		18px 0,

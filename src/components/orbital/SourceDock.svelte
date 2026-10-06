@@ -2,6 +2,9 @@
   import { useTranslations } from "../../features/orbital/i18n/context";
   const { t } = useTranslations();
   import { summarizeChecks } from "../../lib/contributions/checks";
+  import { checkPresentation, recordPresentation } from "../../lib/contributions/presentation";
+  import ContributionIcon from "./ContributionIcon.svelte";
+  import ContributionStatus from "./ContributionStatus.svelte";
   import { onMount, tick } from "svelte";
   import { projectRecords, sortContributionProjects } from "../../lib/contributions/projects";
   import type { ContributionFeed } from "../../lib/contributions/types";
@@ -215,9 +218,10 @@
             {#each records as record, index}
               {@const pr = record.kind === "pr" ? details.records.find((item) => item.url === record.url)?.pullRequest : undefined}
               {@const ci = pr ? summarizeChecks(pr.checks) : undefined}
+              {@const visual = recordPresentation(record.kind, record.state, record.draft)}
               <button class="contribution-record" class:active={selected?.id === record.id} aria-pressed={selected?.id === record.id} aria-label={t("查看{v0}：{v1}", { v0: kindName(record.kind), v1: record.title })} onclick={() => selectRecord(record.id)}>
                 <span class="record-point" aria-hidden="true">{number(index + 1)}</span>
-                <span class="record-text"><span class="record-date"><time datetime={record.date}>{record.date.slice(0, 10)}</time>{#if record.kind !== 'commit'}<span class="collaboration-state" class:draft={record.draft} class:merged={record.state === 'merged'} class:closed={record.state === 'closed'}>{contributionStateLabel(record.state, record.draft)}</span>{/if}</span><strong>{record.title}</strong><code>{record.reference}</code>{#if ci}<span class={`record-ci ci-${ci.state}`} title={t("检查详情")}><i aria-hidden="true"></i>CI · {({passed:t("通过"),failed:t("检查未通过"),pending:t("运行中"),neutral:t("检查已结束"),none:t("暂无检查")} as Record<string,string>)[ci.state]}</span>{/if}</span>
+                <span class="record-text"><span class="record-date"><ContributionIcon name={visual.icon} tone={visual.tone} size={18}/><time datetime={record.date}>{record.date.slice(0, 10)}</time>{#if record.kind !== 'commit'}<ContributionStatus label={contributionStateLabel(record.state, record.draft)} icon={visual.icon} tone={visual.tone}/>{/if}</span><strong>{record.title}</strong><code>{record.reference}</code>{#if ci}<span class="record-ci" title={t("检查详情")}><ContributionStatus label={`CI · ${({passed:t("通过"),failed:t("检查未通过"),pending:t("运行中"),neutral:t("检查已结束"),none:t("暂无检查")} as Record<string,string>)[ci.state]}`} {...checkPresentation(ci.state)}/></span>{/if}</span>
                 <TerminalIcon name="arrow" size={13}/>
               </button>
             {/each}

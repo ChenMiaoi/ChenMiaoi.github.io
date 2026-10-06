@@ -481,35 +481,6 @@
 	outline-offset: -2px;
 }
 
-.collaboration-state {
-	display: inline-flex;
-	align-items: center;
-	gap: 5px;
-	font: var(--text-control) / 1.4 var(--sans);
-	letter-spacing: 0;
-	color: #d1d4d6;
-}
-
-.collaboration-state::before {
-	content: "";
-	width: 4px;
-	height: 4px;
-	border-radius: 50%;
-	background: #cfd2d4;
-}
-
-.collaboration-state.draft {
-	color: #b5b8ba;
-}
-
-.collaboration-state.merged { color: #bf9ce9; }
-.collaboration-state.closed { color: #a6a9ab; }
-
-.collaboration-state.draft::before {
-	background: transparent;
-	border: 1px solid #b5b8ba;
-}
-
 .projection-shell {
 	position: relative;
 	display: flex;

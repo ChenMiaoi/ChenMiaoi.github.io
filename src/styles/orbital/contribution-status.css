@@ -1,0 +1,45 @@
+/* Color, text and shape identify the same state throughout both contribution views. */
+.orbital-site .status-positive { --status-color: var(--status-open); }
+.orbital-site .status-complete { --status-color: var(--status-merged); }
+.orbital-site .status-attention { --status-color: var(--status-pending); }
+.orbital-site .status-negative { --status-color: var(--status-failed); }
+.orbital-site .status-muted { --status-color: var(--status-neutral); }
+.orbital-site .status-recorded { --status-color: var(--status-commit); }
+
+.orbital-site .contribution-icon {
+	display: inline-block;
+	flex: 0 0 auto;
+	color: var(--status-color);
+	vertical-align: middle;
+}
+
+.orbital-site .contribution-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	max-width: 100%;
+	margin: 0;
+	padding: 3px 8px;
+	border: 1px solid color-mix(in srgb, var(--status-color) 24%, transparent);
+	border-radius: 5px;
+	background: color-mix(in srgb, var(--status-color) 8%, transparent);
+	color: var(--status-color);
+	font: 500 var(--text-caption) / 1.45 var(--sans);
+	letter-spacing: 0;
+}
+
+.orbital-site .contribution-status > span { min-width: 0; }
+.orbital-site .mission-kind { display: flex; align-items: center; }
+.orbital-site .reader-record-type { display: inline-flex; align-items: center; gap: 8px; }
+.orbital-site .record-ci { margin: 6px 0 0; }
+.orbital-site .comment-kind.is-review::before { content: none; }
+.orbital-site .pr-overview-grid strong.ci-summary { display: inline-flex; margin: 0; }
+.orbital-site .pr-overview-grid .contribution-status > span { color: inherit; font: inherit; margin: 0; }
+.orbital-site .pr-check-row { align-items: center; }
+.orbital-site .check-result { color: var(--status-color); font-weight: 500; }
+
+@media (max-width: 650px) {
+	.orbital-site .pr-check-row { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 7px 10px; }
+	.orbital-site .pr-check-row > .check-result { grid-column: 2; justify-self: start; }
+	.orbital-site .reader-record-topline { gap: 8px; }
+}
