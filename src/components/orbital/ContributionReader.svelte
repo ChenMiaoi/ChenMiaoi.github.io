@@ -80,7 +80,7 @@
             <div class="pr-branches"><span>{t("目标分支")}</span><code>{pr.baseRef || '—'}</code><span aria-hidden="true">←</span><code>{pr.headRef || '—'}</code></div>
             {#if pr.requestedReviewers.length}<p class="pr-meta-line"><span>{t("待评审人")}</span>{pr.requestedReviewers.join(' · ')}</p>{/if}
             {#if pr.labels.length}<div class="pr-labels">{#each pr.labels as label}<span>{label}</span>{/each}</div>{/if}
-            <details class="pr-checks" open={ci.state === 'failed'}><summary><span>{t("检查详情")} <b>{ci.total}</b></span><TerminalIcon name="arrow" size={14}/></summary><div class="pr-check-list">
+            <details class="pr-checks"><summary><span>{t("检查详情")} <b>{ci.total}</b></span><TerminalIcon name="arrow" size={14}/></summary><div class="pr-check-list">
               {#each pr.checks as check}{@const visual = checkPresentation(checkState(check))}<div class="pr-check-row"><ContributionIcon name={visual.icon} tone={visual.tone} size={18}/><div>{#if check.url}<a href={check.url} target="_blank" rel="noopener noreferrer">{check.name}<TerminalIcon name="external" size={12}/></a>{:else}<strong>{check.name}</strong>{/if}<small>{check.ref === 'merge' ? t("合并测试") : 'HEAD'} · {check.sha.slice(0, 10)}{#if check.description} · {check.description}{/if}</small></div><span class={`check-result status-${visual.tone}`}>{checkLabel(check.status,check.conclusion)}</span></div>{/each}
               {#if !ci.total}<p class="reader-muted">{t("该版本没有公开的检查记录。")}</p>{/if}
             </div></details>
