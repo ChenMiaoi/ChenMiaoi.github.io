@@ -25,6 +25,23 @@
   const discussionDate = (value: string) => new Intl.DateTimeFormat(dateLocale, { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(value));
   const fullDiscussionDate = (value: string) => new Intl.DateTimeFormat(dateLocale, { timeZone: 'Asia/Shanghai', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
   const reviewLabel = (value?: string | null) => ({ APPROVED: t("批准"), CHANGES_REQUESTED: t("要求修改"), DISMISSED: t("评审已撤销"), COMMENTED: t("评审意见") } as Record<string, string>)[value ?? ''] ?? t("评审");
+  let discussionFilter: 'all' | 'own' | 'review' = 'all';
+  let hideBots = false;
+  let oldestFirst = false;
+  let discussionRecord: string | undefined;
+  $: if (discussionRecord !== record.url) {
+    discussionRecord = record.url;
+    discussionFilter = 'all';
+    hideBots = false;
+    oldestFirst = false;
+  }
+  $: comments = detail?.comments ?? [];
+  $: ownCount = comments.filter((comment) => comment.author === account).length;
+  $: reviewCount = comments.filter((comment) => comment.kind === 'review' || comment.path).length;
+  $: botCount = comments.filter((comment) => comment.bot).length;
+  $: visibleComments = comments.filter((comment) => (!hideBots || !comment.bot) &&
+    (discussionFilter === 'all' || (discussionFilter === 'own' ? comment.author === account : comment.kind === 'review' || comment.path)));
+  $: orderedComments = oldestFirst ? [...visibleComments].reverse() : visibleComments;
 
   async function copyReference() {
     const attempt = ++copyAttempt;
@@ -103,28 +120,39 @@
 
       {#if detail.comments.length}
         <section class="reader-comments" aria-label={t("讨论与评审")}>
-          <div class="reader-section-label"><span>{t("讨论与评审")}</span><small>{t("{v0} 条 · 最新在前", { v0: detail.comments.length })}</small></div>
+          <div class="reader-section-label"><span>{t("讨论与评审")} <b>{comments.length}</b></span><small>DISCUSSION</small></div>
+          <div class="discussion-toolbar">
+            <div class="discussion-filters" role="group" aria-label={t("筛选讨论")}>
+              <button aria-pressed={discussionFilter === 'all'} onclick={() => discussionFilter = 'all'}>{t("全部")} <span>{comments.length}</span></button>
+              {#if ownCount}<button aria-pressed={discussionFilter === 'own'} onclick={() => discussionFilter = 'own'}>{t("我的参与")} <span>{ownCount}</span></button>{/if}
+              {#if reviewCount}<button aria-pressed={discussionFilter === 'review'} onclick={() => discussionFilter = 'review'}>{t("代码评审")} <span>{reviewCount}</span></button>{/if}
+            </div>
+            <div class="discussion-options">
+              {#if botCount}<button aria-pressed={hideBots} onclick={() => hideBots = !hideBots}>{t("隐藏机器人")}</button>{/if}
+              <button aria-pressed={oldestFirst} onclick={() => oldestFirst = !oldestFirst}>{oldestFirst ? t("最早在前") : t("最新在前")} <span aria-hidden="true">↕</span></button>
+            </div>
+          </div>
           <div class="discussion-timeline">
-          {#each detail.comments as comment (comment.url)}
+          {#each orderedComments as comment (comment.url)}
             <details class="reader-comment" class:comment-own={comment.author === account} class:comment-bot={comment.bot}>
               <summary>
-                <span class="comment-avatar" aria-hidden="true">{comment.bot ? '↳' : comment.author.slice(0, 2).toUpperCase()}</span>
+                <span class="comment-avatar" aria-hidden="true"><span>{comment.bot ? '↳' : comment.author.slice(0, 2).toUpperCase()}</span>{#if !comment.bot}<img src={`https://github.com/${encodeURIComponent(comment.author)}.png?size=80`} alt="" loading="lazy" referrerpolicy="no-referrer" onerror={(event) => event.currentTarget.hidden = true}/>{/if}</span>
                 <span class="comment-summary">
-                  <span class="comment-heading"><strong>{comment.author}</strong>{#if comment.author === account}<span class="comment-role">{t("我")}</span>{:else if comment.author === detail.author}<span class="comment-role">{t("原文作者")}</span>{/if}<time datetime={comment.createdAt} title={fullDiscussionDate(comment.createdAt)}>{discussionDate(comment.createdAt)}</time></span>
-                  <span class="comment-meta"><span class="comment-kind" class:review-approved={comment.kind === 'review' && comment.reviewState === 'APPROVED'} class:review-changes={comment.kind === 'review' && comment.reviewState === 'CHANGES_REQUESTED'}>{comment.kind === 'review' ? reviewLabel(comment.reviewState) : comment.path ? t("行内讨论") : t("讨论")}</span>{#if comment.bot}<span class="comment-role">{t("机器人")}</span>{/if}{#if comment.path}<code class="comment-path">{comment.path}</code>{/if}</span>
+                  <span class="comment-heading"><strong>{comment.author}</strong>{#if comment.author === account}<span class="comment-role">{t("我")}</span>{:else if comment.author === detail.author}<span class="comment-role">{t("原文作者")}</span>{/if}{#if comment.bot}<span class="comment-role">{t("机器人")}</span>{/if}</span>
+                  <span class="comment-meta"><time datetime={comment.createdAt} title={fullDiscussionDate(comment.createdAt)}>{discussionDate(comment.createdAt)}</time><span class="comment-kind" class:review-approved={comment.kind === 'review' && comment.reviewState === 'APPROVED'} class:review-changes={comment.kind === 'review' && comment.reviewState === 'CHANGES_REQUESTED'}>{comment.kind === 'review' ? reviewLabel(comment.reviewState) : comment.path ? t("行内讨论") : t("讨论")}</span></span>
+                  {#if comment.path}<code class="comment-path">{comment.path}</code>{/if}
                   {#if comment.excerpt}<span class="comment-excerpt">{comment.excerpt}</span>{/if}
                 </span>
-                <TerminalIcon name="arrow" size={14}/>
+                <span class="comment-disclosure" aria-hidden="true"><span class="comment-show">{t("展开")}</span><span class="comment-hide">{t("收起")}</span><TerminalIcon name="arrow" size={12}/></span>
               </summary>
               <div class="reader-comment-content">
-                {#if comment.path}<p class="comment-file">{t("代码评审")} <code>{comment.path}</code></p>{/if}
-                {#if comment.commitSha}<p class="reader-muted">{t("评审时版本")} <code>{comment.commitSha.slice(0, 10)}</code></p>{/if}
                 {#if comment.bodyHtml}<div class="contribution-prose">{@html comment.bodyHtml}</div>{/if}
-                <div class="comment-actions">{#if comment.replyToUrl}<a class="comment-permalink" href={comment.replyToUrl} target="_blank" rel="noreferrer">{t("查看回复的讨论")}<TerminalIcon name="external" size={13}/></a>{/if}
+                <div class="comment-actions">{#if comment.commitSha}<span class="comment-version" title={t("评审时版本")}>{comment.commitSha.slice(0, 10)}</span>{/if}{#if comment.replyToUrl}<a class="comment-permalink" href={comment.replyToUrl} target="_blank" rel="noreferrer">{t("查看回复的讨论")}<TerminalIcon name="external" size={13}/></a>{/if}
                 <a class="comment-permalink" href={comment.url} target="_blank" rel="noreferrer">{t("查看这条记录")}<TerminalIcon name="external" size={13}/></a></div>
               </div>
             </details>
           {/each}
+          {#if !orderedComments.length}<p class="discussion-empty">{t("当前筛选下没有讨论。")}</p>{/if}
           </div>
         </section>
       {/if}
