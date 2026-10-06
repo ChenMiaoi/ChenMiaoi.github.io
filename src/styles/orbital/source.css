@@ -707,14 +707,6 @@
 	line-height: 1.7;
 }
 
-.dock-note > span {
-	flex: 0 0 auto;
-	width: 14px;
-	height: 1px;
-	margin-top: 8px;
-	background: #c4c7c9;
-}
-
 .rail-empty {
 	display: flex;
 	flex-direction: column;

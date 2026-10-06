@@ -19,7 +19,6 @@
   $: selectedSectors = overview.sectors.filter((sector) => sectorId === "all" || sector.project.id === sectorId);
   $: totals = selectedSectors.reduce((sum, sector) => ({ issues: sum.issues + sector.issues, prs: sum.prs + sector.prs, active: sum.active + sector.active, commits: sum.commits + sector.commits, unknown: sum.unknown + sector.unknown }), { issues: 0, prs: 0, active: 0, commits: 0, unknown: 0 });
   $: records = overview.records.filter((record) => sectorId === "all" || record.projectId === sectorId);
-  $: outcomeCounts = selectedSectors.reduce((sum, sector) => ({ merged: sum.merged + sector.mergedPRs, closed: sum.closed + sector.closedIssues }), { merged: 0, closed: 0 });
   $: activeCount = records.filter((record) => record.state === "open" || record.state === "draft").length;
   $: missions = records.filter((record) => tab === "active" ? record.state === "open" || record.state === "draft" : ["merged", "closed", "commit"].includes(record.state));
   $: focusedMission = missions.find((mission) => (mission.url ?? mission.id) === focusedId) ?? missions[0];
@@ -50,7 +49,6 @@
       </button>
     {/each}
   </div>
-  <div class="mission-project-filter"><button aria-pressed={sectorId === 'all'} onclick={() => sectorId = 'all'}>{t("全部项目")}</button><span>{sectorId === 'all' ? t("包含发起、指派与参与讨论") : overview.sectors.find((sector) => sector.project.id === sectorId)?.project.name}</span><small>{t("{v0} PR 已合并", {v0: outcomeCounts.merged})} · {t("{v0} Issue 已关闭", {v0: outcomeCounts.closed})}</small></div>
   <div class="mission-workspace">
     <section class="mission-queue" aria-label={t("协作任务列表")}>
       <header class="mission-queue-heading"><div class="mission-tabs" role="group" aria-label={t("选择任务队列")}><button aria-pressed={tab === 'active'} onclick={() => tab = 'active'}>{t("当前协作")} <span>{activeCount}</span></button><button aria-pressed={tab === 'archive'} onclick={() => tab = 'archive'}>{t("成果档案")}</button></div><span>{pad(missions.length)} RECORDS</span></header>
@@ -77,5 +75,4 @@
       {#if focusedMission}<button class="mission-open" onclick={() => onOpen(focusedMission.projectId, focusedMission.id)}>{t("查看这条记录")}<TerminalIcon name="external" size={15}/></button>{/if}
     </section>
   </div>
-  <footer class="mission-scope"><span>{t("统计基于本站收录记录，不代表 GitHub 全部历史。")}</span>{#if totals.unknown}<span>{t("{v0} 条状态待同步", {v0: totals.unknown})}</span>{/if}</footer>
 </section>

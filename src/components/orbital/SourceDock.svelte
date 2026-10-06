@@ -1,6 +1,6 @@
 <script lang="ts">
   import { useTranslations } from "../../features/orbital/i18n/context";
-  const { t, dateLocale } = useTranslations();
+  const { t } = useTranslations();
   import { summarizeChecks } from "../../lib/contributions/checks";
   import { onMount, tick } from "svelte";
   import { projectRecords } from "../../lib/contributions/projects";
@@ -19,7 +19,6 @@
   let details: ContributionDetailsSnapshot = { syncedAt: activity.syncedAt, records: [] };
   let detailsError = false;
   let loadingDetails = true;
-  let refreshFailed = false;
   let pending: AbortController | undefined;
   let disposed = false;
   export let projectId: string | undefined;
@@ -49,7 +48,6 @@
   $: selectedDetail = details.records.find((item) => item.url === selected?.url);
   $: selectedIndex = records.findIndex((item) => item.id === selected?.id);
   $: if (selected && recordRail) revealSelection(selected.id);
-  $: syncDate = new Intl.DateTimeFormat(dateLocale, { timeZone: "Asia/Shanghai", dateStyle: "medium", timeStyle: "short" }).format(new Date(activity.syncedAt));
   const number = (value: number) => String(value).padStart(2, "0");
   const repositoryPath = (url?: string) => url?.replace(/^https?:\/\/[^/]+\//, "").replace(/\/$/, "") ?? "";
   const kindName = (kind: string) => kind === "commit" ? t("提交") : kind === "pr" ? "PR" : "Issue";
@@ -151,10 +149,9 @@
         // Preserve explicit route selection, including a record discovered in this refresh.
         details = next;
         if (next.version === 1) activity = next.activity;
-        refreshFailed = false;
       }
     } catch {
-      if (!disposed) { detailsError = !details.records.length; refreshFailed = true; }
+      if (!disposed) { detailsError = !details.records.length; }
     } finally { pending = undefined; if (!disposed) loadingDetails = false; }
   }
   onMount(() => {
@@ -257,8 +254,5 @@
       </div>
     </div>
   {:else}<p class="dock-note">{t("尚未配置开源项目。")}</p>{/if}
-  {/if}
-  {#if showDashboard || allRecords.some((item) => item.kind !== 'commit')}
-    <p class="dock-note" role="status"><span aria-hidden="true"></span>{t("状态同步于 {v0}（北京时间）。", { v0: syncDate })}{#if refreshFailed}{t("暂时无法刷新，正在显示上次记录。")}{/if}</p>
   {/if}
 </section>
