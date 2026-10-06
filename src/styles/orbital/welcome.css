@@ -51,6 +51,11 @@
 .portal-signature > span { width: 26px; height: 1px; background: #c0c3c555; }
 .portal-instrument { position: relative; width: min(116%, max(340px, calc(100svh - 370px))); max-width: 650px; justify-self: end; margin-left: -5%; aspect-ratio: 1; }
 .portal-orbits { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 20px #dbdee00a); }
+.portal-emblem { filter: drop-shadow(0 0 14px #f4eb3226); transform-origin: 320px 322px; }
+.portal-moving .portal-brand .brand-mark { transition: transform 450ms cubic-bezier(.16,1,.3,1), filter 250ms; }
+.portal-moving .portal-brand:is(:hover, :focus-visible) .brand-mark { transform: scale(1.04); filter: drop-shadow(0 0 9px #f4eb3266); }
+.portal-moving .portal-emblem { transition: filter 500ms, transform 700ms cubic-bezier(.16,1,.3,1); }
+.portal-moving:has(.portal-enter:is(:hover, :focus-visible)) .portal-emblem { filter: drop-shadow(0 0 20px #f4eb3266); transform: scale(1.06); }
 .portal-outer-ring, .portal-inner-ring { transform-origin: 320px 320px; }
 .portal-orbit-caption, .portal-orbit-word, .portal-orbit-subtitle, .portal-coordinate { position: absolute; font-family: var(--mono); pointer-events: none; }
 .portal-orbit-caption { top: 4%; left: 50%; transform: translateX(-50%); font-size: 7px; letter-spacing: 2px; color: #b8bbbd; white-space: nowrap; }
@@ -114,10 +119,10 @@
 @media (max-width: 720px) {
   .welcome-portal { padding: 0 24px; }
   .portal-header { height: 83px; gap: 12px; }
-  .orbital-site .portal-brand { gap: 10px; }
+  .orbital-site .portal-brand { gap: 8px; }
   .orbital-site .portal-brand strong { font-size: 19px; }
   .orbital-site .portal-brand small { font-size: 6px; margin-top: 7px; }
-  .portal-brand .brand-mark { width: 27px; height: 34px; }
+  .portal-brand .brand-mark { width: 43.75px; height: 35px; }
   .portal-skip { display: none; }
   .portal-main { grid-template-columns: 1fr; align-content: center; gap: 18px; min-height: auto; padding: 15px 0 34px; }
   .portal-instrument { grid-row: 1; width: min(65vw, 300px); margin: 0 auto -5px; }
@@ -140,5 +145,6 @@
   .portal-footer-index { display: none; }
   .portal-footer .motion-control { font-size: 8px; }
 }
+@media (max-width: 380px) { .orbital-site .portal-brand { gap: 6px; } }
 @media (max-width: 360px) { .welcome-portal { padding: 0 18px; } .portal-action-note { display: none; } }
 @media (prefers-reduced-motion: reduce) { .welcome-portal, .welcome-portal * { animation: none !important; transition: none !important; } }

@@ -59,12 +59,19 @@
 .brand {
 	display: inline-flex;
 	align-items: center;
-	gap: 16px;
+	gap: 12px;
 }
 
 .brand-mark {
-	width: 36px;
-	height: 40px;
+	width: 60px;
+	height: 48px;
+	flex-shrink: 0;
+	translate: 0 -3px;
+}
+
+.brand > span {
+	display: block;
+	translate: 0 2px;
 }
 
 .brand strong {
@@ -454,7 +461,8 @@
 		font-size: 23px;
 	}
 	.brand-mark {
-		width: 33px;
+		width: 45px;
+		height: 36px;
 	}
 	.header-tools {
 		width: 100%;
@@ -584,7 +592,7 @@
 }
 
 .orbital-site .brand {
-	gap: 16px;
+	gap: 12px;
 }
 
 .orbital-site .brand strong {

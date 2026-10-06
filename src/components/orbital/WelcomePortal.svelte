@@ -40,8 +40,8 @@
   <div class="portal-grid" aria-hidden="true"></div>
   <header class="portal-header">
     <a class="brand portal-brand" href={archiveUrl} onclick={(event) => enter(event, true)} aria-label={t("Miao's Blog，进入文章档案")}>
-      <svg class="brand-mark" viewBox="0 0 52 52" aria-hidden="true"><path d="M35 4h10L17 36H7zM19 30h9L12 48H2z" fill="currentColor"/><path d="M34 29h12L31 47H19z" fill="#f0e433"/></svg>
-      <span><strong>Miao's Blog</strong><small>{t("系统与笔记")}</small></span>
+      <img class="brand-mark" src="/images/orbital/miao-mark.svg" alt="" width="60" height="48"/>
+      <span><strong>Miao's Blog</strong></span>
     </a>
     <span class="portal-header-label" aria-hidden="true"><i></i> {t("个人的探索空间")}</span>
     <a class="portal-skip" href={archiveUrl} onclick={(event) => enter(event, true)}>{t("直接进入")} <TerminalIcon name="arrow" size={16}/></a>
@@ -94,8 +94,7 @@
         <circle class="portal-lock-ring" cx="320" cy="320" r="129" stroke="#f0e433" stroke-dasharray="32 170"/>
         <path class="portal-reticle" d="M165 356v-46l25-25h43m174 0h43l25 25v46M165 390v13l25 25h43m174 0h43l25-25v-13" stroke="#d3dfb7" stroke-opacity=".5"/>
         <path d="M220 320h32m136 0h32M320 216v29m0 158v21" stroke="#d3dfb7" stroke-opacity=".45"/>
-        <path d="M338 260h29l-87 101h-29zm-49 83h26l-46 53h-28z" fill="#edf1e6"/>
-        <path d="M337 340h34l-43 52h-34z" fill="#f0e433"/>
+        <image class="portal-emblem" href="/images/orbital/miao-mark.svg" x="225" y="246" width="190" height="152"/>
         </g>
         <circle cx="563" cy="407" r="4" fill="#d4ddba"/>
         <path d="M563 407h43l19 19M120 171H69l-22-22" stroke="#cbd6b9" stroke-opacity=".5"/>

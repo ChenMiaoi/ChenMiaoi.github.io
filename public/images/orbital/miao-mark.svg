@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 96" fill="none">
+  <defs>
+    <linearGradient id="ivory" x1="25" y1="26" x2="49" y2="70" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fffef5"/><stop offset="1" stop-color="#bec9cb"/>
+    </linearGradient>
+    <linearGradient id="signal" x1="64" y1="26" x2="59" y2="70" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff99a"/><stop offset=".45" stop-color="#f4eb32"/><stop offset="1" stop-color="#d8bc15"/>
+    </linearGradient>
+    <linearGradient id="orbit" x1="7" y1="88" x2="110" y2="12" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#d8bc15"/><stop offset=".35" stop-color="#f4eb32"/><stop offset="1" stop-color="#fff9b2"/>
+    </linearGradient>
+    <radialGradient id="flare">
+      <stop stop-color="#fffde0"/><stop offset=".35" stop-color="#f4eb32"/><stop offset="1" stop-color="#f4eb32" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="cuts" x="20" y="24" width="60" height="52" maskUnits="userSpaceOnUse">
+      <path d="M20 24h60v52H20Z" fill="white"/>
+      <path d="m26 65 8-8v5l-8 8v-5Zm38-6 10-10v5L64 64v-5Z" fill="black"/>
+    </mask>
+  </defs>
+  <path d="M8 81c18-30 51-52 85-63 9-3 17-5 23-5" stroke="#e1e7dd" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>
+  <path d="m34 26 14-9 10-2-14 12-10-1Z" fill="#dce4de" fill-opacity=".65"/>
+  <g transform="matrix(1.15 0 -.22 1.2 10 0)" mask="url(#cuts)">
+    <path d="M24 70V31l5-5h6l13 19 15-19h13v39l-5 5h-8V47L48 64 35 47v23H24Z" fill="url(#ivory)"/>
+    <path d="M63 26h13v39l-5 5h-8V47L48 64V45l15-19Z" fill="url(#signal)"/>
+    <path d="M65 29h8v3H63l2-3Z" fill="#fffdd6"/>
+  </g>
+  <path d="M7 83c23 7 56-9 85-36-24 27-54 44-79 45l-10-2 4-7Z" fill="url(#orbit)"/>
+  <path d="m3 95 14-3 14-8-17 4-11 7Z" fill="#dae3dc" fill-opacity=".65"/>
+  <circle cx="103" cy="18" r="13" fill="url(#flare)" fill-opacity=".45"/>
+  <path d="m103 2 3 10 13 2-12 6-5 14-3-12-13 2 11-9 6-13Z" fill="url(#orbit)"/>
+  <path d="m103 11 1.5 5 4.5 1-5 2-1.5 5-1-5-4-1 4-2 1.5-5Z" fill="#fffef5"/>
+</svg>

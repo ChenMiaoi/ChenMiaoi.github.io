@@ -47,7 +47,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:url" content={canonical} />
     <meta property="og:type" content={post ? "article" : "website"} />
     <title>{title}</title>
-    <link rel="icon" href="/favicon/favicon-dark-32.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/miao-mark-32.png" />
     <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={lang === "en" ? "/en/rss.xml" : "/rss.xml"} />
     <link rel="preload" as="image" href="/images/orbital/station.webp" />
     <noscript><style is:global>.terminal-shell, .skip-link { display: none !important; }</style></noscript>

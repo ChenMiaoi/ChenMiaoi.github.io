@@ -34,6 +34,7 @@
 	line-height: 1;
 	letter-spacing: 0;
 	color: var(--paper);
+	-webkit-text-stroke: .2px currentColor;
 }
 
 .orbital-site .context-language-note {

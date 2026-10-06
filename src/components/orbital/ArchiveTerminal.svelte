@@ -281,8 +281,8 @@
   <svg class="terminal-orbit" viewBox="0 0 1600 1000" preserveAspectRatio="none" aria-hidden="true"><g class="orbit-rail"><path d="M136 123C38 280 20 705 143 902"/><path d="M127 121C24 305 17 716 137 907"/><path class="orbit-transmission" d="M136 123C38 280 20 705 143 902" pathLength="1"/><circle cx="136" cy="123" r="5"/><circle cx="143" cy="902" r="5"/></g><path class="orbit-ground" d="M215 950H1450l75-75"/></svg>
   <header class="terminal-header">
     <button class="brand" aria-label={t("Miao's Blog，返回文章档案")} onclick={() => navigate("articles")}>
-      <svg class="brand-mark" viewBox="0 0 52 52" aria-hidden="true"><path d="M35 4h10L17 36H7zM19 30h9L12 48H2z" fill="currentColor"/><path d="M34 29h12L31 47H19z" fill="#f3dc26"/></svg>
-      <span><strong>Miao's Blog</strong><small>{t("系统与笔记")}</small></span>
+      <img class="brand-mark" src="/images/orbital/miao-mark.svg" alt="" width="60" height="48"/>
+      <span><strong>Miao's Blog</strong></span>
     </button>
     <span class="header-hairline" aria-hidden="true"><i></i><span>{t("个人档案库")}</span></span>
     <div class="header-tools">
