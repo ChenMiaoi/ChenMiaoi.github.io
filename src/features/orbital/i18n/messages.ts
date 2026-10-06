@@ -355,6 +355,7 @@ export const messages = {
 	进行中的协作: ["Active collaboration", "進行中的協作", "進行中の協力"],
 	"包含发起、指派与参与讨论": ["Created, assigned or joined", "包含發起、指派與參與討論", "作成・割り当て・議論への参加"],
 	收录提交: ["Recorded commits", "收錄提交", "記録したコミット"],
+	合并提交: ["Upstream commit", "合併提交", "マージコミット"],
 	项目提交档案: ["Project commit archive", "專案提交檔案", "プロジェクトのコミット記録"],
 	分项目统计: ["Statistics by project", "分專案統計", "プロジェクト別の統計"],
 	项目分区: ["Project sectors", "專案分區", "プロジェクト区画"],

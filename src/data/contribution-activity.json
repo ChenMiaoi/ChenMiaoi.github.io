@@ -5,8 +5,68 @@
     "llvm/llvm-project",
     "rust-lang/cargo"
   ],
-  "syncedAt": "2026-10-05T17:23:25.420Z",
+  "syncedAt": "2026-10-06T17:39:09.959Z",
   "items": [
+    {
+      "repository": "llvm/llvm-project",
+      "number": 229300,
+      "title": "[clang] Missing diagnostic location for ext_vector_type in templates",
+      "url": "https://github.com/llvm/llvm-project/issues/229300",
+      "kind": "issue",
+      "draft": false,
+      "updatedAt": "2026-10-06T17:25:22Z",
+      "relations": [
+        "author"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 228633,
+      "title": "[libc][stdlib] Avoid scanning values during environment lookup",
+      "url": "https://github.com/llvm/llvm-project/pull/228633",
+      "kind": "pr",
+      "draft": false,
+      "updatedAt": "2026-10-06T12:59:55Z",
+      "relations": [
+        "author"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 229393,
+      "title": "[Clang] Diagnose incompatible `weak` and `ifunc` attributes",
+      "url": "https://github.com/llvm/llvm-project/pull/229393",
+      "kind": "pr",
+      "draft": false,
+      "updatedAt": "2026-10-06T12:15:07Z",
+      "relations": [
+        "author"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 195276,
+      "title": "[libc] Request for Annex K via `__STDC_WANT_LIB_EXT1__` doesn't work as expected",
+      "url": "https://github.com/llvm/llvm-project/issues/195276",
+      "kind": "issue",
+      "draft": false,
+      "updatedAt": "2026-10-06T08:21:16Z",
+      "relations": [
+        "commenter"
+      ]
+    },
+    {
+      "repository": "llvm/llvm-project",
+      "number": 229328,
+      "title": "[clang] Preserve ext_vector_type locations during template substitution",
+      "url": "https://github.com/llvm/llvm-project/pull/229328",
+      "kind": "pr",
+      "draft": false,
+      "updatedAt": "2026-10-06T07:33:50Z",
+      "relations": [
+        "author"
+      ]
+    },
     {
       "repository": "llvm/llvm-project",
       "number": 220923,
@@ -14,7 +74,7 @@
       "url": "https://github.com/llvm/llvm-project/issues/220923",
       "kind": "issue",
       "draft": false,
-      "updatedAt": "2026-10-05T17:16:49Z",
+      "updatedAt": "2026-10-06T02:24:09Z",
       "relations": [
         "commenter"
       ]
@@ -51,18 +111,6 @@
       "kind": "pr",
       "draft": false,
       "updatedAt": "2026-10-05T15:30:47Z",
-      "relations": [
-        "author"
-      ]
-    },
-    {
-      "repository": "llvm/llvm-project",
-      "number": 228633,
-      "title": "[libc][stdlib] Avoid scanning values during environment lookup",
-      "url": "https://github.com/llvm/llvm-project/pull/228633",
-      "kind": "pr",
-      "draft": false,
-      "updatedAt": "2026-10-05T15:18:46Z",
       "relations": [
         "author"
       ]
@@ -211,18 +259,6 @@
       "updatedAt": "2026-10-03T15:09:32Z",
       "relations": [
         "author"
-      ]
-    },
-    {
-      "repository": "llvm/llvm-project",
-      "number": 195276,
-      "title": "[libc] Request for Annex K via `__STDC_WANT_LIB_EXT1__` doesn't work as expected",
-      "url": "https://github.com/llvm/llvm-project/issues/195276",
-      "kind": "issue",
-      "draft": false,
-      "updatedAt": "2026-10-03T02:04:58Z",
-      "relations": [
-        "commenter"
       ]
     },
     {

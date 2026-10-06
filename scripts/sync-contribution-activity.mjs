@@ -22,6 +22,7 @@ function api(endpoint) {
 
 // Do not write the snapshot until every repository and page has succeeded.
 const records = new Map();
+const previous = activitySchema.parse(JSON.parse(await readFile(output, "utf8")));
 for (const repository of config.repositories) {
 	for (const { relation, query } of activitySearches(repository, config.account)) {
 		for (let page = 1; ; page++) {
@@ -57,6 +58,11 @@ for (const repository of config.repositories) {
 		}
 	}
 }
+// Previously tracked PRs and issues remain available after merge or closure.
+for (const item of previous.items) {
+	if (previous.account === config.account && config.repositories.includes(item.repository) && !records.has(item.url))
+		records.set(item.url, item);
+}
 const snapshot = {
 	account: config.account,
 	repositories: config.repositories,
@@ -74,5 +80,5 @@ try {
 	await rm(temporary, { force: true });
 }
 console.log(
-	`Synced ${snapshot.items.length} open issues/PRs for ${config.account}.`,
+	`Synced ${snapshot.items.length} tracked issues/PRs for ${config.account}.`,
 );

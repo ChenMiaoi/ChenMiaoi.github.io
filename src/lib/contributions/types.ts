@@ -52,6 +52,8 @@ export type ContributionDetail = {
 	fetchedAt?: string;
 	headSha?: string | null;
 	baseSha?: string | null;
+	mergeCommitSha?: string | null;
+	mergedAt?: string | null;
 	commitsTotal?: number;
 	commitsComplete?: boolean;
 	commits?: {

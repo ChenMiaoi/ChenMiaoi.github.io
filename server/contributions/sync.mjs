@@ -2,6 +2,7 @@ import { readPullRequestStatus } from './pull-request-status.mjs';
 import { activitySchema, detailsSchema } from '../../src/lib/contributions/schema.ts';
 import { createDetailReader, detailVersion } from './details.mjs';
 import { activitySearches } from '../../src/lib/contributions/search.ts';
+import { collectMergedCommits } from './merged-commits.mjs';
 
 export async function syncContributions({ config, projects, previous, api, detailCache = new Map(), now = () => new Date().toISOString() }) {
   const items = new Map();
@@ -61,12 +62,18 @@ export async function syncContributions({ config, projects, previous, api, detai
     if (reusable && item.kind === "pr") {
       detail.pullRequest = await readPullRequestStatus(api, item.repository, item.number, record);
     }
+    if (item.kind === 'pr') Object.assign(detail, {
+      mergedAt: record.merged_at ?? null,
+      mergeCommitSha: record.merged_at ? record.merge_commit_sha ?? null : null,
+    });
     detailCache.set(item.url, detail);
     Object.assign(item, { state, title: record.title, draft: state === 'draft', updatedAt: record.updated_at });
     records.push(detail);
   }
   const syncedAt = now();
+  const activity = activitySchema.parse({ ...config, syncedAt, items: [...items.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) });
+  const completeRecords = await collectMergedCommits({ activity, records, readDetail, previous: [...oldDetails.values()] });
   return { version: 1,
-    activity: activitySchema.parse({ ...config, syncedAt, items: [...items.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) }),
-    details: detailsSchema.parse({ syncedAt, activitySyncedAt: syncedAt, records }) };
+    activity,
+    details: detailsSchema.parse({ syncedAt, activitySyncedAt: syncedAt, records: completeRecords }) };
 }

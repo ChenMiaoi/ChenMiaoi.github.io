@@ -80,6 +80,54 @@ test('partial search, private repositories and failed detail requests preserve p
   }
 });
 
+test('a newly merged authored PR imports one upstream squash commit and reuses it on subsequent cycles', async () => {
+  const sha = 'd'.repeat(40);
+  const head = 'a'.repeat(40), base = 'b'.repeat(40);
+  const calls = [];
+  let failCommit = false;
+  const merged = { html_url: url, number: 1, title: detail.title, user: { login: 'writer' }, body: '',
+    updated_at: nextDate, state: 'closed', merged_at: nextDate, merge_commit_sha: sha,
+    changed_files: 0, additions: 0, deletions: 0, comments: 0, review_comments: 0, commits: 5,
+    head: { sha: head }, base: { sha: base } };
+  const api = async path => {
+    calls.push(path);
+    if (path === 'repos/example/public') return { private: false };
+    if (path.startsWith('search/')) return { total_count: 0, incomplete_results: false, items: [] };
+    if (path.endsWith('/pulls/1')) return merged;
+    if (path === `repos/example/public/commits/${sha}?per_page=100`) {
+      if (failCommit) throw new Error('Upstream commit unavailable');
+      return [{ sha, html_url: `https://github.com/example/public/commit/${sha}`, author: { login: 'writer' },
+        commit: { message: 'Squashed change (#1)', author: { name: 'Writer' }, committer: { date: nextDate } },
+        stats: { additions: 0, deletions: 0 }, files: [] }];
+    }
+    if (path.includes('/check-runs?')) return [{ total_count: 0, check_runs: [] }];
+    if (/\/commits\/[^/]+\/status\?/.test(path)) return [{ total_count: 0, sha: head, statuses: [] }];
+    if (path.includes('/files?') || path.includes('/reviews?') || path.includes('/commits?')) return [[]];
+    throw new Error(`Unexpected endpoint ${path}`);
+  };
+  const result = await syncContributions({ config, projects: [], previous: seed, api, now: () => nextDate });
+  assert.equal(result.activity.items[0].state, 'merged');
+  assert.equal(result.details.records[0].mergeCommitSha, sha);
+  assert.equal(result.details.records[0].mergedAt, nextDate);
+  assert.equal(result.details.records.filter(record => record.kind === 'commit').length, 1);
+  assert.equal(result.details.records[1].sha, sha);
+  calls.length = 0;
+  const reused = await syncContributions({ config, projects: [], previous: result, api });
+  assert.equal(reused.details.records.length, 2);
+  assert.ok(!calls.some(path => path.includes('/files?') || path.includes(`/commits/${sha}?`)));
+  // Persisted merged PRs from the prior schema gain their merge SHA without redownloading the diff.
+  const oldFormat = structuredClone(result);
+  delete oldFormat.details.records[0].mergeCommitSha;
+  delete oldFormat.details.records[0].mergedAt;
+  oldFormat.details.records = oldFormat.details.records.filter(record => record.kind !== 'commit');
+  const upgraded = await syncContributions({ config, projects: [], previous: oldFormat, api });
+  assert.equal(upgraded.details.records[1].sha, sha);
+  const before = JSON.stringify(oldFormat);
+  failCommit = true;
+  await assert.rejects(syncContributions({ config, projects: [], previous: oldFormat, api }), /Upstream commit unavailable/);
+  assert.equal(JSON.stringify(oldFormat), before);
+});
+
 test('unchanged open work validates head/base but reuses full details', async () => {
   const upgraded = structuredClone(seed);
   Object.assign(upgraded.details.records[0], { detailVersion: 3, fetchedAt: new Date().toISOString(), headSha: 'a'.repeat(40), baseSha: 'b'.repeat(40) });

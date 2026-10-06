@@ -1,4 +1,5 @@
 import { createDetailReader } from '../server/contributions/details.mjs';
+import { collectMergedCommits } from '../server/contributions/merged-commits.mjs';
 import { detailsSchema } from "../src/lib/contributions/schema.ts";
 import { execFile } from "node:child_process";
 import { readFile, writeFile, rename, rm } from "node:fs/promises";
@@ -92,7 +93,7 @@ for (let index = 0; index < descriptors.length; index += 2) {
 const snapshot = {
 	syncedAt: new Date().toISOString(),
 	activitySyncedAt: activity.syncedAt,
-	records,
+	records: await collectMergedCommits({ activity, records, readDetail: fetchDetails }),
 };
 detailsSchema.parse(snapshot);
 const temporary = `${output}.tmp`;
@@ -102,4 +103,4 @@ try {
 } finally {
 	await rm(temporary, { force: true });
 }
-console.log(`Saved ${records.length} public contribution details.`);
+console.log(`Saved ${snapshot.records.length} public contribution details.`);

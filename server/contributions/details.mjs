@@ -131,7 +131,8 @@ async function fetchDetails(descriptor, existingRecord) {
 	}));
 	if (kind === 'pr') {
 		const latest = await api(`${base}/pulls/${descriptor.number}`);
-		if (latest.head.sha !== record.head.sha || latest.base.sha !== record.base.sha || latest.updated_at !== record.updated_at)
+		if (latest.head.sha !== record.head.sha || latest.base.sha !== record.base.sha || latest.updated_at !== record.updated_at ||
+			latest.merged_at !== record.merged_at || latest.merge_commit_sha !== record.merge_commit_sha)
 			throw new Error(`PR #${descriptor.number} changed during synchronization; previous snapshot retained`);
 	}
 	return {
@@ -163,6 +164,8 @@ async function fetchDetails(descriptor, existingRecord) {
 		filesComplete: kind !== "pr" || files.length === record.changed_files,
 		headSha: record.head?.sha ?? null,
 		baseSha: record.base?.sha ?? null,
+		mergeCommitSha: kind === 'pr' && record.merged_at ? record.merge_commit_sha ?? null : null,
+		mergedAt: kind === 'pr' ? record.merged_at ?? null : null,
 		commits,
 		commitsTotal: kind === 'pr' ? record.commits : 0,
 		commitsComplete: kind !== 'pr' || (commits.length === record.commits && commits.at(-1)?.sha === record.head.sha),

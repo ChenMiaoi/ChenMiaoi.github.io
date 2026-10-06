@@ -159,12 +159,18 @@ pnpm sync:contribution-details
 | 数据文件 | 内容与维护方式 |
 | --- | --- |
 | `src/data/contribution-projects.json` | 账号、项目仓库、已确认的上游提交及来源链接，人工维护 |
-| `src/data/contribution-activity.json` | 自动同步本人创建或被指派的未关闭 Issue / PR，分页查询并去重 |
-| `src/data/contribution-details.json` | 自动同步提交与活动记录的正文、文件变更和讨论详情 |
+| `src/data/contribution-activity.json` | 自动发现本人创建、被指派或参与讨论的开放记录；保留已跟踪记录的合并与关闭历史 |
+| `src/data/contribution-details.json` | 自动同步正文、改动、讨论和本人 PR 的已确认上游合并提交 |
 
 每个同步命令在请求完成且校验通过后替换对应快照；失败时保留该文件的旧版本。同步后检查数据差异，再随站点修改一起提交。
 
-进行中的 Issue / PR 与已合并贡献分开展示。关闭或合并的 PR 会在下一次活动同步时移出开放列表；已确认的上游提交仍需在项目配置中维护 SHA、日期、标题和来源。活动查询不覆盖邮件列表补丁或仅评论、评审的参与记录，空列表也不代表没有贡献。
+进行中的 Issue / PR 与成果档案分开展示。本人 PR 合并后，同步程序读取 GitHub
+确认的 `merge_commit_sha`，自动收录对应上游提交及改动，并关联原 PR。
+“收录提交”统计按 SHA 去重的已收录上游记录；PR 的开发提交历史单独显示，
+例如 5 次开发提交经 squash 合并后只增加 1 条上游记录。仅参与讨论的他人 PR
+不会计入本人提交，未合并 PR 的测试合并 SHA 也不会被收录。
+邮件列表贡献仍在项目配置中维护。此前已跟踪的 Issue / PR 在合并或关闭后保留，
+活动发现不导入未曾跟踪的全部历史。
 
 ## 验证与发布
 

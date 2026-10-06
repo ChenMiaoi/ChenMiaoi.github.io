@@ -51,6 +51,60 @@ test("contribution links round-trip project, record and filter across every loca
     assert.deepEqual(resolveContributionSelection("?pr=1&kind=issue"), { record: "pr:1", kind: "all" });
 });
 
+test("merged personal PRs add the real upstream result to both views without counting development history", () => {
+    const sha = 'a'.repeat(40);
+    const repository = 'example/one';
+    const url = `https://github.com/${repository}/pull/1`;
+    const commitUrl = `https://github.com/${repository}/commit/${sha}`;
+    const project = { id: 'one', name: 'One', repository: `https://github.com/${repository}`, items: [] };
+    const activity = { account: 'writer', items: [{ repository, kind: 'pr', number: 1, url, title: 'Change',
+        state: 'open', draft: false, updatedAt: '2026-10-04T00:00:00Z', relations: ['author'] }] };
+    const pr = { kind: 'pr', url, title: 'Change', author: 'Writer', state: 'merged', sha: null,
+        updatedAt: '2026-10-06T17:10:00Z', mergedAt: '2026-10-06T17:09:29Z', mergeCommitSha: sha,
+        commits: Array.from({ length: 5 }, (_, index) => ({ sha: String(index).repeat(40) })) };
+    const commit = { kind: 'commit', url: commitUrl, sha, title: 'Squashed upstream change', author: 'Writer',
+        state: 'commit', updatedAt: '2026-10-06T17:09:26Z' };
+    const details = { records: [pr, commit] };
+    const before = structuredClone({ project, activity, details });
+    const records = projectRecords(project, activity, details);
+    assert.deepEqual(records.map(record => record.id), ['pr:1', `commit:${sha}`]);
+    assert.equal(records[0].state, 'merged');
+    assert.equal(records[0].date, pr.updatedAt);
+    assert.equal(records[1].url, commitUrl);
+    assert.equal(records[1].discussionUrl, url);
+    assert.equal(records[1].date, commit.updatedAt);
+    const sector = contributionOverview([project], activity, details).sectors[0];
+    assert.equal(sector.commits, 1);
+    assert.equal(sector.mergedPRs, 1);
+    assert.equal(sector.active, 0);
+    assert.deepEqual({ project, activity, details }, before);
+    for (const state of ['open', 'closed']) {
+        assert.equal(contributionOverview([project], activity, { records: [{ ...pr, state }, commit] }).sectors[0].commits, 0);
+    }
+    assert.equal(contributionOverview([project], activity, { records: [{ ...pr, author: 'someone-else' }, commit] }).sectors[0].commits, 0);
+    assert.equal(contributionOverview([project], activity, { records: [pr] }).sectors[0].commits, 0);
+    for (const prefix of ['', '/en', '/zh_TW', '/ja']) {
+        const location = new URL(contributionUrl(project.id, records[1].id, 'commit', prefix), 'https://example.com');
+        assert.equal(location.pathname, `${prefix}/contribution/one/`);
+        assert.equal(resolveContributionSelection(location.search).record, records[1].id);
+    }
+});
+
+test("an already curated abbreviated SHA is not duplicated by the merged PR's full SHA", () => {
+    const sha = 'b'.repeat(40);
+    const project = { id: 'one', name: 'One', repository: 'https://github.com/example/one',
+        items: [{ sha: sha.slice(0, 10), date: '2026-10-06', title: 'Curated change' }] };
+    const url = `${project.repository}/pull/1`;
+    const activity = { account: 'writer', items: [{ repository: 'example/one', number: 1, kind: 'pr',
+        url, title: 'Change', updatedAt: '2026-10-06T17:10:00Z', relations: ['author'] }] };
+    const details = { records: [{ kind: 'pr', url, author: 'writer', title: 'Change', state: 'merged',
+        updatedAt: activity.items[0].updatedAt, mergedAt: '2026-10-06T17:09:29Z', mergeCommitSha: sha },
+        { kind: 'commit', sha, url: `${project.repository}/commit/${sha.slice(0, 10)}`, title: 'Change', updatedAt: '2026-10-06T17:09:26Z' }] };
+    const records = projectRecords(project, activity, details);
+    assert.equal(records.filter(record => record.kind === 'commit').length, 1);
+    assert.equal(records.find(record => record.kind === 'commit').id, `commit:${sha.slice(0, 10)}`);
+});
+
 test("invalid or ambiguous contribution selections cannot silently select a different record", () => {
     for (const search of ["?pr=0", "?pr=oops", "?commit=../evil", "?issue=1&pr=2", "?pr=1&pr=2", "?pr="]) {
         assert.equal(resolveContributionSelection(search).record, "invalid");
@@ -239,7 +293,7 @@ test("back navigation and unmount cancel stale departures without overriding lat
 test("both contribution views resolve every configured record from validated snapshots", () => {
 	const projects = resolveContributionProjects(contributionConfig.projects, contributionDetails);
 	for (const project of projects) {
-		for (const record of projectRecords(project, contributionActivity)) {
+		for (const record of projectRecords(project, contributionActivity, contributionDetails)) {
 			assert.ok(contributionDetails.records.some((detail) => detail.url === record.url), record.url);
 		}
 		for (const commit of project.items) assert.ok(commit.patch?.includes("@@"), commit.sha);

@@ -19,6 +19,8 @@
   let copyAttempt = 0;
   $: kind = record.kind === "commit" ? t("提交") : record.kind === "pr" ? "PR" : "Issue";
   $: state = detail?.state ?? record.state ?? (record.draft ? "draft" : "open");
+  $: upstreamCommitUrl = record.kind === 'pr' && state === 'merged' && detail?.mergeCommitSha
+    ? record.url?.replace(/\/pull\/\d+$/, `/commit/${detail.mergeCommitSha}`) : undefined;
   $: stateLabel = ({ open: t("进行中"), draft: t("草稿"), merged: t("已合并"), closed: t("已关闭"), commit: t("提交记录") } as Record<string, string>)[state] ?? "";
   $: reference = detail?.sha ?? record.sha ?? String(record.number ?? record.reference);
   const date = (value: string) => value.slice(0, 10).replaceAll("-", "/");
@@ -59,7 +61,7 @@
     <div class="reader-record-topline"><span class="reader-record-type">{kind} {t("/ 原始记录")}</span>{#if record.kind !== 'commit'}<span class="collaboration-state" class:draft={state === 'draft'} class:merged={state === 'merged'} class:closed={state === 'closed'}>{stateLabel}</span>{/if}<button class="record-copy" aria-label={t("复制{v0}{v1}", { v0: kind, v1: record.kind === 'commit' ? ' SHA' : t("编号") })} onclick={copyReference}><code>{record.reference}</code><span>{copyState || t("复制")}</span></button><span class="copy-feedback" role="status">{copyState}</span></div>
     <h2>{detail?.title ?? record.title}</h2>
     <div class="reader-record-footer"><div class="reader-record-attribution">{#if detail}<span>{t("原文作者")} <b>{detail.author}</b></span>{/if}{#if record.relations?.length}<span>{record.relations.map((relation) => relation === 'author' ? t("我发起") : relation === 'assignee' ? t("指派给我") : relation === 'commenter' ? t("我参与讨论") : '').filter(Boolean).join(' · ')}</span>{/if}<time datetime={detail?.updatedAt ?? record.date}>{record.kind === 'commit' ? t("提交于") : t("更新于")} {date(detail?.updatedAt ?? record.date)}</time></div>
-    <div class="reader-source-links">{#if record.url}<a href={record.url} target="_blank" rel="noreferrer"><BrandIcon name="github" size={14} framed={false}/>{t("在 GitHub 查看")}<TerminalIcon name="external" size={14}/></a>{/if}{#if record.discussionUrl}<a href={record.discussionUrl} target="_blank" rel="noreferrer">{record.discussionLabel?.startsWith('PR #') ? record.discussionLabel : t("邮件讨论")}<TerminalIcon name="external" size={14}/></a>{/if}</div></div>
+    <div class="reader-source-links">{#if record.url}<a href={record.url} target="_blank" rel="noreferrer"><BrandIcon name="github" size={14} framed={false}/>{t("在 GitHub 查看")}<TerminalIcon name="external" size={14}/></a>{/if}{#if record.discussionUrl}<a href={record.discussionUrl} target="_blank" rel="noreferrer">{record.discussionLabel?.startsWith('PR #') ? record.discussionLabel : t("邮件讨论")}<TerminalIcon name="external" size={14}/></a>{/if}{#if upstreamCommitUrl}<a href={upstreamCommitUrl} target="_blank" rel="noreferrer">{t("合并提交")} <code>{detail?.mergeCommitSha?.slice(0, 10)}</code><TerminalIcon name="external" size={14}/></a>{/if}</div></div>
   </header>
 
   <div class="contribution-reader-scroll" tabindex="0" role="region" aria-label={t("贡献正文与改动")}>

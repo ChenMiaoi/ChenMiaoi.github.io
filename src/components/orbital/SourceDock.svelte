@@ -39,9 +39,9 @@
   let deck: HTMLDivElement;
   let tether: { width: number; height: number; path: string; x: number; y: number; endX: number; endY: number } | undefined;
 
-  $: orderedProjects = sortContributionProjects(projects, activity);
+  $: orderedProjects = sortContributionProjects(projects, activity, details);
   $: project = orderedProjects.find((item) => item.id === projectId) ?? orderedProjects[0];
-  $: allRecords = project ? projectRecords(project, activity) : [];
+  $: allRecords = project ? projectRecords(project, activity, details) : [];
   $: recordKinds = [...new Set(allRecords.map((item) => item.kind))];
   $: records = allRecords.filter((item) => kindFilter === "all" || item.kind === kindFilter);
   $: selected = selectedId ? records.find((item) => item.id === selectedId) : records[0];
@@ -185,7 +185,7 @@
         <button class="project-port" class:active={project?.id === item.id} aria-label={t("选择项目：{v0}", { v0: item.name })} aria-pressed={project?.id === item.id} onclick={() => chooseProject(item.id)}>
           <BrandIcon name={item.id} size={26}/>
           <strong>{item.name}</strong>
-          <span class="port-count" aria-label={t("{v0}条记录", { v0: projectRecords(item, activity).length })}>{number(projectRecords(item, activity).length)}</span>
+          <span class="port-count" aria-label={t("{v0}条记录", { v0: projectRecords(item, activity, details).length })}>{number(projectRecords(item, activity, details).length)}</span>
         </button>
       {/each}
     </nav>

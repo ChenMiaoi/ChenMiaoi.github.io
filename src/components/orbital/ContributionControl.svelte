@@ -23,6 +23,8 @@
   $: missions = records.filter((record) => tab === "active" ? record.state === "open" || record.state === "draft" : ["merged", "closed", "commit"].includes(record.state));
   $: focusedMission = missions.find((mission) => (mission.url ?? mission.id) === focusedId) ?? missions[0];
   $: focusedDetail = focusedMission ? details.records.find((detail) => detail.url === focusedMission.url) : undefined;
+  $: mergedCommitUrl = focusedMission?.kind === 'pr' && focusedDetail?.state === 'merged' && focusedDetail.mergeCommitSha
+    ? focusedMission.url?.replace(/\/pull\/\d+$/, `/commit/${focusedDetail.mergeCommitSha}`) : undefined;
   const pad = (value: number) => String(value).padStart(2, "0");
   const status = (value: string) => ({ open: t("进行中"), draft: t("草稿"), merged: t("已合并"), closed: t("已关闭"), commit: t("提交记录") } as Record<string, string>)[value];
   const relation = (relations?: string[]) => relations?.includes("author") ? t("我发起") : relations?.includes("assignee") ? t("指派给我") : relations?.includes("commenter") ? t("我参与讨论") : t("提交记录");
@@ -69,6 +71,7 @@
           <p class="focus-project">{focusedMission.projectName}</p><h3>{focusedMission.title}</h3>
           <div class="focus-reference"><code>{focusedMission.kind === 'commit' ? focusedMission.reference.slice(0, 10) : focusedMission.reference}</code><span class={`mission-state state-${focusedMission.state}`}>{status(focusedMission.state)}</span></div>
           <dl class="focus-facts"><div><dt>{t("我的参与")}</dt><dd>{relation(focusedMission.relations)}</dd></div><div><dt>{t("更新于")}</dt><dd><time datetime={focusedMission.date}>{focusedMission.date.slice(0, 10)}</time></dd></div>{#if focusedDetail}<div><dt>{t("讨论记录")}</dt><dd>{focusedDetail.commentsTotal}</dd></div>{/if}</dl>
+          {#if mergedCommitUrl}<div class="focus-reference"><span>{t("合并提交")}</span><a href={mergedCommitUrl} target="_blank" rel="noreferrer"><code>{focusedDetail?.mergeCommitSha?.slice(0, 10)}</code></a></div>{/if}
 
         {:else}<p class="mission-briefing-empty">{t("选择项目，查看协作任务。")}</p>{/if}
       </div>

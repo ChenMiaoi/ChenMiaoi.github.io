@@ -60,6 +60,12 @@ export const detailsSchema = z.object({
 			pullRequest: pullRequestStatusSchema.optional(),
 			headSha: z.string().nullable().optional(),
 			baseSha: z.string().nullable().optional(),
+			mergeCommitSha: z
+				.string()
+				.regex(/^[0-9a-f]{40}$/)
+				.nullable()
+				.optional(),
+			mergedAt: date.nullable().optional(),
 			commitsTotal: count.optional(),
 			commitsComplete: z.boolean().optional(),
 			commits: z

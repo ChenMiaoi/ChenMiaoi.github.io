@@ -15,10 +15,10 @@ export function contributionOverview(
 	details: ContributionDetailsSnapshot,
 ) {
 	const byUrl = new Map(details.records.map((record) => [record.url, record]));
-	const orderedProjects = sortContributionProjects(projects, activity);
+	const orderedProjects = sortContributionProjects(projects, activity, details);
 	const sectors = orderedProjects.map((project) => {
 		const unique = new Map(
-			projectRecords(project, activity).map((record) => [
+			projectRecords(project, activity, details).map((record) => [
 				record.url ?? record.id,
 				record,
 			]),
