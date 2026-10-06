@@ -18,6 +18,19 @@ export const profileConfig: ProfileConfig = {
 		zh_TW: "專注於作業系統與底層架構的程式設計師。",
 		ja: "OS と低レベルアーキテクチャに関心を持つプログラマーです。",
 	},
+	affiliations: [
+		{
+			institution: "The Hong Kong Polytechnic University",
+			institutionTranslations: {
+				zh_CN: "香港理工大学",
+				zh_TW: "香港理工大學",
+				ja: "香港理工大学",
+			},
+			role: "Research Assistant",
+			department: "COMP",
+			start: "2026-01",
+		},
+	],
 	links: [
 		{
 			name: "GitHub",

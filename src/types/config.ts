@@ -32,6 +32,14 @@ export type ProfileConfig = {
 	name: string;
 	bio?: string;
 	bioTranslations?: Partial<Record<Locale, string>>;
+	affiliations?: {
+		institution: string;
+		institutionTranslations?: Partial<Record<Locale, string>>;
+		role?: string;
+		department?: string;
+		start: string;
+		end?: string;
+	}[];
 	links: {
 		name: string;
 		url: string;

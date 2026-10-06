@@ -31,6 +31,14 @@ const heading = contributionConfig.projects.find((project) => project.id === pro
 const title = notFound ? `${t("页面未找到")} · ${siteConfig.title}` : initialWelcome ? `${t("欢迎登站")} · ${siteConfig.title}` : `${heading} · ${siteConfig.title}`;
 const description = post?.data.description || t("操作系统、Linux 内核、驱动、RISC-V 与底层工程的探索记录。");
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const localizedProfile = {
+  ...profileConfig,
+  bio: profileConfig.bioTranslations?.[lang] ?? profileConfig.bio,
+  affiliations: profileConfig.affiliations?.map((entry) => ({
+    ...entry,
+    institution: entry.institutionTranslations?.[lang] ?? entry.institution,
+  })),
+};
 ---
 <!doctype html>
 <html lang={htmlLang(lang)}>
@@ -54,7 +62,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   </head>
   <body class="orbital-site" data-article-path={post ? Astro.url.pathname : undefined}>
     <ArchiveTerminal client:load {lang} {posts} {series} projects={contributionConfig.projects}
-      activity={contributionActivity} detailsUrl="/contributions.json" profile={{ ...profileConfig, bio: profileConfig.bioTranslations?.[lang] ?? profileConfig.bio }}
+      activity={contributionActivity} detailsUrl="/contributions.json" profile={localizedProfile}
       initialSection={section} initialSeries={seriesSlug} initialProject={projectId} localePrefix={prefix} {notFound} {initialWelcome} hasArticle={!!post} />
     {post && Content && <section class="article-document">
       <header><a href={`${prefix}/articles/`}>{t("← 返回文章档案")}</a><h1 data-pagefind-meta="title">{post.data.title}</h1></header>

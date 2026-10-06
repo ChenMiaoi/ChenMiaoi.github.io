@@ -514,6 +514,8 @@ export const messages = {
 	浏览系列: ["Browse series", "瀏覽系列", "シリーズを見る"],
 	暂无主题: ["No topics yet", "暫無主題", "テーマはまだありません"],
 	个人档案: ["Personal profile", "個人檔案", "プロフィール"],
+	个人经历: ["Personal background", "個人經歷", "経歴"],
+	至今: ["Present", "至今", "現在"],
 	笔记背后的记录者: [
 		"The person behind the notes",
 		"筆記背後的記錄者",
