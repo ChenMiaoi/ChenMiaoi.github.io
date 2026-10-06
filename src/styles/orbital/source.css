@@ -374,6 +374,12 @@
 	);
 	opacity: 0;
 	transition: opacity 0.2s;
+	pointer-events: none;
+}
+
+.contribution-record:is(:hover, :focus-visible)::before {
+	opacity: 1;
+	border-left: 2px solid var(--signal);
 }
 
 .contribution-record.active::before {

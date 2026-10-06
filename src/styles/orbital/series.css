@@ -360,6 +360,7 @@
 	display: flex;
 	align-items: center;
 	gap: 9px;
+	padding: 4px 12px;
 	flex: 1;
 	min-width: 0;
 	position: relative;
@@ -393,11 +394,11 @@
 	font-size: var(--text-caption);
 }
 
-.orbital-site .path-branch-shortcuts button:hover {
+.orbital-site .path-branch-shortcuts button:is(:hover, :focus-visible) {
 	color: var(--signal);
 }
 
-.path-branch-shortcuts button:hover .path-shortcut-node {
+.path-branch-shortcuts button:is(:hover, :focus-visible) .path-shortcut-node {
 	background: var(--signal);
 	color: #2a2d2f;
 }
@@ -541,12 +542,13 @@
 }
 
 .orbital-site .path-reading-list button {
+	position: relative;
 	display: grid;
 	grid-template-columns: 20px minmax(0, 1fr) 13px;
 	align-items: start;
 	gap: 11px;
 	width: 100%;
-	padding: 15px 0;
+	padding: 15px 12px;
 	color: #c9ccce;
 	text-align: left;
 	font-size: 14px;
@@ -554,7 +556,7 @@
 	transition: color 0.18s;
 }
 
-.orbital-site .path-reading-list button:hover {
+.orbital-site .path-reading-list button:is(:hover, :focus-visible) {
 	color: var(--signal);
 }
 

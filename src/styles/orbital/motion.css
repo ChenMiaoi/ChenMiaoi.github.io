@@ -724,7 +724,7 @@
 .motion-ready:not(.motion-paused) :is(.dossier-hit, .contribution-record, .path-option, .project-port) {
 	transition: background-color 240ms, border-color 240ms, box-shadow 240ms;
 }
-.motion-ready:not(.motion-paused) :is(.dossier-hit, .contribution-record, .path-option):is(:hover, :focus-visible) {
+.motion-ready:not(.motion-paused) :is(.dossier-hit, .path-option):is(:hover, :focus-visible) {
 	box-shadow: inset 3px 0 #f0e43380;
 	background-color: #b8ca8f0a;
 }
@@ -904,9 +904,27 @@
 .motion-ready:not(.motion-paused) :is(.path-reading-list button, .path-branch-shortcuts button, .identity-field, .identity-contact) {
 	transition: background-color 220ms, box-shadow 220ms, color 220ms;
 }
-.motion-ready:not(.motion-paused) :is(.path-reading-list button, .path-branch-shortcuts button, .identity-field, .identity-contact):is(:hover, :focus-visible) {
+.orbital-site :is(.path-reading-list button, .path-branch-shortcuts button, .identity-field, .identity-contact)::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 50%;
+	width: 2px;
+	height: 24px;
+	border-radius: 1px;
+	background: var(--signal);
+	transform: translateY(-50%);
+	opacity: 0;
+	pointer-events: none;
+}
+.orbital-site :is(.path-reading-list button, .path-branch-shortcuts button, .identity-field, .identity-contact):is(:hover, :focus-visible) {
 	background-color: #c4d39b0c;
-	box-shadow: inset 2px 0 #e2e773;
+}
+.orbital-site :is(.path-reading-list button, .path-branch-shortcuts button, .identity-field, .identity-contact):is(:hover, :focus-visible)::before {
+	opacity: 1;
+}
+.motion-ready:not(.motion-paused) :is(.path-reading-list button, .path-branch-shortcuts button, .identity-field, .identity-contact)::before {
+	transition: opacity 220ms;
 }
 .motion-ready:not(.motion-paused) :is(.path-article-number, .path-shortcut-node, .path-number) {
 	transition: color 220ms, transform 220ms;

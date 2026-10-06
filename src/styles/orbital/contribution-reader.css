@@ -342,7 +342,7 @@
 	justify-content: space-between;
 	color: #aeb1b3;
 	font-size: var(--text-caption);
-	padding: 9px 0;
+	padding: 9px 12px;
 	cursor: pointer;
 }
 

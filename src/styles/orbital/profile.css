@@ -322,11 +322,12 @@
 }
 
 .orbital-site .identity-field {
+	position: relative;
 	display: flex;
 	align-items: center;
 	width: 100%;
 	gap: 17px;
-	padding: 11px 15px 11px 0;
+	padding: 11px 15px 11px 12px;
 	text-align: left;
 	border-bottom: 1px solid var(--identity-line);
 	color: #d8dbdd;
@@ -366,7 +367,7 @@
 	flex: 0 0 auto;
 }
 
-.orbital-site .identity-field:hover {
+.orbital-site .identity-field:is(:hover, :focus-visible) {
 	background: linear-gradient(90deg, #adb0b233, transparent);
 	color: #f0eeaa;
 }
@@ -378,11 +379,12 @@
 }
 
 .identity-contact {
+	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
-	padding: 13px 0;
+	padding: 13px 0 13px 12px;
 	min-height: 69px;
 	border-bottom: 1px solid var(--identity-line);
 	color: #dbdee0;
@@ -407,8 +409,8 @@
 	flex: 0 0 auto;
 }
 
-.identity-contact:hover strong,
-.identity-contact:hover small {
+.identity-contact:is(:hover, :focus-visible) strong,
+.identity-contact:is(:hover, :focus-visible) small {
 	color: #ecefae;
 }
 
