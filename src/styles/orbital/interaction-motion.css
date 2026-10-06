@@ -1,0 +1,83 @@
+.orbital-site [data-feedback] { isolation: isolate; }
+.orbital-site :is(.context-panel, .identity-field, .identity-contact, .identity-primary, .identity-secondary, .read-action, .path-start, .topology-open) { position: relative; }
+.orbital-site .terminal-shell [data-feedback] > :is(.interaction-light, .interaction-pulse) {
+	position: absolute;
+	inset: 0;
+	display: block;
+	width: auto;
+	height: auto;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: inherit;
+	pointer-events: none;
+	z-index: -1;
+}
+.orbital-site .interaction-light {
+	background: radial-gradient(180px circle at var(--light-x, 50%) var(--light-y, 50%), #f4eb3214, transparent 72%);
+	opacity: 0;
+}
+.orbital-site .interaction-pulse { overflow: hidden; }
+.orbital-site .interaction-pulse > i {
+	position: absolute;
+	width: 18px;
+	height: 18px;
+	border: 1px solid #f4eb3280;
+	border-radius: 50%;
+	background: #f4eb320d;
+	opacity: 0;
+}
+.orbital-site .motion-ready:not(.motion-paused) .interaction-light { transition: opacity 240ms; }
+.orbital-site .motion-ready:not(.motion-paused) [data-light-active] > .interaction-light,
+.orbital-site .motion-ready:not(.motion-paused) [data-feedback]:focus-visible > .interaction-light { opacity: 1; }
+.orbital-site .terminal-shell .portrait-mount > .interaction-light { z-index: 2; mix-blend-mode: screen; }
+.orbital-site :is(.read-action, .path-start, .identity-primary, .topology-open) .interaction-pulse > i { border-color: #fffceba8; background: #fffce830; }
+
+.orbital-site .category-tabs { position: relative; }
+.orbital-site .motion-ready:not(.motion-paused) .category-tabs[data-selection-ready] button.active::after { opacity: 0; }
+.orbital-site .motion-ready:not(.motion-paused) .is-selected .dossier-index { animation: instrument-label 360ms ease-out; }
+.orbital-site .motion-ready:not(.motion-paused) .path-watermark { animation: instrument-label 600ms ease-out; }
+
+.inspector-acquisition {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	opacity: 0;
+	background: linear-gradient(#f4eb3280, #f4eb3280) top left / 40px 1px no-repeat,
+		linear-gradient(#f4eb3260, #f4eb3260) top left / 1px 30px no-repeat,
+		linear-gradient(#f4eb3260, #f4eb3260) bottom right / 40px 1px no-repeat,
+		linear-gradient(#f4eb3240, #f4eb3240) bottom right / 1px 30px no-repeat;
+}
+.orbital-site .motion-ready:not(.motion-paused) .inspector-acquisition { animation: instrument-frame 650ms ease-out; }
+.orbital-site .identity-introduction h2 { position: relative; }
+.orbital-site .identity-introduction h2::after {
+	content: "";
+	position: absolute;
+	left: 4px;
+	bottom: -8px;
+	width: 150px;
+	height: 1px;
+	background: linear-gradient(90deg, #f4eb32, #f4eb3210);
+	transform-origin: left;
+	opacity: 0;
+}
+.orbital-site .motion-ready:not(.motion-paused) .identity-dossier:has(.portrait-mount[data-light-active]) .identity-introduction h2::after { animation: signature-signal 750ms ease-out; }
+@keyframes instrument-label {
+	from { opacity: .15; transform: translateY(5px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+@keyframes instrument-frame {
+	0% { opacity: 0; clip-path: inset(0 100% 100% 0); }
+	40% { opacity: .8; clip-path: inset(0); }
+	100% { opacity: 0; clip-path: inset(0); }
+}
+@keyframes signature-signal {
+	0% { opacity: 0; transform: scaleX(.05); }
+	45% { opacity: .8; transform: scaleX(1); }
+	100% { opacity: 0; transform: scaleX(1); }
+}
+.orbital-site .motion-paused .interaction-light { opacity: 0 !important; }
+@media (prefers-reduced-motion: reduce) {
+	.orbital-site .interaction-light, .orbital-site .interaction-pulse { opacity: 0 !important; }
+	.orbital-site .category-tabs[data-selection-ready] button.active::after { opacity: 1 !important; }
+}

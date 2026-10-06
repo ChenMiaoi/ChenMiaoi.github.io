@@ -9,10 +9,12 @@
   import BrandIcon from "./BrandIcon.svelte";
   import { contributionDiffLines } from "../../utils/contribution-diff";
   import type { ContributionDetail, SourceRecord } from "./types";
+  import { disclosureReception } from "./interaction-motion";
 
   export let record: SourceRecord;
   export let detail: ContributionDetail | undefined;
   export let account = "";
+  export let reducedMotion = true;
   $: pr = detail?.pullRequest;
   $: ci = summarizeChecks(pr?.checks ?? []);
   const ciLabel = (value: string) => ({ passed: t("检查通过"), failed: t("检查未通过"), pending: t("检查进行中"), neutral: t("检查已结束"), none: t("暂无检查") } as Record<string, string>)[value];
@@ -60,7 +62,7 @@
   }
 </script>
 
-<article class="contribution-reader" aria-label={t("{v0}内容阅读器", { v0: kind })}>
+<article class="contribution-reader" aria-label={t("{v0}内容阅读器", { v0: kind })} use:disclosureReception={!reducedMotion}>
   <header class="contribution-reader-heading">
     <div class="reader-record-topline"><span class="reader-record-type"><ContributionIcon name={recordVisual.icon} tone={recordVisual.tone} size={20}/>{kind} {t("/ 原始记录")}</span>{#if record.kind !== 'commit'}<ContributionStatus label={stateLabel} icon={recordVisual.icon} tone={recordVisual.tone}/>{/if}<button class="record-copy" aria-label={t("复制{v0}{v1}", { v0: kind, v1: record.kind === 'commit' ? ' SHA' : t("编号") })} onclick={copyReference}><code>{record.reference}</code><span>{copyState || t("复制")}</span></button><span class="copy-feedback" role="status">{copyState}</span></div>
     <h2>{detail?.title ?? record.title}</h2>

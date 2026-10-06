@@ -3,6 +3,7 @@
   const { t, dateLocale } = useTranslations();
   import { tick } from "svelte";
   import TerminalIcon from "./TerminalIcon.svelte";
+  import InteractionGlow from "./InteractionGlow.svelte";
   import { revealOnView } from "./motion";
   import type { ArchivePost, ArchiveSeries } from "./types";
   export let posts: ArchivePost[];
@@ -116,7 +117,8 @@
               {#each filteredPosts as post, index (post.slug)}
                 <div class="dossier" class:is-selected={selectedPost?.slug === post.slug}>
                   <span class="rail-node" aria-hidden="true"></span>
-                  <button class="dossier-hit" aria-label={t("预览：{v0}", { v0: post.title })} aria-pressed={selectedPost?.slug === post.slug} onclick={() => { selectedSlug = post.slug; }} onkeydown={(event) => moveSelection(event,index)}>
+                  <button class="dossier-hit" data-feedback aria-label={t("预览：{v0}", { v0: post.title })} aria-pressed={selectedPost?.slug === post.slug} onclick={() => { selectedSlug = post.slug; }} onkeydown={(event) => moveSelection(event,index)}>
+                    <InteractionGlow/>
                     <span class="dossier-lock" aria-hidden="true"></span>
                     <span class="dossier-index" aria-hidden="true">{String(filteredPosts.indexOf(post) + 1).padStart(2, "0")}</span>
                     <span class="dossier-meta"><time class="dossier-date" datetime={post.date.replaceAll(".", "-")}>{post.date}</time><span>{selectedPost?.slug === post.slug ? t("正在预览") : post.category === 'linux' ? 'LINUX' : t("硬件")}</span></span>
@@ -140,7 +142,8 @@
 
           <aside class="context-column" aria-label={t("当前文章预览")}>
             {#if selectedPost}
-              <div class="context-panel" bind:this={contextPanel}>
+              <div class="context-panel" data-feedback bind:this={contextPanel}>
+                <InteractionGlow/>
                 <div class="context-label"><span><i></i>{t("当前档案")}</span><small>{t("文档 /")} {String(selectedIndex).padStart(2, '0')}</small></div>
                 {#key selectedPost.slug}
                   <div class="context-content" class:context-receiving={motionReady && !reducedMotion}>
@@ -157,7 +160,7 @@
                         {/each}
                       {:else}<p>{selectedPost.tags.join(" / ") || selectedPost.seriesTitle}</p>{/if}
                     </div>
-                    <button class="signal-button read-action" onclick={() => openReader(selectedPost)}><span>{t("进入阅读")}<small>{t("阅读文档")}</small></span><TerminalIcon name="external" size={22}/></button>
+                    <button class="signal-button read-action" data-feedback onclick={() => openReader(selectedPost)}><InteractionGlow/><span>{t("进入阅读")}<small>{t("阅读文档")}</small></span><TerminalIcon name="external" size={22}/></button>
                   </div>
                 {/key}
               </div>

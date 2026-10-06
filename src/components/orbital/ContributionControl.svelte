@@ -8,12 +8,15 @@
   import type { ContributionActivitySnapshot, ContributionDetailsSnapshot } from "./types";
   import BrandIcon from "./BrandIcon.svelte";
   import TerminalIcon from "./TerminalIcon.svelte";
+  import { revealOnView, revealSequence } from "./motion";
+  import { selectionRail } from "./interaction-motion";
   const { t } = useTranslations();
   export let projects: ContributionProject[];
   export let activity: ContributionActivitySnapshot;
   export let details: ContributionDetailsSnapshot;
   export let loading = false;
   export let failed = false;
+  export let reducedMotion = true;
   export let onOpen: (project: string, record: string) => void;
   let sectorId = "all";
   let tab: "active" | "archive" = "active";
@@ -38,16 +41,17 @@
 
 <section class="mission-control" aria-label={t("开源任务控制台")}>
   <div class="mission-crown"><span><i aria-hidden="true"></i>{t("贡献档案")}</span><span>{activity.account} <b aria-hidden="true">//</b> {t("{v0} 个项目", { v0: pad(projects.length) })}</span></div>
-  <div class="mission-metrics" aria-label={t("协作统计")} aria-live="polite" aria-atomic="true">
+  <div class="mission-metrics" aria-label={t("协作统计")} aria-live="polite" aria-atomic="true" use:revealOnView={{key: `${sectorId}|${totals.issues}|${totals.prs}|${totals.active}|${totals.commits}`, enabled: !reducedMotion, selector: 'strong'}}>
     <div><strong>{pad(totals.issues)}</strong><span>{t("参与 Issue")}</span></div>
     <div><strong>{pad(totals.prs)}</strong><span>{t("收录 PR")}</span></div>
     <div><strong>{pad(totals.active)}</strong><span>{t("当前协作")}</span></div>
     <div><strong>{pad(totals.commits)}</strong><span>{t("收录提交")}</span></div>
   </div>
-  <div class="mission-chapters" role="group" aria-label={t("分项目统计")}>
+  <div class="mission-chapters" role="group" aria-label={t("分项目统计")} use:revealSequence={{key: overview.sectors.map((sector) => sector.project.id).join('|'), enabled: !reducedMotion, selector: '.chapter-caption', wait: 80}}>
     {#each overview.sectors as sector, index (sector.project.id)}
       <button class="mission-chapter" class:chapter-selected={sectorId === sector.project.id} aria-label={t("选择项目：{v0}", {v0: sector.project.name})} aria-pressed={sectorId === sector.project.id} style={`--cover-position:${coverPosition[sector.project.id] ?? '50%'}`} onclick={() => sectorId = sectorId === sector.project.id ? "all" : sector.project.id}>
         <span class="chapter-art" aria-hidden="true"></span>
+        <span class="chapter-glint" aria-hidden="true"></span>
         <span class="chapter-number" aria-hidden="true">{pad(index + 1)}</span>
         <span class="chapter-symbol" aria-hidden="true"><BrandIcon name={sector.project.id} size={20} framed={false}/></span>
         <span class="chapter-caption"><span class="chapter-category">{chapterNames[sector.project.id] ?? t("开源")}</span><strong>{projectLabel(sector.project.id, sector.project.name)}</strong><span class="chapter-counts">{#if sector.issues}<span>{pad(sector.issues)} Issue</span>{/if}{#if sector.prs}<span>{pad(sector.prs)} PR</span>{/if}{#if sector.commits}<span>{pad(sector.commits)} {t("提交记录")}</span>{/if}</span></span>
@@ -56,8 +60,8 @@
   </div>
   <div class="mission-workspace">
     <section class="mission-queue" aria-label={t("协作任务列表")}>
-      <header class="mission-queue-heading"><div class="mission-tabs" role="group" aria-label={t("选择任务队列")}><button aria-pressed={tab === 'active'} onclick={() => tab = 'active'}>{t("当前协作")} <span>{activeCount}</span></button><button aria-pressed={tab === 'archive'} onclick={() => tab = 'archive'}>{t("成果档案")}</button></div><span>{t("{v0} 条记录", { v0: pad(missions.length) })}</span></header>
-      <div class="mission-log-scroll" tabindex="0" role="region" aria-label={t("协作任务列表")}>
+      <header class="mission-queue-heading"><div class="mission-tabs" role="group" aria-label={t("选择任务队列")} use:selectionRail={{key: tab, enabled: !reducedMotion}}><button aria-pressed={tab === 'active'} onclick={() => tab = 'active'}>{t("当前协作")} <span>{activeCount}</span></button><button aria-pressed={tab === 'archive'} onclick={() => tab = 'archive'}>{t("成果档案")}</button><span class="selection-rail" aria-hidden="true"></span></div><span>{t("{v0} 条记录", { v0: pad(missions.length) })}</span></header>
+      <div class="mission-log-scroll" tabindex="0" role="region" aria-label={t("协作任务列表")} use:revealSequence={{key: `${sectorId}|${tab}|${missions.length}`, enabled: !reducedMotion, selector: '.mission-entry-body'}}>
         {#each missions as mission (mission.url ?? mission.id)}
           {@const visual = recordPresentation(mission.kind, mission.state)}
           <button class="mission-entry" aria-pressed={focusedMission?.url === mission.url && focusedMission?.id === mission.id} onclick={() => focusedId = mission.url ?? mission.id}>
@@ -69,8 +73,9 @@
       </div>
     </section>
     <section class="mission-briefing" aria-label={t("任务简报")}>
+      {#key focusedMission?.url ?? focusedMission?.id}{#if focusedMission}<span class="briefing-reception" aria-hidden="true"></span>{/if}{/key}
       <header class="briefing-heading"><h2>{t("任务简报")}</h2><span>{t("记录 / 详情")}</span></header>
-      <div class="mission-focus">
+      <div class="mission-focus" use:revealSequence={{key: focusedMission?.url ?? focusedMission?.id ?? '', enabled: !reducedMotion, selector: '.focus-project, h3, .focus-reference, .focus-facts > div', wait: 70}}>
         {#if focusedMission}
           {@const visual = recordPresentation(focusedMission.kind, focusedMission.state)}
           <p class="focus-project">{focusedMission.projectName}</p><h3>{focusedMission.title}</h3>

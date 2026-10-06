@@ -83,6 +83,18 @@ Previous/next controls reveal the corresponding record in the rail and reset the
 reader; on mobile the rail scrolls horizontally and the reader follows page scrolling.
 This view uses `SourceDock.svelte`, `ContributionReader.svelte`, `src/styles/orbital/source.css`
 and `src/styles/orbital/contribution-reader.css`.
+The dashboard's project cards use a hover light sweep and subtle image zoom;
+statistics, task rows and the selected briefing arrive in short sequences. View
+and queue tabs share a measured sliding underline that follows resizing and wrapped
+controls. Native discussion, check and diff disclosures open immediately, with a
+brief content fade. `interaction-motion.ts` owns underline and disclosure cleanup;
+`contribution-motion.css` adds these effects and status feedback. Both respect the
+motion toggle and system reduced-motion setting, while keeping content visible.
+`surface-feedback.ts` delegates pointer light and press rings to one shell listener
+set across article cards, series entries, map nodes and profile links. These
+decorations use `InteractionGlow.svelte` and `interaction-motion.css`; they do not
+intercept clicks or keyboard activation. Turning motion off cancels pending frames
+and active rings. Touch devices receive press feedback without pointer hover light.
 Project cards and tabs put the most recently updated record first, using Issue/PR
 updates or commit dates. The record archive defaults to the first project;
 explicit project and record selections stay selected when the order changes.

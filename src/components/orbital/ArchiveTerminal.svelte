@@ -15,6 +15,8 @@
   import ProfileDossier from "./ProfileDossier.svelte";
   import WelcomePortal from "./WelcomePortal.svelte";
   import { navigationBeacon, revealSequence } from "./motion";
+  import { selectionRail } from "./interaction-motion";
+  import { surfaceFeedback } from "./surface-feedback";
   import type { ArchivePost, ArchiveSeries, ContributionActivitySnapshot } from "./types";
   import type { ContributionProject, ProfileConfig } from "../../types/config";
 
@@ -321,7 +323,7 @@
 {:else}
 <a class="skip-link" href="#terminal-main">{t("跳到文章")}</a>
 
-<div class="terminal-shell" class:station-arriving={archiveArrival} class:station-returning={returningToWelcome} inert={returningToWelcome} aria-busy={returningToWelcome} style={`--welcome-return-duration:${WELCOME_RETURN_DURATION}ms`} onanimationend={(event) => { if (event.target === event.currentTarget) archiveArrival = false; }} class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:ambient-paused={ambientPaused} class:archive-view={section === 'articles'} class:series-view={section === 'series'} class:graph-view={section === 'graph'} class:source-view={section === 'code'} class:about-view={section === 'about'}>
+<div class="terminal-shell" use:surfaceFeedback={motionReady && !reducedMotion} class:station-arriving={archiveArrival} class:station-returning={returningToWelcome} inert={returningToWelcome} aria-busy={returningToWelcome} style={`--welcome-return-duration:${WELCOME_RETURN_DURATION}ms`} onanimationend={(event) => { if (event.target === event.currentTarget) archiveArrival = false; }} class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:ambient-paused={ambientPaused} class:archive-view={section === 'articles'} class:series-view={section === 'series'} class:graph-view={section === 'graph'} class:source-view={section === 'code'} class:about-view={section === 'about'}>
   <svg class="terminal-orbit" viewBox="0 0 1600 1000" preserveAspectRatio="none" aria-hidden="true"><g class="orbit-rail"><path d="M136 123C38 280 20 705 143 902"/><path d="M127 121C24 305 17 716 137 907"/><path class="orbit-transmission" d="M136 123C38 280 20 705 143 902" pathLength="1"/><circle cx="136" cy="123" r="5"/><circle cx="143" cy="902" r="5"/></g><path class="orbit-ground" d="M215 950H1450l75-75"/></svg>
   <SiteHeader {localePrefix} {reducedMotion} {query} bind:searchInput onReturn={returnToWelcome} onSearch={search}/>
 
@@ -351,10 +353,11 @@
       <div class="archive-heading">
         <div><p class="terminal-kicker"><span></span>{activeSection.kicker}</p><svelte:element this={(!hydrated && hasArticle) || readerOpen ? "p" : "h1"} class="heading-title">{activeSection.title}<span class="heading-mark" aria-hidden="true">/</span></svelte:element>{#if descriptions[section]}<p class="heading-description">{descriptions[section]}</p>{/if}</div>
         {#if section === "articles"}
-          <div class="category-tabs" aria-label={t("文章分类")}>
+          <div class="category-tabs" aria-label={t("文章分类")} use:selectionRail={{key: category, enabled: motionReady && !reducedMotion}}>
             {#each [{ value: "all", label: t("全部") }, { value: "linux", label: "Linux" }, { value: "hardware", label: t("硬件设计") }] as tab}
               <button class:active={category === tab.value} aria-pressed={category === tab.value} onclick={() => { category = tab.value; seriesFilter = ""; setSection("articles"); storeFilters(); }}>{#if tab.value !== 'all'}<BrandIcon name={tab.value === 'linux' ? 'linux' : 'chip'} size={15} framed={false}/>{/if}{tab.label}</button>
             {/each}
+            <span class="selection-rail" aria-hidden="true"></span>
           </div>
         {:else}<span class="section-coordinate">{t("Miao 的个人档案")}</span>{/if}
       </div>

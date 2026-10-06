@@ -4,6 +4,7 @@
   import { tick } from "svelte";
   import { fly } from "svelte/transition";
   import TerminalIcon from "./TerminalIcon.svelte";
+  import InteractionGlow from "./InteractionGlow.svelte";
   import { revealSequence, revealOnView } from "./motion";
   import { sortSeriesByRecency } from "../../lib/content/series-recency";
   import type { ArchivePost, ArchiveSeries } from "./types";
@@ -85,8 +86,8 @@
       </div>
       <div class="path-options" bind:this={seriesRail} use:revealSequence={{key: String(showEmpty), enabled: !reducedMotion, selector: '.path-name'}}>
         {#each roots as collection, index (collection.slug)}
-          <button class="path-option" class:active={current?.slug === collection.slug} aria-pressed={current?.slug === collection.slug} aria-label={t("查看系列：{v0}", { v0: collection.title })} onclick={() => { selection = collection.slug; }}>
-            <span class="path-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+          <button class="path-option" data-feedback class:active={current?.slug === collection.slug} aria-pressed={current?.slug === collection.slug} aria-label={t("查看系列：{v0}", { v0: collection.title })} onclick={() => { selection = collection.slug; }}>
+            <InteractionGlow/><span class="path-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
             <span class="path-name"><strong>{shortTitle(collection.title)}</strong><small>{collection.posts.length ? t("{v0} 篇文章", { v0: collection.posts.length }) : t("尚未收录")}</small></span>
             <TerminalIcon name="arrow" size={15}/>
           </button>
@@ -98,7 +99,7 @@
     {#if current}
       <section class="path-manifest" aria-labelledby="path-title">
         {#key current.slug}
-          <div class="path-manifest-content" in:fly={{ x: reducedMotion ? 0 : 10, duration: reducedMotion ? 0 : 280 }}>
+          <div class="path-manifest-content" in:fly={{ x: reducedMotion ? 0 : 10, duration: reducedMotion ? 0 : 280 }} use:revealSequence={{key: current.slug, enabled: !reducedMotion, selector: '.path-hero-line, #path-title, .path-subtitle, .path-description', wait: 70}}>
             <header class="path-hero">
               <div class="path-hero-line"><span>{t("系列 /")} {String(currentIndex).padStart(2, "0")}</span><span>{t("{v0} 份文档", { v0: current.posts.length })}</span></div>
               <span class="path-watermark" aria-hidden="true">{String(currentIndex).padStart(2, "0")}</span>
@@ -106,7 +107,7 @@
               {#if subtitle(current.title)}<p class="path-subtitle">{subtitle(current.title)}</p>{/if}
               <div class="path-summary-row">
                 <p class="path-description">{current.description}</p>
-                {#if firstPost}<div class="path-hero-actions"><button class="path-start" onclick={() => onRead(firstPost)}>{t("开始阅读")}<TerminalIcon name="external" size={18}/></button></div>{/if}
+                {#if firstPost}<div class="path-hero-actions"><button class="path-start" data-feedback onclick={() => onRead(firstPost)}><InteractionGlow/>{t("开始阅读")}<TerminalIcon name="external" size={18}/></button></div>{/if}
               </div>
             </header>
 
