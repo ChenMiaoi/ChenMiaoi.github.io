@@ -672,7 +672,6 @@
 }
 
 .orbital-site .terminal-sidebar nav a {
-	margin-left: var(--nav-offset);
 	padding: 17px 17px;
 	min-height: 58px;
 	gap: 14px;

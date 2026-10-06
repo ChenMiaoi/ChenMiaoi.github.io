@@ -197,6 +197,72 @@ export function readingBeacon(
 /** Track the actual navigation geometry, including the horizontal phone layout. */
 export function navigationBeacon(node: HTMLElement, _section: string) {
 	let frame = 0;
+	const shell = node.closest<HTMLElement>(".terminal-shell");
+	const svg = shell?.querySelector<SVGSVGElement>(".terminal-orbit");
+	const rail = svg?.querySelector<SVGGElement>(".orbit-rail");
+	const path = rail?.querySelector<SVGPathElement>("path");
+	const author = shell?.querySelector<HTMLElement>(".author-entry");
+	function alignOrbit(horizontal: boolean) {
+		const items = [...node.querySelectorAll<HTMLElement>("a")];
+		author?.style.removeProperty("--orbit-offset");
+		if (horizontal) {
+			for (const item of items) item.style.removeProperty("--orbit-offset");
+			rail?.removeAttribute("transform");
+			return;
+		}
+		const matrix = svg?.getScreenCTM();
+		if (!matrix || !path || !rail || !items.length) return;
+		const inverse = matrix.inverse();
+		const length = path.getTotalLength();
+		const points = items.map((item) => {
+			const rect = item.getBoundingClientRect();
+			const y = new DOMPoint(0, rect.top + rect.height / 2).matrixTransform(
+				inverse,
+			).y;
+			let low = 0;
+			let high = length;
+			for (let i = 0; i < 24; i++) {
+				const mid = (low + high) / 2;
+				if (path.getPointAtLength(mid).y < y) low = mid;
+				else high = mid;
+			}
+			return path.getPointAtLength((low + high) / 2);
+		});
+		const start = points[0].x;
+		const offsets = points.map((point) => (point.x - start) * matrix.a);
+		// Deepen the middle arc while reserving room for a fully expanded button.
+		const bounds = node.getBoundingClientRect();
+		const available = Math.max(0, bounds.left - 16);
+		const inset = Math.min(14, available / 4);
+		const leftExcursion = -Math.min(0, ...offsets);
+		const rightExcursion = Math.max(0, ...offsets);
+		const mainLeft =
+			shell?.querySelector(".terminal-main")?.getBoundingClientRect().left ??
+			window.innerWidth;
+		const rightRoom = Math.max(
+			0,
+			mainLeft - 24 - (bounds.left - inset + bounds.width),
+		);
+		const curvature = 1.8;
+		const scale = Math.min(
+			curvature,
+			leftExcursion ? (available - inset) / leftExcursion : curvature,
+			rightExcursion ? rightRoom / rightExcursion : curvature,
+		);
+		const anchor = new DOMPoint(bounds.left - inset, 0).matrixTransform(
+			inverse,
+		).x;
+		rail.setAttribute(
+			"transform",
+			`matrix(${scale} 0 0 1 ${anchor - start * scale} 0)`,
+		);
+		items.forEach((item, index) => {
+			item.style.setProperty(
+				"--orbit-offset",
+				`${offsets[index] * scale - inset}px`,
+			);
+		});
+	}
 	function position() {
 		cancelAnimationFrame(frame);
 		frame = requestAnimationFrame(() => {
@@ -204,6 +270,7 @@ export function navigationBeacon(node: HTMLElement, _section: string) {
 			const beacon = node.querySelector<HTMLElement>(".nav-tracer");
 			if (!active || !beacon) return;
 			const horizontal = window.matchMedia("(max-width: 650px)").matches;
+			alignOrbit(horizontal);
 			const x = horizontal
 				? active.offsetLeft + active.offsetWidth / 2 - 10
 				: active.offsetLeft - 7;
@@ -218,6 +285,8 @@ export function navigationBeacon(node: HTMLElement, _section: string) {
 	}
 	const observer = new ResizeObserver(position);
 	observer.observe(node);
+	if (shell) observer.observe(shell);
+	if (author) observer.observe(author);
 	position();
 	return {
 		update: position,

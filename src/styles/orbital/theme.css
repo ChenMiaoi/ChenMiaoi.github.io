@@ -142,15 +142,129 @@
 }
 
 @media (min-width: 651px) {
+	.orbital-site .terminal-sidebar .primary-nav a,
+	.orbital-site .terminal-sidebar .author-entry {
+		position: relative;
+		left: var(--orbit-offset, 0px);
+		width: 100%;
+	}
 	.orbital-site .terminal-shell .terminal-sidebar {
 		padding-top: 24px;
 	}
 }
 
 @media (min-width: 1000px) {
-	.orbital-site .terminal-sidebar .primary-nav a {
-		min-height: 58px;
+	.orbital-site .terminal-shell .terminal-sidebar {
+		padding-top: 24px;
+	}
+	.orbital-site .terminal-shell .sidebar-label {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-left: 0;
+		margin-bottom: 10px;
+	}
+	.orbital-site .terminal-shell .sidebar-label::before {
+		content: "";
+		width: 20px;
+		height: 2px;
+		background: var(--signal);
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav {
+		flex: 0 0 auto;
+		justify-content: space-between;
+		min-height: 308px;
+		height: clamp(308px, 40svh, 460px);
+		margin-top: clamp(40px, calc(30svh - 130px), 240px);
+		gap: 12px;
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a {
+		flex: 0 0 auto;
+		width: 72px;
+		height: 56px;
+		min-height: 56px;
+		padding: 14px 20px;
 		font-size: 14px;
+		gap: 0;
+		overflow: hidden;
+		background: linear-gradient(125deg, #314047f2, #101a21f5);
+		border-color: #a6bdc66b;
+		box-shadow: inset 2px 0 #a1bac788, inset 0 1px #d9ecf122;
+		clip-path: polygon(8px 0, calc(100% - 12px) 0, 100% 12px,
+			100% calc(100% - 12px), calc(100% - 12px) 100%, 8px 100%,
+			0 calc(100% - 8px), 0 8px);
+		transition: width 320ms cubic-bezier(.22, 1, .36, 1),
+			background 180ms, border-color 180ms, box-shadow 180ms;
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a > svg {
+		flex-shrink: 0;
+		width: 24px;
+		height: 24px;
+		transform: none;
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a > span {
+		position: absolute;
+		left: 60px;
+		right: 18px;
+		top: 50%;
+		opacity: 0;
+		line-height: 1.3;
+		white-space: normal;
+		overflow-wrap: anywhere;
+		transform: translate(-6px, -50%);
+		transition: opacity 100ms, transform 180ms;
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a::after {
+		content: "";
+		position: absolute;
+		left: 20px;
+		bottom: 5px;
+		width: 24px;
+		height: 2px;
+		background: repeating-linear-gradient(90deg, currentColor 0 4px, transparent 4px 7px);
+		opacity: .3;
+		pointer-events: none;
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a small {
+		display: block;
+		position: absolute;
+		top: 5px;
+		right: 13px;
+		font-size: 8px;
+		letter-spacing: 1px;
+		opacity: .7;
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a:is(:hover, :focus-visible) {
+		width: 100%;
+		transform: none;
+		border-color: var(--signal);
+		background: linear-gradient(120deg, #3e4b4fe8, #19272deb);
+		box-shadow: inset 2px 0 var(--signal), inset 0 1px #f7ed8e88,
+			inset 0 0 22px #f3e72e18;
+		outline: none;
+		filter: none;
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a:is(:hover, :focus-visible) > span {
+		opacity: 1;
+		transform: translate(0, -50%);
+		transition-delay: 70ms;
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a.active {
+		background: var(--signal);
+		border-color: var(--signal);
+		box-shadow: inset 3px 0 #424547;
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a.active:is(:hover, :focus-visible) {
+		background: #fff566;
+		color: var(--ink);
+	}
+	.orbital-site .terminal-shell.motion-paused .primary-nav a,
+	.orbital-site .terminal-shell.motion-paused .primary-nav a > span {
+		transition: none;
+		transition-delay: 0ms;
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .author-entry {
+		margin-top: auto;
 	}
 	.orbital-site .terminal-shell .archive-heading .heading-title {
 		font-size: clamp(32px, 2.3vw, 44px);
@@ -162,8 +276,15 @@
 		grid-template-columns: 195px minmax(0, 1fr);
 		column-gap: 48px;
 	}
-	.orbital-site .terminal-sidebar .primary-nav a {
-		font-size: 16px;
+}
+
+@media (min-width: 1000px) and (hover: none) {
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a {
+		width: 100%;
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a > span {
+		opacity: 1;
+		transform: translate(0, -50%);
 	}
 }
 

@@ -278,7 +278,7 @@
 <a class="skip-link" href="#terminal-main">{t("跳到文章")}</a>
 
 <div class="terminal-shell" class:station-arriving={archiveArrival} onanimationend={(event) => { if (event.target === event.currentTarget) archiveArrival = false; }} class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:ambient-paused={ambientPaused} class:archive-view={section === 'articles'} class:series-view={section === 'series'} class:graph-view={section === 'graph'} class:source-view={section === 'code'} class:about-view={section === 'about'}>
-  <svg class="terminal-orbit" viewBox="0 0 1600 1000" preserveAspectRatio="none" aria-hidden="true"><path d="M136 123C38 280 20 705 143 902"/><path d="M127 121C24 305 17 716 137 907"/><path class="orbit-transmission" d="M136 123C38 280 20 705 143 902" pathLength="1"/><circle cx="136" cy="123" r="5"/><circle cx="143" cy="902" r="5"/><path class="orbit-ground" d="M215 950H1450l75-75"/></svg>
+  <svg class="terminal-orbit" viewBox="0 0 1600 1000" preserveAspectRatio="none" aria-hidden="true"><g class="orbit-rail"><path d="M136 123C38 280 20 705 143 902"/><path d="M127 121C24 305 17 716 137 907"/><path class="orbit-transmission" d="M136 123C38 280 20 705 143 902" pathLength="1"/><circle cx="136" cy="123" r="5"/><circle cx="143" cy="902" r="5"/></g><path class="orbit-ground" d="M215 950H1450l75-75"/></svg>
   <header class="terminal-header">
     <button class="brand" aria-label={t("Miao's Blog，返回文章档案")} onclick={() => navigate("articles")}>
       <svg class="brand-mark" viewBox="0 0 52 52" aria-hidden="true"><path d="M35 4h10L17 36H7zM19 30h9L12 48H2z" fill="currentColor"/><path d="M34 29h12L31 47H19z" fill="#f3dc26"/></svg>
@@ -302,7 +302,7 @@
       <nav class="primary-nav" aria-label={t("主导航")} use:navigationBeacon={section}>
         <span class="nav-tracer" aria-hidden="true"></span>
         {#each navigation as item, index}
-          <a href={localePrefix + sectionPaths[item.id]} class:active={section === item.id} style={`--nav-offset:${[17,4,0,4,17][index]}px`} aria-current={section === item.id ? "page" : undefined} onclick={(event) => { if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); navigate(item.id); }}>
+          <a href={localePrefix + sectionPaths[item.id]} class:active={section === item.id} aria-current={section === item.id ? "page" : undefined} onclick={(event) => { if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); navigate(item.id); }}>
             <TerminalIcon name={item.icon} size={20}/><span>{item.label}</span><small aria-hidden="true">{String(index + 1).padStart(2, "0")}</small>
           </a>
         {/each}
