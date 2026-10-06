@@ -885,12 +885,6 @@
 .motion-ready:not(.motion-paused) .author-entry:is(:hover, :focus-visible) .sidebar-avatar img {
 	transform: scale(1.035);
 }
-.motion-ready:not(.motion-paused) .author-entry .sidebar-author-copy svg {
-	transition: transform 260ms;
-}
-.motion-ready:not(.motion-paused) .author-entry:is(:hover, :focus-visible) .sidebar-author-copy svg {
-	transform: translateX(3px);
-}
 .motion-ready:not(.motion-paused) :is(.context-panel, .path-hero, .patch-chamber, .topology-inspector) {
 	transition: border-color 260ms, box-shadow 260ms;
 }

@@ -340,7 +340,7 @@
         <span class="sidebar-avatar" aria-hidden="true">
           {#if profile.avatar}<img src={profile.avatar} alt="" width="180" height="180" decoding="async"/>{:else}<span>{profile.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}</span>{/if}
         </span>
-        <span class="sidebar-author-copy"><strong>{profile.name}</strong><span>{t("关于作者")}<TerminalIcon name="arrow" size={18}/></span></span>
+        <span class="sidebar-author-copy"><strong>{profile.name}</strong></span>
       </button>
     </aside>
 
