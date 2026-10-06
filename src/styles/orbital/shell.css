@@ -563,16 +563,14 @@
 	width: 100%;
 	height: min(1100px, 100%);
 	fill: none;
-	stroke: #c7cacc33;
+	stroke: #c7cacc22;
 	stroke-width: 1;
 	pointer-events: none;
 	z-index: -1;
 }
 
 .terminal-orbit circle {
-	fill: var(--signal);
-	stroke: #101315;
-	stroke-width: 3;
+	display: none;
 }
 
 .terminal-orbit .orbit-ground {
@@ -676,7 +674,7 @@
 	min-height: 58px;
 	gap: 14px;
 	color: #dcdfe1;
-	background: linear-gradient(90deg, #272a2cdd, #272a2c45);
+	background: linear-gradient(90deg, #272a2c, #232628);
 	border: 1px solid #bbbec021;
 	clip-path: polygon(
 		7px 0,
@@ -864,7 +862,9 @@
 	.orbital-site .terminal-header {
 		height: auto;
 		padding: 22px 0 19px;
-		gap: 22px;
+		flex-wrap: wrap;
+		gap: 16px;
+		row-gap: 20px;
 	}
 	.orbital-site .brand strong {
 		font-size: 23px;
@@ -873,11 +873,28 @@
 		display: none;
 	}
 	.orbital-site .header-tools {
-		gap: 18px;
+		display: contents;
+	}
+	.orbital-site .header-tools .language-switcher {
+		margin-left: auto;
+	}
+	.orbital-site .terminal-header .language-options {
+		left: auto;
+		right: 0;
+	}
+	.orbital-site .terminal-header .language-options::before {
+		left: auto;
+		right: 23px;
 	}
 	.orbital-site .search-frame {
-		width: auto;
+		order: 1;
+		flex: 1 1 100%;
+		width: 100%;
 		padding: 10px 13px;
+	}
+	.orbital-site .github-link {
+		font-size: 0;
+		gap: 8px;
 	}
 	.orbital-site .terminal-sidebar {
 		padding: 0;

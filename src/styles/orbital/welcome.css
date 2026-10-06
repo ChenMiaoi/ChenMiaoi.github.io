@@ -118,7 +118,7 @@
   .orbital-site .portal-brand strong { font-size: 19px; }
   .orbital-site .portal-brand small { font-size: 6px; margin-top: 7px; }
   .portal-brand .brand-mark { width: 27px; height: 34px; }
-  .portal-skip { font-size: 10px; gap: 8px; }
+  .portal-skip { display: none; }
   .portal-main { grid-template-columns: 1fr; align-content: center; gap: 18px; min-height: auto; padding: 15px 0 34px; }
   .portal-instrument { grid-row: 1; width: min(65vw, 300px); margin: 0 auto -5px; }
   .portal-orbit-caption { font-size: 5px; letter-spacing: 1px; }

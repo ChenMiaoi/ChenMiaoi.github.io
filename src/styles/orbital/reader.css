@@ -78,9 +78,6 @@
 	border-radius: 0;
 }
 
-.orbital-site .reader-header .language-switcher {
-	margin-left: auto;
-}
 
 .orbital-site .reading-meter {
 	height: 2px;
@@ -358,8 +355,12 @@
 }
 
 .orbital-site .reader-body img {
-	border-radius: 2px;
+	border-radius: 3px;
 	margin: 12px auto;
+	padding: 10px;
+	background: #101315;
+	border: 1px solid #34383b;
+	box-shadow: 0 10px 30px #00000059;
 }
 
 .orbital-site .reader-body code:not(pre code) {

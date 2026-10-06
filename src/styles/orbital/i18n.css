@@ -82,9 +82,6 @@
   .orbital-site .github-link { font-size: 0; gap: 4px; }
 }
 @media (max-width: 650px) {
-  .orbital-site .terminal-header { height: auto; min-height: 118px; flex-wrap: wrap; gap: 12px; padding: 18px 0; }
-  .orbital-site .header-tools { width: 100%; flex-wrap: nowrap; gap: 10px; }
-  .orbital-site .search-frame { flex: 1; min-width: 0; width: auto; }
   .orbital-site .search-frame input { min-width: 0; width: 100%; }
   .language-toggle { font-size: 10px; padding: 5px 8px; gap: 6px; }
   .language-orbit { width: 20px; height: 20px; }
@@ -95,7 +92,6 @@
   .orbital-site .reader-header { flex-wrap: wrap; gap: 10px; min-height: 66px; height: auto; }
   .reader-header .language-toggle { min-height: 36px; }
   .reader-header .language-current small { display: none; }
-  .reader-header .language-switcher { margin-left: auto; }
   .reader-header .language-options { right: -36px; }
   .orbital-site .identity-actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: stretch; }
   .orbital-site .identity-actions button { min-width: 0; white-space: normal; line-height: 1.5; justify-content: space-between; text-align: left; }
