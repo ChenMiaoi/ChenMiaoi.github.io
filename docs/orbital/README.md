@@ -16,8 +16,17 @@ screen, as do legacy home URLs containing search or category filters. Back/forwa
 restore the entrance and archive by URL; reduced motion and the direct-entry link
 skip the departure animation. The welcome screen remains usable without JavaScript.
 
-Orbital is the only production interface. It reads published
-Chinese posts and series from the existing Astro content collections. The reader
+Orbital is the only production interface.
+
+The site shares one visual system across the entrance, section views and readers.
+`src/styles/orbital/tokens.css` defines the neutral charcoal/cool-gray palette,
+lemon-yellow signal, serif display stack, sans-serif body stack and monospace code
+stack. `theme.css` applies the shared heading hierarchy and navigation proportions;
+feature styles retain their layout and semantic status colors. New sections should
+use these shared tokens rather than introducing their own palette or sidebar sizing.
+
+It reads published Chinese posts and series from the existing Astro content
+collections. The reader
 uses the same rendered Markdown as the blog. Search, category and series filters,
 chronological sorting, archive selection, in-page reading and section navigation
 are interactive. The knowledge map displays actual series-to-series and

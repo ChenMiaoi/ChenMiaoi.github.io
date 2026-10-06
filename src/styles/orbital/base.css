@@ -19,8 +19,8 @@
 
 .orbital-site {
 	margin: 0;
-	color: #eff0eb;
-	font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+	color: var(--text);
+	font-family: var(--sans);
 	-webkit-font-smoothing: antialiased;
 	color-scheme: dark;
 }
@@ -59,7 +59,7 @@
 }
 
 .orbital-site {
-	background: #101416;
+	background: var(--canvas);
 }
 
 @media (prefers-reduced-motion: reduce) {

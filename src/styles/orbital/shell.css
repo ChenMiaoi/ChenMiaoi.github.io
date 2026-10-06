@@ -78,7 +78,7 @@
 .brand small {
 	display: block;
 	font: 8px var(--mono);
-	color: #9c9e9e;
+	color: #9b9ea0;
 	letter-spacing: 2.4px;
 	margin-top: 10px;
 }
@@ -100,8 +100,8 @@
 	align-items: center;
 	gap: 12px;
 	padding: 12px 0;
-	border-bottom: 1px solid #686a6a80;
-	color: #b8bdbb;
+	border-bottom: 1px solid #676a6c80;
+	color: #b9bcbe;
 	transition: border-color 0.2s;
 }
 
@@ -120,14 +120,14 @@
 }
 
 .search-frame input::placeholder {
-	color: #adaeae;
+	color: #abaeb0;
 }
 
 .search-frame kbd {
 	font: 9px var(--mono);
 	white-space: nowrap;
-	color: #808181;
-	border: 1px solid #494a4a;
+	color: #7e8183;
+	border: 1px solid #474a4c;
 	padding: 3px 5px;
 	border-radius: 3px;
 }
@@ -176,7 +176,7 @@
 	gap: 13px;
 	min-height: 48px;
 	padding: 12px 10px;
-	color: #959697;
+	color: #939698;
 	transition: background 0.18s,
 		color 0.18s;
 	font-size: 14px;
@@ -205,7 +205,7 @@
 }
 
 .terminal-sidebar nav a:hover {
-	color: #f3f4e9;
+	color: #f0f3f5;
 	background: #ffffff07;
 }
 
@@ -237,7 +237,7 @@
 	gap: 10px;
 	font: 9px var(--mono);
 	letter-spacing: 2.7px;
-	color: #9c9d9e;
+	color: #9a9d9f;
 }
 
 .terminal-kicker > span {
@@ -276,7 +276,7 @@
 }
 
 .category-tabs button {
-	color: #9a9c9c;
+	color: #999c9e;
 	padding: 12px 0;
 	position: relative;
 	transition: color 0.2s;
@@ -303,7 +303,7 @@
 .section-coordinate {
 	font: 8px var(--mono);
 	letter-spacing: 2px;
-	color: #6b6d6d;
+	color: #6a6d6f;
 	padding-bottom: 4px;
 }
 
@@ -313,7 +313,7 @@
 	justify-content: center;
 	gap: 18px;
 	background: var(--signal);
-	color: #212322;
+	color: #202325;
 	padding: 14px 24px;
 	min-height: 48px;
 	font-size: 13px;
@@ -333,14 +333,14 @@
 	gap: 24px;
 	height: 68px;
 	border-top: 1px solid #ffffff12;
-	color: #828585;
+	color: #818486;
 	font-size: 9px;
 	letter-spacing: 0.5px;
 }
 
 .terminal-footer i {
 	font-style: normal;
-	color: #545858;
+	color: #545759;
 	margin: 0 7px;
 }
 
@@ -350,11 +350,11 @@
 
 .feed-link {
 	font-size: 9px;
-	color: #868887;
+	color: #85888a;
 }
 
 .footer-words {
-	color: #959897;
+	color: #949799;
 }
 
 .skip-link {
@@ -546,8 +546,8 @@
 }
 
 .orbital-site .station-shade {
-	background: linear-gradient(90deg, #0b1014a8, #0c101566 45%, #090d1030),
-		linear-gradient(0deg, #0c1115e8, #10141818 70%);
+	background: linear-gradient(90deg, #0c0f11a8, #0d101266 45%, #090c0e30),
+		linear-gradient(0deg, #0d1012e8, #10131518 70%);
 }
 
 .orbital-site .terminal-shell {
@@ -563,7 +563,7 @@
 	width: 100%;
 	height: min(1100px, 100%);
 	fill: none;
-	stroke: #c3ccca33;
+	stroke: #c7cacc33;
 	stroke-width: 1;
 	pointer-events: none;
 	z-index: -1;
@@ -571,17 +571,17 @@
 
 .terminal-orbit circle {
 	fill: var(--signal);
-	stroke: #101416;
+	stroke: #101315;
 	stroke-width: 3;
 }
 
 .terminal-orbit .orbit-ground {
-	stroke: #c3ccca22;
+	stroke: #c7cacc22;
 }
 
 .orbital-site .terminal-header {
 	height: 106px;
-	border-color: #ccd8d221;
+	border-color: #d2d5d721;
 	gap: 46px;
 }
 
@@ -596,7 +596,7 @@
 
 .orbital-site .brand small {
 	font-size: 8px;
-	color: #b5bdbe;
+	color: #b8bbbd;
 }
 
 .orbital-site .header-hairline {
@@ -611,7 +611,7 @@
 	flex: 1;
 	height: 1px;
 	position: relative;
-	background: #bdc6c557;
+	background: #c1c4c657;
 }
 
 .header-hairline i::before {
@@ -621,21 +621,21 @@
 	top: -1px;
 	width: 3px;
 	height: 3px;
-	background: #d3d9d6;
+	background: #d5d8da;
 }
 
 .header-hairline > span {
 	font: 7px var(--mono);
 	letter-spacing: 1.5px;
-	color: #acb6b7;
+	color: #b1b4b6;
 	white-space: nowrap;
 }
 
 .orbital-site .search-frame {
 	width: 255px;
 	padding: 13px 17px;
-	border: 1px solid #b5c0bd70;
-	background: #1a2022e6;
+	border: 1px solid #babdbf70;
+	background: #1c1f21e6;
 	clip-path: polygon(
 		11px 0,
 		calc(100% - 11px) 0,
@@ -663,7 +663,7 @@
 
 .orbital-site .sidebar-label {
 	margin: 0 0 25px 28px;
-	color: #a1abaa;
+	color: #a6a9ab;
 	font-size: 8px;
 }
 
@@ -676,9 +676,9 @@
 	padding: 17px 17px;
 	min-height: 58px;
 	gap: 14px;
-	color: #dae0df;
-	background: linear-gradient(90deg, #242c2ddd, #242c2d45);
-	border: 1px solid #b4c1ba21;
+	color: #dcdfe1;
+	background: linear-gradient(90deg, #272a2cdd, #272a2c45);
+	border: 1px solid #bbbec021;
 	clip-path: polygon(
 		7px 0,
 		calc(100% - 16px) 0,
@@ -693,7 +693,7 @@
 }
 
 .orbital-site .terminal-sidebar nav a.active {
-	color: #191e1d;
+	color: #1a1d1f;
 	background: var(--signal);
 	font-weight: 700;
 	border-color: var(--signal);
@@ -703,18 +703,18 @@
 	inset: 9px auto 9px 4px;
 	width: 2px;
 	height: auto;
-	background: #474912;
+	background: #424547;
 }
 
 .orbital-site .terminal-sidebar nav a:hover {
-	background: #596064c9;
+	background: #5c5f61c9;
 	transform: translateX(3px);
 	color: white;
 }
 
 .orbital-site .terminal-sidebar nav a.active:hover {
 	background: #fff566;
-	color: #151b1a;
+	color: #171a1c;
 }
 
 .orbital-site .sidebar-note {
@@ -732,7 +732,7 @@
 }
 
 .orbital-site .terminal-kicker {
-	color: #b9c0bf;
+	color: #bbbec0;
 	font-size: 9px;
 	letter-spacing: 3px;
 }
@@ -750,7 +750,7 @@
 }
 
 .orbital-site .heading-description {
-	color: #aeb8b8;
+	color: #b3b6b8;
 	font-size: 12px;
 }
 
@@ -760,7 +760,7 @@
 }
 
 .orbital-site .category-tabs button {
-	color: #c2c9c7;
+	color: #c4c7c9;
 	font-size: 13px;
 }
 
@@ -780,12 +780,12 @@
 
 .orbital-site .terminal-footer {
 	min-height: 66px;
-	border-color: #b6c6b22d;
-	color: #bec8bf;
+	border-color: #bec1c32d;
+	color: #c2c5c7;
 }
 
 .orbital-site .footer-line {
-	background: #a3b09c38;
+	background: #a9acae38;
 }
 
 @media (min-width: 1450px) {
@@ -859,8 +859,8 @@
 		background-position: 65% top;
 	}
 	.orbital-site .station-shade {
-		background: linear-gradient(90deg, #0c1217a0, #0c121755),
-			linear-gradient(0deg, #0c1115d9, transparent);
+		background: linear-gradient(90deg, #0e1113a0, #0e111355),
+			linear-gradient(0deg, #0d1012d9, transparent);
 	}
 	.orbital-site .terminal-header {
 		height: auto;
@@ -1217,7 +1217,7 @@
 	border-top: 1px solid var(--archive-rule);
 	background: none;
 	text-align: left;
-	color: #eff1e8;
+	color: #edf0f2;
 }
 
 .sidebar-avatar {
@@ -1227,8 +1227,8 @@
 	width: 36px;
 	height: 36px;
 	padding: 3px;
-	border: 1px solid #b4c6b469;
-	background: #17272b;
+	border: 1px solid #bec1c369;
+	background: #212426;
 	font: 11px var(--mono);
 }
 
@@ -1269,13 +1269,13 @@
 	display: flex;
 	align-items: center;
 	gap: 7px;
-	color: #a8bdb2;
+	color: #b5b8ba;
 	font-size: 11px;
 	line-height: 1.5;
 }
 
 .sidebar-author-copy svg {
-	color: #ccd495;
+	color: #cbced0;
 	transition: transform 0.2s;
 }
 

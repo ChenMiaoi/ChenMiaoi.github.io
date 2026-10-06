@@ -1,7 +1,7 @@
 /* profile: owns the final orbital profile rules, including responsive states. */
 
 .identity-dossier {
-	--identity-line: #bfcebc38;
+	--identity-line: #c7cacc38;
 	position: relative;
 	min-width: 0;
 }
@@ -13,7 +13,7 @@
 	gap: 16px;
 	padding: 14px 0;
 	border-block: 1px solid var(--identity-line);
-	color: #9eafa7;
+	color: #a8abad;
 	font: 10px var(--mono);
 	letter-spacing: 1.4px;
 }
@@ -39,7 +39,7 @@
 
 .identity-register b {
 	font: 11px var(--mono);
-	color: #d4dbb0;
+	color: #d3d6d8;
 	margin-left: 12px;
 }
 
@@ -59,7 +59,7 @@
 	right: 0;
 	bottom: 20px;
 	height: 1px;
-	background: linear-gradient(90deg, #dce79555, transparent);
+	background: linear-gradient(90deg, #dcdfe155, transparent);
 	transform: rotate(-3deg);
 	pointer-events: none;
 }
@@ -80,7 +80,7 @@
 	left: 50%;
 	top: 44%;
 	transform: translate(-50%, -50%);
-	stroke: #b9cec43b;
+	stroke: #c6c9cb3b;
 	stroke-width: 1;
 	pointer-events: none;
 	z-index: -1;
@@ -102,17 +102,17 @@
 	width: 210px;
 	height: 210px;
 	padding: 10px;
-	background: #253436e8;
-	box-shadow: 13px 14px 0 #0a161d80,
+	background: #2e3133e8;
+	box-shadow: 13px 14px 0 #11141680,
 		0 20px 40px #0006;
-	border: 1px solid #a9bfb073;
+	border: 1px solid #b6b9bb73;
 }
 
 .portrait-mount::before {
 	content: "";
 	position: absolute;
 	inset: -11px 15px 13px -12px;
-	border: 1px solid #a8bb8d4d;
+	border: 1px solid #b1b4b64d;
 	z-index: -1;
 }
 
@@ -122,8 +122,8 @@
 	display: grid;
 	place-items: center;
 	overflow: hidden;
-	background: #e7ece2;
-	color: #1e2b29;
+	background: #e7eaec;
+	color: #25282a;
 }
 
 .portrait-image img {
@@ -153,8 +153,8 @@
 .portrait-bracket-bottom {
 	right: -2px;
 	bottom: -2px;
-	border-right: 2px solid #e4e7b7;
-	border-bottom: 2px solid #e4e7b7;
+	border-right: 2px solid #e0e3e5;
+	border-bottom: 2px solid #e0e3e5;
 }
 
 .portrait-coordinate {
@@ -165,14 +165,14 @@
 	white-space: nowrap;
 	font: 8px var(--mono);
 	letter-spacing: 2px;
-	color: #8ea99b;
+	color: #9fa2a4;
 }
 
 .portrait-caption {
 	display: flex;
 	align-items: center;
 	gap: 13px;
-	color: #d0dabd;
+	color: #d3d6d8;
 	font: 12px var(--mono);
 	margin-top: 22px;
 }
@@ -182,7 +182,7 @@
 	width: 23px;
 	background: repeating-linear-gradient(
 		90deg,
-		#c7d5a6 0 2px,
+		#cccfd1 0 2px,
 		transparent 2px 5px
 	);
 }
@@ -193,14 +193,14 @@
 }
 
 .identity-eyebrow {
-	color: #a9b9ae;
+	color: #b2b5b7;
 	font: 9px var(--mono);
 	letter-spacing: 2px;
 	margin-bottom: 17px;
 }
 
 .orbital-site .identity-introduction h2 {
-	color: #eff1e8;
+	color: #edf0f2;
 	font-size: clamp(48px, 4.4vw, 72px);
 	line-height: 1.1;
 	font-weight: 650;
@@ -215,7 +215,7 @@
 }
 
 .identity-statement {
-	color: #d1dccf;
+	color: #d6d9db;
 	font-size: 20px;
 	line-height: 1.6;
 	letter-spacing: 2px;
@@ -223,11 +223,11 @@
 }
 
 .identity-statement > span {
-	color: #f0f0d0;
+	color: #ebeef0;
 }
 
 .identity-bio {
-	color: #a8bdb2;
+	color: #b5b8ba;
 	font-size: 15px;
 	line-height: 1.8;
 	margin-top: 12px;
@@ -266,7 +266,7 @@
 	min-height: 46px;
 	padding: 12px 18px;
 	background: var(--signal);
-	color: #222d27;
+	color: #272a2c;
 	font-size: 13px;
 	font-weight: 650;
 	clip-path: polygon(
@@ -288,8 +288,8 @@
 	align-items: center;
 	gap: 15px;
 	min-height: 44px;
-	color: #d4ddbf;
-	border-bottom: 1px solid #b8c89066;
+	color: #d6d9db;
+	border-bottom: 1px solid #bec1c366;
 	font-size: 13px;
 }
 
@@ -307,7 +307,7 @@
 .identity-fields,
 .identity-contacts {
 	min-width: 0;
-	border-top: 1px solid #c3d1b566;
+	border-top: 1px solid #c9ccce66;
 }
 
 .identity-section-title {
@@ -321,13 +321,13 @@
 .orbital-site .identity-section-title h3 {
 	font-size: 14px;
 	font-weight: 500;
-	color: #d6dfd1;
+	color: #d9dcde;
 	letter-spacing: 1px;
 }
 
 .identity-section-title > span {
 	font: 8px var(--mono);
-	color: #8da496;
+	color: #9b9ea0;
 	letter-spacing: 1.5px;
 }
 
@@ -339,8 +339,8 @@
 	padding: 11px 15px 11px 0;
 	text-align: left;
 	border-bottom: 1px solid var(--identity-line);
-	color: #d4ddd5;
-	background: linear-gradient(90deg, #12212666, #12212600);
+	color: #d8dbdd;
+	background: linear-gradient(90deg, #1b1e2066, #1b1e2000);
 	transition: background 0.2s;
 }
 
@@ -350,10 +350,10 @@
 	flex: 0 0 32px;
 	height: 32px;
 	font: 10px var(--mono);
-	border: 1px solid #b8c7a54d;
-	color: #c3d29b;
+	border: 1px solid #bec1c34d;
+	color: #c8cbcd;
 	clip-path: polygon(6px 0, 100% 0, 100% 100%, 0 100%, 0 6px);
-	background: #19282bcc;
+	background: #222527cc;
 }
 
 .identity-field strong {
@@ -364,7 +364,7 @@
 
 .identity-field small {
 	display: block;
-	color: #91aa9c;
+	color: #a1a4a6;
 	font-size: 11px;
 	line-height: 1.6;
 	margin-top: 6px;
@@ -372,17 +372,17 @@
 
 .identity-field > svg {
 	margin-left: auto;
-	color: #a8bd8b;
+	color: #b2b5b7;
 	flex: 0 0 auto;
 }
 
 .orbital-site .identity-field:hover {
-	background: linear-gradient(90deg, #a8bb6033, transparent);
+	background: linear-gradient(90deg, #adb0b233, transparent);
 	color: #f0eeaa;
 }
 
 .identity-field:hover .identity-field-index {
-	color: #243021;
+	color: #292c2e;
 	background: var(--signal);
 	border-color: var(--signal);
 }
@@ -395,7 +395,7 @@
 	padding: 13px 0;
 	min-height: 69px;
 	border-bottom: 1px solid var(--identity-line);
-	color: #d9e0d5;
+	color: #dbdee0;
 }
 
 .identity-contact strong {
@@ -406,14 +406,14 @@
 
 .identity-contact small {
 	display: block;
-	color: #90a99c;
+	color: #a0a3a5;
 	font: 11px / 1.6 var(--mono);
 	margin-top: 5px;
 	overflow-wrap: anywhere;
 }
 
 .identity-contact > svg {
-	color: #d5dc86;
+	color: #d1d4d6;
 	flex: 0 0 auto;
 }
 
@@ -427,7 +427,7 @@
 	align-items: center;
 	gap: 15px;
 	padding-top: 14px;
-	color: #829489;
+	color: #8c8f91;
 	font: 8px var(--mono);
 	letter-spacing: 2px;
 }
@@ -435,11 +435,11 @@
 .identity-signoff i {
 	flex: 1;
 	height: 1px;
-	background: #a6b79b21;
+	background: #aeb1b321;
 }
 
 .identity-signoff > span:last-child {
-	color: #b9c4a6;
+	color: #bcbfc1;
 	font-size: 14px;
 	letter-spacing: -1px;
 }
@@ -450,7 +450,7 @@
 }
 
 .orbital-site .identity-primary:focus-visible {
-	outline: 2px solid #263028;
+	outline: 2px solid #2a2d2f;
 	outline-offset: -5px;
 }
 
@@ -538,7 +538,7 @@
 		width: 92px;
 		height: 92px;
 		padding: 5px;
-		box-shadow: 7px 7px 0 #0a161d80;
+		box-shadow: 7px 7px 0 #11141680;
 	}
 	.portrait-mount::before {
 		inset: -6px 8px 8px -6px;

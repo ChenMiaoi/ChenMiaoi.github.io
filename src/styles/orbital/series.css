@@ -1,7 +1,7 @@
 /* series: owns the final orbital series rules, including responsive states. */
 
 .path-explorer {
-	--path-line: #b0c3b442;
+	--path-line: #bbbec042;
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
@@ -24,7 +24,7 @@
 	align-items: center;
 	gap: 11px;
 	font-size: 12px;
-	color: #d5ded7;
+	color: #d9dcde;
 }
 
 .path-toolbar > span > i {
@@ -36,7 +36,7 @@
 .path-toolbar small {
 	font: 9px var(--mono);
 	letter-spacing: 1px;
-	color: #a6b5ab;
+	color: #aeb1b3;
 	padding-left: 8px;
 }
 
@@ -44,7 +44,7 @@
 	display: flex;
 	align-items: center;
 	gap: 9px;
-	color: #b5c1b9;
+	color: #bbbec0;
 	font-size: 11px;
 	min-height: 32px;
 }
@@ -52,9 +52,9 @@
 .path-toggle {
 	width: 25px;
 	height: 13px;
-	border: 1px solid #a5b7a963;
+	border: 1px solid #afb2b463;
 	position: relative;
-	background: #1d2627;
+	background: #212426;
 }
 
 .path-toggle::after {
@@ -62,7 +62,7 @@
 	position: absolute;
 	inset: 3px auto 3px 3px;
 	width: 5px;
-	background: #a0b0a5;
+	background: #a9acae;
 	transition: transform 0.18s;
 }
 
@@ -95,14 +95,14 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	color: #c4d0c6;
+	color: #cacdcf;
 	margin: 0 2px 18px;
 	font-size: 11px;
 }
 
 .path-directory-caption small {
 	font: 8px var(--mono);
-	color: #91a096;
+	color: #999c9e;
 	letter-spacing: 1.8px;
 }
 
@@ -117,7 +117,7 @@
 	overflow-x: hidden;
 	overscroll-behavior: contain;
 	scrollbar-width: thin;
-	scrollbar-color: #9eb79755 transparent;
+	scrollbar-color: #acafb155 transparent;
 	padding-right: 5px;
 }
 
@@ -126,7 +126,7 @@
 	position: absolute;
 	inset: 28px auto 28px 19px;
 	width: 1px;
-	background: #b4c9b733;
+	background: #c0c3c533;
 }
 
 .orbital-site .path-option {
@@ -139,8 +139,8 @@
 	min-height: 79px;
 	gap: 11px;
 	padding: 15px 13px;
-	color: #d5dfd6;
-	border: 1px solid #a8bca731;
+	color: #d9dcde;
+	border: 1px solid #b3b6b831;
 	transition: background 0.18s,
 		color 0.18s;
 }
@@ -157,7 +157,7 @@
 
 .path-number {
 	font: 11px var(--mono);
-	color: #a2b4a7;
+	color: #acafb1;
 }
 
 .path-name {
@@ -176,7 +176,7 @@
 
 .path-name small {
 	font-size: 11px;
-	color: #a0b3a5;
+	color: #abaeb0;
 }
 
 .path-option.active .path-name strong {
@@ -184,14 +184,14 @@
 }
 
 .path-option > svg {
-	color: #afc0b0;
+	color: #b8bbbd;
 }
 
 .path-directory-foot {
 	display: flex;
 	gap: 11px;
 	align-items: center;
-	color: #98a89b;
+	color: #a1a4a6;
 	padding: 17px 2px 0;
 	font-size: 10px;
 	flex: 0 0 auto;
@@ -200,7 +200,7 @@
 .path-directory-foot i {
 	flex: 1;
 	height: 1px;
-	background: #adbfaa38;
+	background: #b7babc38;
 }
 
 .path-manifest {
@@ -240,7 +240,7 @@
 	gap: 16px;
 	font: 8px var(--mono);
 	letter-spacing: 1.4px;
-	color: #b8c9b7;
+	color: #c1c4c6;
 	position: relative;
 	z-index: 1;
 }
@@ -252,7 +252,7 @@
 	font: 144px / 0.95 var(--mono);
 	letter-spacing: -15px;
 	color: transparent;
-	-webkit-text-stroke: 1px #c6d8b91c;
+	-webkit-text-stroke: 1px #cfd2d41c;
 	pointer-events: none;
 }
 
@@ -263,14 +263,14 @@
 	font-weight: 650;
 	line-height: 1.4;
 	letter-spacing: -0.7px;
-	color: #f0f3e9;
+	color: #eff2f4;
 	text-wrap: pretty;
 }
 
 .orbital-site .path-subtitle {
 	position: relative;
 	font-size: 13px;
-	color: #d0dcca;
+	color: #d5d8da;
 	line-height: 1.7;
 	margin-top: 5px;
 }
@@ -283,7 +283,7 @@
 }
 
 .orbital-site .path-description {
-	color: #b8c8ba;
+	color: #c1c4c6;
 	font-size: 12px;
 	line-height: 1.85;
 	margin-top: 0;
@@ -306,7 +306,7 @@
 	justify-content: space-between;
 	gap: 20px;
 	background: var(--signal);
-	color: #263122;
+	color: #2b2e30;
 	padding: 10px 15px;
 	font-size: 12px;
 	font-weight: 650;
@@ -328,13 +328,13 @@
 .path-hero-actions > span {
 	display: flex;
 	gap: 11px;
-	color: #b1c2ae;
+	color: #babdbf;
 	font-size: 10px;
 }
 
 .path-hero-actions i {
 	font-style: normal;
-	color: #788e7d;
+	color: #85888a;
 }
 
 .path-branch-shortcuts {
@@ -353,7 +353,7 @@
 	left: 38px;
 	right: 38px;
 	height: 1px;
-	background: #b3c88145;
+	background: #bbbec045;
 }
 
 .orbital-site .path-branch-shortcuts button {
@@ -363,7 +363,7 @@
 	flex: 1;
 	min-width: 0;
 	position: relative;
-	color: #d8e5c9;
+	color: #dde0e2;
 	font-size: 11px;
 	line-height: 1.6;
 }
@@ -375,8 +375,8 @@
 	height: 25px;
 	font: 8px var(--mono);
 	color: var(--signal);
-	background: #35402b;
-	border: 1px solid #afc86f87;
+	background: #393c3e;
+	border: 1px solid #b9bcbe87;
 	margin-bottom: 0;
 	flex: 0 0 auto;
 }
@@ -389,7 +389,7 @@
 }
 
 .path-branch-shortcuts small {
-	color: #91a586;
+	color: #9c9fa1;
 	font-size: 8px;
 }
 
@@ -399,7 +399,7 @@
 
 .path-branch-shortcuts button:hover .path-shortcut-node {
 	background: var(--signal);
-	color: #253121;
+	color: #2a2d2f;
 }
 
 .path-outline {
@@ -417,20 +417,20 @@
 	justify-content: space-between;
 	gap: 15px;
 	padding: 15px 7px 13px;
-	border-bottom: 1px solid #b2c7ad27;
+	border-bottom: 1px solid #bec1c327;
 	flex: 0 0 auto;
 }
 
 .orbital-site .path-outline-heading h3 {
 	font-size: 12px;
 	font-weight: 500;
-	color: #c5d4c1;
+	color: #cccfd1;
 }
 
 .path-outline-heading > span {
 	font: 7px var(--mono);
 	letter-spacing: 1.5px;
-	color: #819785;
+	color: #8e9193;
 }
 
 .path-chapters {
@@ -442,7 +442,7 @@
 	padding: 23px 10px 0 6px;
 	overscroll-behavior: contain;
 	scrollbar-width: thin;
-	scrollbar-color: #9eb79755 transparent;
+	scrollbar-color: #acafb155 transparent;
 	scroll-padding-block: 16px;
 }
 
@@ -462,7 +462,7 @@
 	top: 28px;
 	bottom: -1px;
 	width: 1px;
-	background: #b0c7a846;
+	background: #bdc0c246;
 }
 
 .path-branch:last-of-type::before {
@@ -488,8 +488,8 @@
 	place-items: center;
 	color: var(--signal);
 	font: 9px var(--mono);
-	border: 1px solid #c7d68270;
-	background: #29382b;
+	border: 1px solid #cacdcf70;
+	background: #313436;
 	clip-path: polygon(
 		5px 0,
 		100% 0,
@@ -502,7 +502,7 @@
 
 .path-branch-heading > div > span {
 	display: block;
-	color: #8aa181;
+	color: #979a9c;
 	font-size: 8px;
 	letter-spacing: 1px;
 	margin-bottom: 6px;
@@ -510,7 +510,7 @@
 
 .orbital-site .path-branch-heading h4 {
 	margin: 0;
-	color: #e4ecdb;
+	color: #e6e9eb;
 	font-size: 15px;
 	line-height: 1.6;
 	font-weight: 600;
@@ -521,7 +521,7 @@
 	align-items: center;
 	gap: 10px;
 	font-size: 9px;
-	color: #a4b7a2;
+	color: #aeb1b3;
 	white-space: nowrap;
 	padding: 8px 0 8px 8px;
 }
@@ -537,7 +537,7 @@
 }
 
 .path-reading-list li {
-	border-top: 1px solid #b2c7ad1d;
+	border-top: 1px solid #bec1c31d;
 }
 
 .orbital-site .path-reading-list button {
@@ -547,7 +547,7 @@
 	gap: 11px;
 	width: 100%;
 	padding: 15px 0;
-	color: #c3d0bf;
+	color: #c9ccce;
 	text-align: left;
 	font-size: 14px;
 	line-height: 1.9;
@@ -559,14 +559,14 @@
 }
 
 .path-article-number {
-	color: #7e977d;
+	color: #8d9092;
 	font: 8px / 2.85 var(--mono);
 }
 
 .path-reading-list svg {
 	width: 13px;
 	margin-top: 3px;
-	color: #8ca584;
+	color: #9a9d9f;
 }
 
 .path-list-end {
@@ -575,7 +575,7 @@
 	justify-content: center;
 	gap: 12px;
 	font-size: 9px;
-	color: #7d947c;
+	color: #8a8d8f;
 	padding-bottom: 10px;
 }
 
@@ -583,11 +583,11 @@
 	flex: 1;
 	max-width: 45px;
 	height: 1px;
-	background: #afc3a522;
+	background: #babdbf22;
 }
 
 .orbital-site .path-empty {
-	color: #9bb294;
+	color: #a8abad;
 	font-size: 12px;
 	line-height: 1.8;
 	padding: 12px 0 20px;
@@ -823,14 +823,14 @@
 }
 
 .orbital-site .path-option:hover {
-	background: #b5c7a712;
+	background: #bec1c312;
 }
 
 .orbital-site .path-option.active {
-	color: #eff1e8;
+	color: #edf0f2;
 	background: var(--archive-selected);
 	border-color: transparent;
-	border-bottom-color: #c2ce8459;
+	border-bottom-color: #c3c6c859;
 }
 
 .path-option.active .path-number,
@@ -860,13 +860,13 @@
 }
 
 .path-branch-shortcuts {
-	background: #14251b30;
+	background: #1e212330;
 	border: 0;
 	border-bottom: 1px solid var(--archive-rule);
 }
 
 .path-outline {
-	background: linear-gradient(100deg, #12212666, #12212620);
+	background: linear-gradient(100deg, #1b1e2066, #1b1e2020);
 	border: 0;
 	border-bottom: 1px solid var(--archive-rule);
 }

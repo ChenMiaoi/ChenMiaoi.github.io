@@ -1,9 +1,9 @@
 /* map: owns the final orbital map rules, including responsive states. */
 
 .topology-console {
-	--map-edge: #b3bdba45;
+	--map-edge: #b8bbbd45;
 	position: relative;
-	border: 1px solid #a9b6b337;
+	border: 1px solid #b0b3b537;
 	isolation: isolate;
 }
 
@@ -25,8 +25,8 @@
 
 .topology-console::after {
 	inset: auto -1px -1px auto;
-	border-right: 1px solid #dee4dba0;
-	border-bottom: 1px solid #dee4dba0;
+	border-right: 1px solid #dfe2e4a0;
+	border-bottom: 1px solid #dfe2e4a0;
 }
 
 .topology-toolbar {
@@ -34,7 +34,7 @@
 	align-items: center;
 	gap: 22px;
 	padding: 16px 22px;
-	border-bottom: 1px solid #a8b7b326;
+	border-bottom: 1px solid #b1b4b626;
 }
 
 .topology-scope {
@@ -47,15 +47,15 @@
 
 .topology-scope > span {
 	font: 10px var(--mono);
-	color: #9aa9aa;
+	color: #a3a6a8;
 	white-space: nowrap;
 }
 
 .orbital-site .topology-scope select {
 	appearance: none;
-	background: #14212bb0;
-	color: #e3e8e3;
-	border: 1px solid #9faeab60;
+	background: #1c1f21b0;
+	color: #e4e7e9;
+	border: 1px solid #a8abad60;
 	font: 12px "Segoe UI",
 		"Microsoft YaHei",
 		sans-serif;
@@ -79,7 +79,7 @@
 	align-items: center;
 	gap: 16px;
 	white-space: nowrap;
-	color: #a7b4b4;
+	color: #aeb1b3;
 	font-size: 10px;
 }
 
@@ -97,15 +97,15 @@
 	width: 8px;
 	height: 8px;
 	transform: rotate(45deg);
-	border: 1px solid #cbd6cc;
+	border: 1px solid #d0d3d5;
 }
 
 .topology-key .article-symbol {
 	width: 5px;
 	height: 5px;
 	border-radius: 50%;
-	background: #d1dac9;
-	box-shadow: 0 0 5px #d1dac944;
+	background: #d4d7d9;
+	box-shadow: 0 0 5px #d4d7d944;
 }
 
 .topology-tools {
@@ -119,15 +119,15 @@
 	place-items: center;
 	width: 28px;
 	height: 29px;
-	background: #1d2a30a0;
-	border: 1px solid #95a5a33c;
+	background: #25282aa0;
+	border: 1px solid #9ea1a33c;
 	font: 18px var(--mono);
-	color: #d1dcd9;
+	color: #d6d9db;
 }
 
 .topology-tools > span {
 	font: 9px var(--mono);
-	color: #a6b4af;
+	color: #aeb1b3;
 	min-width: 34px;
 	text-align: center;
 }
@@ -162,7 +162,7 @@
 	background: repeating-linear-gradient(
 		0deg,
 		transparent 0 3px,
-		#cadac303 3px 4px
+		#d2d5d703 3px 4px
 	);
 }
 
@@ -172,14 +172,14 @@
 	justify-content: space-between;
 	gap: 20px;
 	padding: 18px 25px 0;
-	color: #9eabaa;
+	color: #a5a8aa;
 	font: 8px var(--mono);
 	letter-spacing: 1.4px;
 }
 
 .topology-map-label i {
 	font-style: normal;
-	color: #788785;
+	color: #818486;
 	padding-inline: 7px;
 }
 
@@ -187,7 +187,7 @@
 	font: 9px "Microsoft YaHei",
 		sans-serif;
 	letter-spacing: 0.4px;
-	color: #859693;
+	color: #8f9294;
 }
 
 .topology-viewport {
@@ -195,7 +195,7 @@
 	padding: 5px 12px;
 	overflow: auto;
 	scrollbar-width: thin;
-	scrollbar-color: #80918d55 transparent;
+	scrollbar-color: #8a8d8f55 transparent;
 	overscroll-behavior: contain;
 	cursor: grab;
 }
@@ -225,24 +225,24 @@
 }
 
 .stellar-dust {
-	fill: #dce8da;
+	fill: #e1e4e6;
 	opacity: 0.31;
 }
 
 .stellar-orbits {
 	fill: none;
-	stroke: #b7c7c038;
+	stroke: #c0c3c538;
 	stroke-width: 1;
 }
 
 .stellar-orbits .orbit-measure {
-	stroke: #b7c7c025;
+	stroke: #c0c3c525;
 	stroke-dasharray: 1 8;
 	stroke-width: 3;
 }
 
 .stellar-orbits .orbit-inner {
-	stroke: #b7c7c028;
+	stroke: #c0c3c528;
 }
 
 .stellar-orbits .orbit-highlight {
@@ -252,21 +252,21 @@
 
 .stellar-rotor {
 	fill: none;
-	stroke: #bdcdac32;
+	stroke: #c4c7c932;
 	stroke-width: 1;
 	stroke-dasharray: 95 65 15 90;
 	animation: stellar-rotation 80s linear infinite;
 }
 
 .stellar-rotor .rotor-ticks {
-	stroke: #d9e5c726;
+	stroke: #dde0e226;
 	stroke-dasharray: 1 9;
 	stroke-width: 4;
 }
 
 .topology-lines {
 	fill: none;
-	stroke: #b3c5bd59;
+	stroke: #bec1c359;
 	stroke-width: 1;
 }
 
@@ -283,7 +283,7 @@
 
 .orbital-site .topology-node {
 	position: absolute;
-	color: #dce4df;
+	color: #dfe2e4;
 	border: 0;
 	background: transparent;
 	text-align: left;
@@ -308,9 +308,9 @@
 	border-radius: 50%;
 	background: radial-gradient(
 		circle,
-		#1d2b33f5 0%,
-		#102029f2 64%,
-		#a4b6a72a 65%,
+		#26292bf5 0%,
+		#1a1d1ff2 64%,
+		#aeb1b32a 65%,
 		transparent 67%
 	);
 }
@@ -325,14 +325,14 @@
 
 .root-node::before {
 	inset: 0;
-	border: 1px solid #dbe6c16b;
-	box-shadow: inset 0 0 20px #c9d5860d,
-		0 0 30px #c9d5860d;
+	border: 1px solid #dee1e36b;
+	box-shadow: inset 0 0 20px #cacdcf0d,
+		0 0 30px #cacdcf0d;
 }
 
 .root-node::after {
 	inset: 9px;
-	border: 1px dashed #b3c5aa31;
+	border: 1px dashed #bcbfc131;
 }
 
 .orbital-site .root-node.on-path::before {
@@ -343,7 +343,7 @@
 
 .core-overline {
 	font-size: 9px;
-	color: #adbcaf;
+	color: #b5b8ba;
 	letter-spacing: 3px;
 }
 
@@ -353,13 +353,13 @@
 	font-weight: 600;
 	text-wrap: balance;
 	word-break: keep-all;
-	color: #eff2e7;
+	color: #eef1f3;
 }
 
 .root-node small {
 	font: 7px var(--mono);
 	letter-spacing: 1.5px;
-	color: #adbcaa;
+	color: #b5b8ba;
 }
 
 .stellar-hub {
@@ -377,18 +377,18 @@
 	position: absolute;
 	inset: 4px;
 	transform: rotate(45deg);
-	border: 1px solid #a4bca0aa;
-	background: #192830e8;
-	box-shadow: 0 0 0 4px #bcd2b00b;
+	border: 1px solid #b2b5b7aa;
+	background: #222527e8;
+	box-shadow: 0 0 0 4px #c8cbcd0b;
 }
 
 .stellar-hub i {
 	width: 5px;
 	height: 5px;
-	background: #d5e3cb;
+	background: #dbdee0;
 	position: relative;
 	border-radius: 50%;
-	box-shadow: 0 0 8px #d3eac465;
+	box-shadow: 0 0 8px #dfe2e465;
 }
 
 .stellar-series-label {
@@ -407,15 +407,15 @@
 	font-size: 14px;
 	line-height: 1.6;
 	font-weight: 500;
-	color: #dce5df;
-	text-shadow: 0 2px 6px #071017;
+	color: #e0e3e5;
+	text-shadow: 0 2px 6px #0c0f11;
 }
 
 .stellar-series-label small {
 	font: 8px var(--mono);
 	display: block;
 	margin-top: 4px;
-	color: #849b91;
+	color: #929597;
 }
 
 .topology-document-dot {
@@ -426,19 +426,19 @@
 	place-items: center;
 	width: 20px;
 	height: 20px;
-	color: #b3c6b8;
+	color: #bec1c3;
 	font: 7px var(--mono);
-	background: #182831e8;
-	border: 1px solid #9fb7a47a;
+	background: #222527e8;
+	border: 1px solid #aeb1b37a;
 	border-radius: 50%;
-	box-shadow: 0 0 9px #c9dac015;
+	box-shadow: 0 0 9px #d2d5d715;
 }
 
 .topology-document-dot::before {
 	content: "";
 	position: absolute;
 	inset: -5px;
-	border: 1px solid #b2c4aa1c;
+	border: 1px solid #bbbec01c;
 	border-radius: 50%;
 }
 
@@ -454,11 +454,11 @@
 	transform: translateY(-50%);
 	font-size: 12px;
 	line-height: 1.7;
-	color: #bdcbc6;
+	color: #c5c8ca;
 	text-wrap: pretty;
-	text-shadow: 0 2px 5px #071116;
+	text-shadow: 0 2px 5px #0c0f11;
 	padding: 3px 4px;
-	background: #0d1a2190;
+	background: #15181a90;
 }
 
 .label-left .topology-article-title {
@@ -469,7 +469,7 @@
 
 .article-node.selected .topology-document-dot {
 	background: var(--signal);
-	color: #222c23;
+	color: #26292b;
 	border-color: #faffb5;
 	box-shadow: 0 0 18px #e6ed5755;
 }
@@ -481,17 +481,17 @@
 }
 
 .article-node.selected .topology-article-title {
-	color: #f0f2dc;
-	background: linear-gradient(90deg, #415047a6, #16282d33);
+	color: #edf0f2;
+	background: linear-gradient(90deg, #494c4ea6, #22252733);
 	border-bottom: 1px solid #eef07192;
 }
 
 .label-left.selected .topology-article-title {
-	background: linear-gradient(270deg, #415047a6, #16282d33);
+	background: linear-gradient(270deg, #494c4ea6, #22252733);
 }
 
 .article-node:hover .topology-article-title {
-	color: #f0f2dc;
+	color: #edf0f2;
 }
 
 .article-node:hover .topology-document-dot {
@@ -505,7 +505,7 @@
 	justify-content: space-between;
 	gap: 20px;
 	padding: 10px 24px 18px;
-	color: #8eaaa0;
+	color: #a0a3a5;
 	font-size: 9px;
 }
 
@@ -518,7 +518,7 @@
 .topology-map-foot i {
 	width: 22px;
 	height: 1px;
-	background: #d9df9690;
+	background: #d5d8da90;
 }
 
 .topology-inspector {
@@ -527,7 +527,7 @@
 	gap: 19px;
 	align-items: start;
 	padding: 23px 25px;
-	border-top: 1px solid #bfcbc13b;
+	border-top: 1px solid #c5c8ca3b;
 	position: relative;
 }
 
@@ -547,7 +547,7 @@
 	display: grid;
 	place-items: center;
 	color: var(--signal);
-	border: 1px solid #a9b8a859;
+	border: 1px solid #b1b4b659;
 	clip-path: polygon(
 		0 0,
 		100% 0,
@@ -566,17 +566,17 @@
 	align-items: center;
 	gap: 10px;
 	font-size: 9px;
-	color: #a1b6ac;
+	color: #aeb1b3;
 	margin-bottom: 9px;
 }
 
 .topology-selection-meta i {
 	font-style: normal;
-	color: #738b80;
+	color: #828587;
 }
 
 .orbital-site .topology-selection-content h2 {
-	color: #e7eee6;
+	color: #e9ecee;
 	font-size: 19px;
 	line-height: 1.55;
 	font-weight: 550;
@@ -584,7 +584,7 @@
 }
 
 .orbital-site .topology-selection-description {
-	color: #a5b6ad;
+	color: #afb2b4;
 	line-height: 1.85;
 	margin-top: 9px;
 	display: -webkit-box;
@@ -595,7 +595,7 @@
 
 .topology-selection-parent {
 	display: block;
-	color: #839c8e;
+	color: #939698;
 	font-size: 9px;
 	line-height: 1.8;
 	margin-top: 7px;
@@ -607,7 +607,7 @@
 	align-items: center;
 	align-self: center;
 	background: var(--signal);
-	color: #243020;
+	color: #292c2e;
 	padding: 14px 18px;
 	font-size: 12px;
 	font-weight: 650;
@@ -631,7 +631,7 @@
 	gap: 12px;
 	padding: 0 16px 18px;
 	font-size: 10px;
-	color: #a5b9ae;
+	color: #b1b4b6;
 }
 
 .stellar-mobile-locate > span {
@@ -642,9 +642,9 @@
 	min-width: 0;
 	flex: 1;
 	width: 100%;
-	background: #192832;
-	color: #dbe5db;
-	border: 1px solid #99aca051;
+	background: #232628;
+	color: #dfe2e4;
+	border: 1px solid #a4a7a951;
 	border-radius: 0;
 	padding: 10px 9px;
 	font-size: 11px;
@@ -766,7 +766,7 @@
 }
 
 .topology-console {
-	background: #0d171e26;
+	background: #12151726;
 	border-color: var(--archive-rule);
 	border-inline: 0;
 }
@@ -777,11 +777,11 @@
 }
 
 .topology-map {
-	background: radial-gradient(ellipse at 46% 48%, #7897840b, #09141b45);
+	background: radial-gradient(ellipse at 46% 48%, #8c8f910b, #0f121445);
 }
 
 .topology-inspector {
-	background: linear-gradient(105deg, #192b30a8, #12212655);
+	background: linear-gradient(105deg, #25282aa8, #1b1e2055);
 	border-color: var(--archive-rule);
 }
 

@@ -1,13 +1,19 @@
 /* tokens: owns the final orbital tokens rules, including responsive states. */
 
 .orbital-site {
-	--codeblock-bg: #152123;
-	--codeblock-topbar-bg: #1d2d2e;
+	--sans: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+	--display: Georgia, "Noto Serif SC", "Songti SC", SimSun, serif;
+	--canvas: #0d1113;
+	--text: #d5dadd;
+	--muted: #9da8ad;
+	--subtle: #7a858c;
+	--rule: #c7ced32b;
+	--codeblock-bg: #111619;
+	--codeblock-topbar-bg: #1b2024;
 	--primary: #f0e433;
 	--signal: #f0e433;
-	--paper: #eceee8;
+	--paper: #eeede7;
 	--ink: #17191b;
-	--muted: #a0a5a6;
 	--surface: #202426;
 	--edge: #373c3e;
 	--mono: "JetBrains Mono Variable", monospace;
@@ -20,9 +26,8 @@
 		calc(100% - 16px) 100%,
 		0 100%
 	);
-	--archive-rule: #bfcebc38;
-	--archive-surface: linear-gradient(110deg, #12212666, #1221260a);
-	--archive-selected: linear-gradient(110deg, #8a9c7133, #23393226);
-	--archive-muted: #a8bdb2
-;
+	--archive-rule: var(--rule);
+	--archive-surface: linear-gradient(110deg, #171d2166, #171d210a);
+	--archive-selected: linear-gradient(110deg, #bac6c420, #252b2f26);
+	--archive-muted: var(--muted);
 }

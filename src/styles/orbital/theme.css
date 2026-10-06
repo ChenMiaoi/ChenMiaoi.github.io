@@ -1,0 +1,177 @@
+/* Shared visual hierarchy. Feature styles own layout and interaction states. */
+.orbital-site :is(h1, h2, h3, h4),
+.orbital-site .heading-title,
+.orbital-site .chapter-caption strong,
+.orbital-site .dossier-content strong,
+.orbital-site .path-name strong,
+.orbital-site .stellar-series-label strong,
+.orbital-site .root-node > strong {
+	font-family: var(--display);
+	color: var(--paper);
+	font-weight: 700;
+}
+
+.orbital-site .heading-title,
+.orbital-site .reader-title-block h1 {
+	letter-spacing: .01em;
+}
+
+.orbital-site :is(code, kbd, pre, samp) {
+	font-family: var(--mono);
+}
+
+.orbital-site :is(.reader-body, .mission-entry, .mission-focus) :is(h3, h4),
+.orbital-site .patch-content > h2,
+.orbital-site .brand,
+.orbital-site .primary-nav,
+.orbital-site .identity-field-copy strong {
+	font-family: var(--sans);
+}
+
+.orbital-site .contribution-prose {
+	font-family: var(--sans);
+	color: var(--text);
+}
+
+.orbital-site .contribution-prose :is(h1, h2, h3, h4),
+.orbital-site .contribution-reader-heading h2 {
+	font-family: var(--sans);
+	font-weight: 600;
+}
+
+.orbital-site .reader-body :is(h2, h3, h4),
+.orbital-site .reader-title-block h1 {
+	color: var(--paper);
+}
+
+.orbital-site :is(.reading-dialog, .reader-layout) {
+	background: #14191c;
+	color: var(--text);
+	border-color: var(--rule);
+}
+
+.orbital-site :is(.reader-toc, .reader-body pre) {
+	background: #101518;
+}
+
+.orbital-site .reader-body {
+	--codeblock-bg: #111619;
+	--codeblock-topbar-bg: #1b2024;
+	color: var(--text);
+}
+
+.orbital-site :is(.reader-header-progress, .topology-toolbar, .path-register, .identity-register) {
+	background: var(--archive-surface);
+	border-color: var(--rule);
+}
+
+.orbital-site :is(.context-projection, .topology-inspector, .identity-dossier, .contribution-chamber) {
+	--dock-line: var(--rule);
+	--identity-line: var(--rule);
+	border-color: var(--rule);
+}
+
+.orbital-site .terminal-sidebar .primary-nav {
+	gap: 14px;
+}
+
+.orbital-site .terminal-sidebar .primary-nav a {
+	background: linear-gradient(90deg, #242a2ddd, #242a2d45);
+	color: var(--text);
+	border-color: var(--rule);
+	font-family: var(--sans);
+}
+
+.orbital-site .terminal-sidebar .primary-nav a.active {
+	background: var(--signal);
+	color: var(--ink);
+	border-color: var(--signal);
+}
+
+.orbital-site .terminal-sidebar .primary-nav a:hover {
+	background: #444e54c9;
+	color: var(--paper);
+}
+
+.orbital-site .terminal-sidebar .primary-nav a.active:hover {
+	background: #fff566;
+	color: var(--ink);
+}
+
+.orbital-site .terminal-sidebar .author-entry {
+	color: var(--text);
+}
+
+.orbital-site .insignia-framed {
+	background: var(--archive-surface);
+	border-color: var(--rule);
+	color: var(--paper);
+}
+
+.orbital-site :is(.identity-contact, .source-repository, .category-tabs button) > .brand-insignia {
+	color: var(--text);
+}
+
+.orbital-site :is(button, a):hover .insignia-framed,
+.orbital-site .category-tabs button.active > .brand-insignia {
+	color: var(--signal);
+	border-color: var(--signal);
+}
+
+.orbital-site :is(.article-document, .static-archive) {
+	background: #14191c;
+	color: var(--text);
+	font-family: var(--sans);
+}
+
+.orbital-site .mission-state {
+	color: #c4c78e;
+}
+
+.orbital-site .mission-state.state-merged { color: #c9b4d4; }
+.orbital-site .mission-state.state-closed { color: #8fa4b1; }
+
+.orbital-site .welcome-shade {
+	background: linear-gradient(90deg, #0b1013e8 2%, #101519ac 42%, #10151933 76%), linear-gradient(0deg, #0b1013ed, #10151905 60%, #0b101350);
+}
+
+.orbital-site .portal-copy h1 {
+	font-family: var(--display);
+	font-weight: 700;
+	color: var(--paper);
+}
+
+@media (min-width: 651px) {
+	.orbital-site .terminal-shell .terminal-sidebar {
+		padding-top: 24px;
+	}
+}
+
+@media (min-width: 1000px) {
+	.orbital-site .terminal-sidebar .primary-nav a {
+		min-height: 58px;
+		font-size: 14px;
+	}
+	.orbital-site .terminal-shell .archive-heading .heading-title {
+		font-size: clamp(32px, 2.3vw, 44px);
+	}
+}
+
+@media (min-width: 1400px) {
+	.orbital-site .terminal-shell .terminal-workspace {
+		grid-template-columns: 195px minmax(0, 1fr);
+		column-gap: 48px;
+	}
+	.orbital-site .terminal-sidebar .primary-nav a {
+		font-size: 16px;
+	}
+}
+
+@media (max-width: 650px) {
+	.orbital-site .terminal-sidebar .primary-nav {
+		gap: 5px;
+	}
+	.orbital-site .terminal-sidebar .primary-nav a {
+		font-size: 10px;
+	}
+}

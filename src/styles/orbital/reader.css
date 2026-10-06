@@ -10,17 +10,17 @@
 	max-height: none;
 	padding: 0;
 	margin: auto;
-	border: 1px solid #9bb5b44d;
+	border: 1px solid #acafb14d;
 	border-radius: 0;
 	clip-path: polygon(0 18px, 18px 0, calc(100% - 28px) 0, 100% 28px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
-	background: #101a1e;
-	color: #e0e8e5;
+	background: #15181a;
+	color: #e3e6e8;
 	box-shadow: 0 32px 120px #000a;
 	overflow: hidden;
 }
 
 .orbital-site .reading-dialog::backdrop {
-	background: #080d12cf;
+	background: #090c0ecf;
 	backdrop-filter: blur(14px);
 }
 
@@ -35,7 +35,7 @@
 	gap: 24px;
 	padding: 10px 22px;
 	min-height: 64px;
-	border-bottom: 1px solid #9bb5b426;
+	border-bottom: 1px solid #acafb126;
 	flex-shrink: 0;
 }
 
@@ -44,7 +44,7 @@
 	align-items: center;
 	gap: 10px;
 	font-size: 12px;
-	color: #cbd8d2;
+	color: #d2d5d7;
 }
 
 .orbital-site .reader-header button:hover {
@@ -62,7 +62,7 @@
 	margin-right: auto;
 	font: 9px var(--mono);
 	letter-spacing: 1.8px;
-	color: #9bafa9;
+	color: #a7aaac;
 }
 
 .orbital-site .reader-status i {
@@ -74,7 +74,7 @@
 
 .orbital-site .reader-close {
 	padding: 9px !important;
-	border: 1px solid #9bb5b426;
+	border: 1px solid #acafb126;
 	border-radius: 0;
 }
 
@@ -84,7 +84,7 @@
 
 .orbital-site .reading-meter {
 	height: 2px;
-	background: #0b1216;
+	background: #0e1113;
 	flex-shrink: 0;
 }
 
@@ -100,25 +100,25 @@
 	grid-template-columns: 224px minmax(0, 1fr);
 	flex: 1;
 	min-height: 0;
-	background: #141e22;
+	background: #191c1e;
 }
 
 .orbital-site .reader-toc {
 	display: flex;
 	flex-direction: column;
 	padding: 40px 22px 24px;
-	border-right: 1px solid #8da5a52e;
-	background: #10191d;
-	color: #d1ddd7;
+	border-right: 1px solid #9da0a22e;
+	background: #141719;
+	color: #d7dadc;
 	overflow: hidden;
 	scrollbar-width: thin;
-	scrollbar-color: #58716b transparent;
+	scrollbar-color: #686b6d transparent;
 }
 
 .orbital-site .reader-toc .terminal-kicker {
 	font: 9px var(--mono);
 	letter-spacing: 2px;
-	color: #8baba1;
+	color: #a0a3a5;
 	margin: 0;
 }
 
@@ -134,7 +134,7 @@
 	min-height: 0;
 	overflow: auto;
 	scrollbar-width: thin;
-	scrollbar-color: #58716b transparent;
+	scrollbar-color: #686b6d transparent;
 }
 
 .orbital-site .reader-toc nav button {
@@ -148,19 +148,19 @@
 	clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
 	font-size: 12px;
 	line-height: 1.7;
-	color: #a7bbb3;
+	color: #b3b6b8;
 	overflow-wrap: anywhere;
 }
 
 .orbital-site .reader-toc .toc-number {
 	flex-shrink: 0;
 	font: 9px var(--mono);
-	color: #6d8d84;
+	color: #838688;
 }
 
 .orbital-site .reader-toc nav button:hover {
-	color: #e0e8df;
-	background: #adc6ad0d;
+	color: #e3e6e8;
+	background: #bcbfc10d;
 }
 
 .orbital-site .reader-toc nav button.active {
@@ -179,12 +179,12 @@
 	margin-top: auto;
 	padding-top: 22px;
 	flex-shrink: 0;
-	border-top: 1px solid #8da5a52e;
+	border-top: 1px solid #9da0a22e;
 }
 
 .orbital-site .reader-progress-card > span {
 	display: block;
-	color: #93aaa1;
+	color: #a1a4a6;
 	font-size: 10px;
 }
 
@@ -192,7 +192,7 @@
 	display: block;
 	margin: 10px 0 14px;
 	font: 28px var(--mono);
-	color: #e0e8df;
+	color: #e3e6e8;
 }
 
 .orbital-site .reader-progress-card small {
@@ -202,7 +202,7 @@
 
 .orbital-site .reader-progress-card > div {
 	height: 3px;
-	background: #34433f;
+	background: #3d4042;
 }
 
 .orbital-site .reader-progress-card > div > span {
@@ -214,10 +214,10 @@
 .orbital-site .reader-scroll {
 	overflow-y: auto;
 	overflow-x: hidden;
-	color: #cbd5d0;
+	color: #d0d3d5;
 	color-scheme: dark;
 	scrollbar-width: thin;
-	scrollbar-color: #58716b transparent;
+	scrollbar-color: #686b6d transparent;
 	scroll-behavior: smooth;
 }
 
@@ -233,7 +233,7 @@
 }
 
 .orbital-site .reader-title-block {
-	border-bottom: 1px solid #8da5a52e;
+	border-bottom: 1px solid #9da0a22e;
 	padding-bottom: 30px;
 	margin-bottom: 30px;
 }
@@ -244,7 +244,7 @@
 	gap: 10px;
 	font: 9px var(--mono);
 	letter-spacing: 2px;
-	color: #99b2a6;
+	color: #a9acae;
 	margin: 0 0 20px;
 }
 
@@ -256,7 +256,7 @@
 
 .orbital-site .reader-document-number {
 	margin-left: auto;
-	color: #93aaa1;
+	color: #a1a4a6;
 }
 
 .orbital-site .reader-title-block h1 {
@@ -264,7 +264,7 @@
 	line-height: 1.35;
 	font-weight: 750;
 	letter-spacing: -.035em;
-	color: #edf1e8;
+	color: #eceff1;
 	margin: 0 0 23px;
 	text-wrap: balance;
 	overflow-wrap: anywhere;
@@ -276,13 +276,13 @@
 	align-items: baseline;
 	gap: 12px;
 	font: 10px var(--mono);
-	color: #99aca4;
+	color: #a4a7a9;
 	line-height: 1.8;
 }
 
 .orbital-site .reader-article-meta .reader-series-name {
 	font-family: inherit;
-	color: #bbcabf;
+	color: #c3c6c8;
 }
 
 .orbital-site .reader-mobile-contents {
@@ -293,8 +293,8 @@
 	font-size: 16px;
 	line-height: 1.95;
 	overflow-wrap: break-word;
-	--codeblock-bg: #0e181c;
-	--codeblock-topbar-bg: #19292b;
+	--codeblock-bg: #131618;
+	--codeblock-topbar-bg: #232628;
 }
 
 .orbital-site .reader-body p {
@@ -304,13 +304,13 @@
 .orbital-site .reader-body > p:first-child {
 	font-size: 17px;
 	line-height: 1.95;
-	color: #aebfb6;
+	color: #b8bbbd;
 	margin-top: 0;
 	margin-bottom: 32px;
 }
 
 .orbital-site .reader-body h4 {
-	color: #d9e4d7;
+	color: #dee1e3;
 	margin: 32px 0 16px;
 	font-size: 17px;
 }
@@ -320,7 +320,7 @@
 	line-height: 1.5;
 	margin: 48px 0 20px;
 	font-weight: 700;
-	color: #e3eade;
+	color: #e5e8ea;
 }
 
 .orbital-site .reader-body h1 {
@@ -330,7 +330,7 @@
 .orbital-site .reader-body h2 {
 	font-size: 24px;
 	padding-bottom: 12px;
-	border-bottom: 1px solid #8da5a52e;
+	border-bottom: 1px solid #9da0a22e;
 }
 
 .orbital-site .reader-body h3 {
@@ -364,10 +364,10 @@
 
 .orbital-site .reader-body code:not(pre code) {
 	font-size: .86em;
-	background: #a7c1a710;
-	color: #c5d6a6;
+	background: #b7babc10;
+	color: #cccfd1;
 	padding: 2px 5px;
-	border: 1px solid #8da5a52e;
+	border: 1px solid #9da0a22e;
 	border-radius: 2px;
 }
 
@@ -375,8 +375,8 @@
 	position: relative;
 	overflow: auto;
 	padding: 20px;
-	background: #0e181c;
-	color: #dce7dd;
+	background: #131618;
+	color: #e1e4e6;
 	border-radius: 2px;
 	font-size: 12px;
 }
@@ -385,8 +385,8 @@
 	border-left: 2px solid #f0e433;
 	margin: 28px 0;
 	padding: 1px 22px;
-	background: #98b5a00a;
-	color: #b3c7b9;
+	background: #aaadaf0a;
+	color: #bfc2c4;
 	border-radius: 0;
 }
 
@@ -408,7 +408,7 @@
 }
 
 .orbital-site .reader-body li::marker {
-	color: #d3d360;
+	color: #c8cbcd;
 }
 
 .orbital-site .reader-body li > ul, .orbital-site .reader-body li > ol {
@@ -424,13 +424,13 @@
 }
 
 .orbital-site .reader-body td, .orbital-site .reader-body th {
-	border: 1px solid #8da5a52e;
+	border: 1px solid #9da0a22e;
 	padding: 10px 14px;
 	vertical-align: top;
 }
 
 .orbital-site .reader-body th {
-	background: #1b2b2c;
+	background: #25282a;
 	text-align: left;
 }
 
@@ -441,17 +441,17 @@
 }
 
 .orbital-site .reader-body .expressive-code .frame, .orbital-site .reader-body .expressive-code pre {
-	background: #0e181c !important;
+	background: #131618 !important;
 	border-radius: 2px !important;
 }
 
 .orbital-site .reader-body .expressive-code .frame {
-	border: 1px solid #7c9b8f40;
+	border: 1px solid #91949640;
 	box-shadow: 0 4px 14px #0002;
 }
 
 .orbital-site .reader-body .expressive-code .gutter .ln {
-	color: #68877a !important;
+	color: #7c7f81 !important;
 }
 
 .orbital-site .reader-body .expressive-code [data-language]::before {
@@ -460,7 +460,7 @@
 	margin-right: 0;
 	font-size: 10px;
 	letter-spacing: 1px;
-	color: #a8b89d;
+	color: #b0b3b5;
 	background: transparent;
 }
 
@@ -476,14 +476,14 @@
 	height: 30px;
 	display: grid;
 	place-items: center;
-	background: #273a34;
-	border: 1px solid #a8b88c40;
+	background: #333638;
+	border: 1px solid #aeb1b340;
 	border-radius: 0;
-	color: #dae4d0;
+	color: #dde0e2;
 }
 
 .orbital-site .reader-body .copy-btn:hover {
-	background: #43553b;
+	background: #4c4f51;
 }
 
 .orbital-site .reader-body .copy-btn svg {
@@ -507,7 +507,7 @@
 .orbital-site .reader-end {
 	margin-top: 56px;
 	padding-top: 24px;
-	border-top: 1px solid #8da5a52e;
+	border-top: 1px solid #9da0a22e;
 	display: flex;
 	justify-content: space-between;
 	gap: 15px;
@@ -517,7 +517,7 @@
 .orbital-site .reader-end > span {
 	font: 9px var(--mono);
 	letter-spacing: 2px;
-	color: #91a69c;
+	color: #9ea1a3;
 }
 
 .orbital-site .reader-end button {
@@ -525,7 +525,7 @@
 	align-items: center;
 	gap: 10px;
 	font-size: 12px;
-	color: #c8cf90;
+	color: #c6c9cb;
 	padding: 10px 0;
 }
 
@@ -571,10 +571,10 @@
 	}
 	.orbital-site .reader-mobile-contents {
 		display: block;
-		border: 1px solid #8da5a52e;
+		border: 1px solid #9da0a22e;
 		border-radius: 0;
 		margin-bottom: 24px;
-		color: #a7bbb3;
+		color: #b3b6b8;
 	}
 	.orbital-site .reader-mobile-contents summary {
 		display: flex;
@@ -657,7 +657,7 @@
 }
 
 .orbital-site .reader-header {
-	background: linear-gradient(100deg, #1c292c, #10191d);
+	background: linear-gradient(100deg, #232628, #141719);
 	box-shadow: inset 3px 0 var(--signal);
 }
 .orbital-site .reader-header-progress {
@@ -668,15 +668,15 @@
 	font: 12px var(--mono);
 	white-space: nowrap;
 }
-.orbital-site .reader-header-progress small { font-size: 9px; color: #93aaa1; }
+.orbital-site .reader-header-progress small { font-size: 9px; color: #a1a4a6; }
 .orbital-site .reader-toc-heading { flex-shrink: 0; }
 .orbital-site .reader-toc nav button.active .toc-number { color: var(--signal); }
 .orbital-site .reader-progress-card strong { margin: 8px 0 12px; }
 .orbital-site .reader-title-block {
 	position: relative;
-	border-top: 1px solid #8da5a52e;
+	border-top: 1px solid #9da0a22e;
 	padding-top: 22px;
-	background: linear-gradient(110deg, #a2b59305, transparent);
+	background: linear-gradient(110deg, #acafb105, transparent);
 }
 .orbital-site .reader-title-block::before {
 	content: "";
@@ -689,18 +689,18 @@
 }
 .orbital-site .reader-document-number { letter-spacing: 1px; font-size: 9px; }
 .orbital-site .reader-body h2 { border-left: 2px solid var(--signal); padding-left: 14px; }
-.orbital-site .reader-body strong { color: #edf1e8; }
-.orbital-site .reader-body hr { border: 0; border-top: 1px solid #8da5a52e; margin: 36px 0; }
-.orbital-site .reader-body table { scrollbar-width: thin; scrollbar-color: #58716b transparent; }
-.orbital-site .reader-body tbody tr:nth-child(even) { background: #9cb99b05; }
-.orbital-site .reader-scroll .reader-language-note { color: #b6c597; border-left: 2px solid #a3b474; padding: 8px 14px; background: #a3b4740a; font-size: 12px; }
+.orbital-site .reader-body strong { color: #eceff1; }
+.orbital-site .reader-body hr { border: 0; border-top: 1px solid #9da0a22e; margin: 36px 0; }
+.orbital-site .reader-body table { scrollbar-width: thin; scrollbar-color: #686b6d transparent; }
+.orbital-site .reader-body tbody tr:nth-child(even) { background: #aeb1b305; }
+.orbital-site .reader-scroll .reader-language-note { color: #bbbec0; border-left: 2px solid #a9acae; padding: 8px 14px; background: #a9acae0a; font-size: 12px; }
 .orbital-site .reader-body .katex { color: inherit; }
 .orbital-site .reader-body .katex-display { overflow-x: auto; overflow-y: hidden; }
 @media (max-width: 900px) {
 	.orbital-site .reader-header { gap: 12px; }
 	.orbital-site .reader-header-progress { margin-right: auto; font-size: 11px; }
 	.orbital-site .reader-document-number { letter-spacing: 0; font-size: 8px; }
-	.orbital-site .reader-mobile-contents { background: #9cb99b05; }
+	.orbital-site .reader-mobile-contents { background: #aeb1b305; }
 }
 @media (max-width: 480px) {
 	.orbital-site .reader-header { gap: 9px; }

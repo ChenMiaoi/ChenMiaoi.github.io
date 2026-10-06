@@ -24,12 +24,12 @@
 	align-items: center;
 	gap: 12px;
 	font-size: 11px;
-	color: #cbcccc;
+	color: #c9ccce;
 }
 
 .archive-toolbar small {
 	font: 9px var(--mono);
-	color: #808182;
+	color: #7e8183;
 }
 
 .archive-toolbar button {
@@ -37,7 +37,7 @@
 	align-items: center;
 	gap: 9px;
 	font-size: 10px;
-	color: #959797;
+	color: #949799;
 }
 
 .archive-toolbar button > span {
@@ -57,7 +57,7 @@
 .archive-rail::before {
 	content: "";
 	width: 1px;
-	background: #5f61615c;
+	background: #5e61635c;
 	position: absolute;
 	left: 1px;
 	top: 0;
@@ -87,7 +87,7 @@
 	top: 28px;
 	width: 5px;
 	height: 5px;
-	background: #87898a;
+	background: #86898b;
 }
 
 .orbital-site .dossier-hit {
@@ -107,21 +107,21 @@
 	background: linear-gradient(
 		135deg,
 		transparent 44%,
-		#6d7070 45%,
-		#6d7070 52%,
+		#6c6f71 45%,
+		#6c6f71 52%,
 		#111416 53%
 	);
 }
 
 .orbital-site .dossier-hit:hover {
-	border-color: #839083;
+	border-color: #898c8e;
 }
 
 .dossier-index {
 	position: absolute;
 	left: -27px;
 	bottom: 21px;
-	color: #747677;
+	color: #737678;
 	font: 8px var(--mono);
 	writing-mode: vertical-rl;
 	letter-spacing: 1px;
@@ -135,7 +135,7 @@
 	margin-bottom: 15px;
 	font: 9px var(--mono);
 	letter-spacing: 0.3px;
-	color: #909292;
+	color: #8f9294;
 }
 
 .dossier-meta > span {
@@ -153,13 +153,13 @@
 	font-size: clamp(16px, 1.25vw, 20px);
 	line-height: 1.65;
 	font-weight: 520;
-	color: #dbdcdc;
+	color: #d9dcde;
 	padding-right: 25px;
 	text-wrap: pretty;
 }
 
 .dossier-description {
-	color: #a3a6a6;
+	color: #a2a5a7;
 	font-size: 12px;
 	line-height: 1.9;
 	display: -webkit-box;
@@ -169,7 +169,7 @@
 }
 
 .dossier-series {
-	color: #8b8e8e;
+	color: #8a8d8f;
 	font-size: 10px;
 	margin-top: 19px;
 	display: block;
@@ -180,12 +180,12 @@
 	position: absolute;
 	right: 16px;
 	top: 56px;
-	color: #878a8a;
+	color: #86898b;
 	display: flex;
 }
 
 .orbital-site .is-selected .dossier-hit {
-	border-color: #adb4a078;
+	border-color: #aeb1b378;
 }
 
 .is-selected .dossier-hit::before {
@@ -199,7 +199,7 @@
 }
 
 .is-selected .dossier-content strong {
-	color: #f4f5eb;
+	color: #f1f4f6;
 	font-size: clamp(21px, 1.85vw, 28px);
 	font-weight: 600;
 	line-height: 1.5;
@@ -207,7 +207,7 @@
 }
 
 .is-selected .dossier-meta {
-	color: #b8bab9;
+	color: #b7babc;
 }
 
 .is-selected .dossier-meta > span,
@@ -216,11 +216,11 @@
 }
 
 .is-selected .dossier-series {
-	color: #bbbdbc;
+	color: #babdbf;
 }
 
 .is-selected .dossier-description {
-	color: #cacbcb;
+	color: #c8cbcd;
 }
 
 .archive-end {
@@ -228,14 +228,14 @@
 	align-items: center;
 	justify-content: center;
 	padding: 20px 0;
-	color: #888b8b;
+	color: #878a8c;
 	font-size: 11px;
 	gap: 15px;
 }
 
 .archive-end span {
 	height: 1px;
-	background: #4c4f4f;
+	background: #4b4e50;
 	flex: 1;
 }
 
@@ -253,7 +253,7 @@
 	height: 36px;
 	padding-bottom: 16px;
 	font-size: 11px;
-	color: #cbcccc;
+	color: #c9ccce;
 }
 
 .context-label > span {
@@ -271,14 +271,14 @@
 .context-label small {
 	font: 8px var(--mono);
 	letter-spacing: 1px;
-	color: #858787;
+	color: #848789;
 }
 
 .context-content {
 	position: relative;
 	padding: 32px 29px 26px;
 	background: var(--paper);
-	color: #252626;
+	color: #232628;
 	clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
 	min-height: 462px;
 }
@@ -290,12 +290,12 @@
 	top: 0;
 	height: 22px;
 	width: 22px;
-	background: #888b8940;
+	background: #878a8c40;
 }
 
 .context-eyebrow {
 	font-size: 11px;
-	color: #5f6160;
+	color: #5e6163;
 	letter-spacing: 1px;
 	line-height: 1.7;
 }
@@ -315,7 +315,7 @@
 }
 
 .context-meta > span {
-	color: #a4aaa0;
+	color: #a5a8aa;
 }
 
 .orbital-site .context-excerpt {
@@ -326,7 +326,7 @@
 
 .context-chapters {
 	margin-top: 27px;
-	border-top: 1px solid #a8b0a480;
+	border-top: 1px solid #aaadaf80;
 	padding-top: 21px;
 }
 
@@ -344,18 +344,18 @@
 	line-height: 1.7;
 	padding: 8px 0;
 	gap: 12px;
-	color: #444747;
+	color: #434648;
 }
 
 .context-chapters button:hover {
-	color: #131616;
+	color: #121517;
 	text-decoration: underline;
 	text-underline-offset: 4px;
 }
 
 .context-chapters p {
 	font-size: 12px;
-	color: #595c5b;
+	color: #585b5d;
 }
 
 .orbital-site .read-action {
@@ -365,7 +365,7 @@
 .read-action small {
 	font: 7px var(--mono);
 	letter-spacing: 1.8px;
-	color: #909291;
+	color: #8f9294;
 	margin-top: 6px;
 }
 
@@ -384,13 +384,13 @@
 	gap: 15px;
 	padding: 12px 16px;
 	font-size: 12px;
-	background: #2e3030;
+	background: #2d3032;
 	margin-bottom: 23px;
 	border-left: 2px solid var(--signal);
 }
 
 .filter-summary small {
-	color: #a9aca9;
+	color: #a8abad;
 	padding-left: 10px;
 }
 
@@ -399,12 +399,12 @@
 	align-items: center;
 	gap: 10px;
 	white-space: nowrap;
-	color: #bcc6bd;
+	color: #c0c3c5;
 }
 
 .archive-empty {
 	padding: 40px 25px;
-	background: #282a2a;
+	background: #272a2c;
 }
 
 .archive-empty > svg {
@@ -418,7 +418,7 @@
 
 .orbital-site .archive-empty p {
 	font-size: 13px;
-	color: #adb0af;
+	color: #acafb1;
 	line-height: 1.8;
 	margin: 15px 0 24px;
 }
@@ -517,8 +517,8 @@
 	height: 40px;
 	padding: 0 18px;
 	margin: 0 0 24px 24px;
-	border: 1px solid #b7c4c052;
-	background: linear-gradient(100deg, #454e4fe0, #1c2425e3);
+	border: 1px solid #bec1c352;
+	background: linear-gradient(100deg, #494c4ee0, #1f2224e3);
 	clip-path: polygon(
 		10px 0,
 		calc(100% - 12px) 0,
@@ -531,12 +531,12 @@
 }
 
 .orbital-site .archive-toolbar > span {
-	color: #e2e7e3;
+	color: #e3e6e8;
 	font-size: 12px;
 }
 
 .orbital-site .archive-toolbar button {
-	color: #c6ceca;
+	color: #c9ccce;
 	font-size: 10px;
 }
 
@@ -559,7 +559,7 @@
 	overflow-x: hidden;
 	padding: 8px 12px 12px 5px;
 	scrollbar-width: thin;
-	scrollbar-color: #a3b1a56b #1b242740;
+	scrollbar-color: #aaadaf6b #1f222440;
 	overscroll-behavior-y: contain;
 	scroll-padding-block: 8px 12px;
 }
@@ -572,7 +572,7 @@
 	left: 1px;
 	top: -26px;
 	bottom: 20px;
-	background: linear-gradient(#d4dfd39c, #818f8a70);
+	background: linear-gradient(#d9dcde9c, #898c8e70);
 }
 
 .orbital-site .rail-focus {
@@ -595,10 +595,10 @@
 	top: 36px;
 	width: 11px;
 	height: 11px;
-	border: 2px solid #bbc8c3;
-	outline: 3px solid #131a1d;
+	border: 2px solid #c2c5c7;
+	outline: 3px solid #16191b;
 	border-radius: 50%;
-	background: #253032;
+	background: #2b2e30;
 }
 
 .orbital-site .rail-node::after {
@@ -608,7 +608,7 @@
 	left: 9px;
 	width: 18px;
 	height: 1px;
-	background: #a4b1a875;
+	background: #abaeb075;
 }
 
 .orbital-site .is-selected .rail-node {
@@ -659,13 +659,13 @@
 }
 
 .orbital-site .dossier-series {
-	border-top: 1px solid #aec2b424;
+	border-top: 1px solid #babdbf24;
 }
 
 .orbital-site .dossier-index {
 	left: -27px;
 	bottom: 30px;
-	color: #a9b6b1;
+	color: #b0b3b5;
 	font-size: 7px;
 }
 
@@ -728,11 +728,11 @@
 
 .orbital-site .context-label {
 	font-size: 10px;
-	color: #c5d0c7;
+	color: #cacdcf;
 }
 
 .orbital-site .context-label small {
-	color: #9eafa8;
+	color: #a8abad;
 }
 
 .orbital-site .context-content {
@@ -740,7 +740,7 @@
 	clip-path: none;
 	padding: 0;
 	min-height: 0;
-	color: #edf1e9;
+	color: #edf0f2;
 }
 
 .orbital-site .context-content::after {
@@ -748,12 +748,12 @@
 }
 
 .orbital-site .context-content h2 {
-	color: #f3f5ed;
+	color: #f1f4f6;
 	letter-spacing: -0.4px;
 }
 
 .orbital-site .context-meta {
-	color: #acbcb0;
+	color: #b5b8ba;
 	margin-top: 15px;
 }
 
@@ -766,16 +766,16 @@
 }
 
 .orbital-site .context-chapters h3 {
-	color: #92a798;
+	color: #9ea1a3;
 	font-size: 10px;
 }
 
 .orbital-site .context-chapters button {
-	color: #d9e2d7;
+	color: #dcdfe1;
 }
 
 .orbital-site .context-chapters p {
-	color: #d9e2d7;
+	color: #dcdfe1;
 	font-size: 12px;
 }
 
@@ -785,7 +785,7 @@
 
 .orbital-site .read-action {
 	background: var(--signal);
-	color: #1b241d;
+	color: #1f2224;
 	padding: 13px 18px;
 	clip-path: polygon(
 		0 0,
@@ -801,13 +801,13 @@
 }
 
 .orbital-site .read-action small {
-	color: #5b6025;
+	color: #585b5d;
 	font-size: 7px;
 	letter-spacing: 1.2px;
 }
 
 .orbital-site .read-action svg {
-	color: #1b241d;
+	color: #1f2224;
 }
 
 .document-jog {
@@ -821,12 +821,12 @@
 	display: flex;
 	gap: 10px;
 	font: 10px var(--mono);
-	color: #dce2d9;
+	color: #dde0e2;
 }
 
 .document-jog i {
 	font-style: normal;
-	color: #8e9d95;
+	color: #96999b;
 }
 
 .orbital-site .document-jog button {
@@ -834,13 +834,13 @@
 	place-items: center;
 	width: 34px;
 	height: 32px;
-	border: 1px solid #a4b5a558;
-	background: #273232a1;
+	border: 1px solid #adb0b258;
+	background: #2d3032a1;
 	color: var(--signal);
 }
 
 .orbital-site .document-jog button:hover:enabled {
-	background: #65706366;
+	background: #6a6d6f66;
 	border-color: var(--signal);
 }
 
@@ -1030,7 +1030,7 @@
 
 .orbital-site .dossier-hit:hover {
 	transform: none;
-	background: #b5c7a712;
+	background: #bec1c312;
 }
 
 .orbital-site .is-selected .dossier-hit {
@@ -1059,7 +1059,7 @@
 }
 
 .orbital-site .is-selected .dossier-meta > span {
-	color: #e7e794;
+	color: #dee1e3;
 }
 
 .orbital-site .dossier-content,
@@ -1072,7 +1072,7 @@
 .orbital-site .is-selected .dossier-content strong {
 	font-size: clamp(18px, 1.4vw, 22px);
 	font-weight: 600;
-	color: #eff1e8;
+	color: #edf0f2;
 	letter-spacing: 0;
 	line-height: 1.55;
 }
@@ -1094,7 +1094,7 @@
 	border: 0;
 	clip-path: none;
 	font-size: 11px;
-	color: #94aa9e;
+	color: #a1a4a6;
 }
 
 .is-selected .dossier-lock {
@@ -1109,7 +1109,7 @@
 	right: 14px;
 	padding: 0;
 	background: none;
-	color: #a8b99b;
+	color: #b0b3b5;
 	clip-path: none;
 }
 
@@ -1134,7 +1134,7 @@
 	padding: 0 0 25px;
 	border-top: 1px solid var(--archive-rule);
 	border-bottom: 1px solid var(--archive-rule);
-	background: linear-gradient(120deg, #12212630, transparent);
+	background: linear-gradient(120deg, #1b1e2030, transparent);
 }
 
 .context-panel::before {
@@ -1172,7 +1172,7 @@
 	font-size: 14px;
 	line-height: 1.95;
 	margin-top: 24px;
-	color: #bacac0;
+	color: #c3c6c8;
 }
 
 .orbital-site .context-chapters {
@@ -1226,7 +1226,7 @@
 		position: relative;
 		overflow-y: auto;
 		scrollbar-width: thin;
-		scrollbar-color: #a3b1a56b transparent;
+		scrollbar-color: #aaadaf6b transparent;
 	}
 }
 

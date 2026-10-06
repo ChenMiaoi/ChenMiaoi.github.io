@@ -34,7 +34,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {notFound && <meta name="robots" content="noindex" />}
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#17191b" />
+    <meta name="theme-color" content="#0d1113" />
     <link rel="canonical" href={canonical} />
     {!notFound && LOCALES.map((locale) => <link rel="alternate" hreflang={htmlLang(locale)} href={new URL(languageUrl(Astro.url.pathname, locale), Astro.site)} />)}
     <meta property="og:title" content={title} />
