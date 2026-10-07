@@ -243,6 +243,7 @@ export const messages = {
 	文章档案: ["Article archive", "文章檔案", "記事アーカイブ"],
 	探索路径: ["Exploration paths", "探索路徑", "探索の道筋"],
 	知识地图: ["Knowledge map", "知識地圖", "知識マップ"],
+	地图: ["Map", "地圖", "マップ"],
 	开源: ["Open source", "開源", "オープンソース"],
 	代码与实践: ["Code & practice", "程式碼與實踐", "コードと実践"],
 	关于: ["About", "關於", "概要"],

@@ -123,7 +123,7 @@
 .motion-ready:not(.motion-paused) .archive-connection { opacity: .85; }
 .motion-ready:not(.motion-paused) .archive-connection > path:not(.archive-arrival) { opacity: .3; }
 .context-content { position: relative; }
-.context-reception { position: absolute; inset: -10px -12px; border: 1px solid #e9eb9e; pointer-events: none; opacity: 0; }
+.context-reception { position: absolute; inset: 0; border: 1px solid #e9eb9e; pointer-events: none; opacity: 0; }
 .motion-ready:not(.motion-paused) .context-receiving > :not(.context-reception) {
 	animation: preview-materialize 420ms cubic-bezier(.16,1,.3,1) 180ms backwards;
 }

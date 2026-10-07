@@ -29,6 +29,14 @@
 	flex-direction: column;
 }
 
+/* Leave room for the dialog margins and reader header on short screens. */
+.orbital-site .reading-dialog .language-options {
+	max-height: calc(100dvh - 140px);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	scrollbar-width: thin;
+}
+
 .orbital-site .reader-header {
 	display: flex;
 	align-items: center;

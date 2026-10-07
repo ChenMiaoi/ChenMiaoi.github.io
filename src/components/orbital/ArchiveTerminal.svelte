@@ -47,7 +47,7 @@
   const navigation: { id: Section; label: string; icon: string; kicker: string; title: string }[] = [
     { id: "articles", label: t("文章"), icon: "article", kicker: t("写作 / 档案"), title: t("文章档案") },
     { id: "series", label: t("系列"), icon: "series", kicker: t("系列 / 目录"), title: t("探索路径") },
-    { id: "graph", label: t("知识地图"), icon: "graph", kicker: t("知识 / 关联"), title: t("知识地图") },
+    { id: "graph", label: t("地图"), icon: "graph", kicker: t("知识 / 关联"), title: t("知识地图") },
     { id: "code", label: t("开源"), icon: "code", kicker: t("开源 / 实践"), title: t("代码与实践") },
     { id: "about", label: t("关于"), icon: "about", kicker: t("作者 / {v0}", { v0: profile.name.toUpperCase() }), title: t("关于我") },
   ];
@@ -56,6 +56,7 @@
   let category = "all";
   let seriesFilter = initialSeries;
   let returnPath = `${localePrefix}${sectionPaths.articles}`;
+  let readerTrigger: HTMLElement | null = null;
   let resetKey = 0;
   let reader: ArticleReader;
   let sourceProject = initialProject;
@@ -211,15 +212,23 @@
   }
 
   function openReader(post: ArchivePost, heading?: string) {
-    if (!readerOpen) returnPath = window.location.pathname + window.location.search;
+    if (!readerOpen) {
+      returnPath = window.location.pathname + window.location.search;
+      readerTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    }
     const path = post.url + (heading ? `#${encodeURIComponent(heading)}` : "");
-    if (window.location.pathname + window.location.hash !== path) history.pushState(null, "", path);
+    if (window.location.pathname + window.location.hash !== path) history.pushState({ orbitalReader: true }, "", path);
     document.title = `${post.title} · Miao's Blog`;
     void reader.open(post, heading);
   }
   function readerClosed() {
-    history.pushState(null, "", returnPath);
-    restoreLocation();
+    if (history.state?.orbitalReader) history.back();
+    else {
+      history.replaceState(null, "", returnPath);
+      restoreLocation();
+    }
+    if (readerTrigger?.isConnected) readerTrigger.focus({ preventScroll: true });
+    else mainElement?.focus({ preventScroll: true });
   }
 
   function clearFilters() {

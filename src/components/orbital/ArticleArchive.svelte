@@ -100,7 +100,13 @@
     event.preventDefault();
     selectedSlug = filteredPosts[next].slug;
     await tick();
-    archiveBody.querySelectorAll<HTMLButtonElement>('.dossier-hit')[next]?.focus();
+    archiveBody.querySelectorAll<HTMLButtonElement>('.dossier-preview')[next]?.focus();
+  }
+
+  function readArticle(event: MouseEvent, post: ArchivePost) {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    openReader(post);
   }
 
 </script>
@@ -117,16 +123,19 @@
               {#each filteredPosts as post, index (post.slug)}
                 <div class="dossier" class:is-selected={selectedPost?.slug === post.slug}>
                   <span class="rail-node" aria-hidden="true"></span>
-                  <button class="dossier-hit" data-feedback aria-label={t("预览：{v0}", { v0: post.title })} aria-pressed={selectedPost?.slug === post.slug} onclick={() => { selectedSlug = post.slug; }} onkeydown={(event) => moveSelection(event,index)}>
+                  <div class="dossier-hit" data-feedback>
                     <InteractionGlow/>
                     <span class="dossier-lock" aria-hidden="true"></span>
                     <span class="dossier-index" aria-hidden="true">{String(filteredPosts.indexOf(post) + 1).padStart(2, "0")}</span>
                     <span class="dossier-meta"><time class="dossier-date" datetime={post.date.replaceAll(".", "-")}>{post.date}</time><span>{selectedPost?.slug === post.slug ? t("正在预览") : post.category === 'linux' ? 'LINUX' : t("硬件")}</span></span>
-                    <span class="dossier-content"><strong>{post.title}</strong><span class="dossier-description">{post.description}</span></span>
+                    <span class="dossier-content"><a class="dossier-title" href={post.url} onclick={(event) => readArticle(event, post)}><strong>{post.title}</strong></a><span class="dossier-description">{post.description}</span></span>
                     <span class="dossier-series">{post.seriesTitle}</span>
-                    <span class="dossier-arrow"><TerminalIcon name="arrow" size={21}/></span>
-                  </button>
-                  {#if selectedPost?.slug === post.slug}<button class="mobile-read" onclick={() => openReader(post)}>{t("进入阅读")} <TerminalIcon name="external" size={16}/></button>{/if}
+                    {#if selectedPost?.slug === post.slug}<p class="dossier-mobile-preview">{post.excerpt}</p>{/if}
+                    <div class="dossier-actions">
+                      <button class="dossier-preview" aria-label={t("预览：{v0}", { v0: post.title })} aria-pressed={selectedPost?.slug === post.slug} onclick={() => { selectedSlug = post.slug; }} onkeydown={(event) => moveSelection(event,index)}>{t("预览文章")}<TerminalIcon name="arrow" size={16}/></button>
+                      <a class="dossier-read" href={post.url} onclick={(event) => readArticle(event, post)} aria-label={t("阅读：{v0}", { v0: post.title })}>{t("进入阅读")}<TerminalIcon name="external" size={16}/></a>
+                    </div>
+                  </div>
                 </div>
               {/each}
               {#if filteredPosts.length === 0}

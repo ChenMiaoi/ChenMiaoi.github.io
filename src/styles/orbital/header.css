@@ -24,8 +24,13 @@
 }
 
 .orbital-site .search-frame {
-	width: clamp(170px, 18vw, 255px);
+	width: clamp(210px, 25vw, 340px);
 	margin: 0;
+}
+
+/* The surrounding search frame already provides the focus indicator. */
+.orbital-site .search-frame input:focus-visible {
+	outline: none;
 }
 
 @media (max-width: 650px) {
@@ -50,10 +55,13 @@
 	}
 	.orbital-site .terminal-header .search-frame {
 		grid-area: search;
+		grid-column: 1 / -1;
 		width: 100%;
+		padding-right: 60px;
 	}
 	.orbital-site .terminal-header .github-link {
 		grid-area: github;
 		justify-self: end;
+		z-index: 1;
 	}
 }

@@ -1131,7 +1131,7 @@
 }
 
 .context-panel {
-	padding: 0 0 25px;
+	padding: 0 clamp(18px, 1.5vw, 26px) 25px;
 	border-top: 1px solid var(--archive-rule);
 	border-bottom: 1px solid var(--archive-rule);
 	background: linear-gradient(120deg, #1b1e2030, transparent);
@@ -1254,5 +1254,89 @@
 	.orbital-site .dossier-content strong,
 .orbital-site .is-selected .dossier-content strong {
 		font-size: 18px;
+	}
+}
+
+/* Article links and preview controls remain separate at every breakpoint. */
+.dossier-mobile-preview { display: none; }
+
+@media (max-width: 920px) {
+	.dossier-mobile-preview {
+		display: block;
+		margin: 14px 0;
+		color: var(--archive-muted);
+		font-size: var(--text-caption);
+		line-height: 1.85;
+		overflow-wrap: anywhere;
+	}
+	.orbital-site .is-selected .dossier-description { display: none; }
+}
+
+.orbital-site .dossier-title {
+	display: block;
+	overflow-wrap: anywhere;
+}
+.orbital-site .dossier-title:is(:hover, :focus-visible) {
+	text-decoration: underline;
+	text-underline-offset: 4px;
+}
+.dossier-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-top: 16px;
+}
+.orbital-site .dossier-actions :is(button, a) {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 40px;
+	padding: 8px 12px;
+	font-size: var(--text-control);
+}
+.orbital-site .dossier-preview {
+	color: var(--muted);
+	border: 1px solid var(--rule);
+}
+/* Extend the native preview button over the card without nesting controls. */
+.orbital-site .dossier-preview::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+}
+.orbital-site .dossier-preview:focus-visible::before {
+	outline: 2px solid var(--signal);
+	outline-offset: -2px;
+}
+.orbital-site :is(.dossier-title, .dossier-read) {
+	position: relative;
+	z-index: 2;
+}
+.orbital-site .dossier-preview[aria-pressed="true"] {
+	color: var(--signal);
+	border-color: var(--signal);
+}
+.orbital-site .dossier-read {
+	color: var(--ink);
+	background: var(--signal);
+}
+.orbital-site .context-content h2 { overflow-wrap: anywhere; }
+
+/* Short desktop windows use page scrolling instead of three scrollbars. */
+@media (min-width: 1000px) and (max-height: 759px) {
+	.orbital-site .archive-view .terminal-main { display: block; }
+	.archive-view .archive-grid { align-items: start; }
+	.archive-view .archive-list { display: block; }
+	.orbital-site .archive-view .archive-scroll {
+		max-height: none;
+		overflow: visible;
+	}
+	.orbital-site .archive-view .context-column {
+		position: sticky;
+		top: 20px;
+		overflow: visible;
 	}
 }
