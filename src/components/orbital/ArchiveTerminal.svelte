@@ -62,6 +62,8 @@
   let sourceProject = initialProject;
   let sourceRecord = "";
   let sourceKind = "all";
+  let sourceDashboard = !initialProject;
+  let sourceDock: SourceDock;
   let searchInput: HTMLInputElement;
   let systemReducedMotion = true;
   let effectsEnabled = true;
@@ -110,6 +112,7 @@
       sourceProject = undefined;
       sourceRecord = "";
       sourceKind = "all";
+      sourceDashboard = true;
     }
     setSection(next);
     if (next === "articles") resetFilters();
@@ -273,6 +276,7 @@
           const selection = resolveContributionSelection(window.location.search);
           sourceRecord = selection.record;
           sourceKind = selection.kind;
+          sourceDashboard = !sourceProject && !sourceRecord;
         }
         seriesFilter = target.series;
         const params = new URLSearchParams(window.location.search);
@@ -369,6 +373,12 @@
             {/each}
             <span class="selection-rail" aria-hidden="true"></span>
           </div>
+        {:else if section === "code"}
+          <nav class="source-mode-tabs" aria-label={t("切换开源视图")} use:selectionRail={{key: String(sourceDashboard), enabled: motionReady && !reducedMotion}}>
+            <button aria-pressed={sourceDashboard} onclick={() => sourceDock?.showControl()}>{t("任务控制台")}</button>
+            <button aria-pressed={!sourceDashboard} onclick={() => sourceDock?.showArchive()}>{t("记录档案")}</button>
+            <span class="selection-rail" aria-hidden="true"></span>
+          </nav>
         {:else}<span class="section-coordinate">{t("Miao 的个人档案")}</span>{/if}
       </div>
       {/key}
@@ -380,7 +390,7 @@
       {:else if section === "graph"}
         <KnowledgeAtlas {posts} {series} {reducedMotion} onRead={openReader} onBrowse={filterSeries}/>
       {:else if section === "code"}
-        <SourceDock {projects} {activity} {detailsUrl} {reducedMotion} bind:projectId={sourceProject} bind:selectedId={sourceRecord} bind:kindFilter={sourceKind} onNavigate={sourceNavigate}/>
+        <SourceDock bind:this={sourceDock} {projects} {activity} {detailsUrl} {reducedMotion} bind:showDashboard={sourceDashboard} bind:projectId={sourceProject} bind:selectedId={sourceRecord} bind:kindFilter={sourceKind} onNavigate={sourceNavigate}/>
       {:else}
         <ProfileDossier {profile} onNavigate={navigate} onExplore={(nextCategory) => { navigate('articles'); category = nextCategory; storeFilters(); }}/>
       {/if}

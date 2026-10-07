@@ -1,4 +1,6 @@
-.orbital-site .source-mode-tabs { display:flex; gap:22px; align-items:center; flex:0 0 auto; margin-bottom:18px; }
+.orbital-site .source-view .archive-heading { flex-wrap:wrap; }
+.orbital-site .source-mode-tabs { display:flex; gap:22px; align-items:center; flex:0 0 auto; margin:0; }
+@media (max-width:650px) { .orbital-site .source-view .archive-heading { row-gap:18px; } .orbital-site .source-mode-tabs { flex-basis:100%; } }
 .orbital-site .source-mode-tabs button { padding:0 0 9px; font:var(--text-control)/1.5 var(--mono); color:#9c9fa1; border-bottom:2px solid transparent; cursor:pointer; }
 .orbital-site .source-mode-tabs button[aria-pressed="true"] { color:#e2e5e7; border-color:#dbe67e; }
 .orbital-site .source-mode-tabs button:hover { color:#e7eaec; }

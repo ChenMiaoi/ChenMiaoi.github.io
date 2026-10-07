@@ -12,7 +12,6 @@
   import BrandIcon from "./BrandIcon.svelte";
   import { projectTone } from "../../features/orbital/topic-colors";
   import { revealOnView } from "./motion";
-  import { selectionRail } from "./interaction-motion";
   import ContributionReader from "./ContributionReader.svelte";
   import ContributionControl from "./ContributionControl.svelte";
   import type { ContributionProject } from "../../types/config";
@@ -30,7 +29,7 @@
   export let reducedMotion = false;
   export let selectedId = "";
   export let kindFilter = "all";
-  let showDashboard = !projectId && !selectedId;
+  export let showDashboard = !projectId && !selectedId;
   let dashboardRoute = `${projectId ?? ''}|${selectedId}|${kindFilter}`;
   $: {
     const nextRoute = `${projectId ?? ''}|${selectedId}|${kindFilter}`;
@@ -75,12 +74,17 @@
     onNavigate(id, record, 'all');
   }
 
-  function showControl() {
+  export function showControl() {
     projectId = undefined;
     selectedId = '';
     kindFilter = 'all';
     showDashboard = true;
     onNavigate('', '', 'all');
+  }
+
+  export function showArchive() {
+    showDashboard = false;
+    if (!projectId) chooseProject(project.id);
   }
 
   function step(direction: number) {
@@ -180,7 +184,6 @@
       <g class="projection-orbit-arc"><path d="M450 95A355 355 0 0 1 787 339M450 805A355 355 0 0 1 113 561"/><circle cx="787" cy="339" r="5"/></g>
     </svg>
   </div>
-  <nav class="source-mode-tabs" aria-label={t("切换开源视图")} use:selectionRail={{key: String(showDashboard), enabled: !reducedMotion}}><button aria-pressed={showDashboard} onclick={showControl}>{t("任务控制台")}</button><button aria-pressed={!showDashboard} onclick={() => { showDashboard = false; if (!projectId) chooseProject(project.id); }}>{t("记录档案")}</button><span class="selection-rail" aria-hidden="true"></span></nav>
   {#if showDashboard}
     <ContributionControl {projects} {activity} {details} {reducedMotion} loading={loadingDetails} failed={detailsError} onOpen={openMission}/>
   {:else}
