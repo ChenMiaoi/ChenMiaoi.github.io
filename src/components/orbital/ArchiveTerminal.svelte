@@ -48,7 +48,7 @@
     { id: "articles", label: t("文章"), icon: "article", kicker: t("写作 / 档案"), title: t("文章档案") },
     { id: "series", label: t("系列"), icon: "series", kicker: t("系列 / 目录"), title: t("探索路径") },
     { id: "graph", label: t("地图"), icon: "graph", kicker: t("知识 / 关联"), title: t("知识地图") },
-    { id: "code", label: t("开源"), icon: "code", kicker: t("开源 / 实践"), title: t("代码与实践") },
+    { id: "code", label: t("开源"), icon: "code", kicker: t("开源 / 协作"), title: t("任务日志") },
     { id: "about", label: t("关于"), icon: "about", kicker: t("作者 / {v0}", { v0: profile.name.toUpperCase() }), title: t("关于我") },
   ];
   let section: Section = initialSection;

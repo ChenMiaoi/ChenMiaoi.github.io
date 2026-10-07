@@ -50,7 +50,7 @@
   $: recordKinds = [...new Set(allRecords.map((item) => item.kind))];
   $: records = allRecords.filter((item) => kindFilter === "all" || item.kind === kindFilter);
   $: selected = selectedId ? records.find((item) => item.id === selectedId) : records[0];
-  $: if (typeof document !== "undefined") document.title = `${showDashboard ? t("任务控制台") : selectedId && selected ? selected.title : project?.name ?? t("代码与实践")} · Miao's Blog`;
+  $: if (typeof document !== "undefined") document.title = `${showDashboard ? t("任务控制台") : selectedId && selected ? selected.title : project?.name ?? t("任务日志")} · Miao's Blog`;
   $: selectedDetail = details.records.find((item) => item.url === selected?.url);
   $: selectedIndex = records.findIndex((item) => item.id === selected?.id);
   $: if (selected && recordRail) revealSelection(selected.id);

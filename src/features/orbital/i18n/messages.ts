@@ -10,7 +10,11 @@ export const messages = {
 	"写作 / 档案": ["WRITING / ARCHIVE", "寫作 / 檔案", "執筆 / アーカイブ"],
 	"系列 / 目录": ["COLLECTIONS / DIRECTORY", "系列 / 目錄", "シリーズ / 一覧"],
 	"知识 / 关联": ["KNOWLEDGE / CONNECTIONS", "知識 / 關聯", "知識 / つながり"],
-	"开源 / 实践": ["SOURCE / OPEN", "開源 / 實踐", "オープンソース / 実践"],
+	"开源 / 协作": [
+		"OPEN SOURCE / COLLABORATION",
+		"開源 / 協作",
+		"オープンソース / 協働",
+	],
 	"作者 / {v0}": ["PROFILE / {v0}", "作者 / {v0}", "プロフィール / {v0}"],
 	"文档 /": ["DOCUMENT /", "文件 /", "記事 /"],
 	阅读文档: ["OPEN DOCUMENT", "閱讀文件", "記事を開く"],
@@ -245,7 +249,7 @@ export const messages = {
 	知识地图: ["Knowledge map", "知識地圖", "知識マップ"],
 	地图: ["Map", "地圖", "マップ"],
 	开源: ["Open source", "開源", "オープンソース"],
-	代码与实践: ["Code & practice", "程式碼與實踐", "コードと実践"],
+	任务日志: ["Mission log", "任務日誌", "ミッションログ"],
 	关于: ["About", "關於", "概要"],
 	关于我: ["About me", "關於我", "自己紹介"],
 	"记录系统的内部世界。": [

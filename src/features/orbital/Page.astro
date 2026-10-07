@@ -27,7 +27,7 @@ const prefix = LOCALE_PREFIX[lang];
 const { t } = createTranslations(lang);
 const initialWelcome = !notFound && isWelcomeLocation(Astro.url.pathname, "", prefix);
 const heading = contributionConfig.projects.find((project) => project.id === projectId)?.name || post?.data.title || series.find((entry) => entry.slug === seriesSlug)?.title
-  || ({ articles: t("文章档案"), series: t("探索路径"), graph: t("知识地图"), code: t("代码与实践"), about: t("关于我") })[section];
+  || ({ articles: t("文章档案"), series: t("探索路径"), graph: t("知识地图"), code: t("任务日志"), about: t("关于我") })[section];
 const title = notFound ? `${t("页面未找到")} · ${siteConfig.title}` : initialWelcome ? `${t("欢迎登站")} · ${siteConfig.title}` : `${heading} · ${siteConfig.title}`;
 const description = post?.data.description || t("操作系统、Linux 内核、驱动、RISC-V 与底层工程的探索记录。");
 const canonical = new URL(Astro.url.pathname, Astro.site);
