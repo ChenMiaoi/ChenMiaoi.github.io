@@ -115,17 +115,18 @@
         {#if seriesFilter || query}
           <div class="filter-summary"><span>{seriesFilter ? selectedSeriesTitle : t("搜索「{v0}」", { v0: query })} <small>{t("{v0} 篇文章", { v0: filteredPosts.length })}</small></span><button onclick={resetFilters}>{t("清除筛选")} <TerminalIcon name="close" size={14}/></button></div>
         {/if}
-        <div class="archive-grid">
+        <div class="archive-grid" data-topic={selectedPost ? topicTone(selectedPost.series, selectedPost.category) : 'neutral'}>
           <section class="archive-list" aria-label={t("文章档案")}>
-            <div class="archive-toolbar"><span>{t("文章索引")}<small aria-live="polite" aria-atomic="true">{#key filteredPosts.length}<span class="result-count">{String(filteredPosts.length).padStart(2, "0")}</span>{/key}</small></span><button onclick={() => { descending = !descending; selectedSlug = ''; }} aria-label={descending ? t("按时间从旧到新排序") : t("按时间从新到旧排序")}>{descending ? t("最新优先") : t("最早优先")}<span class:reversed={!descending}><TerminalIcon name="sort" size={16}/></span></button></div>
+            <div class="archive-toolbar console-register"><span>{t("文章索引")}<small aria-live="polite" aria-atomic="true">{#key filteredPosts.length}<span class="result-count">{String(filteredPosts.length).padStart(2, "0")}</span>{/key}</small></span><button onclick={() => { descending = !descending; selectedSlug = ''; }} aria-label={descending ? t("按时间从旧到新排序") : t("按时间从新到旧排序")}>{descending ? t("最新优先") : t("最早优先")}<span class:reversed={!descending}><TerminalIcon name="sort" size={16}/></span></button></div>
             <div class="archive-scroll" bind:this={archiveScroll} use:observeRail onscroll={positionContext} tabindex="0" role="region" aria-label={t("滚动浏览文章档案")}>
             <div class="archive-rail" bind:this={archiveBody} use:observeRail use:revealOnView={{key: `${category}|${seriesFilter}|${descending}|${query}`, enabled: motionReady && !reducedMotion, selector: '.dossier-content', wait: query ? 140 : 0}}>
               {#if selectedPost}<span class="rail-focus" style={`transform:translateY(${markerTop}px)`} aria-hidden="true"></span>{/if}
               {#each filteredPosts as post, index (post.slug)}
                 <div class="dossier" class:is-selected={selectedPost?.slug === post.slug}>
                   <span class="rail-node" aria-hidden="true"></span>
-                  <div class="dossier-hit" data-feedback>
+                  <div class="dossier-hit console-row" data-topic={topicTone(post.series, post.category)} class:console-selected={selectedPost?.slug === post.slug} data-feedback>
                     <InteractionGlow/>
+                    <span class="console-lock" aria-hidden="true"></span>
                     <span class="dossier-lock" aria-hidden="true"></span>
                     <span class="dossier-index" aria-hidden="true">{String(filteredPosts.indexOf(post) + 1).padStart(2, "0")}</span>
                     <span class="dossier-meta"><time class="dossier-date" datetime={post.date.replaceAll(".", "-")}>{post.date}</time><span class:dossier-category={selectedPost?.slug !== post.slug} data-topic={selectedPost?.slug === post.slug ? undefined : topicTone('', post.category)}>{selectedPost?.slug === post.slug ? t("正在预览") : post.category === 'linux' ? 'LINUX' : t("硬件")}</span></span>
@@ -152,7 +153,7 @@
 
           <aside class="context-column" aria-label={t("当前文章预览")}>
             {#if selectedPost}
-              <div class="context-panel" data-feedback bind:this={contextPanel}>
+              <div class="context-panel console-panel" data-feedback bind:this={contextPanel}>
                 <InteractionGlow/>
                 <div class="context-label"><span><i></i>{t("当前档案")}</span><small>{t("文档 /")} {String(selectedIndex).padStart(2, '0')}</small></div>
                 {#key selectedPost.slug}

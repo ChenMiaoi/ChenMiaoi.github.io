@@ -217,7 +217,7 @@
 </script>
 
 <section class="topology-console" class:compact aria-label={t("知识星图探索")}>
-  <div class="topology-toolbar">
+  <div class="topology-toolbar console-register" data-topic={nodeTone(selected)}>
     <label class="topology-scope"><span>{t("探索主题")}</span><select value={current?.slug ?? ''} onchange={(event) => { scope = event.currentTarget.value; changeScope(); }} aria-label={t("选择地图主题")}>{#each roots as root}<option value={root.slug}>{shortTitle(root.title)}</option>{/each}</select><TerminalIcon name="arrow" size={14}/></label>
     <div class="topology-key" aria-label={t("节点图例")}><span><i class="series-symbol"></i>{t("系列")}</span><span><i class="article-symbol"></i>{t("文章")}</span></div>
     <div class="topology-tools"><button aria-label={t("缩小地图")} disabled={zoom <= .35} onclick={() => changeZoom(-1)}>−</button><span aria-live="polite">{Math.round(zoom * 100)}%</span><button aria-label={t("放大地图")} disabled={zoom >= 1.8} onclick={() => changeZoom(1)}>+</button><button class="topology-reset" onclick={resetView}>{t("完整星图")}</button></div>
@@ -266,7 +266,7 @@
   </div>
 
   {#if selected}
-    <section class="topology-inspector" data-topic={nodeTone(selected)} bind:this={inspector} tabindex="-1" aria-labelledby="topology-selection-title">
+    <section class="topology-inspector console-panel" data-topic={nodeTone(selected)} bind:this={inspector} tabindex="-1" aria-labelledby="topology-selection-title">
       <div class="topology-selection-mark" aria-hidden="true"><TerminalIcon name={selected.kind === 'post' ? 'article' : 'series'} size={24}/></div>
       {#key selected.id}<span class="inspector-acquisition" aria-hidden="true"></span><div class="topology-selection-content" in:fly={{x: reducedMotion ? 0 : 8, duration: reducedMotion ? 0 : 240}} use:revealSequence={{key: selected.id, enabled: !reducedMotion, selector: '.topology-selection-meta, h2, .topology-selection-description, .topology-selection-parent', wait: 60}}><p class="topology-selection-meta"><span>{selected.kind === 'post' ? t("文章节点") : selected.depth ? t("子系列节点") : t("主题节点")}</span><i>/</i>{selected.post?.date ?? t("{v0} 篇文章", { v0: selected.collection?.posts.length ?? 0 })}</p><h2 id="topology-selection-title">{selected.title}</h2><p class="topology-selection-description">{selected.post?.description ?? selected.collection?.description}</p><span class="topology-selection-parent" data-topic={selected.kind === 'post' ? topicTone(selected.post?.series, selected.post?.category) : selected.depth ? topicTone(selected.collection?.parent) : undefined}>{selected.kind === 'post' ? focusedSeries?.title : selected.depth ? series.find((item) => item.slug === selected.collection?.parent)?.title : t("选择分支，探索主题下的文章。")}</span></div>{/key}
       <button class="topology-open" data-feedback onclick={() => { if (selected.post) onRead(selected.post); else if (selected.collection) onBrowse(selected.collection.slug); }}><InteractionGlow/>{selected.kind === 'post' ? t("进入阅读") : t("浏览系列")}<TerminalIcon name="external" size={20}/></button>

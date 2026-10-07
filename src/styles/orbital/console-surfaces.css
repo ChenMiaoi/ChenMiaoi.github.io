@@ -1,0 +1,109 @@
+/* Shared transparent surfaces, topic locks and secondary controls. */
+.orbital-site :is(.console-panel, .console-row, .console-register, .console-action) {
+	--console-color: var(--topic-color, var(--muted));
+	position: relative;
+	isolation: isolate;
+}
+.orbital-site .console-panel {
+	background: radial-gradient(ellipse at 100% 0, color-mix(in srgb, var(--console-color) 9%, transparent), transparent 65%), var(--console-surface);
+	border-color: color-mix(in srgb, var(--console-color) 24%, transparent);
+}
+.orbital-site .console-panel::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	color: color-mix(in srgb, var(--console-color) 55%, transparent);
+	background: linear-gradient(currentColor, currentColor) top right / 24px 1px no-repeat,
+		linear-gradient(currentColor, currentColor) top right / 1px 18px no-repeat,
+		linear-gradient(currentColor, currentColor) bottom left / 18px 1px no-repeat;
+	pointer-events: none;
+}
+.orbital-site .console-register {
+	border-top: 1px solid color-mix(in srgb, var(--console-color) 25%, transparent);
+	border-bottom-color: color-mix(in srgb, var(--console-color) 24%, transparent);
+	background: linear-gradient(90deg, color-mix(in srgb, var(--console-color) 5%, transparent), transparent 75%), var(--console-surface);
+}
+.orbital-site .console-register::after {
+	content: "";
+	position: absolute;
+	top: -1px;
+	right: 0;
+	width: 22px;
+	height: 6px;
+	border-top: 1px solid var(--console-color);
+	border-right: 1px solid var(--console-color);
+	opacity: .65;
+	pointer-events: none;
+}
+.orbital-site .console-register i:not([class]) { background: var(--console-color); }
+.orbital-site .console-row { background: linear-gradient(100deg, #141c2026, #0b101212); }
+.orbital-site :is(.console-row[aria-pressed="true"], .console-row.console-selected) {
+	background: linear-gradient(100deg, color-mix(in srgb, var(--console-color) 13%, transparent), color-mix(in srgb, var(--console-color) 3%, transparent));
+	box-shadow: inset 0 1px color-mix(in srgb, var(--console-color) 20%, transparent);
+}
+.console-lock {
+	position: absolute;
+	inset: 8px;
+	z-index: 1;
+	color: var(--console-color);
+	background: linear-gradient(currentColor, currentColor) top left / 10px 1px no-repeat,
+		linear-gradient(currentColor, currentColor) top left / 1px 8px no-repeat,
+		linear-gradient(currentColor, currentColor) bottom right / 10px 1px no-repeat,
+		linear-gradient(currentColor, currentColor) bottom right / 1px 8px no-repeat;
+	opacity: 0;
+	pointer-events: none;
+}
+.orbital-site :is(.console-row[aria-pressed="true"], .console-row.console-selected) > .console-lock { opacity: .55; }
+.orbital-site :is(.console-row[aria-pressed="true"], .console-row.console-selected) > svg { color: var(--console-color); }
+.orbital-site :is(.console-row, .console-panel, .console-action) > .interaction-light {
+	background: radial-gradient(180px circle at var(--light-x, 50%) var(--light-y, 50%), color-mix(in srgb, var(--console-color) 13%, transparent), transparent 72%);
+}
+.orbital-site :is(.console-row, .console-action) .interaction-pulse > i {
+	border-color: color-mix(in srgb, var(--console-color) 50%, transparent);
+	background: color-mix(in srgb, var(--console-color) 5%, transparent);
+}
+.orbital-site .console-action {
+	color: var(--paper);
+	border: 1px solid color-mix(in srgb, var(--console-color) 55%, transparent);
+	background: color-mix(in srgb, var(--console-color) 8%, transparent);
+	clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+}
+.orbital-site .console-action > svg { color: var(--console-color); }
+.orbital-site .console-action:focus-visible { outline: 1px solid var(--console-color); outline-offset: -3px; }
+.orbital-site .motion-ready:not(.motion-paused) .console-lock { transition: opacity 220ms; }
+@media (hover: hover) and (pointer: fine) {
+	.orbital-site .console-row:hover { background-color: color-mix(in srgb, var(--console-color) 5%, transparent); }
+	.orbital-site .console-row:hover > .console-lock { opacity: .3; }
+	.orbital-site :is(.console-row[aria-pressed="true"], .console-row.console-selected):hover > .console-lock { opacity: .55; }
+	.orbital-site .console-action:hover { border-color: var(--console-color); background: color-mix(in srgb, var(--console-color) 15%, transparent); color: var(--paper); }
+}
+
+/* Keep each page's existing density, layout and native hit targets. */
+.orbital-site .mission-control { background: transparent; }
+.orbital-site :is(.mission-queue, .archive-scroll, .path-options, .path-outline) { background: var(--console-surface); }
+/* A single broad light joins the metrics without separate colored spots. */
+.orbital-site .mission-metrics {
+	background: radial-gradient(ellipse 75% 150% at 50% -35%, color-mix(in srgb, var(--topic-cyan) 13%, transparent), color-mix(in srgb, var(--topic-cyan) 4%, transparent) 55%, transparent 85%), var(--console-surface);
+}
+.orbital-site .context-label { border-bottom-color: color-mix(in srgb, var(--console-color) 24%, transparent); }
+.orbital-site .context-label i { background: var(--console-color); }
+.orbital-site .context-content .context-reception { border-color: var(--console-color); }
+/* The preview overlay belongs to the card; keep its button unpositioned and unclipped. */
+.orbital-site .dossier-preview { border-color: color-mix(in srgb, var(--console-color) 55%, transparent); background: color-mix(in srgb, var(--console-color) 8%, transparent); }
+.orbital-site .dossier-preview[aria-pressed="true"] { color: var(--console-color); border-color: var(--console-color); }
+/* Revealing the copy creates a stacking context; keep the title above the preview overlay. */
+.orbital-site .dossier-content { position: relative; z-index: 2; pointer-events: none; }
+.orbital-site .dossier-title { pointer-events: auto; }
+.orbital-site .archive-grid .rail-focus { background: var(--topic-color); box-shadow: 0 0 10px color-mix(in srgb, var(--topic-color) 20%, transparent); }
+.orbital-site .archive-grid .is-selected .rail-node { border-color: var(--topic-color); background: var(--topic-color); }
+.orbital-site .archive-grid .dossier-lock { background: var(--topic-color); }
+.orbital-site .archive-grid .archive-connection :is(path, circle) { stroke: var(--topic-color); }
+.orbital-site .archive-grid .archive-connection circle { fill: var(--topic-color); }
+.orbital-site .path-option.active::after { background: var(--console-color); }
+.orbital-site .path-manifest::before { background: var(--topic-color); }
+.orbital-site .identity-fields.console-panel, .orbital-site .identity-contacts.console-panel { padding: 0 14px 12px; }
+.orbital-site .identity-section-title { border-bottom: 1px solid var(--rule); }
+.orbital-site .identity-affiliation { background: var(--console-surface); }
+@media (prefers-reduced-motion: reduce) {
+	.orbital-site .console-lock { transition: none; }
+}

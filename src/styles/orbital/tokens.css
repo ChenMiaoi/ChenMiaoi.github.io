@@ -16,6 +16,7 @@
 	--surface: #141c20;
 	--surface-raised: #20292e;
 	--surface-inset: #0e1518;
+	--console-surface: linear-gradient(125deg, #141c2059, #0b101273);
 	--text: #dce0df;
 	--paper: #f3f0e8;
 	--muted: #aab3b8;

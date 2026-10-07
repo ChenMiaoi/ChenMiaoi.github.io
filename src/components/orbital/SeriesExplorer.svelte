@@ -81,13 +81,14 @@
 <section class="path-explorer" aria-label={t("系列探索")}>
   <div class="path-layout">
     <aside class="path-directory" aria-label={t("选择系列")}>
-      <div class="path-toolbar">
+      <div class="path-toolbar console-register" data-topic={current ? topicTone(current.slug) : 'neutral'}>
         <span><i aria-hidden="true"></i>{t("系列目录")}</span>
         <button class:enabled={showEmpty} aria-label={t("显示未收录系列")} title={t("显示未收录系列")} aria-pressed={showEmpty} onclick={() => { showEmpty = !showEmpty; }}><span class="path-toggle" aria-hidden="true"></span>{t("未收录")}</button>
       </div>
       <div class="path-options" bind:this={seriesRail} use:revealSequence={{key: String(showEmpty), enabled: !reducedMotion, selector: '.path-name'}}>
         {#each roots as collection, index (collection.slug)}
-          <button class="path-option" data-topic={topicTone(collection.slug)} data-feedback class:active={current?.slug === collection.slug} aria-pressed={current?.slug === collection.slug} aria-label={t("查看系列：{v0}", { v0: collection.title })} onclick={() => { selection = collection.slug; }}>
+          <button class="path-option console-row" data-topic={topicTone(collection.slug)} data-feedback class:active={current?.slug === collection.slug} aria-pressed={current?.slug === collection.slug} aria-label={t("查看系列：{v0}", { v0: collection.title })} onclick={() => { selection = collection.slug; }}>
+            <span class="console-lock" aria-hidden="true"></span>
             <InteractionGlow/><span class="path-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
             <span class="path-name"><strong>{shortTitle(collection.title)}</strong><small>{collection.posts.length ? t("{v0} 篇文章", { v0: collection.posts.length }) : t("尚未收录")}</small></span>
             <TerminalIcon name="arrow" size={15}/>
@@ -98,10 +99,10 @@
     </aside>
 
     {#if current}
-      <section class="path-manifest" aria-labelledby="path-title">
+      <section class="path-manifest" data-topic={topicTone(current.slug)} aria-labelledby="path-title">
         {#key current.slug}
           <div class="path-manifest-content" in:fly={{ x: reducedMotion ? 0 : 10, duration: reducedMotion ? 0 : 280 }} use:revealSequence={{key: current.slug, enabled: !reducedMotion, selector: '.path-hero-line, #path-title, .path-subtitle, .path-description', wait: 70}}>
-            <header class="path-hero" data-topic={topicTone(current.slug)}>
+            <header class="path-hero console-panel" data-topic={topicTone(current.slug)}>
               <div class="path-hero-line"><span>{t("系列 /")} {String(currentIndex).padStart(2, "0")}</span><span>{t("{v0} 份文档", { v0: current.posts.length })}</span></div>
               <span class="path-watermark" aria-hidden="true">{String(currentIndex).padStart(2, "0")}</span>
               <h2 id="path-title">{shortTitle(current.title)}</h2>

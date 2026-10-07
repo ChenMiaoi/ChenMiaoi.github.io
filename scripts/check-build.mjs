@@ -32,10 +32,11 @@ for (const path of ["", "en/", "ja/", "zh_TW/", "articles/", "series/", "graph/"
 }
 for (const prefix of ["", "en/", "ja/", "zh_TW/"]) {
     const seriesPage = await readFile(resolve(production, prefix, "series", "index.html"), "utf8");
-    const seriesOptions = [...seriesPage.matchAll(/<button class="path-option(?: active)?"[^>]*aria-pressed="(true|false)"[^>]*>/g)];
+    const seriesOptions = [...seriesPage.matchAll(/<button class="([^"]*)"[^>]*aria-pressed="(true|false)"[^>]*>/g)]
+        .filter(option => option[1].split(/\s+/).includes("path-option"));
     assert.ok(seriesOptions.length > 0, `Series directory missing: ${prefix}`);
-    assert.equal(seriesOptions[0][1], "true", `Latest series is not selected by default: ${prefix}`);
-    assert.equal(seriesOptions.filter(option => option[1] === "true").length, 1, `Ambiguous default series: ${prefix}`);
+    assert.equal(seriesOptions[0][2], "true", `Latest series is not selected by default: ${prefix}`);
+    assert.equal(seriesOptions.filter(option => option[2] === "true").length, 1, `Ambiguous default series: ${prefix}`);
     const controlPage = await readFile(resolve(production, prefix, "contribution", "index.html"), "utf8");
     assert.match(controlPage, /class="mission-control"/);
     assert.doesNotMatch(controlPage, /data-archive-redirect/);

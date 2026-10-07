@@ -28,7 +28,7 @@
 </script>
 
 <section class="identity-dossier" aria-label={t("个人档案")}>
-  <header class="identity-register"><span><i aria-hidden="true"></i>{t("个人档案库")}</span><span>{t("笔记背后的记录者")} <b aria-hidden="true">/ 05</b></span></header>
+  <header class="identity-register console-register" data-topic="neutral"><span><i aria-hidden="true"></i>{t("个人档案库")}</span><span>{t("笔记背后的记录者")} <b aria-hidden="true">/ 05</b></span></header>
 
   <div class="identity-stage">
     <div class="portrait-apparatus">
@@ -66,22 +66,22 @@
       {/if}
       <div class="identity-actions">
         <button class="identity-primary" data-feedback onclick={() => onNavigate("articles")}><InteractionGlow/>{t("阅读我的文章")}<TerminalIcon name="external" size={20}/></button>
-        <button class="identity-secondary" data-feedback onclick={() => onNavigate("code")}><InteractionGlow/>{t("开源实践")}<TerminalIcon name="arrow" size={16}/></button>
+        <button class="identity-secondary console-action" data-topic="opensource" data-feedback onclick={() => onNavigate("code")}><InteractionGlow/>{t("开源实践")}<TerminalIcon name="arrow" size={16}/></button>
       </div>
     </div>
   </div>
 
   <div class="identity-lower">
-    <section class="identity-fields" aria-labelledby="identity-fields-heading">
+    <section class="identity-fields console-panel" data-topic="neutral" aria-labelledby="identity-fields-heading">
       <header class="identity-section-title"><h3 id="identity-fields-heading">{t("笔记里的方向")}</h3><span>{t("领域笔记")}</span></header>
-      <button class="identity-field" data-topic="linux" data-feedback onclick={() => onExplore("linux")}><InteractionGlow/><BrandIcon name="linux"/><span class="identity-field-copy"><strong>{t("操作系统")}</strong><small>{t("Linux · 内存与文件系统")}</small></span><TerminalIcon name="arrow" size={18}/></button>
-      <button class="identity-field" data-topic="hardware" data-feedback onclick={() => onExplore("hardware")}><InteractionGlow/><BrandIcon name="chip"/><span class="identity-field-copy"><strong>{t("硬件与底层架构")}</strong><small>RISC-V · Verilog / Chisel / BSV</small></span><TerminalIcon name="arrow" size={18}/></button>
-      <button class="identity-field" data-topic="opensource" data-feedback onclick={() => onNavigate("code")}><InteractionGlow/><BrandIcon name="code"/><span class="identity-field-copy"><strong>{t("开源实践")}</strong><small>Linux · LLVM · Cargo</small></span><TerminalIcon name="arrow" size={18}/></button>
+      <button class="identity-field console-row" data-topic="linux" data-feedback onclick={() => onExplore("linux")}><InteractionGlow/><span class="console-lock" aria-hidden="true"></span><BrandIcon name="linux"/><span class="identity-field-copy"><strong>{t("操作系统")}</strong><small>{t("Linux · 内存与文件系统")}</small></span><TerminalIcon name="arrow" size={18}/></button>
+      <button class="identity-field console-row" data-topic="hardware" data-feedback onclick={() => onExplore("hardware")}><InteractionGlow/><span class="console-lock" aria-hidden="true"></span><BrandIcon name="chip"/><span class="identity-field-copy"><strong>{t("硬件与底层架构")}</strong><small>RISC-V · Verilog / Chisel / BSV</small></span><TerminalIcon name="arrow" size={18}/></button>
+      <button class="identity-field console-row" data-topic="opensource" data-feedback onclick={() => onNavigate("code")}><InteractionGlow/><span class="console-lock" aria-hidden="true"></span><BrandIcon name="code"/><span class="identity-field-copy"><strong>{t("开源实践")}</strong><small>Linux · LLVM · Cargo</small></span><TerminalIcon name="arrow" size={18}/></button>
     </section>
-    <section class="identity-contacts" aria-labelledby="identity-contacts-heading">
+    <section class="identity-contacts console-panel" data-topic="neutral" aria-labelledby="identity-contacts-heading">
       <header class="identity-section-title"><h3 id="identity-contacts-heading">{t("在其他地方")}</h3><span>{t("其他平台")}</span></header>
       {#each profile.links as link}
-        <a class="identity-contact" data-feedback href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer"><InteractionGlow/><BrandIcon name={linkIcon(link)}/><span class="identity-contact-text"><strong>{linkName(link.name)}</strong><small>{linkDetail(link.url)}</small></span><TerminalIcon name="external" size={18}/></a>
+        <a class="identity-contact console-row" data-feedback href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer"><InteractionGlow/><span class="console-lock" aria-hidden="true"></span><BrandIcon name={linkIcon(link)}/><span class="identity-contact-text"><strong>{linkName(link.name)}</strong><small>{linkDetail(link.url)}</small></span><TerminalIcon name="external" size={18}/></a>
       {/each}
     </section>
   </div>

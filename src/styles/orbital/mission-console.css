@@ -1,0 +1,60 @@
+/* Contribution-specific layout; surface grammar lives in console-surfaces.css. */
+.orbital-site .mission-metric::after {
+	content: "";
+	position: absolute;
+	inset: 1px 14px;
+	color: color-mix(in srgb, var(--metric-color) 45%, transparent);
+	background: linear-gradient(currentColor, currentColor) top left / 11px 1px no-repeat,
+		linear-gradient(currentColor, currentColor) top left / 1px 6px no-repeat,
+		linear-gradient(currentColor, currentColor) bottom right / 11px 1px no-repeat;
+	pointer-events: none;
+}
+
+.orbital-site .mission-queue-heading {
+	background: linear-gradient(90deg, color-mix(in srgb, var(--topic-color) 6%, transparent), transparent 80%);
+	border-bottom-color: color-mix(in srgb, var(--topic-color) 24%, transparent);
+}
+.orbital-site .mission-tabs .selection-rail { background: var(--topic-color); box-shadow: 0 0 8px color-mix(in srgb, var(--topic-color) 30%, transparent); }
+.orbital-site .mission-tabs button[aria-pressed="true"] { border-bottom-color: var(--topic-color); }
+.orbital-site .mission-tabs button[aria-pressed="true"] > span { color: var(--topic-color); }
+.orbital-site .mission-entry strong { font-size: var(--text-control); line-height: 1.55; }
+
+.orbital-site .mission-briefing {
+	padding-right: 16px;
+	padding-bottom: 12px;
+	border-left-color: color-mix(in srgb, var(--topic-color) 24%, transparent);
+}
+.orbital-site .briefing-heading { border-bottom-color: color-mix(in srgb, var(--topic-color) 24%, transparent); }
+.orbital-site .briefing-heading h2::before { border-color: var(--topic-color); }
+.orbital-site .mission-focus .focus-project { display: flex; align-items: center; gap: 9px; }
+.orbital-site .focus-project > .brand-insignia {
+	flex: 0 0 26px;
+	width: 26px;
+	height: 26px;
+	border: 1px solid color-mix(in srgb, var(--topic-color) 35%, transparent);
+	background: color-mix(in srgb, var(--topic-color) 7%, transparent);
+}
+.orbital-site .focus-project::after {
+	content: "";
+	flex: 1;
+	height: 1px;
+	margin-left: 4px;
+	background: linear-gradient(90deg, color-mix(in srgb, var(--topic-color) 28%, transparent), transparent);
+}
+.orbital-site .focus-facts {
+	padding-inline: 10px;
+	border-color: color-mix(in srgb, var(--topic-color) 20%, transparent);
+	border-left: 1px solid color-mix(in srgb, var(--topic-color) 35%, transparent);
+	background: linear-gradient(90deg, color-mix(in srgb, var(--topic-color) 5%, transparent), transparent);
+}
+.orbital-site .focus-facts dt { color: var(--muted); }
+.orbital-site .focus-facts dd { color: var(--text); }
+@media (max-width: 900px) {
+	.orbital-site .mission-briefing { padding: 12px; border-left: 1px solid color-mix(in srgb, var(--topic-color) 24%, transparent); }
+}
+@media (min-width: 1000px) and (max-height: 850px) {
+	.orbital-site .mission-briefing { padding-right: 12px; padding-bottom: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.orbital-site .mission-tabs[data-selection-ready] > button[aria-pressed="true"] { border-bottom-color: var(--topic-color) !important; }
+}

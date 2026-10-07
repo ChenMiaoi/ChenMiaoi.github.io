@@ -43,7 +43,7 @@
 </script>
 
 <section class="mission-control" data-topic={sectorId === 'all' ? 'neutral' : projectTone(sectorId)} aria-label={t("开源任务控制台")}>
-  <div class="mission-crown"><span><i aria-hidden="true"></i>{t("贡献档案")}</span><span>{activity.account} <b aria-hidden="true">//</b> {t("{v0} 个项目", { v0: pad(projects.length) })}</span></div>
+  <div class="mission-crown console-register"><span><i aria-hidden="true"></i>{t("贡献档案")}</span><span>{activity.account} <b aria-hidden="true">//</b> {t("{v0} 个项目", { v0: pad(projects.length) })}</span></div>
   <div class="mission-metrics" aria-label={t("协作统计")} aria-live="polite" aria-atomic="true">
     <div class="mission-metric metric-issues">
       <strong use:metricTransition={{value: totals.issues, enabled: !reducedMotion}}>{pad(totals.issues)}</strong>
@@ -82,8 +82,9 @@
         <span class="mission-selection" aria-hidden="true"></span>
         {#each missions as mission (mission.url ?? mission.id)}
           {@const visual = recordPresentation(mission.kind, mission.state)}
-          <button class="mission-entry" data-feedback data-topic={projectTone(mission.projectId)} aria-pressed={focusedMission?.url === mission.url && focusedMission?.id === mission.id} onclick={() => focusedId = mission.url ?? mission.id}>
+          <button class="mission-entry console-row" data-feedback data-topic={projectTone(mission.projectId)} aria-pressed={focusedMission?.url === mission.url && focusedMission?.id === mission.id} onclick={() => focusedId = mission.url ?? mission.id}>
             <InteractionGlow/>
+            <span class="console-lock" aria-hidden="true"></span>
             <span class="mission-kind" aria-hidden="true"><ContributionIcon name={visual.icon} tone={visual.tone} size={20}/></span>
             <span class="mission-entry-body"><span class="mission-entry-meta"><code>{mission.kind === 'commit' ? mission.reference.slice(0, 10) : mission.reference}</code>{#if sectorId === 'all'}<span class="mission-project" data-topic={projectTone(mission.projectId)}>{mission.projectName}</span>{:else}<ContributionStatus label={status(mission.state)} icon={visual.icon} tone={visual.tone}/>{/if}</span><strong>{mission.title}</strong></span>
             <TerminalIcon name="arrow" size={14}/>
@@ -91,20 +92,20 @@
         {:else}<div class="mission-no-records"><span aria-hidden="true">◇</span><p>{loading ? t("正在读取记录内容…") : failed ? t("记录内容暂时无法读取。") : t("当前分区暂无此类记录。")}</p></div>{/each}
       </div>
     </section>
-    <section class="mission-briefing" aria-label={t("任务简报")}>
+    <section class="mission-briefing console-panel" aria-label={t("任务简报")}>
       {#key focusedMission?.url ?? focusedMission?.id}{#if focusedMission}<span class="briefing-reception" aria-hidden="true"></span>{/if}{/key}
       <header class="briefing-heading"><h2>{t("任务简报")}</h2><span>{t("记录 / 详情")}</span></header>
       <div class="mission-focus" use:revealSequence={{key: focusedMission?.url ?? focusedMission?.id ?? '', enabled: !reducedMotion, selector: '.focus-project, h3, .focus-reference, .focus-facts > div', wait: 70}}>
         {#if focusedMission}
           {@const visual = recordPresentation(focusedMission.kind, focusedMission.state)}
-          <p class="focus-project" data-topic={projectTone(focusedMission.projectId)}>{focusedMission.projectName}</p><h3>{focusedMission.title}</h3>
+          <p class="focus-project" data-topic={projectTone(focusedMission.projectId)}><BrandIcon name={focusedMission.projectId} size={15} framed={false}/>{focusedMission.projectName}</p><h3>{focusedMission.title}</h3>
           <div class="focus-reference"><code>{focusedMission.kind === 'commit' ? focusedMission.reference.slice(0, 10) : focusedMission.reference}</code><ContributionStatus label={status(focusedMission.state)} icon={visual.icon} tone={visual.tone}/></div>
           <dl class="focus-facts"><div><dt>{t("我的参与")}</dt><dd>{relation(focusedMission.relations)}</dd></div><div><dt>{t("更新于")}</dt><dd><time datetime={focusedMission.date}>{focusedMission.date.slice(0, 10)}</time></dd></div>{#if focusedDetail}<div><dt>{t("讨论记录")}</dt><dd>{focusedDetail.commentsTotal}</dd></div>{/if}</dl>
           {#if mergedCommitUrl}<div class="focus-reference"><span>{t("合并提交")}</span><a href={mergedCommitUrl} target="_blank" rel="noreferrer"><code>{focusedDetail?.mergeCommitSha?.slice(0, 10)}</code></a></div>{/if}
 
         {:else}<p class="mission-briefing-empty">{t("选择项目，查看协作任务。")}</p>{/if}
       </div>
-      {#if focusedMission}<button class="mission-open" data-feedback onclick={() => onOpen(focusedMission.projectId, focusedMission.id)}><InteractionGlow/>{t("查看这条记录")}<TerminalIcon name="external" size={15}/></button>{/if}
+      {#if focusedMission}<button class="mission-open console-action" data-feedback onclick={() => onOpen(focusedMission.projectId, focusedMission.id)}><InteractionGlow/>{t("查看这条记录")}<TerminalIcon name="external" size={15}/></button>{/if}
     </section>
   </div>
 </section>
