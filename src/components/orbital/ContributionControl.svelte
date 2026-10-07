@@ -52,7 +52,7 @@
   const status = (value: string) => ({ open: t("进行中"), draft: t("草稿"), merged: t("已合并"), closed: t("已关闭"), commit: t("提交记录") } as Record<string, string>)[value];
   const ciLabel = (value: string) => ({ passed: t("通过"), failed: t("检查未通过"), pending: t("运行中"), neutral: t("检查已结束"), none: t("暂无检查") } as Record<string, string>)[value];
   const conflictLabel = (value: string) => ({ clear: t("无冲突"), conflict: t("存在冲突"), pending: t("冲突检查中"), 'not-applicable': t("冲突检测不适用") } as Record<string, string>)[value];
-  const relation = (relations?: string[]) => relations?.includes("author") ? t("我发起") : relations?.includes("assignee") ? t("指派给我") : relations?.includes("commenter") ? t("我参与讨论") : t("提交记录");
+  const relation = (relations?: string[]) => relations?.includes("author") ? t("发起") : relations?.includes("assignee") ? t("受指派") : relations?.includes("commenter") ? t("参与讨论") : t("代码提交");
   const chapterNames: Record<string, string> = { linux: t("内核 / 系统"), "llvm-project": t("编译器 / 工具链"), cargo: t("构建 / 包管理") };
   const coverPosition: Record<string, string> = { linux: "0%", "llvm-project": "50%", cargo: "100%" };
   const projectLabel = (id: string, name: string) => id === "llvm-project" ? "LLVM" : name;
@@ -142,7 +142,7 @@
               {:else}<ContributionStatus label={conflictLabel(conflict)} {...conflictPresentation(conflict)}/>{/if}
             {/if}
           </div>
-          <dl class="focus-facts"><div><dt>{t("我的参与")}</dt><dd>{relation(focusedMission.relations)}</dd></div><div><dt>{t("更新于")}</dt><dd><time datetime={focusedMission.date}>{focusedMission.date.slice(0, 10)}</time></dd></div>{#if focusedDetail}<div><dt>{t("讨论记录")}</dt><dd>{focusedDetail.commentsTotal}</dd></div>{/if}</dl>
+          <dl class="focus-facts"><div><dt>{t("参与方式")}</dt><dd>{relation(focusedMission.relations)}</dd></div><div><dt>{t("更新于")}</dt><dd><time datetime={focusedMission.date}>{focusedMission.date.slice(0, 10)}</time></dd></div>{#if focusedDetail}<div><dt>{t("讨论记录")}</dt><dd>{focusedDetail.commentsTotal}</dd></div>{/if}</dl>
           {#if mergedCommitUrl}<div class="focus-reference"><span>{t("合并提交")}</span><a href={mergedCommitUrl} target="_blank" rel="noreferrer"><code>{focusedDetail?.mergeCommitSha?.slice(0, 10)}</code></a></div>{/if}
 
         {:else}<p class="mission-briefing-empty">{t("当前分区暂无此类记录。")}</p>{/if}
