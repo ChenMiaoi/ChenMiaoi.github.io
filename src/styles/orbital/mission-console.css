@@ -27,6 +27,7 @@
 .orbital-site .briefing-heading { border-bottom-color: color-mix(in srgb, var(--topic-color) 24%, transparent); }
 .orbital-site .briefing-heading h2::before { border-color: var(--topic-color); }
 .orbital-site .mission-focus .focus-project { display: flex; align-items: center; gap: 9px; }
+.orbital-site .mission-focus .focus-health { margin-top: 10px; }
 .orbital-site .focus-project > .brand-insignia {
 	flex: 0 0 26px;
 	width: 26px;

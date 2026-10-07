@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readPullRequestStatus } from './pull-request-status.mjs';
-import { summarizeChecks } from '../../src/lib/contributions/checks.ts';
+import { conflictState, summarizeChecks } from '../../src/lib/contributions/checks.ts';
 import { syncContributions } from './sync.mjs';
 import { resolveReviewSummary, summarizeReviews } from '../../src/lib/contributions/reviews.ts';
 
@@ -86,6 +86,17 @@ test('no checks and neutral/skipped/cancelled outcomes never appear as all passi
   assert.equal(summarizeChecks([check]).state, 'neutral');
   assert.equal(summarizeChecks([check, { ...check, conclusion: 'success' }]).state, 'neutral');
   assert.equal(summarizeChecks([{ ...check, conclusion: 'cancelled' }]).state, 'failed');
+});
+
+test('conflict checks distinguish code conflicts, pending computation and completed PRs', () => {
+  assert.equal(conflictState({ mergeable: true, mergeState: 'blocked' }, 'open'), 'clear');
+  assert.equal(conflictState({ mergeable: true, mergeState: 'behind' }, 'open'), 'clear');
+  assert.equal(conflictState({ mergeable: false, mergeState: 'dirty' }, 'open'), 'conflict');
+  assert.equal(conflictState({ mergeable: null, mergeState: 'unknown' }, 'open'), 'pending');
+  assert.equal(conflictState(undefined, 'open'), 'unavailable');
+  assert.equal(conflictState({ mergeable: true }, 'draft'), 'clear');
+  assert.equal(conflictState({ mergeable: null }, 'merged'), 'not-applicable');
+  assert.equal(conflictState({ mergeable: false }, 'closed'), 'not-applicable');
 });
 
 test('same PR timestamp and SHA still refresh CI and reviews while retaining expensive details', async () => {

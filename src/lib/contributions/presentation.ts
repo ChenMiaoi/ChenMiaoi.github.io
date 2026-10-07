@@ -71,3 +71,18 @@ export function reviewPresentation(state?: string | null): Presentation {
 			return { tone: "muted", icon: "discussion" };
 	}
 }
+
+export function conflictPresentation(state: string): Presentation {
+	switch (state) {
+		case "clear":
+			return { tone: "positive", icon: "check" };
+		case "conflict":
+			return { tone: "negative", icon: "warning" };
+		case "pending":
+			return { tone: "attention", icon: "clock" };
+		case "not-applicable":
+			return { tone: "muted", icon: "minus" };
+		default:
+			return { tone: "muted", icon: "info" };
+	}
+}

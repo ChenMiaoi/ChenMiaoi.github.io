@@ -35,3 +35,14 @@ export function summarizeChecks(checks: PullRequestStatus["checks"]) {
 						: "passed",
 	};
 }
+
+export function conflictState(
+	status: Pick<PullRequestStatus, "mergeable"> | undefined,
+	lifecycle: string,
+) {
+	if (lifecycle === "merged" || lifecycle === "closed") return "not-applicable";
+	if (!status) return "unavailable";
+	if (status.mergeable === true) return "clear";
+	if (status.mergeable === false) return "conflict";
+	return "pending";
+}

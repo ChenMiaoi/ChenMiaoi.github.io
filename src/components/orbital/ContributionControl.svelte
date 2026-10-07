@@ -1,7 +1,8 @@
 <script lang="ts">
   import { useTranslations } from "../../features/orbital/i18n/context";
   import { contributionOverview } from "../../lib/contributions/overview";
-  import { recordPresentation, reviewPresentation } from "../../lib/contributions/presentation";
+  import { checkPresentation, conflictPresentation, recordPresentation, reviewPresentation } from "../../lib/contributions/presentation";
+  import { conflictState, summarizeChecks } from "../../lib/contributions/checks";
   import { resolveReviewSummary } from "../../lib/contributions/reviews";
   import { projectTone } from "../../features/orbital/topic-colors";
   import ContributionIcon from "./ContributionIcon.svelte";
@@ -34,10 +35,15 @@
   $: focusedMission = missions.find((mission) => (mission.url ?? mission.id) === focusedId) ?? missions[0];
   $: focusedDetail = focusedMission ? details.records.find((detail) => detail.url === focusedMission.url) : undefined;
   $: reviewSummary = focusedMission?.kind === 'pr' ? resolveReviewSummary(focusedDetail) : undefined;
+  $: pr = focusedMission?.kind === 'pr' ? focusedDetail?.pullRequest : undefined;
+  $: ci = pr ? summarizeChecks(pr.checks) : undefined;
+  $: conflict = conflictState(pr, focusedMission?.state ?? '');
   $: mergedCommitUrl = focusedMission?.kind === 'pr' && focusedDetail?.state === 'merged' && focusedDetail.mergeCommitSha
     ? focusedMission.url?.replace(/\/pull\/\d+$/, `/commit/${focusedDetail.mergeCommitSha}`) : undefined;
   const pad = (value: number) => String(value).padStart(2, "0");
   const status = (value: string) => ({ open: t("进行中"), draft: t("草稿"), merged: t("已合并"), closed: t("已关闭"), commit: t("提交记录") } as Record<string, string>)[value];
+  const ciLabel = (value: string) => ({ passed: t("通过"), failed: t("检查未通过"), pending: t("运行中"), neutral: t("检查已结束"), none: t("暂无检查") } as Record<string, string>)[value];
+  const conflictLabel = (value: string) => ({ clear: t("无冲突"), conflict: t("存在冲突"), pending: t("冲突检查中"), 'not-applicable': t("冲突检测不适用") } as Record<string, string>)[value];
   const relation = (relations?: string[]) => relations?.includes("author") ? t("我发起") : relations?.includes("assignee") ? t("指派给我") : relations?.includes("commenter") ? t("我参与讨论") : t("提交记录");
   const chapterNames: Record<string, string> = { linux: t("内核 / 系统"), "llvm-project": t("编译器 / 工具链"), cargo: t("构建 / 包管理") };
   const coverPosition: Record<string, string> = { linux: "0%", "llvm-project": "50%", cargo: "100%" };
@@ -115,6 +121,15 @@
               {:else if failed}<ContributionStatus label={t("评审暂不可用")} tone="muted" icon="info"/>{/if}
             {/if}
           </div>
+          {#if focusedMission.kind === 'pr'}
+            <div class="focus-reference focus-health" role="group" aria-label={t("CI 与冲突检查")}>
+              {#if ci}
+                <span title={t("{v0} 通过 · {v1} 未通过 · {v2} 等待 · {v3} 其他", {v0: ci.passed, v1: ci.failed, v2: ci.pending, v3: ci.neutral})}><ContributionStatus label={`CI · ${ciLabel(ci.state)}`} {...checkPresentation(ci.state)}/></span>
+              {:else}<ContributionStatus label={loading ? t("正在读取 CI…") : t("CI 暂不可用")} tone="muted" icon={loading ? 'clock' : 'info'}/>{/if}
+              {#if conflict === 'unavailable'}<ContributionStatus label={loading ? t("正在读取合并状态…") : t("冲突检测暂不可用")} tone="muted" icon={loading ? 'clock' : 'info'}/>
+              {:else}<ContributionStatus label={conflictLabel(conflict)} {...conflictPresentation(conflict)}/>{/if}
+            </div>
+          {/if}
           <dl class="focus-facts"><div><dt>{t("我的参与")}</dt><dd>{relation(focusedMission.relations)}</dd></div><div><dt>{t("更新于")}</dt><dd><time datetime={focusedMission.date}>{focusedMission.date.slice(0, 10)}</time></dd></div>{#if focusedDetail}<div><dt>{t("讨论记录")}</dt><dd>{focusedDetail.commentsTotal}</dd></div>{/if}</dl>
           {#if mergedCommitUrl}<div class="focus-reference"><span>{t("合并提交")}</span><a href={mergedCommitUrl} target="_blank" rel="noreferrer"><code>{focusedDetail?.mergeCommitSha?.slice(0, 10)}</code></a></div>{/if}
 
