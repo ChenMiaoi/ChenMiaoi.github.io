@@ -343,6 +343,7 @@
         <span class="nav-tracer" aria-hidden="true"></span>
         {#each navigation as item, index}
           <a href={localePrefix + sectionPaths[item.id]} class:active={section === item.id} aria-current={section === item.id ? "page" : undefined} onclick={(event) => { if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); navigate(item.id); }}>
+            <i class="nav-lock" aria-hidden="true"></i>
             <TerminalIcon name={item.icon} size={20}/><span>{item.label}</span><small aria-hidden="true">{String(index + 1).padStart(2, "0")}</small>
           </a>
         {/each}

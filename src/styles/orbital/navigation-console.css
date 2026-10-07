@@ -1,0 +1,82 @@
+/* Refine the instruments without changing their orbital placement or expansion. */
+.orbital-site .terminal-shell .terminal-sidebar .primary-nav a {
+	--nav-edge: color-mix(in srgb, var(--muted) 32%, transparent);
+	isolation: isolate;
+	color: var(--muted);
+	border-color: var(--nav-edge);
+	background: var(--console-surface);
+	box-shadow: inset 2px 0 color-mix(in srgb, var(--muted) 24%, transparent), inset 0 1px #f3f0e814;
+}
+.orbital-site .terminal-shell .terminal-sidebar .primary-nav a::before { display: none; }
+.nav-lock {
+	position: absolute;
+	inset: 8px;
+	color: var(--nav-edge);
+	background: linear-gradient(currentColor, currentColor) top left / 10px 1px no-repeat,
+		linear-gradient(currentColor, currentColor) top left / 1px 8px no-repeat,
+		linear-gradient(currentColor, currentColor) bottom right / 10px 1px no-repeat,
+		linear-gradient(currentColor, currentColor) bottom right / 1px 8px no-repeat;
+	opacity: .35;
+	pointer-events: none;
+}
+.orbital-site .terminal-shell .terminal-sidebar .primary-nav a.active {
+	--nav-edge: color-mix(in srgb, var(--signal) 60%, transparent);
+	color: var(--paper);
+	border-color: var(--nav-edge);
+	background: radial-gradient(ellipse at 0 50%, color-mix(in srgb, var(--signal) 12%, transparent), transparent 80%), var(--console-surface);
+	box-shadow: inset 2px 0 color-mix(in srgb, var(--signal) 80%, transparent), inset 0 1px color-mix(in srgb, var(--signal) 22%, transparent);
+	animation: none;
+}
+.orbital-site .terminal-shell .terminal-sidebar .primary-nav a.active > svg {
+	color: var(--signal);
+	filter: drop-shadow(0 0 4px color-mix(in srgb, var(--signal) 25%, transparent));
+}
+.orbital-site .terminal-shell .terminal-sidebar .primary-nav a.active small { color: var(--signal); opacity: .9; }
+.orbital-site .terminal-shell .terminal-sidebar .primary-nav a.active::after { color: var(--signal); opacity: .55; }
+.orbital-site .terminal-shell .terminal-sidebar .primary-nav a.active > .nav-lock { opacity: .9; }
+.orbital-site .terminal-shell .terminal-sidebar .primary-nav a:focus-visible {
+	--nav-edge: color-mix(in srgb, var(--signal) 65%, transparent);
+	color: var(--paper);
+	border-color: var(--nav-edge);
+	background: radial-gradient(ellipse at 0 50%, var(--signal-soft), transparent 80%), var(--console-surface);
+	box-shadow: inset 2px 0 var(--nav-edge), inset 0 1px #f3f0e81a;
+	outline: 1px solid var(--signal);
+	outline-offset: -4px;
+	filter: none;
+}
+.orbital-site .terminal-shell .terminal-sidebar .primary-nav a.active:focus-visible {
+	color: var(--paper);
+	background: radial-gradient(ellipse at 0 50%, color-mix(in srgb, var(--signal) 16%, transparent), transparent 80%), var(--console-surface);
+}
+.orbital-site .terminal-shell .terminal-sidebar .primary-nav a:focus-visible > .nav-lock { opacity: .9; }
+@media (hover: hover) and (pointer: fine) {
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a:hover {
+		--nav-edge: color-mix(in srgb, var(--signal) 42%, transparent);
+		color: var(--paper);
+		background: radial-gradient(ellipse at 0 50%, var(--signal-soft), transparent 80%), var(--console-surface);
+		border-color: var(--nav-edge);
+		box-shadow: inset 2px 0 var(--nav-edge), inset 0 1px #f3f0e81a;
+		filter: none;
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a.active:hover {
+		--nav-edge: color-mix(in srgb, var(--signal) 70%, transparent);
+		color: var(--paper);
+		background: radial-gradient(ellipse at 0 50%, color-mix(in srgb, var(--signal) 16%, transparent), transparent 80%), var(--console-surface);
+	}
+	.orbital-site .terminal-shell .terminal-sidebar .primary-nav a:hover > .nav-lock { opacity: .75; }
+}
+.orbital-site .terminal-shell.motion-ready:not(.motion-paused) .nav-lock { transition: opacity 220ms; }
+.orbital-site .terminal-shell.motion-ready:not(.motion-paused) .primary-nav a.active > .nav-lock { animation: nav-lock-receive 380ms ease-out; }
+@keyframes nav-lock-receive {
+	from { opacity: .2; clip-path: inset(0 100% 100% 0); }
+	to { opacity: .9; clip-path: inset(0); }
+}
+@media (max-width: 360px) {
+	.orbital-site:lang(en) .terminal-shell .terminal-sidebar .primary-nav a { font-size: 12px; }
+}
+.orbital-site .terminal-shell.motion-paused .primary-nav a,
+.orbital-site .terminal-shell.motion-paused .nav-lock { animation: none; transition: none; }
+@media (prefers-reduced-motion: reduce) {
+	.orbital-site .terminal-shell .primary-nav a,
+	.orbital-site .terminal-shell .nav-lock { animation: none !important; transition: none !important; }
+}
