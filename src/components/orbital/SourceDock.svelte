@@ -1,177 +1,275 @@
 <script lang="ts">
-  import { useTranslations } from "../../features/orbital/i18n/context";
-  const { t } = useTranslations();
-  import { summarizeChecks } from "../../lib/contributions/checks";
-  import { checkPresentation, recordPresentation } from "../../lib/contributions/presentation";
-  import ContributionIcon from "./ContributionIcon.svelte";
-  import ContributionStatus from "./ContributionStatus.svelte";
-  import { onMount, tick } from "svelte";
-  import { projectRecords, sortContributionProjects } from "../../lib/contributions/projects";
-  import type { ContributionFeed } from "../../lib/contributions/types";
-  import TerminalIcon from "./TerminalIcon.svelte";
-  import BrandIcon from "./BrandIcon.svelte";
-  import { projectTone } from "../../features/orbital/topic-colors";
-  import { revealOnView } from "./motion";
-  import ContributionReader from "./ContributionReader.svelte";
-  import ContributionControl from "./ContributionControl.svelte";
-  import type { ContributionProject } from "../../types/config";
-  import type { ContributionActivitySnapshot, ContributionDetailsSnapshot, SourceRecord } from "./types";
+import { useTranslations } from "../../features/orbital/i18n/context";
+const { t } = useTranslations();
+import { summarizeChecks } from "../../lib/contributions/checks";
+import {
+	checkPresentation,
+	recordPresentation,
+} from "../../lib/contributions/presentation";
+import ContributionIcon from "./ContributionIcon.svelte";
+import ContributionStatus from "./ContributionStatus.svelte";
+import { onMount, tick } from "svelte";
+import {
+	projectRecords,
+	sortContributionProjects,
+} from "../../lib/contributions/projects";
+import type { ContributionFeed } from "../../lib/contributions/types";
+import TerminalIcon from "./TerminalIcon.svelte";
+import BrandIcon from "./BrandIcon.svelte";
+import { projectTone } from "../../features/orbital/topic-colors";
+import { revealOnView } from "./motion";
+import ContributionReader from "./ContributionReader.svelte";
+import ContributionControl from "./ContributionControl.svelte";
+import type { ContributionProject } from "../../types/config";
+import type {
+	ContributionActivitySnapshot,
+	ContributionDetailsSnapshot,
+	SourceRecord,
+} from "./types";
 
-  export let projects: ContributionProject[];
-  export let activity: ContributionActivitySnapshot;
-  export let detailsUrl: string;
-  let details: ContributionDetailsSnapshot = { syncedAt: activity.syncedAt, records: [] };
-  let detailsError = false;
-  let loadingDetails = true;
-  let pending: AbortController | undefined;
-  let disposed = false;
-  export let projectId: string | undefined;
-  export let reducedMotion = false;
-  export let selectedId = "";
-  export let kindFilter = "all";
-  export let showDashboard = !projectId && !selectedId;
-  let dashboardRoute = `${projectId ?? ''}|${selectedId}|${kindFilter}`;
-  $: {
-    const nextRoute = `${projectId ?? ''}|${selectedId}|${kindFilter}`;
-    if (nextRoute !== dashboardRoute) {
-      showDashboard = !projectId && !selectedId;
-      dashboardRoute = nextRoute;
-    }
-  }
-  export let onNavigate: (project: string, record: string, kind: string) => void = () => {};
-  let recordRail: HTMLDivElement;
-  let deck: HTMLDivElement;
-  let tether: { width: number; height: number; path: string; x: number; y: number; endX: number; endY: number } | undefined;
+export let projects: ContributionProject[];
+export let activity: ContributionActivitySnapshot;
+export let detailsUrl: string;
+let details: ContributionDetailsSnapshot = {
+	syncedAt: activity.syncedAt,
+	records: [],
+};
+let detailsError = false;
+let loadingDetails = true;
+let pending: AbortController | undefined;
+let disposed = false;
+export let projectId: string | undefined;
+export let reducedMotion = false;
+export let selectedId = "";
+export let kindFilter = "all";
+export let showDashboard = !projectId && !selectedId;
+let dashboardRoute = `${projectId ?? ""}|${selectedId}|${kindFilter}`;
+$: {
+	const nextRoute = `${projectId ?? ""}|${selectedId}|${kindFilter}`;
+	if (nextRoute !== dashboardRoute) {
+		showDashboard = !projectId && !selectedId;
+		dashboardRoute = nextRoute;
+	}
+}
+export let onNavigate: (project: string, record: string, kind: string) => void =
+	() => {};
+let recordRail: HTMLDivElement;
+let deck: HTMLDivElement;
+let tether:
+	| {
+			width: number;
+			height: number;
+			path: string;
+			x: number;
+			y: number;
+			endX: number;
+			endY: number;
+	  }
+	| undefined;
 
-  $: orderedProjects = sortContributionProjects(projects, activity, details);
-  $: project = orderedProjects.find((item) => item.id === projectId) ?? orderedProjects[0];
-  $: allRecords = project ? projectRecords(project, activity, details) : [];
-  $: recordKinds = [...new Set(allRecords.map((item) => item.kind))];
-  $: records = allRecords.filter((item) => kindFilter === "all" || item.kind === kindFilter);
-  $: selected = selectedId ? records.find((item) => item.id === selectedId) : records[0];
-  $: if (typeof document !== "undefined") document.title = `${showDashboard ? t("任务控制台") : selectedId && selected ? selected.title : project?.name ?? t("任务日志")} · Miao's Blog`;
-  $: selectedDetail = details.records.find((item) => item.url === selected?.url);
-  $: selectedIndex = records.findIndex((item) => item.id === selected?.id);
-  $: if (selected && recordRail) revealSelection(selected.id);
-  const number = (value: number) => String(value).padStart(2, "0");
-  const repositoryPath = (url?: string) => url?.replace(/^https?:\/\/[^/]+\//, "").replace(/\/$/, "") ?? "";
-  const kindName = (kind: string) => kind === "commit" ? t("提交") : kind === "pr" ? "PR" : "Issue";
-  const contributionStateLabel = (state?: string, draft = false) =>
-    ({ open: t("进行中"), draft: t("草稿"), merged: t("已合并"), closed: t("已关闭") } as Record<string, string>)[state ?? (draft ? 'draft' : 'open')] ?? '';
+$: orderedProjects = sortContributionProjects(projects, activity, details);
+$: project =
+	orderedProjects.find((item) => item.id === projectId) ?? orderedProjects[0];
+$: allRecords = project ? projectRecords(project, activity, details) : [];
+$: recordKinds = [...new Set(allRecords.map((item) => item.kind))];
+$: records = allRecords.filter(
+	(item) => kindFilter === "all" || item.kind === kindFilter,
+);
+$: selected = selectedId
+	? records.find((item) => item.id === selectedId)
+	: records[0];
+$: if (typeof document !== "undefined")
+	document.title = `${showDashboard ? t("任务控制台") : selectedId && selected ? selected.title : (project?.name ?? t("任务日志"))} · Miao's Blog`;
+$: selectedDetail = details.records.find((item) => item.url === selected?.url);
+$: selectedIndex = records.findIndex((item) => item.id === selected?.id);
+$: if (selected && recordRail) revealSelection(selected.id);
+const number = (value: number) => String(value).padStart(2, "0");
+const repositoryPath = (url?: string) =>
+	url?.replace(/^https?:\/\/[^/]+\//, "").replace(/\/$/, "") ?? "";
+const kindName = (kind: string) =>
+	kind === "commit" ? t("提交") : kind === "pr" ? "PR" : "Issue";
+const contributionStateLabel = (state?: string, draft = false) =>
+	(
+		({
+			open: t("进行中"),
+			draft: t("草稿"),
+			merged: t("已合并"),
+			closed: t("已关闭"),
+		}) as Record<string, string>
+	)[state ?? (draft ? "draft" : "open")] ?? "";
 
-  function chooseProject(id: string) {
-    projectId = id;
-    selectedId = "";
-    kindFilter = "all";
-    onNavigate(id, "", "all");
-  }
+function chooseProject(id: string) {
+	projectId = id;
+	selectedId = "";
+	kindFilter = "all";
+	onNavigate(id, "", "all");
+}
 
-  function openMission(id: string, record: string) {
-    showDashboard = false;
-    projectId = id;
-    selectedId = record;
-    kindFilter = 'all';
-    onNavigate(id, record, 'all');
-  }
+function openMission(id: string, record: string) {
+	showDashboard = false;
+	projectId = id;
+	selectedId = record;
+	kindFilter = "all";
+	onNavigate(id, record, "all");
+}
 
-  export function showControl() {
-    projectId = undefined;
-    selectedId = '';
-    kindFilter = 'all';
-    showDashboard = true;
-    onNavigate('', '', 'all');
-  }
+export function showControl() {
+	projectId = undefined;
+	selectedId = "";
+	kindFilter = "all";
+	showDashboard = true;
+	onNavigate("", "", "all");
+}
 
-  export function showArchive() {
-    showDashboard = false;
-    if (!projectId) chooseProject(project.id);
-  }
+export function showArchive() {
+	showDashboard = false;
+	if (!projectId) chooseProject(project.id);
+}
 
-  function step(direction: number) {
-    const record = records[selectedIndex + direction];
-    if (record) selectRecord(record.id);
-  }
+function step(direction: number) {
+	const record = records[selectedIndex + direction];
+	if (record) selectRecord(record.id);
+}
 
-  function selectRecord(id: string) {
-    selectedId = id;
-    onNavigate(project.id, id, kindFilter);
-  }
+function selectRecord(id: string) {
+	selectedId = id;
+	onNavigate(project.id, id, kindFilter);
+}
 
-  function filterKind(kind: string) {
-    kindFilter = kind;
-    selectedId = "";
-    onNavigate(project.id, "", kind);
-  }
+function filterKind(kind: string) {
+	kindFilter = kind;
+	selectedId = "";
+	onNavigate(project.id, "", kind);
+}
 
-  async function revealSelection(_id: string) {
-    await tick();
-    const active = recordRail?.querySelector<HTMLButtonElement>('[aria-pressed="true"]');
-    if (!active) return;
-    const container = recordRail.getBoundingClientRect();
-    const item = active.getBoundingClientRect();
-    const horizontal = recordRail.scrollWidth > recordRail.clientWidth;
-    if (horizontal && (item.left < container.left || item.right > container.right)) {
-      recordRail.scrollTo({ left: recordRail.scrollLeft + item.left - container.left, behavior: reducedMotion ? "instant" : "smooth" });
-    } else if (!horizontal && (item.top < container.top || item.bottom > container.bottom)) {
-      recordRail.scrollTo({ top: recordRail.scrollTop + (item.top < container.top ? item.top - container.top : item.bottom - container.bottom), behavior: reducedMotion ? "instant" : "smooth" });
-    }
-    updateTether();
-  }
+async function revealSelection(_id: string) {
+	await tick();
+	const active = recordRail?.querySelector<HTMLButtonElement>(
+		'[aria-pressed="true"]',
+	);
+	if (!active) return;
+	const container = recordRail.getBoundingClientRect();
+	const item = active.getBoundingClientRect();
+	const horizontal = recordRail.scrollWidth > recordRail.clientWidth;
+	if (
+		horizontal &&
+		(item.left < container.left || item.right > container.right)
+	) {
+		recordRail.scrollTo({
+			left: recordRail.scrollLeft + item.left - container.left,
+			behavior: reducedMotion ? "instant" : "smooth",
+		});
+	} else if (
+		!horizontal &&
+		(item.top < container.top || item.bottom > container.bottom)
+	) {
+		recordRail.scrollTo({
+			top:
+				recordRail.scrollTop +
+				(item.top < container.top
+					? item.top - container.top
+					: item.bottom - container.bottom),
+			behavior: reducedMotion ? "instant" : "smooth",
+		});
+	}
+	updateTether();
+}
 
-  function updateTether() {
-    const active = recordRail?.querySelector<HTMLButtonElement>('[aria-pressed="true"]');
-    const crown = deck?.querySelector<HTMLElement>('.chamber-crown');
-    if (!active || !crown || window.innerWidth < 1000) { tether = undefined; return; }
-    const frame = deck.getBoundingClientRect();
-    const rail = recordRail.getBoundingClientRect();
-    const item = active.getBoundingClientRect();
-    const target = crown.getBoundingClientRect();
-    const y = item.top + 27;
-    if (y < rail.top || y > rail.bottom) { tether = undefined; return; }
-    const x = item.right - frame.left - 2;
-    const startY = y - frame.top;
-    const endX = target.left - frame.left + 2;
-    const endY = target.top - frame.top + target.height / 2;
-    const elbow = x + (endX - x) * .5;
-    tether = { width: frame.width, height: frame.height, x, y: startY, endX, endY, path: `M ${x} ${startY} H ${elbow - 5} L ${elbow} ${startY - 5} V ${endY + 5} L ${elbow + 5} ${endY} H ${endX}` };
-  }
+function updateTether() {
+	const active = recordRail?.querySelector<HTMLButtonElement>(
+		'[aria-pressed="true"]',
+	);
+	const crown = deck?.querySelector<HTMLElement>(".chamber-crown");
+	if (!active || !crown || window.innerWidth < 1000) {
+		tether = undefined;
+		return;
+	}
+	const frame = deck.getBoundingClientRect();
+	const rail = recordRail.getBoundingClientRect();
+	const item = active.getBoundingClientRect();
+	const target = crown.getBoundingClientRect();
+	const y = item.top + 27;
+	if (y < rail.top || y > rail.bottom) {
+		tether = undefined;
+		return;
+	}
+	const x = item.right - frame.left - 2;
+	const startY = y - frame.top;
+	const endX = target.left - frame.left + 2;
+	const endY = target.top - frame.top + target.height / 2;
+	const elbow = x + (endX - x) * 0.5;
+	tether = {
+		width: frame.width,
+		height: frame.height,
+		x,
+		y: startY,
+		endX,
+		endY,
+		path: `M ${x} ${startY} H ${elbow - 5} L ${elbow} ${startY - 5} V ${endY + 5} L ${elbow + 5} ${endY} H ${endX}`,
+	};
+}
 
-  function connectDeck(node: HTMLDivElement) {
-    deck = node;
-    const observer = new ResizeObserver(updateTether);
-    observer.observe(node);
-    node.addEventListener('scroll', updateTether, true);
-    return { destroy() { observer.disconnect(); node.removeEventListener('scroll', updateTether, true); } };
-  }
-  async function loadDetails() {
-    if (pending || disposed) return;
-    const controller = new AbortController();
-    pending = controller;
-    detailsError = false;
-    loadingDetails = !details.records.length;
-    try {
-      const response = await fetch(detailsUrl, { cache: 'no-cache', signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]) });
-      if (!response.ok) throw new Error('Contribution data unavailable');
-      const next = await response.json() as ContributionFeed;
-      if (!Array.isArray(next.records) || !next.syncedAt || (next.version === 1 && !Array.isArray(next.activity?.items))) throw new Error('Invalid contribution data');
-      if (!disposed) {
-        // Update list and details together so record selection never mixes generations.
-        // Preserve explicit route selection, including a record discovered in this refresh.
-        details = next;
-        if (next.version === 1) activity = next.activity;
-      }
-    } catch {
-      if (!disposed) { detailsError = !details.records.length; }
-    } finally { pending = undefined; if (!disposed) loadingDetails = false; }
-  }
-  onMount(() => {
-    disposed = false;
-    void loadDetails();
-    const refresh = () => { if (document.visibilityState === 'visible') void loadDetails(); };
-    const timer = window.setInterval(refresh, 60000);
-    document.addEventListener('visibilitychange', refresh);
-    return () => { disposed = true; pending?.abort(); clearInterval(timer); document.removeEventListener('visibilitychange', refresh); };
-  });
+function connectDeck(node: HTMLDivElement) {
+	deck = node;
+	const observer = new ResizeObserver(updateTether);
+	observer.observe(node);
+	node.addEventListener("scroll", updateTether, true);
+	return {
+		destroy() {
+			observer.disconnect();
+			node.removeEventListener("scroll", updateTether, true);
+		},
+	};
+}
+async function loadDetails() {
+	if (pending || disposed) return;
+	const controller = new AbortController();
+	pending = controller;
+	detailsError = false;
+	loadingDetails = !details.records.length;
+	try {
+		const response = await fetch(detailsUrl, {
+			cache: "no-cache",
+			signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]),
+		});
+		if (!response.ok) throw new Error("Contribution data unavailable");
+		const next = (await response.json()) as ContributionFeed;
+		if (
+			!Array.isArray(next.records) ||
+			!next.syncedAt ||
+			(next.version === 1 && !Array.isArray(next.activity?.items))
+		)
+			throw new Error("Invalid contribution data");
+		if (!disposed) {
+			// Update list and details together so record selection never mixes generations.
+			// Preserve explicit route selection, including a record discovered in this refresh.
+			details = next;
+			if (next.version === 1) activity = next.activity;
+		}
+	} catch {
+		if (!disposed) {
+			detailsError = !details.records.length;
+		}
+	} finally {
+		pending = undefined;
+		if (!disposed) loadingDetails = false;
+	}
+}
+onMount(() => {
+	disposed = false;
+	void loadDetails();
+	const refresh = () => {
+		if (document.visibilityState === "visible") void loadDetails();
+	};
+	const timer = window.setInterval(refresh, 60000);
+	document.addEventListener("visibilitychange", refresh);
+	return () => {
+		disposed = true;
+		pending?.abort();
+		clearInterval(timer);
+		document.removeEventListener("visibilitychange", refresh);
+	};
+});
 </script>
 
 <section class="source-dock" class:control-mode={showDashboard} aria-label={t("开源贡献接入站")}>

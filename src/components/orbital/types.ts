@@ -1,30 +1,35 @@
 export type ArchivePost = {
-  contentLang: "en" | "zh-CN";
-  slug: string;
-  title: string;
-  searchText: string;
-  date: string;
-  timestamp: number;
-  updatedTimestamp?: number;
-  description: string;
-  excerpt: string;
-  category: string;
-  series: string;
-  seriesTitle: string;
-  seriesOrder?: number;
-  tags: string[];
-  url: string;
-  contentUrl: string;
-  headings: { depth: number; slug: string; text: string }[];
+	contentLang: "en" | "zh-CN";
+	slug: string;
+	title: string;
+	searchText: string;
+	date: string;
+	timestamp: number;
+	updatedTimestamp?: number;
+	description: string;
+	excerpt: string;
+	category: string;
+	series: string;
+	seriesTitle: string;
+	seriesOrder?: number;
+	tags: string[];
+	url: string;
+	contentUrl: string;
+	headings: { depth: number; slug: string; text: string }[];
 };
 
 export type ArchiveSeries = {
-  slug: string;
-  title: string;
-  description: string;
-  parent: string;
-  order?: number;
-  posts: string[];
+	slug: string;
+	title: string;
+	description: string;
+	parent: string;
+	order?: number;
+	posts: string[];
 };
 
-export type { ContributionActivitySnapshot, ContributionDetailsSnapshot, ContributionDetail, SourceRecord } from "../../lib/contributions/types";
+export type {
+	ContributionActivitySnapshot,
+	ContributionDetailsSnapshot,
+	ContributionDetail,
+	SourceRecord,
+} from "../../lib/contributions/types";

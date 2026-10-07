@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { useTranslations } from "../../features/orbital/i18n/context";
-  import { welcomePath } from "../../lib/content/navigation";
-  import TerminalIcon from "./TerminalIcon.svelte";
-  import BrandIcon from "./BrandIcon.svelte";
-  import LanguageSwitcher from "./LanguageSwitcher.svelte";
+import { useTranslations } from "../../features/orbital/i18n/context";
+import { welcomePath } from "../../lib/content/navigation";
+import TerminalIcon from "./TerminalIcon.svelte";
+import BrandIcon from "./BrandIcon.svelte";
+import LanguageSwitcher from "./LanguageSwitcher.svelte";
 
-  const { t } = useTranslations();
-  export let localePrefix = "";
-  export let reducedMotion = true;
-  export let query = "";
-  export let searchInput: HTMLInputElement | undefined = undefined;
-  export let onReturn: (event: MouseEvent) => void;
-  export let onSearch: (value: string, submitted?: boolean) => void;
+const { t } = useTranslations();
+export let localePrefix = "";
+export let reducedMotion = true;
+export let query = "";
+export let searchInput: HTMLInputElement | undefined = undefined;
+export let onReturn: (event: MouseEvent) => void;
+export let onSearch: (value: string, submitted?: boolean) => void;
 </script>
 
 <header class="terminal-header">

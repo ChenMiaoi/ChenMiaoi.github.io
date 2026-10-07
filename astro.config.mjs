@@ -31,24 +31,24 @@ export default defineConfig({
 	trailingSlash: "always",
 	compressHTML: true,
 	integrations: [
-expressiveCode({
-    themes: [expressiveCodeConfig.theme, expressiveCodeConfig.theme],
-    shiki: {
-        langAlias: {
-            systemverilog: "system-verilog",
-            bsv: "system-verilog",
-        },
-    },
-    plugins: [
+		expressiveCode({
+			themes: [expressiveCodeConfig.theme, expressiveCodeConfig.theme],
+			shiki: {
+				langAlias: {
+					systemverilog: "system-verilog",
+					bsv: "system-verilog",
+				},
+			},
+			plugins: [
 				pluginCollapsibleSections(),
 				pluginLineNumbers(),
 				pluginLanguageBadge(),
-				pluginCustomCopyButton()
+				pluginCustomCopyButton(),
 			],
 			defaultProps: {
 				wrap: false,
 				overridesByLang: {
-					'shellsession': {
+					shellsession: {
 						showLineNumbers: false,
 					},
 				},
@@ -58,7 +58,8 @@ expressiveCode({
 				borderRadius: "0.75rem",
 				borderColor: "none",
 				codeFontSize: "14px",
-				codeFontFamily: "'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+				codeFontFamily:
+					"'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
 				codeLineHeight: "24px",
 				frames: {
 					editorBackground: "var(--codeblock-bg)",
@@ -69,19 +70,19 @@ expressiveCode({
 					editorActiveTabIndicatorBottomColor: "var(--primary)",
 					editorActiveTabIndicatorTopColor: "none",
 					editorTabBarBorderBottomColor: "var(--codeblock-topbar-bg)",
-					terminalTitlebarBorderBottomColor: "none"
+					terminalTitlebarBorderBottomColor: "none",
 				},
 				textMarkers: {
 					delHue: 0,
 					insHue: 180,
-					markHue: 250
-				}
+					markHue: 250,
+				},
 			},
 			frames: {
 				showCopyToClipboardButton: false,
-			}
+			},
 		}),
-        svelte(),
+		svelte(),
 		sitemap({
 			filter: (page) => !/\/archive\/$/.test(new URL(page).pathname),
 			i18n: {
@@ -97,65 +98,70 @@ expressiveCode({
 	],
 	markdown: {
 		processor: unified({
-		remarkPlugins: [
-			remarkMath,
-			remarkReadingTime,
-			remarkExcerpt,
-			remarkGithubAdmonitionsToDirectives,
-			remarkDirective,
-			remarkGlossary, /* after remarkMath & remarkDirective so math nodes and directive labels can be skipped */
-			remarkPostHeadings,
-			remarkSectionize,
-			parseDirectiveNode,
-		],
-		rehypePlugins: [
-			rehypeKatex,
-			rehypeSlug,
-			[
-				rehypeComponents,
-				{
-					components: {
-						github: GithubCardComponent,
-						note: (x, y) => AdmonitionComponent(x, y, "note"),
-						tip: (x, y) => AdmonitionComponent(x, y, "tip"),
-						important: (x, y) => AdmonitionComponent(x, y, "important"),
-						caution: (x, y) => AdmonitionComponent(x, y, "caution"),
-						warning: (x, y) => AdmonitionComponent(x, y, "warning"),
-					},
-				},
+			remarkPlugins: [
+				remarkMath,
+				remarkReadingTime,
+				remarkExcerpt,
+				remarkGithubAdmonitionsToDirectives,
+				remarkDirective,
+				remarkGlossary /* after remarkMath & remarkDirective so math nodes and directive labels can be skipped */,
+				remarkPostHeadings,
+				remarkSectionize,
+				parseDirectiveNode,
 			],
-			[
-				rehypeAutolinkHeadings,
-				{
-					behavior: "append",
-					properties: {
-						className: ["anchor"],
-					},
-					content: {
-						type: "element",
-						tagName: "span",
-						properties: {
-							className: ["anchor-icon"],
-							"data-pagefind-ignore": true,
+			rehypePlugins: [
+				rehypeKatex,
+				rehypeSlug,
+				[
+					rehypeComponents,
+					{
+						components: {
+							github: GithubCardComponent,
+							note: (x, y) => AdmonitionComponent(x, y, "note"),
+							tip: (x, y) => AdmonitionComponent(x, y, "tip"),
+							important: (x, y) => AdmonitionComponent(x, y, "important"),
+							caution: (x, y) => AdmonitionComponent(x, y, "caution"),
+							warning: (x, y) => AdmonitionComponent(x, y, "warning"),
 						},
-						children: [
-							{
-								type: "text",
-								value: "#",
-							},
-						],
 					},
-				},
+				],
+				[
+					rehypeAutolinkHeadings,
+					{
+						behavior: "append",
+						properties: {
+							className: ["anchor"],
+						},
+						content: {
+							type: "element",
+							tagName: "span",
+							properties: {
+								className: ["anchor-icon"],
+								"data-pagefind-ignore": true,
+							},
+							children: [
+								{
+									type: "text",
+									value: "#",
+								},
+							],
+						},
+					},
+				],
 			],
-		],
 		}),
 	},
 	devToolbar: { enabled: false },
 	vite: {
 		server: {
-			proxy: process.env.CONTRIBUTION_API_ORIGIN ? {
-				"/contributions.json": { target: process.env.CONTRIBUTION_API_ORIGIN, changeOrigin: true },
-			} : undefined,
+			proxy: process.env.CONTRIBUTION_API_ORIGIN
+				? {
+						"/contributions.json": {
+							target: process.env.CONTRIBUTION_API_ORIGIN,
+							changeOrigin: true,
+						},
+					}
+				: undefined,
 		},
 		build: {
 			rollupOptions: {

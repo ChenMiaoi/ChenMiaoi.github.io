@@ -2,9 +2,19 @@
 import { render } from "astro:content";
 import ArchiveTerminal from "@components/orbital/ArchiveTerminal.svelte";
 import { getOrbitalData } from "./data";
-import { contributionConfig, profileConfig, siteConfig, licenseConfig } from "../../config";
+import {
+	contributionConfig,
+	profileConfig,
+	siteConfig,
+	licenseConfig,
+} from "../../config";
 import { contributionActivity } from "../../lib/contributions/snapshots";
-import { LOCALES, LOCALE_PREFIX, htmlLang, type Locale } from "../../constants/locales";
+import {
+	LOCALES,
+	LOCALE_PREFIX,
+	htmlLang,
+	type Locale,
+} from "../../constants/locales";
 import { isWelcomeLocation, type Section } from "../../lib/content/navigation";
 import { createTranslations, languageUrl } from "./i18n";
 import "../../styles/tailwind.css";
@@ -17,27 +27,58 @@ import "@fontsource/allura/latin-400.css";
 import "@fontsource-variable/oswald";
 import "katex/dist/katex.min.css";
 
-interface Props { lang?: Locale; section?: Section; seriesSlug?: string; postSlug?: string; notFound?: boolean; projectId?: string }
-const { lang = "zh_CN", section = "articles", seriesSlug = "", postSlug, projectId = "", notFound = false } = Astro.props;
+interface Props {
+	lang?: Locale;
+	section?: Section;
+	seriesSlug?: string;
+	postSlug?: string;
+	notFound?: boolean;
+	projectId?: string;
+}
+const {
+	lang = "zh_CN",
+	section = "articles",
+	seriesSlug = "",
+	postSlug,
+	projectId = "",
+	notFound = false,
+} = Astro.props;
 const { entries, posts, series } = await getOrbitalData(lang);
 const post = entries.find((entry) => entry.slug === postSlug);
 const rendered = post ? await render(post) : null;
 const Content = rendered?.Content;
 const prefix = LOCALE_PREFIX[lang];
 const { t } = createTranslations(lang);
-const initialWelcome = !notFound && isWelcomeLocation(Astro.url.pathname, "", prefix);
-const heading = contributionConfig.projects.find((project) => project.id === projectId)?.name || post?.data.title || series.find((entry) => entry.slug === seriesSlug)?.title
-  || ({ articles: t("文章档案"), series: t("探索路径"), graph: t("知识地图"), code: t("任务日志"), about: t("关于我") })[section];
-const title = notFound ? `${t("页面未找到")} · ${siteConfig.title}` : initialWelcome ? `${t("欢迎登站")} · ${siteConfig.title}` : `${heading} · ${siteConfig.title}`;
-const description = post?.data.description || t("操作系统、Linux 内核、驱动、RISC-V 与底层工程的探索记录。");
+const initialWelcome =
+	!notFound && isWelcomeLocation(Astro.url.pathname, "", prefix);
+const heading =
+	contributionConfig.projects.find((project) => project.id === projectId)
+		?.name ||
+	post?.data.title ||
+	series.find((entry) => entry.slug === seriesSlug)?.title ||
+	{
+		articles: t("文章档案"),
+		series: t("探索路径"),
+		graph: t("知识地图"),
+		code: t("任务日志"),
+		about: t("关于我"),
+	}[section];
+const title = notFound
+	? `${t("页面未找到")} · ${siteConfig.title}`
+	: initialWelcome
+		? `${t("欢迎登站")} · ${siteConfig.title}`
+		: `${heading} · ${siteConfig.title}`;
+const description =
+	post?.data.description ||
+	t("操作系统、Linux 内核、驱动、RISC-V 与底层工程的探索记录。");
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const localizedProfile = {
-  ...profileConfig,
-  bio: profileConfig.bioTranslations?.[lang] ?? profileConfig.bio,
-  affiliations: profileConfig.affiliations?.map((entry) => ({
-    ...entry,
-    institution: entry.institutionTranslations?.[lang] ?? entry.institution,
-  })),
+	...profileConfig,
+	bio: profileConfig.bioTranslations?.[lang] ?? profileConfig.bio,
+	affiliations: profileConfig.affiliations?.map((entry) => ({
+		...entry,
+		institution: entry.institutionTranslations?.[lang] ?? entry.institution,
+	})),
 };
 ---
 <!doctype html>

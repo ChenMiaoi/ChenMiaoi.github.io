@@ -1,219 +1,417 @@
 <script lang="ts">
-  import { useTranslations } from "../../features/orbital/i18n/context";
-  const { t } = useTranslations();
-  import { tick } from "svelte";
-  import { revealSequence } from "./motion";
-  import { fly } from "svelte/transition";
-  import TerminalIcon from "./TerminalIcon.svelte";
-  import InteractionGlow from "./InteractionGlow.svelte";
-  import { topicTone } from "../../features/orbital/topic-colors";
-  import type { ArchivePost, ArchiveSeries } from "./types";
+import { useTranslations } from "../../features/orbital/i18n/context";
+const { t } = useTranslations();
+import { tick } from "svelte";
+import { revealSequence } from "./motion";
+import { fly } from "svelte/transition";
+import TerminalIcon from "./TerminalIcon.svelte";
+import InteractionGlow from "./InteractionGlow.svelte";
+import { topicTone } from "../../features/orbital/topic-colors";
+import type { ArchivePost, ArchiveSeries } from "./types";
 
-  export let posts: ArchivePost[];
-  export let series: ArchiveSeries[];
-  export let reducedMotion = false;
-  export let onRead: (post: ArchivePost) => void;
-  export let onBrowse: (slug: string) => void;
+export let posts: ArchivePost[];
+export let series: ArchiveSeries[];
+export let reducedMotion = false;
+export let onRead: (post: ArchivePost) => void;
+export let onBrowse: (slug: string) => void;
 
-  type MapNode = {
-    id: string; kind: "series" | "post"; title: string; label: string;
-    parent: string; depth: number; x: number; y: number; w: number; h: number;
-    cx: number; cy: number; above?: boolean; leftLabel?: boolean;
-    collection?: ArchiveSeries; post?: ArchivePost; ordinal: number;
-  };
-  const shortTitle = (title: string) => title.split(/[：:]/)[0];
-  const nodeTone = (node: MapNode) => topicTone(node.collection?.slug ?? node.post?.series, node.post?.category);
-  const seriesOrder = (a: ArchiveSeries, b: ArchiveSeries) =>
-    (a.order ?? Number.POSITIVE_INFINITY) - (b.order ?? Number.POSITIVE_INFINITY) || a.title.localeCompare(b.title);
-  const articleOrder = (a: ArchivePost, b: ArchivePost) =>
-    (a.seriesOrder ?? Number.POSITIVE_INFINITY) - (b.seriesOrder ?? Number.POSITIVE_INFINITY) || a.timestamp - b.timestamp || a.slug.localeCompare(b.slug);
+type MapNode = {
+	id: string;
+	kind: "series" | "post";
+	title: string;
+	label: string;
+	parent: string;
+	depth: number;
+	x: number;
+	y: number;
+	w: number;
+	h: number;
+	cx: number;
+	cy: number;
+	above?: boolean;
+	leftLabel?: boolean;
+	collection?: ArchiveSeries;
+	post?: ArchivePost;
+	ordinal: number;
+};
+const shortTitle = (title: string) => title.split(/[：:]/)[0];
+const nodeTone = (node: MapNode) =>
+	topicTone(node.collection?.slug ?? node.post?.series, node.post?.category);
+const seriesOrder = (a: ArchiveSeries, b: ArchiveSeries) =>
+	(a.order ?? Number.POSITIVE_INFINITY) -
+		(b.order ?? Number.POSITIVE_INFINITY) || a.title.localeCompare(b.title);
+const articleOrder = (a: ArchivePost, b: ArchivePost) =>
+	(a.seriesOrder ?? Number.POSITIVE_INFINITY) -
+		(b.seriesOrder ?? Number.POSITIVE_INFINITY) ||
+	a.timestamp - b.timestamp ||
+	a.slug.localeCompare(b.slug);
 
-  let scope = "";
-  let selectedId = "";
-  let hoveredId = "";
-  let focusedId = "";
-  let viewport: HTMLDivElement;
-  let inspector: HTMLElement;
-  let viewportWidth = 800;
-  let viewportHeight = 540;
-  let zoom = 1;
-  let dragging = false;
-  let dragOrigin: { x: number; y: number; left: number; top: number } | null = null;
+let scope = "";
+let selectedId = "";
+let hoveredId = "";
+let focusedId = "";
+let viewport: HTMLDivElement;
+let inspector: HTMLElement;
+let viewportWidth = 800;
+let viewportHeight = 540;
+let zoom = 1;
+let dragging = false;
+let dragOrigin: { x: number; y: number; left: number; top: number } | null =
+	null;
 
-  $: roots = series.filter((item) => !item.parent && item.posts.length).sort(seriesOrder);
-  $: current = roots.find((item) => item.slug === scope) ?? [...roots].sort((a, b) => b.posts.length - a.posts.length)[0];
-  $: compact = viewportWidth < 650;
-  $: sceneWidth = Math.max(780, viewportWidth - 24);
-  $: map = current ? buildMap(current, sceneWidth) : { nodes: [] as MapNode[], height: 600 };
-  $: selected = map.nodes.find((node) => node.id === selectedId) ?? map.nodes.find((node) => node.kind === "post") ?? map.nodes[0];
-  $: activePath = ancestorPath(selected, map.nodes);
-  $: previewNode = map.nodes.find((node) => node.id === (hoveredId || focusedId));
-  $: previewPath = ancestorPath(previewNode, map.nodes);
-  $: collectionNodes = map.nodes.filter((node) => node.kind === "series");
-  $: articleNodes = map.nodes.filter((node) => node.kind === "post");
-  $: focusedSeries = selected?.collection ?? series.find((item) => item.slug === selected?.post?.series);
-  $: scopeTitle = current ? shortTitle(current.title) : t("暂无主题");
-  $: if (compact && current && viewport) centerCore(current.slug);
+$: roots = series
+	.filter((item) => !item.parent && item.posts.length)
+	.sort(seriesOrder);
+$: current =
+	roots.find((item) => item.slug === scope) ??
+	[...roots].sort((a, b) => b.posts.length - a.posts.length)[0];
+$: compact = viewportWidth < 650;
+$: sceneWidth = Math.max(780, viewportWidth - 24);
+$: map = current
+	? buildMap(current, sceneWidth)
+	: { nodes: [] as MapNode[], height: 600 };
+$: selected =
+	map.nodes.find((node) => node.id === selectedId) ??
+	map.nodes.find((node) => node.kind === "post") ??
+	map.nodes[0];
+$: activePath = ancestorPath(selected, map.nodes);
+$: previewNode = map.nodes.find((node) => node.id === (hoveredId || focusedId));
+$: previewPath = ancestorPath(previewNode, map.nodes);
+$: collectionNodes = map.nodes.filter((node) => node.kind === "series");
+$: articleNodes = map.nodes.filter((node) => node.kind === "post");
+$: focusedSeries =
+	selected?.collection ??
+	series.find((item) => item.slug === selected?.post?.series);
+$: scopeTitle = current ? shortTitle(current.title) : t("暂无主题");
+$: if (compact && current && viewport) centerCore(current.slug);
 
-  function buildMap(root: ArchiveSeries, width: number) {
-    const nodes: MapNode[] = [];
-    const height = 600;
-    const center = { x: width * .47, y: height * .5 };
-    let ordinal = 0;
-    const radians = (degrees: number) => degrees * Math.PI / 180;
-    const collectionNode = (collection: ArchiveSeries, depth: number, parent: string, cx: number, cy: number): MapNode => {
-      const above = depth > 0 && cy < center.y - 30;
-      return { id: `series:${collection.slug}`, kind: "series", title: collection.title, label: shortTitle(collection.title), collection, parent, depth, cx, cy, x: cx - (depth ? 75 : 82), y: cy - (depth ? above ? 62 : 18 : 82), w: depth ? 150 : 164, h: depth ? 82 : 164, above, ordinal: 0 };
-    };
-    const rootNode = collectionNode(root, 0, "", center.x, center.y);
-    nodes.push(rootNode);
-    const pendingPosts: { post: ArchivePost; parent: MapNode; cx: number; cy: number }[] = [];
-    const addBranch = (collection: ArchiveSeries, parent: MapNode, angle: number, depth: number) => {
-      const radiusX = depth === 1 ? width * .265 : 115;
-      const radiusY = depth === 1 ? 158 : 90;
-      const node = collectionNode(collection, depth, parent.id, parent.cx + Math.cos(radians(angle)) * radiusX, parent.cy + Math.sin(radians(angle)) * radiusY);
-      nodes.push(node);
-      const childSeries = series.filter((item) => item.parent === collection.slug).sort(seriesOrder);
-      childSeries.forEach((child, index) => { addBranch(child, node, angle + (index - (childSeries.length - 1) / 2) * 70, depth + 1); });
-      const documents = posts.filter((post) => post.series === collection.slug).sort(articleOrder);
-      documents.forEach((post, index) => {
-        const spread = documents.length > 1 ? 120 : 0;
-        const direction = angle + (documents.length > 1 ? index / (documents.length - 1) - .5 : 0) * spread;
-        pendingPosts.push({ post, parent: node, cx: node.cx + Math.cos(radians(direction)) * 105, cy: node.cy + Math.sin(radians(direction)) * 88 });
-      });
-    };
-    const children = series.filter((item) => item.parent === root.slug).sort(seriesOrder);
-    children.forEach((child, index) => { addBranch(child, rootNode, children.length === 1 ? -35 : children.length === 2 ? -45 + index * 180 : -60 + index * 360 / children.length, 1); });
-    posts.filter((post) => post.series === root.slug).sort(articleOrder).forEach((post, index, list) => {
-      const angle = children.length ? 120 + index * 40 : list.length === 1 ? -20 : -120 + index * 240 / (list.length - 1);
-      pendingPosts.push({ post, parent: rootNode, cx: center.x + Math.cos(radians(angle)) * width * .30, cy: center.y + Math.sin(radians(angle)) * 244 });
-    });
-    const overlaps = (a: MapNode, b: MapNode) => a.x < b.x + b.w + 9 && a.x + a.w + 9 > b.x && a.y < b.y + b.h + 9 && a.y + a.h + 9 > b.y;
-    for (const { post, parent, cx, cy } of pendingPosts) {
-      const leftLabel = cx < center.x;
-      const offsets = [0, -45, 45, -90, 90, -135, 135];
-      let chosen: MapNode | undefined;
-      for (const dx of [0, -45, 45, -90, 90]) {
-        for (const dy of offsets) {
-          const x = Math.max(16, Math.min(width - 184, cx + dx - (leftLabel ? 156 : 12)));
-          const y = Math.max(22, Math.min(height - 74, cy + dy - 26));
-          const candidate: MapNode = { id: `post:${post.slug}`, kind: "post", title: post.title, label: post.title.split("：")[0], post, parent: parent.id, depth: parent.depth + 1, x, y, w: 168, h: 52, cx: x + (leftLabel ? 156 : 12), cy: y + 26, leftLabel, ordinal: ordinal + 1 };
-          if (!nodes.some((placed) => overlaps(candidate, placed))) { chosen = candidate; break; }
-        }
-        if (chosen) break;
-      }
-      if (!chosen) {
-        const y = height + 40 + ordinal * 65;
-        chosen = { id: `post:${post.slug}`, kind: "post", title: post.title, label: post.title.split("：")[0], post, parent: parent.id, depth: parent.depth + 1, x: width - 200, y, w: 168, h: 52, cx: width - 188, cy: y + 26, ordinal: ordinal + 1 };
-      }
-      nodes.push(chosen);
-      ordinal++;
-    }
-    const bottom = Math.max(height, ...nodes.map((node) => node.y + node.h + 20));
-    return { nodes, height: bottom };
-  }
+function buildMap(root: ArchiveSeries, width: number) {
+	const nodes: MapNode[] = [];
+	const height = 600;
+	const center = { x: width * 0.47, y: height * 0.5 };
+	let ordinal = 0;
+	const radians = (degrees: number) => (degrees * Math.PI) / 180;
+	const collectionNode = (
+		collection: ArchiveSeries,
+		depth: number,
+		parent: string,
+		cx: number,
+		cy: number,
+	): MapNode => {
+		const above = depth > 0 && cy < center.y - 30;
+		return {
+			id: `series:${collection.slug}`,
+			kind: "series",
+			title: collection.title,
+			label: shortTitle(collection.title),
+			collection,
+			parent,
+			depth,
+			cx,
+			cy,
+			x: cx - (depth ? 75 : 82),
+			y: cy - (depth ? (above ? 62 : 18) : 82),
+			w: depth ? 150 : 164,
+			h: depth ? 82 : 164,
+			above,
+			ordinal: 0,
+		};
+	};
+	const rootNode = collectionNode(root, 0, "", center.x, center.y);
+	nodes.push(rootNode);
+	const pendingPosts: {
+		post: ArchivePost;
+		parent: MapNode;
+		cx: number;
+		cy: number;
+	}[] = [];
+	const addBranch = (
+		collection: ArchiveSeries,
+		parent: MapNode,
+		angle: number,
+		depth: number,
+	) => {
+		const radiusX = depth === 1 ? width * 0.265 : 115;
+		const radiusY = depth === 1 ? 158 : 90;
+		const node = collectionNode(
+			collection,
+			depth,
+			parent.id,
+			parent.cx + Math.cos(radians(angle)) * radiusX,
+			parent.cy + Math.sin(radians(angle)) * radiusY,
+		);
+		nodes.push(node);
+		const childSeries = series
+			.filter((item) => item.parent === collection.slug)
+			.sort(seriesOrder);
+		childSeries.forEach((child, index) => {
+			addBranch(
+				child,
+				node,
+				angle + (index - (childSeries.length - 1) / 2) * 70,
+				depth + 1,
+			);
+		});
+		const documents = posts
+			.filter((post) => post.series === collection.slug)
+			.sort(articleOrder);
+		documents.forEach((post, index) => {
+			const spread = documents.length > 1 ? 120 : 0;
+			const direction =
+				angle +
+				(documents.length > 1 ? index / (documents.length - 1) - 0.5 : 0) *
+					spread;
+			pendingPosts.push({
+				post,
+				parent: node,
+				cx: node.cx + Math.cos(radians(direction)) * 105,
+				cy: node.cy + Math.sin(radians(direction)) * 88,
+			});
+		});
+	};
+	const children = series
+		.filter((item) => item.parent === root.slug)
+		.sort(seriesOrder);
+	children.forEach((child, index) => {
+		addBranch(
+			child,
+			rootNode,
+			children.length === 1
+				? -35
+				: children.length === 2
+					? -45 + index * 180
+					: -60 + (index * 360) / children.length,
+			1,
+		);
+	});
+	posts
+		.filter((post) => post.series === root.slug)
+		.sort(articleOrder)
+		.forEach((post, index, list) => {
+			const angle = children.length
+				? 120 + index * 40
+				: list.length === 1
+					? -20
+					: -120 + (index * 240) / (list.length - 1);
+			pendingPosts.push({
+				post,
+				parent: rootNode,
+				cx: center.x + Math.cos(radians(angle)) * width * 0.3,
+				cy: center.y + Math.sin(radians(angle)) * 244,
+			});
+		});
+	const overlaps = (a: MapNode, b: MapNode) =>
+		a.x < b.x + b.w + 9 &&
+		a.x + a.w + 9 > b.x &&
+		a.y < b.y + b.h + 9 &&
+		a.y + a.h + 9 > b.y;
+	for (const { post, parent, cx, cy } of pendingPosts) {
+		const leftLabel = cx < center.x;
+		const offsets = [0, -45, 45, -90, 90, -135, 135];
+		let chosen: MapNode | undefined;
+		for (const dx of [0, -45, 45, -90, 90]) {
+			for (const dy of offsets) {
+				const x = Math.max(
+					16,
+					Math.min(width - 184, cx + dx - (leftLabel ? 156 : 12)),
+				);
+				const y = Math.max(22, Math.min(height - 74, cy + dy - 26));
+				const candidate: MapNode = {
+					id: `post:${post.slug}`,
+					kind: "post",
+					title: post.title,
+					label: post.title.split("：")[0],
+					post,
+					parent: parent.id,
+					depth: parent.depth + 1,
+					x,
+					y,
+					w: 168,
+					h: 52,
+					cx: x + (leftLabel ? 156 : 12),
+					cy: y + 26,
+					leftLabel,
+					ordinal: ordinal + 1,
+				};
+				if (!nodes.some((placed) => overlaps(candidate, placed))) {
+					chosen = candidate;
+					break;
+				}
+			}
+			if (chosen) break;
+		}
+		if (!chosen) {
+			const y = height + 40 + ordinal * 65;
+			chosen = {
+				id: `post:${post.slug}`,
+				kind: "post",
+				title: post.title,
+				label: post.title.split("：")[0],
+				post,
+				parent: parent.id,
+				depth: parent.depth + 1,
+				x: width - 200,
+				y,
+				w: 168,
+				h: 52,
+				cx: width - 188,
+				cy: y + 26,
+				ordinal: ordinal + 1,
+			};
+		}
+		nodes.push(chosen);
+		ordinal++;
+	}
+	const bottom = Math.max(height, ...nodes.map((node) => node.y + node.h + 20));
+	return { nodes, height: bottom };
+}
 
-  function ancestorPath(node: MapNode | undefined, nodes: MapNode[]) {
-    const path = new Set<string>();
-    let currentNode = node;
-    while (currentNode && !path.has(currentNode.id)) {
-      path.add(currentNode.id);
-      currentNode = nodes.find((item) => item.id === currentNode?.parent);
-    }
-    return path;
-  }
+function ancestorPath(node: MapNode | undefined, nodes: MapNode[]) {
+	const path = new Set<string>();
+	let currentNode = node;
+	while (currentNode && !path.has(currentNode.id)) {
+		path.add(currentNode.id);
+		currentNode = nodes.find((item) => item.id === currentNode?.parent);
+	}
+	return path;
+}
 
-  function connection(node: MapNode) {
-    const parent = map.nodes.find((item) => item.id === node.parent);
-    if (!parent) return "";
-    const dx = node.cx - parent.cx;
-    const dy = node.cy - parent.cy;
-    const length = Math.hypot(dx, dy) || 1;
-    const startRadius = parent.depth === 0 ? 80 : 19;
-    const endRadius = node.kind === "post" ? 10 : 19;
-    const start = { x: parent.cx + dx / length * startRadius, y: parent.cy + dy / length * startRadius };
-    const end = { x: node.cx - dx / length * endRadius, y: node.cy - dy / length * endRadius };
-    return `M${start.x} ${start.y}Q${(start.x + end.x) / 2 - dy / length * 17} ${(start.y + end.y) / 2 + dx / length * 17} ${end.x} ${end.y}`;
-  }
+function connection(node: MapNode) {
+	const parent = map.nodes.find((item) => item.id === node.parent);
+	if (!parent) return "";
+	const dx = node.cx - parent.cx;
+	const dy = node.cy - parent.cy;
+	const length = Math.hypot(dx, dy) || 1;
+	const startRadius = parent.depth === 0 ? 80 : 19;
+	const endRadius = node.kind === "post" ? 10 : 19;
+	const start = {
+		x: parent.cx + (dx / length) * startRadius,
+		y: parent.cy + (dy / length) * startRadius,
+	};
+	const end = {
+		x: node.cx - (dx / length) * endRadius,
+		y: node.cy - (dy / length) * endRadius,
+	};
+	return `M${start.x} ${start.y}Q${(start.x + end.x) / 2 - (dy / length) * 17} ${(start.y + end.y) / 2 + (dx / length) * 17} ${end.x} ${end.y}`;
+}
 
-  function fitMap() {
-    zoom = Math.min(1, (viewportWidth - 24) / sceneWidth, (viewportHeight - 24) / map.height);
-  }
+function fitMap() {
+	zoom = Math.min(
+		1,
+		(viewportWidth - 24) / sceneWidth,
+		(viewportHeight - 24) / map.height,
+	);
+}
 
-  function observeViewport(node: HTMLDivElement) {
-    const observer = new ResizeObserver(() => {
-      viewportWidth = node.clientWidth;
-      viewportHeight = node.clientHeight;
-    });
-    observer.observe(node);
-    return { destroy: () => observer.disconnect() };
-  }
+function observeViewport(node: HTMLDivElement) {
+	const observer = new ResizeObserver(() => {
+		viewportWidth = node.clientWidth;
+		viewportHeight = node.clientHeight;
+	});
+	observer.observe(node);
+	return { destroy: () => observer.disconnect() };
+}
 
-  async function changeScope() {
-    selectedId = "";
-    hoveredId = "";
-    focusedId = "";
-    zoom = 1;
-    await tick();
-    viewport?.scrollTo({ top: 0, left: compact ? map.nodes[0].cx - viewport.clientWidth / 2 : 0, behavior: "instant" });
-  }
+async function changeScope() {
+	selectedId = "";
+	hoveredId = "";
+	focusedId = "";
+	zoom = 1;
+	await tick();
+	viewport?.scrollTo({
+		top: 0,
+		left: compact ? map.nodes[0].cx - viewport.clientWidth / 2 : 0,
+		behavior: "instant",
+	});
+}
 
-  async function centerCore(_slug: string) {
-    await tick();
-    if (compact && viewport) viewport.scrollTo({ left: map.nodes[0].cx - viewport.clientWidth / 2, top: 45, behavior: "instant" });
-  }
+async function centerCore(_slug: string) {
+	await tick();
+	if (compact && viewport)
+		viewport.scrollTo({
+			left: map.nodes[0].cx - viewport.clientWidth / 2,
+			top: 45,
+			behavior: "instant",
+		});
+}
 
-  async function locateNode(id: string) {
-    selectedId = id;
-    await tick();
-    const node = map.nodes.find((item) => item.id === id);
-    if (node) viewport.scrollTo({ left: node.cx * zoom - viewport.clientWidth / 2, top: node.cy * zoom - viewport.clientHeight / 2, behavior: "instant" });
-    revealInspector();
-  }
+async function locateNode(id: string) {
+	selectedId = id;
+	await tick();
+	const node = map.nodes.find((item) => item.id === id);
+	if (node)
+		viewport.scrollTo({
+			left: node.cx * zoom - viewport.clientWidth / 2,
+			top: node.cy * zoom - viewport.clientHeight / 2,
+			behavior: "instant",
+		});
+	revealInspector();
+}
 
-  async function selectNode(id: string) {
-    selectedId = id;
-    await tick();
-    revealInspector();
-  }
+async function selectNode(id: string) {
+	selectedId = id;
+	await tick();
+	revealInspector();
+}
 
-  function revealInspector() {
-    if (!inspector) return;
-    const bounds = inspector.getBoundingClientRect();
-    if (bounds.top < 0 || bounds.bottom > window.innerHeight) inspector.scrollIntoView({ block: "nearest", behavior: "instant" });
-    inspector.focus({ preventScroll: true });
-  }
+function revealInspector() {
+	if (!inspector) return;
+	const bounds = inspector.getBoundingClientRect();
+	if (bounds.top < 0 || bounds.bottom > window.innerHeight)
+		inspector.scrollIntoView({ block: "nearest", behavior: "instant" });
+	inspector.focus({ preventScroll: true });
+}
 
-  async function resetView() {
-    fitMap();
-    await tick();
-    viewport?.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  }
+async function resetView() {
+	fitMap();
+	await tick();
+	viewport?.scrollTo({ top: 0, left: 0, behavior: "instant" });
+}
 
-  async function changeZoom(direction: number) {
-    const previous = zoom;
-    const centerX = (viewport.scrollLeft + viewport.clientWidth / 2) / previous;
-    const centerY = (viewport.scrollTop + viewport.clientHeight / 2) / previous;
-    zoom = Math.max(.35, Math.min(1.8, Math.round((zoom + direction * .2) * 100) / 100));
-    await tick();
-    viewport.scrollTo({ left: centerX * zoom - viewport.clientWidth / 2, top: centerY * zoom - viewport.clientHeight / 2, behavior: "instant" });
-  }
+async function changeZoom(direction: number) {
+	const previous = zoom;
+	const centerX = (viewport.scrollLeft + viewport.clientWidth / 2) / previous;
+	const centerY = (viewport.scrollTop + viewport.clientHeight / 2) / previous;
+	zoom = Math.max(
+		0.35,
+		Math.min(1.8, Math.round((zoom + direction * 0.2) * 100) / 100),
+	);
+	await tick();
+	viewport.scrollTo({
+		left: centerX * zoom - viewport.clientWidth / 2,
+		top: centerY * zoom - viewport.clientHeight / 2,
+		behavior: "instant",
+	});
+}
 
-  function startDrag(event: PointerEvent) {
-    if (event.pointerType !== "mouse" || event.button !== 0 || (event.target as Element).closest("button")) return;
-    event.preventDefault();
-    dragging = true;
-    dragOrigin = { x: event.clientX, y: event.clientY, left: viewport.scrollLeft, top: viewport.scrollTop };
-    viewport.setPointerCapture(event.pointerId);
-  }
+function startDrag(event: PointerEvent) {
+	if (
+		event.pointerType !== "mouse" ||
+		event.button !== 0 ||
+		(event.target as Element).closest("button")
+	)
+		return;
+	event.preventDefault();
+	dragging = true;
+	dragOrigin = {
+		x: event.clientX,
+		y: event.clientY,
+		left: viewport.scrollLeft,
+		top: viewport.scrollTop,
+	};
+	viewport.setPointerCapture(event.pointerId);
+}
 
-  function moveDrag(event: PointerEvent) {
-    if (!dragOrigin) return;
-    viewport.scrollLeft = dragOrigin.left - (event.clientX - dragOrigin.x);
-    viewport.scrollTop = dragOrigin.top - (event.clientY - dragOrigin.y);
-  }
+function moveDrag(event: PointerEvent) {
+	if (!dragOrigin) return;
+	viewport.scrollLeft = dragOrigin.left - (event.clientX - dragOrigin.x);
+	viewport.scrollTop = dragOrigin.top - (event.clientY - dragOrigin.y);
+}
 
-  function endDrag() { dragging = false; dragOrigin = null; }
+function endDrag() {
+	dragging = false;
+	dragOrigin = null;
+}
 </script>
 
 <section class="topology-console" class:compact aria-label={t("知识星图探索")}>

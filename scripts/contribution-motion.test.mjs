@@ -5,30 +5,48 @@ import {
 	selectionRail,
 } from "../src/components/orbital/interaction-motion.ts";
 import { surfaceFeedback } from "../src/components/orbital/surface-feedback.ts";
-import { metricTransition, missionLink } from "../src/components/orbital/mission-motion.ts";
+import {
+	metricTransition,
+	missionLink,
+} from "../src/components/orbital/mission-motion.ts";
 
 function eventTarget() {
 	const listeners = new Map();
 	return {
 		listeners,
-		addEventListener(type, callback) { listeners.set(type, callback); },
+		addEventListener(type, callback) {
+			listeners.set(type, callback);
+		},
 		removeEventListener(type, callback) {
 			if (listeners.get(type) === callback) listeners.delete(type);
 		},
-		emit(type, target, extra = {}) { listeners.get(type)?.({ target, ...extra }); },
+		emit(type, target, extra = {}) {
+			listeners.get(type)?.({ target, ...extra });
+		},
 	};
 }
 
 function environment(t) {
 	const descriptors = new Map(
-		["window", "ResizeObserver", "requestAnimationFrame", "cancelAnimationFrame"]
-			.map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]),
+		[
+			"window",
+			"ResizeObserver",
+			"requestAnimationFrame",
+			"cancelAnimationFrame",
+		].map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]),
 	);
 	const frames = new Map();
 	const observers = [];
 	let next = 0;
-	const win = { ...eventTarget(), reduced: false, fine: true, innerHeight: 900 };
-	win.matchMedia = (query) => ({ matches: query.includes("prefers-reduced-motion") ? win.reduced : win.fine });
+	const win = {
+		...eventTarget(),
+		reduced: false,
+		fine: true,
+		innerHeight: 900,
+	};
+	win.matchMedia = (query) => ({
+		matches: query.includes("prefers-reduced-motion") ? win.reduced : win.fine,
+	});
 	globalThis.window = win;
 	globalThis.requestAnimationFrame = (callback) => {
 		frames.set(++next, callback);
@@ -41,8 +59,12 @@ function environment(t) {
 			this.targets = new Set();
 			observers.push(this);
 		}
-		observe(target) { this.targets.add(target); }
-		disconnect() { this.targets.clear(); }
+		observe(target) {
+			this.targets.add(target);
+		}
+		disconnect() {
+			this.targets.clear();
+		}
 	};
 	t.after(() => {
 		for (const [key, descriptor] of descriptors) {
@@ -51,7 +73,9 @@ function environment(t) {
 		}
 	});
 	return {
-		win, frames, observers,
+		win,
+		frames,
+		observers,
 		flush() {
 			const pending = [...frames.values()];
 			frames.clear();
@@ -61,17 +85,30 @@ function environment(t) {
 }
 
 function railFixture() {
-	const marker = { style: { removeProperty(key) { delete this[key]; } } };
+	const marker = {
+		style: {
+			removeProperty(key) {
+				delete this[key];
+			},
+		},
+	};
 	const first = { bounds: { left: 110, bottom: 228, width: 74 } };
 	const second = { bounds: { left: 185, bottom: 248, width: 92 } };
 	first.getBoundingClientRect = () => first.bounds;
 	second.getBoundingClientRect = () => second.bounds;
 	const node = {
-		...eventTarget(), dataset: {}, isConnected: true,
-		scrollLeft: 10, scrollTop: 5, clientLeft: 2, clientTop: 2,
+		...eventTarget(),
+		dataset: {},
+		isConnected: true,
+		scrollLeft: 10,
+		scrollTop: 5,
+		clientLeft: 2,
+		clientTop: 2,
 		selected: first,
 		getBoundingClientRect: () => ({ left: 100, top: 200 }),
-		querySelector(selector) { return selector === ".selection-rail" ? marker : this.selected; },
+		querySelector(selector) {
+			return selector === ".selection-rail" ? marker : this.selected;
+		},
 		querySelectorAll: () => [first, second],
 	};
 	return { node, marker, first, second };
@@ -81,9 +118,17 @@ test("metric transitions keep the current accessible value and cancel obsolete m
 	const env = environment(t);
 	const animations = [];
 	const node = {
-		isConnected: true, textContent: "11",
+		isConnected: true,
+		textContent: "11",
 		animate(frames, options) {
-			const animation = { frames, options, cancelled: false, cancel() { this.cancelled = true; } };
+			const animation = {
+				frames,
+				options,
+				cancelled: false,
+				cancel() {
+					this.cancelled = true;
+				},
+			};
 			animations.push(animation);
 			return animation;
 		},
@@ -115,33 +160,78 @@ test("metric transitions keep the current accessible value and cancel obsolete m
 function missionFixture() {
 	const animations = [];
 	const path = {
-		attributes: {}, setAttribute(key, value) { this.attributes[key] = value; },
-		getAttribute(key) { return this.attributes[key]; },
-		removeAttribute(key) { delete this.attributes[key]; },
+		attributes: {},
+		setAttribute(key, value) {
+			this.attributes[key] = value;
+		},
+		getAttribute(key) {
+			return this.attributes[key];
+		},
+		removeAttribute(key) {
+			delete this.attributes[key];
+		},
 		animate(frames, options) {
-			const animation = { frames, options, cancelled: false, cancel() { this.cancelled = true; } };
+			const animation = {
+				frames,
+				options,
+				cancelled: false,
+				cancel() {
+					this.cancelled = true;
+				},
+			};
 			animations.push(animation);
 			return animation;
 		},
 	};
-	const marker = { style: { removeProperty(key) { delete this[key]; } } };
-	const row = { bounds: { top: 230, bottom: 290, right: 600, height: 60 }, getBoundingClientRect() { return this.bounds; } };
-	const list = {
-		...eventTarget(), dataset: {}, scrollTop: 80, clientTop: 1, selected: row,
-		getBoundingClientRect: () => ({ top: 210, bottom: 400, height: 190 }),
-		querySelector() { return this.selected; },
+	const marker = {
+		style: {
+			removeProperty(key) {
+				delete this[key];
+			},
+		},
 	};
-	const heading = { bounds: { left: 630, top: 160, bottom: 200 }, getBoundingClientRect() { return this.bounds; } };
+	const row = {
+		bounds: { top: 230, bottom: 290, right: 600, height: 60 },
+		getBoundingClientRect() {
+			return this.bounds;
+		},
+	};
+	const list = {
+		...eventTarget(),
+		dataset: {},
+		scrollTop: 80,
+		clientTop: 1,
+		selected: row,
+		getBoundingClientRect: () => ({ top: 210, bottom: 400, height: 190 }),
+		querySelector() {
+			return this.selected;
+		},
+	};
+	const heading = {
+		bounds: { left: 630, top: 160, bottom: 200 },
+		getBoundingClientRect() {
+			return this.bounds;
+		},
+	};
 	const node = {
-		isConnected: true, getBoundingClientRect: () => ({ top: 160, left: 100 }),
-		querySelector(selector) { return ({ ".mission-log-scroll": list, ".mission-selection": marker, ".briefing-heading": heading, ".mission-link path": path })[selector]; },
+		isConnected: true,
+		getBoundingClientRect: () => ({ top: 160, left: 100 }),
+		querySelector(selector) {
+			return {
+				".mission-log-scroll": list,
+				".mission-selection": marker,
+				".briefing-heading": heading,
+				".mission-link path": path,
+			}[selector];
+		},
 	};
 	return { node, row, list, marker, heading, path, animations };
 }
 
 test("mission linkage measures visible rows, keeps scrolling native and follows resize", (t) => {
 	const env = environment(t);
-	const { node, row, list, marker, heading, path, animations } = missionFixture();
+	const { node, row, list, marker, heading, path, animations } =
+		missionFixture();
 	const action = missionLink(node, { key: "first", enabled: true });
 	env.flush();
 	assert.equal(marker.style.height, "36px");
@@ -179,7 +269,7 @@ test("mission linkage measures visible rows, keeps scrolling native and follows 
 	action.destroy();
 	assert.equal(list.listeners.size, 0);
 	assert.equal(env.win.listeners.size, 0);
-	assert.ok(env.observers.every(observer => observer.targets.size === 0));
+	assert.ok(env.observers.every((observer) => observer.targets.size === 0));
 });
 
 test("rapid mission switching, empty queues, disabled motion and unmount clear stale effects", (t) => {
@@ -264,7 +354,7 @@ test("rapid selection, motion disabling and unmount discard pending marker work"
 	assert.equal(marker.style.transform, undefined);
 	assert.equal(node.listeners.size, 0);
 	assert.equal(env.win.listeners.size, 0);
-	assert.ok(env.observers.every(observer => observer.targets.size === 0));
+	assert.ok(env.observers.every((observer) => observer.targets.size === 0));
 });
 
 function disclosureFixture() {
@@ -272,12 +362,22 @@ function disclosureFixture() {
 	const content = {
 		textContent: "Review contents",
 		animate(_frames, options) {
-			const animation = { options, cancelled: false, cancel() { this.cancelled = true; } };
+			const animation = {
+				options,
+				cancelled: false,
+				cancel() {
+					this.cancelled = true;
+				},
+			};
 			animations.push(animation);
 			return animation;
 		},
 	};
-	const details = { tagName: "DETAILS", open: true, querySelector: () => content };
+	const details = {
+		tagName: "DETAILS",
+		open: true,
+		querySelector: () => content,
+	};
 	return { node: eventTarget(), details, content, animations };
 }
 
@@ -330,20 +430,48 @@ test("system reduced motion and missing animation support leave disclosure conte
 
 function feedbackFixture() {
 	const animations = [];
-	const style = { setProperty(key, value) { this[key] = value; }, removeProperty(key) { delete this[key]; } };
+	const style = {
+		setProperty(key, value) {
+			this[key] = value;
+		},
+		removeProperty(key) {
+			delete this[key];
+		},
+	};
 	const ring = {
 		style: {},
 		animate(frames) {
-			const animation = { frames, cancelled: false, cancel() { this.cancelled = true; } };
+			const animation = {
+				frames,
+				cancelled: false,
+				cancel() {
+					this.cancelled = true;
+				},
+			};
 			animations.push(animation);
 			return animation;
 		},
 	};
 	const target = {
-		tagName: "BUTTON", dataset: {}, style, isConnected: true, disabled: false,
-		getBoundingClientRect: () => ({ left: 100, top: 200, width: 160, height: 60 }),
-		closest() { return this; },
-		matches(selector) { return selector === ":disabled" ? this.disabled : ["BUTTON", "A"].includes(this.tagName); },
+		tagName: "BUTTON",
+		dataset: {},
+		style,
+		isConnected: true,
+		disabled: false,
+		getBoundingClientRect: () => ({
+			left: 100,
+			top: 200,
+			width: 160,
+			height: 60,
+		}),
+		closest() {
+			return this;
+		},
+		matches(selector) {
+			return selector === ":disabled"
+				? this.disabled
+				: ["BUTTON", "A"].includes(this.tagName);
+		},
 		querySelector: () => ring,
 	};
 	const node = { ...eventTarget(), contains: (item) => item === target };
@@ -354,8 +482,16 @@ test("pointer lighting coalesces movement and clears on leave, pause and detache
 	const env = environment(t);
 	const { node, target } = feedbackFixture();
 	const action = surfaceFeedback(node, true);
-	node.emit("pointermove", target, { pointerType: "mouse", clientX: 110, clientY: 210 });
-	node.emit("pointermove", target, { pointerType: "mouse", clientX: 130, clientY: 215 });
+	node.emit("pointermove", target, {
+		pointerType: "mouse",
+		clientX: 110,
+		clientY: 210,
+	});
+	node.emit("pointermove", target, {
+		pointerType: "mouse",
+		clientX: 130,
+		clientY: 215,
+	});
 	assert.equal(env.frames.size, 1);
 	env.flush();
 	assert.equal(target.style["--light-x"], "30px");
@@ -366,13 +502,21 @@ test("pointer lighting coalesces movement and clears on leave, pause and detache
 	assert.equal(target.style["--light-x"], undefined);
 	node.emit("pointermove", target, { pointerType: "touch" });
 	assert.equal(env.frames.size, 0);
-	node.emit("pointermove", target, { pointerType: "mouse", clientX: 130, clientY: 215 });
+	node.emit("pointermove", target, {
+		pointerType: "mouse",
+		clientX: 130,
+		clientY: 215,
+	});
 	action.update(false);
 	env.flush();
 	assert.equal(target.dataset.lightActive, undefined);
 	action.update(true);
 	target.isConnected = false;
-	node.emit("pointermove", target, { pointerType: "mouse", clientX: 130, clientY: 215 });
+	node.emit("pointermove", target, {
+		pointerType: "mouse",
+		clientX: 130,
+		clientY: 215,
+	});
 	env.flush();
 	assert.equal(target.dataset.lightActive, undefined);
 	action.destroy();
@@ -384,7 +528,14 @@ test("press rings preserve native activation and distinguish mouse, keyboard and
 	const { node, target, ring, animations } = feedbackFixture();
 	const action = surfaceFeedback(node, true);
 	let intercepted = false;
-	const nativeEvent = { button: 0, clientX: 130, clientY: 215, preventDefault() { intercepted = true; } };
+	const nativeEvent = {
+		button: 0,
+		clientX: 130,
+		clientY: 215,
+		preventDefault() {
+			intercepted = true;
+		},
+	};
 	node.emit("pointerdown", target, nativeEvent);
 	assert.equal(animations.length, 1);
 	assert.equal(ring.style.left, "30px");
@@ -415,7 +566,11 @@ test("pointer and keyboard feedback stay centered on scaled map nodes", (t) => {
 	target.offsetWidth = 320;
 	target.offsetHeight = 120;
 	const action = surfaceFeedback(node, true);
-	node.emit("pointermove", target, { pointerType: "mouse", clientX: 130, clientY: 215 });
+	node.emit("pointermove", target, {
+		pointerType: "mouse",
+		clientX: 130,
+		clientY: 215,
+	});
 	env.flush();
 	assert.equal(target.style["--light-x"], "60px");
 	assert.equal(target.style["--light-y"], "30px");
@@ -433,15 +588,28 @@ test("system reduced motion and touch hover allocate no effects; unmount cancels
 	const { node, target, animations } = feedbackFixture();
 	const action = surfaceFeedback(node, true);
 	env.win.reduced = true;
-	node.emit("pointermove", target, { pointerType: "mouse", clientX: 130, clientY: 215 });
+	node.emit("pointermove", target, {
+		pointerType: "mouse",
+		clientX: 130,
+		clientY: 215,
+	});
 	node.emit("pointerdown", target, { button: 0, clientX: 130, clientY: 215 });
 	assert.equal(env.frames.size, 0);
 	assert.equal(animations.length, 0);
 	env.win.reduced = false;
 	env.win.fine = false;
-	node.emit("pointermove", target, { pointerType: "mouse", clientX: 130, clientY: 215 });
+	node.emit("pointermove", target, {
+		pointerType: "mouse",
+		clientX: 130,
+		clientY: 215,
+	});
 	assert.equal(env.frames.size, 0);
-	node.emit("pointerdown", target, { button: 0, pointerType: "touch", clientX: 130, clientY: 215 });
+	node.emit("pointerdown", target, {
+		button: 0,
+		pointerType: "touch",
+		clientX: 130,
+		clientY: 215,
+	});
 	assert.equal(animations.length, 1);
 	action.destroy();
 	assert.equal(animations[0].cancelled, true);

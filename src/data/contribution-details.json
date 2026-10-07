@@ -421,18 +421,13 @@
 				"baseRef": "main",
 				"mergeable": true,
 				"mergeState": "unstable",
-				"labels": [
-					"libc"
-				],
+				"labels": ["libc"],
 				"requestedReviewers": [],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:35:09.004Z",
 					"approved": [],
 					"changesRequested": [],
-					"commented": [
-						"ChenMiaoi",
-						"kaladron"
-					]
+					"commented": ["ChenMiaoi", "kaladron"]
 				},
 				"checks": [
 					{
@@ -1081,16 +1076,11 @@
 				"baseRef": "main",
 				"mergeable": false,
 				"mergeState": "dirty",
-				"labels": [
-					"clang",
-					"clang:frontend"
-				],
+				"labels": ["clang", "clang:frontend"],
 				"requestedReviewers": [],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:35:06.223Z",
-					"approved": [
-						"Sirraide"
-					],
+					"approved": ["Sirraide"],
 					"changesRequested": [],
 					"commented": []
 				},
@@ -1532,17 +1522,12 @@
 				"baseRef": "main",
 				"mergeable": null,
 				"mergeState": "unknown",
-				"labels": [
-					"clang",
-					"clang:frontend"
-				],
+				"labels": ["clang", "clang:frontend"],
 				"requestedReviewers": [],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:35:17.274Z",
 					"approved": [],
-					"changesRequested": [
-						"Sirraide"
-					],
+					"changesRequested": ["Sirraide"],
 					"commented": []
 				},
 				"checks": [
@@ -1980,22 +1965,13 @@
 				"baseRef": "main",
 				"mergeable": null,
 				"mergeState": "unknown",
-				"labels": [
-					"clang",
-					"clang:frontend"
-				],
+				"labels": ["clang", "clang:frontend"],
 				"requestedReviewers": [],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:35:24.358Z",
-					"approved": [
-						"Sirraide",
-						"TPPPP72"
-					],
+					"approved": ["Sirraide", "TPPPP72"],
 					"changesRequested": [],
-					"commented": [
-						"ChenMiaoi",
-						"Fznamznon"
-					]
+					"commented": ["ChenMiaoi", "Fznamznon"]
 				},
 				"checks": [
 					{
@@ -2524,10 +2500,7 @@
 				"baseRef": "main",
 				"mergeable": true,
 				"mergeState": "blocked",
-				"labels": [
-					"clang",
-					"clang:frontend"
-				],
+				"labels": ["clang", "clang:frontend"],
 				"requestedReviewers": [],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:35:33.667Z",
@@ -2731,21 +2704,13 @@
 				"baseRef": "main",
 				"mergeable": null,
 				"mergeState": "unknown",
-				"labels": [
-					"clang",
-					"clang:frontend"
-				],
+				"labels": ["clang", "clang:frontend"],
 				"requestedReviewers": [],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:35:31.412Z",
-					"approved": [
-						"cor3ntin"
-					],
+					"approved": ["cor3ntin"],
 					"changesRequested": [],
-					"commented": [
-						"AaronBallman",
-						"hardikxk"
-					]
+					"commented": ["AaronBallman", "hardikxk"]
 				},
 				"checks": [
 					{
@@ -3181,17 +3146,12 @@
 				"baseRef": "main",
 				"mergeable": true,
 				"mergeState": "blocked",
-				"labels": [
-					"clang",
-					"clang:frontend"
-				],
+				"labels": ["clang", "clang:frontend"],
 				"requestedReviewers": [],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:35:44.462Z",
 					"approved": [],
-					"changesRequested": [
-						"Sirraide"
-					],
+					"changesRequested": ["Sirraide"],
 					"commented": []
 				},
 				"checks": [
@@ -3454,10 +3414,7 @@
 				"baseRef": "main",
 				"mergeable": true,
 				"mergeState": "blocked",
-				"labels": [
-					"clang",
-					"clang:frontend"
-				],
+				"labels": ["clang", "clang:frontend"],
 				"requestedReviewers": [],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:35:55.091Z",
@@ -3712,12 +3669,8 @@
 				"baseRef": "main",
 				"mergeable": true,
 				"mergeState": "clean",
-				"labels": [
-					"libc"
-				],
-				"requestedReviewers": [
-					"Sukumarsawant"
-				],
+				"labels": ["libc"],
+				"requestedReviewers": ["Sukumarsawant"],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:36:04.580Z",
 					"approved": [],
@@ -4293,10 +4246,7 @@
 				"baseRef": "main",
 				"mergeable": true,
 				"mergeState": "blocked",
-				"labels": [
-					"clang",
-					"clang:frontend"
-				],
+				"labels": ["clang", "clang:frontend"],
 				"requestedReviewers": [],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:36:04.669Z",
@@ -4611,18 +4561,13 @@
 				"baseRef": "main",
 				"mergeable": true,
 				"mergeState": "unstable",
-				"labels": [
-					"libc"
-				],
+				"labels": ["libc"],
 				"requestedReviewers": [],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:36:13.634Z",
 					"approved": [],
 					"changesRequested": [],
-					"commented": [
-						"ChenMiaoi",
-						"lntue"
-					]
+					"commented": ["ChenMiaoi", "lntue"]
 				},
 				"checks": [
 					{
@@ -5545,9 +5490,7 @@
 				"baseRef": "main",
 				"mergeable": true,
 				"mergeState": "unstable",
-				"labels": [
-					"libc"
-				],
+				"labels": ["libc"],
 				"requestedReviewers": [],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:36:25.315Z",
@@ -6240,19 +6183,13 @@
 				"baseRef": "master",
 				"mergeable": true,
 				"mergeState": "blocked",
-				"labels": [
-					"A-build-execution"
-				],
+				"labels": ["A-build-execution"],
 				"requestedReviewers": [],
 				"reviewSummary": {
 					"fetchedAt": "2026-10-07T19:36:33.283Z",
 					"approved": [],
 					"changesRequested": [],
-					"commented": [
-						"ChenMiaoi",
-						"epage",
-						"ranger-ross"
-					]
+					"commented": ["ChenMiaoi", "epage", "ranger-ross"]
 				},
 				"checks": [
 					{

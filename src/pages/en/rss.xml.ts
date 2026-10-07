@@ -17,7 +17,9 @@ function stripInvalidXmlChars(str: string): string {
 }
 
 export async function GET(context: APIContext) {
-	const blog = (await getRawSortedPosts("en")).filter((post) => !post.data.draft);
+	const blog = (await getRawSortedPosts("en")).filter(
+		(post) => !post.data.draft,
+	);
 
 	return rss({
 		title: siteConfig.title,

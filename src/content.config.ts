@@ -7,11 +7,13 @@ const translatedMetadata = z.object({
 	description: z.string().optional(),
 	tags: z.array(z.string()).optional(),
 });
-const metadataTranslations = z.object({
-	en: translatedMetadata.optional(),
-	zh_TW: translatedMetadata.optional(),
-	ja: translatedMetadata.optional(),
-}).optional();
+const metadataTranslations = z
+	.object({
+		en: translatedMetadata.optional(),
+		zh_TW: translatedMetadata.optional(),
+		ja: translatedMetadata.optional(),
+	})
+	.optional();
 
 const postsCollection = defineCollection({
 	loader: glob({ pattern: "**/*.md", base: "./src/content/posts" }),

@@ -1,54 +1,64 @@
 <script lang="ts">
-  import { useTranslations } from "../../features/orbital/i18n/context";
-  const { t } = useTranslations();
-  import { onDestroy } from "svelte";
-  import TerminalIcon from "./TerminalIcon.svelte";
-  import SiteHeader from "./SiteHeader.svelte";
-  import { sectionPaths } from "../../lib/content/navigation";
-  import { createDeferredNavigation } from "../../lib/content/navigation-transition";
+import { useTranslations } from "../../features/orbital/i18n/context";
+const { t } = useTranslations();
+import { onDestroy } from "svelte";
+import TerminalIcon from "./TerminalIcon.svelte";
+import SiteHeader from "./SiteHeader.svelte";
+import { sectionPaths } from "../../lib/content/navigation";
+import { createDeferredNavigation } from "../../lib/content/navigation-transition";
 
-  export let localePrefix = "";
-  export let author: string;
-  export let reducedMotion = true;
-  export let motionReady = false;
-  export let ambientPaused = false;
-  export let systemReducedMotion = true;
-  export let toggleMotion: () => void;
-  export let onEnter: (animated?: boolean) => void;
-  export let onReturn: (event: MouseEvent) => void;
-  export let query = "";
-  export let searchInput: HTMLInputElement | undefined = undefined;
-  export let onSearch: (value: string, submitted?: boolean) => void;
-  export let arriving = false;
-  export let cameraX = 0;
-  export let cameraY = 0;
-  let departing = false;
-  let arrivalActive = arriving;
-  let mainElement: HTMLElement;
-  const departure = createDeferredNavigation(() => onEnter(true), 680);
-  $: entryUrl = localePrefix + sectionPaths.code;
-  $: if (departing && reducedMotion) departure.finish();
-  $: if (reducedMotion) arrivalActive = false;
+export let localePrefix = "";
+export let author: string;
+export let reducedMotion = true;
+export let motionReady = false;
+export let ambientPaused = false;
+export let systemReducedMotion = true;
+export let toggleMotion: () => void;
+export let onEnter: (animated?: boolean) => void;
+export let onReturn: (event: MouseEvent) => void;
+export let query = "";
+export let searchInput: HTMLInputElement | undefined = undefined;
+export let onSearch: (value: string, submitted?: boolean) => void;
+export let arriving = false;
+export let cameraX = 0;
+export let cameraY = 0;
+let departing = false;
+let arrivalActive = arriving;
+let mainElement: HTMLElement;
+const departure = createDeferredNavigation(() => onEnter(true), 680);
+$: entryUrl = localePrefix + sectionPaths.code;
+$: if (departing && reducedMotion) departure.finish();
+$: if (reducedMotion) arrivalActive = false;
 
-  export function focusMain() {
-    mainElement?.focus({ preventScroll: true });
-  }
+export function focusMain() {
+	mainElement?.focus({ preventScroll: true });
+}
 
-  export function cancelDeparture() {
-    departure.cancel();
-    departing = false;
-  }
+export function cancelDeparture() {
+	departure.cancel();
+	departing = false;
+}
 
-  function enter(event: MouseEvent) {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    if (departing) return;
-    if (reducedMotion) { onEnter(); return; }
-    departing = true;
-    departure.start();
-  }
+function enter(event: MouseEvent) {
+	if (
+		event.button !== 0 ||
+		event.metaKey ||
+		event.ctrlKey ||
+		event.shiftKey ||
+		event.altKey
+	)
+		return;
+	event.preventDefault();
+	if (departing) return;
+	if (reducedMotion) {
+		onEnter();
+		return;
+	}
+	departing = true;
+	departure.start();
+}
 
-  onDestroy(() => departure.cancel());
+onDestroy(() => departure.cancel());
 </script>
 
 <div class="welcome-portal" class:motion-ready={motionReady} class:motion-paused={reducedMotion} class:portal-moving={motionReady && !reducedMotion} class:portal-idle={ambientPaused} class:portal-returning={arrivalActive && !reducedMotion} class:portal-departing={departing} inert={departing} onanimationend={(event) => { if (event.target === event.currentTarget && event.animationName === "portal-return") arrivalActive = false; }} style={`--instrument-x:${reducedMotion ? 0 : cameraX}px;--instrument-y:${reducedMotion ? 0 : cameraY}px`}>

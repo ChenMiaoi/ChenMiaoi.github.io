@@ -1,55 +1,97 @@
 <script lang="ts">
-  import { onDestroy, onMount, tick } from "svelte";
-  import { LOCALES, LOCALE_NAMES, LOCALE_PREFIX, htmlLang, type Locale } from "../../constants/locales";
-  import { languageUrl } from "../../features/orbital/i18n";
-  import { useTranslations } from "../../features/orbital/i18n/context";
+import { onDestroy, onMount, tick } from "svelte";
+import {
+	LOCALES,
+	LOCALE_NAMES,
+	LOCALE_PREFIX,
+	htmlLang,
+	type Locale,
+} from "../../constants/locales";
+import { languageUrl } from "../../features/orbital/i18n";
+import { useTranslations } from "../../features/orbital/i18n/context";
 
-  import TerminalIcon from "./TerminalIcon.svelte";
-  export let reducedMotion = true;
-  export let heading: string | undefined = undefined;
-  const { t, locale } = useTranslations();
-  const codes: Record<Locale, string> = { zh_CN: "CN", en: "EN", zh_TW: "TW", ja: "JP" };
-  let currentLocation = `${LOCALE_PREFIX[locale]}/`;
-  let expanded = false;
-  let switching: Locale | undefined;
-  let trigger: HTMLButtonElement;
-  let panel: HTMLElement;
-  let container: HTMLDivElement;
-  let departure: ReturnType<typeof setTimeout> | undefined;
-  function updateLocation() {
-    currentLocation = languageUrl(window.location.pathname + window.location.search + window.location.hash, locale, heading);
-  }
-  async function toggle() {
-    updateLocation();
-    expanded = !expanded;
-    if (expanded) { await tick(); panel?.querySelector<HTMLAnchorElement>('[aria-current="true"]')?.focus(); }
-  }
-  function close(returnFocus = false) {
-    expanded = false;
-    if (returnFocus) trigger?.focus();
-  }
-  function keydown(event: KeyboardEvent) {
-    if (!expanded || !container?.contains(document.activeElement)) return;
-    if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); close(true); }
-    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
-      event.preventDefault();
-      const links = [...panel.querySelectorAll<HTMLAnchorElement>('a')];
-      const index = links.indexOf(document.activeElement as HTMLAnchorElement);
-      const next = event.key === "Home" ? 0 : event.key === "End" ? links.length - 1 : (index + (event.key === "ArrowDown" ? 1 : -1) + links.length) % links.length;
-      links[next]?.focus();
-    }
-  }
-  function select(event: MouseEvent, target: Locale) {
-    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-    if (target === locale) { event.preventDefault(); close(true); return; }
-    if (reducedMotion) return;
-    event.preventDefault();
-    if (switching) return;
-    switching = target;
-    departure = setTimeout(() => window.location.assign(languageUrl(currentLocation, target)), 240);
-  }
-  onMount(updateLocation);
-  onDestroy(() => clearTimeout(departure));
+import TerminalIcon from "./TerminalIcon.svelte";
+export let reducedMotion = true;
+export let heading: string | undefined = undefined;
+const { t, locale } = useTranslations();
+const codes: Record<Locale, string> = {
+	zh_CN: "CN",
+	en: "EN",
+	zh_TW: "TW",
+	ja: "JP",
+};
+let currentLocation = `${LOCALE_PREFIX[locale]}/`;
+let expanded = false;
+let switching: Locale | undefined;
+let trigger: HTMLButtonElement;
+let panel: HTMLElement;
+let container: HTMLDivElement;
+let departure: ReturnType<typeof setTimeout> | undefined;
+function updateLocation() {
+	currentLocation = languageUrl(
+		window.location.pathname + window.location.search + window.location.hash,
+		locale,
+		heading,
+	);
+}
+async function toggle() {
+	updateLocation();
+	expanded = !expanded;
+	if (expanded) {
+		await tick();
+		panel?.querySelector<HTMLAnchorElement>('[aria-current="true"]')?.focus();
+	}
+}
+function close(returnFocus = false) {
+	expanded = false;
+	if (returnFocus) trigger?.focus();
+}
+function keydown(event: KeyboardEvent) {
+	if (!expanded || !container?.contains(document.activeElement)) return;
+	if (event.key === "Escape") {
+		event.preventDefault();
+		event.stopPropagation();
+		close(true);
+	}
+	if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+		event.preventDefault();
+		const links = [...panel.querySelectorAll<HTMLAnchorElement>("a")];
+		const index = links.indexOf(document.activeElement as HTMLAnchorElement);
+		const next =
+			event.key === "Home"
+				? 0
+				: event.key === "End"
+					? links.length - 1
+					: (index + (event.key === "ArrowDown" ? 1 : -1) + links.length) %
+						links.length;
+		links[next]?.focus();
+	}
+}
+function select(event: MouseEvent, target: Locale) {
+	if (
+		event.button !== 0 ||
+		event.ctrlKey ||
+		event.metaKey ||
+		event.shiftKey ||
+		event.altKey
+	)
+		return;
+	if (target === locale) {
+		event.preventDefault();
+		close(true);
+		return;
+	}
+	if (reducedMotion) return;
+	event.preventDefault();
+	if (switching) return;
+	switching = target;
+	departure = setTimeout(
+		() => window.location.assign(languageUrl(currentLocation, target)),
+		240,
+	);
+}
+onMount(updateLocation);
+onDestroy(() => clearTimeout(departure));
 </script>
 
 <svelte:window onpopstate={() => { updateLocation(); close(); }} onkeydown={keydown}/>

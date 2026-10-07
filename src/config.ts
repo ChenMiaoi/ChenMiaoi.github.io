@@ -1,9 +1,13 @@
-import type { ExpressiveCodeConfig, LicenseConfig, ProfileConfig } from "./types/config";
+import type {
+	ExpressiveCodeConfig,
+	LicenseConfig,
+	ProfileConfig,
+} from "./types/config";
 
 export const siteConfig = {
-    title: "Miao's Blog",
-    subtitle: "Let me drive your world!",
-    lang: "zh_CN",
+	title: "Miao's Blog",
+	subtitle: "Let me drive your world!",
+	lang: "zh_CN",
 };
 
 // Shared by Orbital and the synchronization scripts.

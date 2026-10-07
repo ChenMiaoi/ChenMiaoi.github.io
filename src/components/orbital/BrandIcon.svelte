@@ -1,11 +1,18 @@
 <script lang="ts">
-  import { brandPaths } from "./brand-paths";
+import { brandPaths } from "./brand-paths";
 
-  export let name: string;
-  export let size = 24;
-  export let framed = true;
-  $: normalized = name.toLowerCase();
-  $: key = normalized === "llvm-project" ? "llvm" : normalized === "email" ? "mail" : normalized === "知乎" ? "zhihu" : normalized;
+export let name: string;
+export let size = 24;
+export let framed = true;
+$: normalized = name.toLowerCase();
+$: key =
+	normalized === "llvm-project"
+		? "llvm"
+		: normalized === "email"
+			? "mail"
+			: normalized === "知乎"
+				? "zhihu"
+				: normalized;
 </script>
 
 <span class="brand-insignia" class:insignia-framed={framed} data-brand={key} style={`--requested-icon-size:${size}px`} aria-hidden="true">

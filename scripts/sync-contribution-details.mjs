@@ -1,5 +1,5 @@
-import { createDetailReader } from '../server/contributions/details.mjs';
-import { collectMergedCommits } from '../server/contributions/merged-commits.mjs';
+import { createDetailReader } from "../server/contributions/details.mjs";
+import { collectMergedCommits } from "../server/contributions/merged-commits.mjs";
 import { detailsSchema } from "../src/lib/contributions/schema.ts";
 import { execFile } from "node:child_process";
 import { readFile, writeFile, rename, rm } from "node:fs/promises";
@@ -13,7 +13,9 @@ const activity = JSON.parse(
 		"utf8",
 	),
 );
-const { contributionConfig, contributionSyncConfig: config } = await import("../src/lib/contributions/config.ts");
+const { contributionConfig, contributionSyncConfig: config } = await import(
+	"../src/lib/contributions/config.ts"
+);
 const allowed = new Set(config.repositories);
 const output = fileURLToPath(
 	new URL("../src/data/contribution-details.json", import.meta.url),
@@ -24,7 +26,9 @@ const { projects } = contributionConfig;
 const requests = new Map();
 let freshReads = 0;
 function api(endpoint, paginate = false) {
-	const key = /\/pulls\/\d+$/.test(endpoint) ? `fresh:${++freshReads}:${endpoint}` : `${paginate}:${endpoint}`;
+	const key = /\/pulls\/\d+$/.test(endpoint)
+		? `fresh:${++freshReads}:${endpoint}`
+		: `${paginate}:${endpoint}`;
 	if (!requests.has(key))
 		requests.set(
 			key,
@@ -83,7 +87,9 @@ const records = [];
 // Keep GitHub requests bounded while independent records are downloaded.
 for (let index = 0; index < descriptors.length; index += 2) {
 	const batch = await Promise.all(
-		descriptors.slice(index, index + 2).map((descriptor) => fetchDetails(descriptor)),
+		descriptors
+			.slice(index, index + 2)
+			.map((descriptor) => fetchDetails(descriptor)),
 	);
 	records.push(...batch);
 	console.log(
@@ -93,7 +99,11 @@ for (let index = 0; index < descriptors.length; index += 2) {
 const snapshot = {
 	syncedAt: new Date().toISOString(),
 	activitySyncedAt: activity.syncedAt,
-	records: await collectMergedCommits({ activity, records, readDetail: fetchDetails }),
+	records: await collectMergedCommits({
+		activity,
+		records,
+		readDetail: fetchDetails,
+	}),
 };
 detailsSchema.parse(snapshot);
 const temporary = `${output}.tmp`;

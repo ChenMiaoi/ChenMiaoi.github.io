@@ -1,115 +1,163 @@
 <script lang="ts">
-  import { useTranslations } from "../../features/orbital/i18n/context";
-  const { t, dateLocale } = useTranslations();
-  import { tick } from "svelte";
-  import TerminalIcon from "./TerminalIcon.svelte";
-  import InteractionGlow from "./InteractionGlow.svelte";
-  import { revealOnView } from "./motion";
-  import { topicTone } from "../../features/orbital/topic-colors";
-  import type { ArchivePost, ArchiveSeries } from "./types";
-  export let posts: ArchivePost[];
-  export let series: ArchiveSeries[];
-  export let category = "all";
-  export let query = "";
-  export let seriesFilter = "";
-  export let reducedMotion = true;
-  export let motionReady = false;
-  export let resetKey = 0;
-  export let openReader: (post: ArchivePost, heading?: string) => void;
-  export let resetFilters: () => void;
-  let descending = true;
-  let selectedSlug = posts[0]?.slug ?? "";
-  let markerTop = 26;
-  let connectionY = 70;
-  let connectionStartX = 0;
-  let connectionTargetY = 116;
-  let railHeight = 560;
-  let connectionTop = 56;
-  let connectionVisible = true;
-  let archiveBody: HTMLDivElement;
-  let archiveScroll: HTMLDivElement;
-  let contextPanel: HTMLDivElement;
+import { useTranslations } from "../../features/orbital/i18n/context";
+const { t, dateLocale } = useTranslations();
+import { tick } from "svelte";
+import TerminalIcon from "./TerminalIcon.svelte";
+import InteractionGlow from "./InteractionGlow.svelte";
+import { revealOnView } from "./motion";
+import { topicTone } from "../../features/orbital/topic-colors";
+import type { ArchivePost, ArchiveSeries } from "./types";
+export let posts: ArchivePost[];
+export let series: ArchiveSeries[];
+export let category = "all";
+export let query = "";
+export let seriesFilter = "";
+export let reducedMotion = true;
+export let motionReady = false;
+export let resetKey = 0;
+export let openReader: (post: ArchivePost, heading?: string) => void;
+export let resetFilters: () => void;
+let descending = true;
+let selectedSlug = posts[0]?.slug ?? "";
+let markerTop = 26;
+let connectionY = 70;
+let connectionStartX = 0;
+let connectionTargetY = 116;
+let railHeight = 560;
+let connectionTop = 56;
+let connectionVisible = true;
+let archiveBody: HTMLDivElement;
+let archiveScroll: HTMLDivElement;
+let contextPanel: HTMLDivElement;
 
-  $: filteredPosts = posts.filter((post) => {
-    const text = `${post.searchText} ${post.seriesTitle}`.toLowerCase();
-    const categoryMatch = category === "all" || (category === "hardware" ? /riscv|硬件/i.test(post.series + post.category) : post.category.toLowerCase() === category.toLowerCase());
-    const seriesMatch = !seriesFilter || series.find((item) => item.slug === seriesFilter)?.posts.includes(post.slug);
-    return categoryMatch && seriesMatch && text.includes(query.trim().toLowerCase());
-  }).sort((a, b) => descending ? b.timestamp - a.timestamp : a.timestamp - b.timestamp);
-  $: selectedPost = filteredPosts.find((post) => post.slug === selectedSlug) ?? filteredPosts[0];
-  $: selectedIndex = selectedPost ? filteredPosts.findIndex((post) => post.slug === selectedPost.slug) + 1 : 0;
-  $: selectedSeriesTitle = series.find((item) => item.slug === seriesFilter)?.title;
+$: filteredPosts = posts
+	.filter((post) => {
+		const text = `${post.searchText} ${post.seriesTitle}`.toLowerCase();
+		const categoryMatch =
+			category === "all" ||
+			(category === "hardware"
+				? /riscv|硬件/i.test(post.series + post.category)
+				: post.category.toLowerCase() === category.toLowerCase());
+		const seriesMatch =
+			!seriesFilter ||
+			series
+				.find((item) => item.slug === seriesFilter)
+				?.posts.includes(post.slug);
+		return (
+			categoryMatch && seriesMatch && text.includes(query.trim().toLowerCase())
+		);
+	})
+	.sort((a, b) =>
+		descending ? b.timestamp - a.timestamp : a.timestamp - b.timestamp,
+	);
+$: selectedPost =
+	filteredPosts.find((post) => post.slug === selectedSlug) ?? filteredPosts[0];
+$: selectedIndex = selectedPost
+	? filteredPosts.findIndex((post) => post.slug === selectedPost.slug) + 1
+	: 0;
+$: selectedSeriesTitle = series.find(
+	(item) => item.slug === seriesFilter,
+)?.title;
 
-  $: if (selectedPost && archiveBody) positionContext();
-  $: if (filteredPosts && archiveScroll) resetArchiveScroll();
-  $: resetSelection(resetKey);
-  function resetSelection(_key: number) { descending = true; selectedSlug = posts[0]?.slug ?? ""; }
-  async function resetArchiveScroll() {
-    await tick();
-    archiveScroll?.scrollTo({ top: 0, behavior: "instant" });
-    positionContext();
-  }
+$: if (selectedPost && archiveBody) positionContext();
+$: if (filteredPosts && archiveScroll) resetArchiveScroll();
+$: resetSelection(resetKey);
+function resetSelection(_key: number) {
+	descending = true;
+	selectedSlug = posts[0]?.slug ?? "";
+}
+async function resetArchiveScroll() {
+	await tick();
+	archiveScroll?.scrollTo({ top: 0, behavior: "instant" });
+	positionContext();
+}
 
-  async function positionContext() {
-    await tick();
-    if (!archiveBody?.isConnected || !archiveScroll?.isConnected) return;
-    const card = archiveBody?.querySelector<HTMLElement>(".dossier.is-selected");
-    if (!card) return;
-    markerTop = card.offsetTop + 28;
-    const cardBounds = card.getBoundingClientRect();
-    const scrollBounds = archiveScroll.getBoundingClientRect();
-    connectionY = Math.max(8, Math.min(scrollBounds.height - 8, cardBounds.top + cardBounds.height / 2 - scrollBounds.top));
-    connectionVisible = cardBounds.bottom > scrollBounds.top + 8 && cardBounds.top < scrollBounds.bottom - 8;
-    connectionTop = archiveScroll.offsetTop;
-    railHeight = archiveScroll.clientHeight;
-    if (contextPanel?.isConnected) {
-      const panelBounds = contextPanel.getBoundingClientRect();
-      connectionTargetY = panelBounds.top + 116 - scrollBounds.top;
-      const gap = panelBounds.left - scrollBounds.right;
-      connectionStartX = gap > 0 ? (cardBounds.right - scrollBounds.right) * 70 / gap : 0;
-    }
-  }
+async function positionContext() {
+	await tick();
+	if (!archiveBody?.isConnected || !archiveScroll?.isConnected) return;
+	const card = archiveBody?.querySelector<HTMLElement>(".dossier.is-selected");
+	if (!card) return;
+	markerTop = card.offsetTop + 28;
+	const cardBounds = card.getBoundingClientRect();
+	const scrollBounds = archiveScroll.getBoundingClientRect();
+	connectionY = Math.max(
+		8,
+		Math.min(
+			scrollBounds.height - 8,
+			cardBounds.top + cardBounds.height / 2 - scrollBounds.top,
+		),
+	);
+	connectionVisible =
+		cardBounds.bottom > scrollBounds.top + 8 &&
+		cardBounds.top < scrollBounds.bottom - 8;
+	connectionTop = archiveScroll.offsetTop;
+	railHeight = archiveScroll.clientHeight;
+	if (contextPanel?.isConnected) {
+		const panelBounds = contextPanel.getBoundingClientRect();
+		connectionTargetY = panelBounds.top + 116 - scrollBounds.top;
+		const gap = panelBounds.left - scrollBounds.right;
+		connectionStartX =
+			gap > 0 ? ((cardBounds.right - scrollBounds.right) * 70) / gap : 0;
+	}
+}
 
-  function observeRail(node: HTMLDivElement) {
-    const observer = new ResizeObserver(positionContext);
-    observer.observe(node);
-    return { destroy: () => observer.disconnect() };
-  }
+function observeRail(node: HTMLDivElement) {
+	const observer = new ResizeObserver(positionContext);
+	observer.observe(node);
+	return { destroy: () => observer.disconnect() };
+}
 
-  async function browseDocument(direction: number) {
-    const next = filteredPosts[selectedIndex - 1 + direction];
-    if (!next) return;
-    selectedSlug = next.slug;
-    await tick();
-    const card = archiveBody.querySelector<HTMLElement>(".dossier.is-selected");
-    if (!card) return;
-    const bounds = card.getBoundingClientRect();
-    const viewport = archiveScroll.getBoundingClientRect();
-    const offset = bounds.top < viewport.top + 8 ? bounds.top - viewport.top - 8 : bounds.bottom > viewport.bottom - 12 ? bounds.bottom - viewport.bottom + 12 : 0;
-    if (offset) archiveScroll.scrollBy({ top: offset, behavior: reducedMotion ? "instant" : "smooth" });
-  }
+async function browseDocument(direction: number) {
+	const next = filteredPosts[selectedIndex - 1 + direction];
+	if (!next) return;
+	selectedSlug = next.slug;
+	await tick();
+	const card = archiveBody.querySelector<HTMLElement>(".dossier.is-selected");
+	if (!card) return;
+	const bounds = card.getBoundingClientRect();
+	const viewport = archiveScroll.getBoundingClientRect();
+	const offset =
+		bounds.top < viewport.top + 8
+			? bounds.top - viewport.top - 8
+			: bounds.bottom > viewport.bottom - 12
+				? bounds.bottom - viewport.bottom + 12
+				: 0;
+	if (offset)
+		archiveScroll.scrollBy({
+			top: offset,
+			behavior: reducedMotion ? "instant" : "smooth",
+		});
+}
 
-  async function moveSelection(event: KeyboardEvent, index: number) {
-    const positions: Record<string, number> = {
-      ArrowDown: Math.min(index + 1, filteredPosts.length - 1),
-      ArrowUp: Math.max(index - 1, 0),
-      Home: 0,
-      End: filteredPosts.length - 1,
-    };
-    const next = positions[event.key];
-    if (next === undefined || !filteredPosts[next]) return;
-    event.preventDefault();
-    selectedSlug = filteredPosts[next].slug;
-    await tick();
-    archiveBody.querySelectorAll<HTMLButtonElement>('.dossier-preview')[next]?.focus();
-  }
+async function moveSelection(event: KeyboardEvent, index: number) {
+	const positions: Record<string, number> = {
+		ArrowDown: Math.min(index + 1, filteredPosts.length - 1),
+		ArrowUp: Math.max(index - 1, 0),
+		Home: 0,
+		End: filteredPosts.length - 1,
+	};
+	const next = positions[event.key];
+	if (next === undefined || !filteredPosts[next]) return;
+	event.preventDefault();
+	selectedSlug = filteredPosts[next].slug;
+	await tick();
+	archiveBody
+		.querySelectorAll<HTMLButtonElement>(".dossier-preview")
+		[next]?.focus();
+}
 
-  function readArticle(event: MouseEvent, post: ArchivePost) {
-    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    openReader(post);
-  }
-
+function readArticle(event: MouseEvent, post: ArchivePost) {
+	if (
+		event.button !== 0 ||
+		event.ctrlKey ||
+		event.metaKey ||
+		event.shiftKey ||
+		event.altKey
+	)
+		return;
+	event.preventDefault();
+	openReader(post);
+}
 </script>
 <svelte:window onscroll={positionContext} />
         {#if seriesFilter || query}

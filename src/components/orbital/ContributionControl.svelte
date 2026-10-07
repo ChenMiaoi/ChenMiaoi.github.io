@@ -1,61 +1,157 @@
 <script lang="ts">
-  import { useTranslations } from "../../features/orbital/i18n/context";
-  import { contributionOverview, contributionQueue, type ContributionKindFilter, type ContributionQueue } from "../../lib/contributions/overview";
-  import { checkPresentation, conflictPresentation, recordPresentation, reviewPresentation } from "../../lib/contributions/presentation";
-  import { conflictState, summarizeChecks } from "../../lib/contributions/checks";
-  import { resolveReviewSummary } from "../../lib/contributions/reviews";
-  import { projectTone } from "../../features/orbital/topic-colors";
-  import ContributionIcon from "./ContributionIcon.svelte";
-  import ContributionStatus from "./ContributionStatus.svelte";
-  import type { ContributionProject } from "../../types/config";
-  import type { ContributionActivitySnapshot, ContributionDetailsSnapshot } from "./types";
-  import BrandIcon from "./BrandIcon.svelte";
-  import TerminalIcon from "./TerminalIcon.svelte";
-  import { revealSequence } from "./motion";
-  import { selectionRail } from "./interaction-motion";
-  import { metricTransition, missionLink } from "./mission-motion";
-  import InteractionGlow from "./InteractionGlow.svelte";
-  const { t } = useTranslations();
-  export let projects: ContributionProject[];
-  export let activity: ContributionActivitySnapshot;
-  export let details: ContributionDetailsSnapshot;
-  export let loading = false;
-  export let failed = false;
-  export let reducedMotion = true;
-  export let onOpen: (project: string, record: string) => void;
-  let sectorId = "all";
-  let tab: ContributionQueue = "active";
-  let kind: ContributionKindFilter = "pr";
-  let queueElement: HTMLDivElement | undefined;
-  let focusedId = "";
-  $: overview = contributionOverview(projects, activity, details);
-  $: selectedSectors = overview.sectors.filter((sector) => sectorId === "all" || sector.project.id === sectorId);
-  $: totals = selectedSectors.reduce((sum, sector) => ({ issues: sum.issues + sector.issues, prs: sum.prs + sector.prs, active: sum.active + sector.active, commits: sum.commits + sector.commits, unknown: sum.unknown + sector.unknown }), { issues: 0, prs: 0, active: 0, commits: 0, unknown: 0 });
-  $: records = overview.records.filter((record) => sectorId === "all" || record.projectId === sectorId);
-  $: activeCount = records.filter((record) => record.state === "open" || record.state === "draft").length;
-  $: queue = contributionQueue(records, tab, kind);
-  $: kindOptions = (tab === 'active' ? ['all', 'pr', 'issue'] : ['all', 'pr', 'issue', 'commit']) as ContributionKindFilter[];
-  $: missions = queue.records;
-  $: focusedMission = missions.find((mission) => (mission.url ?? mission.id) === focusedId) ?? missions[0];
-  $: focusedDetail = focusedMission ? details.records.find((detail) => detail.url === focusedMission.url) : undefined;
-  $: reviewSummary = focusedMission?.kind === 'pr' ? resolveReviewSummary(focusedDetail) : undefined;
-  $: pr = focusedMission?.kind === 'pr' ? focusedDetail?.pullRequest : undefined;
-  $: ci = pr ? summarizeChecks(pr.checks) : undefined;
-  $: conflict = conflictState(pr, focusedMission?.state ?? '');
-  $: mergedCommitUrl = focusedMission?.kind === 'pr' && focusedDetail?.state === 'merged' && focusedDetail.mergeCommitSha
-    ? focusedMission.url?.replace(/\/pull\/\d+$/, `/commit/${focusedDetail.mergeCommitSha}`) : undefined;
-  const pad = (value: number) => String(value).padStart(2, "0");
-  const kindLabel = (value: ContributionKindFilter) => ({ all: t("全部"), pr: 'PR', issue: 'Issue', commit: t("提交") })[value];
-  const resetQueueScroll = () => { if (queueElement) queueElement.scrollTop = 0; };
-  function selectQueue(value: ContributionQueue) { tab = value; if (value === 'active' && kind === 'commit') kind = 'all'; resetQueueScroll(); }
-  function selectKind(value: ContributionKindFilter) { kind = value; resetQueueScroll(); }
-  const status = (value: string) => ({ open: t("进行中"), draft: t("草稿"), merged: t("已合并"), closed: t("已关闭"), commit: t("提交记录") } as Record<string, string>)[value];
-  const ciLabel = (value: string) => ({ passed: t("通过"), failed: t("检查未通过"), pending: t("运行中"), neutral: t("检查已结束"), none: t("暂无检查") } as Record<string, string>)[value];
-  const conflictLabel = (value: string) => ({ clear: t("无冲突"), conflict: t("存在冲突"), pending: t("冲突检查中"), 'not-applicable': t("冲突检测不适用") } as Record<string, string>)[value];
-  const relation = (relations?: string[]) => relations?.includes("author") ? t("发起") : relations?.includes("assignee") ? t("受指派") : relations?.includes("commenter") ? t("参与讨论") : t("代码提交");
-  const chapterNames: Record<string, string> = { linux: t("内核 / 系统"), "llvm-project": t("编译器 / 工具链"), cargo: t("构建 / 包管理") };
-  const coverPosition: Record<string, string> = { linux: "0%", "llvm-project": "50%", cargo: "100%" };
-  const projectLabel = (id: string, name: string) => id === "llvm-project" ? "LLVM" : name;
+import { useTranslations } from "../../features/orbital/i18n/context";
+import {
+	contributionOverview,
+	contributionQueue,
+	type ContributionKindFilter,
+	type ContributionQueue,
+} from "../../lib/contributions/overview";
+import {
+	checkPresentation,
+	conflictPresentation,
+	recordPresentation,
+	reviewPresentation,
+} from "../../lib/contributions/presentation";
+import { conflictState, summarizeChecks } from "../../lib/contributions/checks";
+import { resolveReviewSummary } from "../../lib/contributions/reviews";
+import { projectTone } from "../../features/orbital/topic-colors";
+import ContributionIcon from "./ContributionIcon.svelte";
+import ContributionStatus from "./ContributionStatus.svelte";
+import type { ContributionProject } from "../../types/config";
+import type {
+	ContributionActivitySnapshot,
+	ContributionDetailsSnapshot,
+} from "./types";
+import BrandIcon from "./BrandIcon.svelte";
+import TerminalIcon from "./TerminalIcon.svelte";
+import { revealSequence } from "./motion";
+import { selectionRail } from "./interaction-motion";
+import { metricTransition, missionLink } from "./mission-motion";
+import InteractionGlow from "./InteractionGlow.svelte";
+const { t } = useTranslations();
+export let projects: ContributionProject[];
+export let activity: ContributionActivitySnapshot;
+export let details: ContributionDetailsSnapshot;
+export let loading = false;
+export let failed = false;
+export let reducedMotion = true;
+export let onOpen: (project: string, record: string) => void;
+let sectorId = "all";
+let tab: ContributionQueue = "active";
+let kind: ContributionKindFilter = "pr";
+let queueElement: HTMLDivElement | undefined;
+let focusedId = "";
+$: overview = contributionOverview(projects, activity, details);
+$: selectedSectors = overview.sectors.filter(
+	(sector) => sectorId === "all" || sector.project.id === sectorId,
+);
+$: totals = selectedSectors.reduce(
+	(sum, sector) => ({
+		issues: sum.issues + sector.issues,
+		prs: sum.prs + sector.prs,
+		active: sum.active + sector.active,
+		commits: sum.commits + sector.commits,
+		unknown: sum.unknown + sector.unknown,
+	}),
+	{ issues: 0, prs: 0, active: 0, commits: 0, unknown: 0 },
+);
+$: records = overview.records.filter(
+	(record) => sectorId === "all" || record.projectId === sectorId,
+);
+$: activeCount = records.filter(
+	(record) => record.state === "open" || record.state === "draft",
+).length;
+$: queue = contributionQueue(records, tab, kind);
+$: kindOptions = (
+	tab === "active" ? ["all", "pr", "issue"] : ["all", "pr", "issue", "commit"]
+) as ContributionKindFilter[];
+$: missions = queue.records;
+$: focusedMission =
+	missions.find((mission) => (mission.url ?? mission.id) === focusedId) ??
+	missions[0];
+$: focusedDetail = focusedMission
+	? details.records.find((detail) => detail.url === focusedMission.url)
+	: undefined;
+$: reviewSummary =
+	focusedMission?.kind === "pr"
+		? resolveReviewSummary(focusedDetail)
+		: undefined;
+$: pr = focusedMission?.kind === "pr" ? focusedDetail?.pullRequest : undefined;
+$: ci = pr ? summarizeChecks(pr.checks) : undefined;
+$: conflict = conflictState(pr, focusedMission?.state ?? "");
+$: mergedCommitUrl =
+	focusedMission?.kind === "pr" &&
+	focusedDetail?.state === "merged" &&
+	focusedDetail.mergeCommitSha
+		? focusedMission.url?.replace(
+				/\/pull\/\d+$/,
+				`/commit/${focusedDetail.mergeCommitSha}`,
+			)
+		: undefined;
+const pad = (value: number) => String(value).padStart(2, "0");
+const kindLabel = (value: ContributionKindFilter) =>
+	({ all: t("全部"), pr: "PR", issue: "Issue", commit: t("提交") })[value];
+const resetQueueScroll = () => {
+	if (queueElement) queueElement.scrollTop = 0;
+};
+function selectQueue(value: ContributionQueue) {
+	tab = value;
+	if (value === "active" && kind === "commit") kind = "all";
+	resetQueueScroll();
+}
+function selectKind(value: ContributionKindFilter) {
+	kind = value;
+	resetQueueScroll();
+}
+const status = (value: string) =>
+	(
+		({
+			open: t("进行中"),
+			draft: t("草稿"),
+			merged: t("已合并"),
+			closed: t("已关闭"),
+			commit: t("提交记录"),
+		}) as Record<string, string>
+	)[value];
+const ciLabel = (value: string) =>
+	(
+		({
+			passed: t("通过"),
+			failed: t("检查未通过"),
+			pending: t("运行中"),
+			neutral: t("检查已结束"),
+			none: t("暂无检查"),
+		}) as Record<string, string>
+	)[value];
+const conflictLabel = (value: string) =>
+	(
+		({
+			clear: t("无冲突"),
+			conflict: t("存在冲突"),
+			pending: t("冲突检查中"),
+			"not-applicable": t("冲突检测不适用"),
+		}) as Record<string, string>
+	)[value];
+const relation = (relations?: string[]) =>
+	relations?.includes("author")
+		? t("发起")
+		: relations?.includes("assignee")
+			? t("受指派")
+			: relations?.includes("commenter")
+				? t("参与讨论")
+				: t("代码提交");
+const chapterNames: Record<string, string> = {
+	linux: t("内核 / 系统"),
+	"llvm-project": t("编译器 / 工具链"),
+	cargo: t("构建 / 包管理"),
+};
+const coverPosition: Record<string, string> = {
+	linux: "0%",
+	"llvm-project": "50%",
+	cargo: "100%",
+};
+const projectLabel = (id: string, name: string) =>
+	id === "llvm-project" ? "LLVM" : name;
 </script>
 
 <section class="mission-control" data-topic={sectorId === 'all' ? 'neutral' : projectTone(sectorId)} aria-label={t("开源任务控制台")}>

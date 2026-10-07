@@ -41,7 +41,11 @@ export function createTranslations(locale: Locale) {
 }
 
 // Keep the complete public location, including search filters and reader headings.
-export function languageUrl(location: string, locale: Locale, heading?: string) {
+export function languageUrl(
+	location: string,
+	locale: Locale,
+	heading?: string,
+) {
 	const url = new URL(location, "https://orbital.local");
 	if (heading !== undefined) url.hash = heading;
 	const { path } = stripLocalePrefix(url.pathname);

@@ -1,30 +1,44 @@
 <script lang="ts">
-  import { useTranslations } from "../../features/orbital/i18n/context";
-  const { t } = useTranslations();
-  import TerminalIcon from "./TerminalIcon.svelte";
-  import BrandIcon from "./BrandIcon.svelte";
-  import InteractionGlow from "./InteractionGlow.svelte";
-  import type { ProfileConfig } from "../../types/config";
+import { useTranslations } from "../../features/orbital/i18n/context";
+const { t } = useTranslations();
+import TerminalIcon from "./TerminalIcon.svelte";
+import BrandIcon from "./BrandIcon.svelte";
+import InteractionGlow from "./InteractionGlow.svelte";
+import type { ProfileConfig } from "../../types/config";
 
-  export let profile: ProfileConfig;
-  export let onNavigate: (section: "articles" | "code") => void;
-  export let onExplore: (category: "linux" | "hardware") => void;
+export let profile: ProfileConfig;
+export let onNavigate: (section: "articles" | "code") => void;
+export let onExplore: (category: "linux" | "hardware") => void;
 
-  $: github = profile.links.find((link) => link.url.startsWith("https://github.com/"));
-  $: handle = github?.url.replace(/^https:\/\/github\.com\//, "").replace(/\/$/, "");
-  $: initials = profile.name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2);
+$: github = profile.links.find((link) =>
+	link.url.startsWith("https://github.com/"),
+);
+$: handle = github?.url
+	.replace(/^https:\/\/github\.com\//, "")
+	.replace(/\/$/, "");
+$: initials = profile.name
+	.split(/\s+/)
+	.map((part) => part[0])
+	.join("")
+	.slice(0, 2);
 
-  function linkDetail(url: string) {
-    if (url.startsWith("mailto:")) return url.slice(7);
-    try {
-      const address = new URL(url);
-      if (address.hostname === "github.com") return `@${address.pathname.split("/").filter(Boolean)[0]}`;
-      if (address.hostname.endsWith("zhihu.com")) return address.pathname.split("/").filter(Boolean)[1] || address.hostname;
-      return address.hostname;
-    } catch { return url; }
-  }
-  const linkName = (name: string) => name === "Zhihu" ? t("知乎") : name === "Email" ? t("邮件") : name;
-  const linkIcon = (link: ProfileConfig["links"][number]) => link.url.startsWith("mailto:") ? "mail" : link.name.toLowerCase();
+function linkDetail(url: string) {
+	if (url.startsWith("mailto:")) return url.slice(7);
+	try {
+		const address = new URL(url);
+		if (address.hostname === "github.com")
+			return `@${address.pathname.split("/").filter(Boolean)[0]}`;
+		if (address.hostname.endsWith("zhihu.com"))
+			return address.pathname.split("/").filter(Boolean)[1] || address.hostname;
+		return address.hostname;
+	} catch {
+		return url;
+	}
+}
+const linkName = (name: string) =>
+	name === "Zhihu" ? t("知乎") : name === "Email" ? t("邮件") : name;
+const linkIcon = (link: ProfileConfig["links"][number]) =>
+	link.url.startsWith("mailto:") ? "mail" : link.name.toLowerCase();
 </script>
 
 <section class="identity-dossier" aria-label={t("个人档案")}>

@@ -1,325 +1,468 @@
 <script lang="ts">
-  import { provideTranslations } from "../../features/orbital/i18n/context";
-  import type { Locale } from "../../constants/locales";
-  import SiteHeader from "./SiteHeader.svelte";
-  export let lang: Locale = "zh_CN";
-  const { t } = provideTranslations(lang);
-  import { onMount, tick } from "svelte";
-  import ArticleArchive from "./ArticleArchive.svelte";
-  import ArticleReader from "./ArticleReader.svelte";
-  import TerminalIcon from "./TerminalIcon.svelte";
-  import BrandIcon from "./BrandIcon.svelte";
-  import SeriesExplorer from "./SeriesExplorer.svelte";
-  import KnowledgeAtlas from "./KnowledgeAtlas.svelte";
-  import SourceDock from "./SourceDock.svelte";
-  import ProfileDossier from "./ProfileDossier.svelte";
-  import WelcomePortal from "./WelcomePortal.svelte";
-  import { navigationBeacon, revealSequence } from "./motion";
-  import { selectionRail } from "./interaction-motion";
-  import { surfaceFeedback } from "./surface-feedback";
-  import type { ArchivePost, ArchiveSeries, ContributionActivitySnapshot } from "./types";
-  import type { ContributionProject, ProfileConfig } from "../../types/config";
+import { provideTranslations } from "../../features/orbital/i18n/context";
+import type { Locale } from "../../constants/locales";
+import SiteHeader from "./SiteHeader.svelte";
+export let lang: Locale = "zh_CN";
+const { t } = provideTranslations(lang);
+import { onMount, tick } from "svelte";
+import ArticleArchive from "./ArticleArchive.svelte";
+import ArticleReader from "./ArticleReader.svelte";
+import TerminalIcon from "./TerminalIcon.svelte";
+import BrandIcon from "./BrandIcon.svelte";
+import SeriesExplorer from "./SeriesExplorer.svelte";
+import KnowledgeAtlas from "./KnowledgeAtlas.svelte";
+import SourceDock from "./SourceDock.svelte";
+import ProfileDossier from "./ProfileDossier.svelte";
+import WelcomePortal from "./WelcomePortal.svelte";
+import { navigationBeacon, revealSequence } from "./motion";
+import { selectionRail } from "./interaction-motion";
+import { surfaceFeedback } from "./surface-feedback";
+import type {
+	ArchivePost,
+	ArchiveSeries,
+	ContributionActivitySnapshot,
+} from "./types";
+import type { ContributionProject, ProfileConfig } from "../../types/config";
 
-  export let posts: ArchivePost[];
-  export let series: ArchiveSeries[];
-  export let projects: ContributionProject[];
-  export let activity: ContributionActivitySnapshot;
-  export let detailsUrl: string;
-  export let profile: ProfileConfig;
+export let posts: ArchivePost[];
+export let series: ArchiveSeries[];
+export let projects: ContributionProject[];
+export let activity: ContributionActivitySnapshot;
+export let detailsUrl: string;
+export let profile: ProfileConfig;
 
-  import { contributionUrl, resolveContributionSelection } from "../../lib/contributions/navigation";
-  import { sectionPaths, welcomePath, resolveOrbitalLocation, isWelcomeLocation, type Section } from "../../lib/content/navigation";
-  import { createDeferredNavigation, WELCOME_RETURN_DURATION } from "../../lib/content/navigation-transition";
-  export let initialSection: Section = "articles";
-  export let initialSeries = "";
-  export let initialProject = "";
-  export let localePrefix = "";
-  export let notFound = false;
-  export let initialWelcome = false;
-  export let hasArticle = false;
-  let welcome = initialWelcome;
-  let archiveArrival = false;
-  let welcomeArrival = false;
-  let returningToWelcome = false;
-  let welcomePortal: WelcomePortal;
-  let hydrated = false;
-  let mainElement: HTMLElement;
-  const navigation: { id: Section; label: string; icon: string; kicker: string; title: string }[] = [
-    { id: "code", label: t("开源"), icon: "code", kicker: t("开源 / 协作"), title: t("任务日志") },
-    { id: "articles", label: t("文章"), icon: "article", kicker: t("写作 / 档案"), title: t("文章档案") },
-    { id: "series", label: t("系列"), icon: "series", kicker: t("系列 / 目录"), title: t("探索路径") },
-    { id: "graph", label: t("地图"), icon: "graph", kicker: t("知识 / 关联"), title: t("知识地图") },
-    { id: "about", label: t("关于"), icon: "about", kicker: t("作者 / {v0}", { v0: profile.name.toUpperCase() }), title: t("关于我") },
-  ];
-  let section: Section = initialSection;
-  let query = "";
-  let category = "all";
-  let seriesFilter = initialSeries;
-  let returnPath = `${localePrefix}${sectionPaths.articles}`;
-  let readerTrigger: HTMLElement | null = null;
-  let resetKey = 0;
-  let reader: ArticleReader;
-  let sourceProject = initialProject;
-  let sourceRecord = "";
-  let sourceKind = "all";
-  let sourceDashboard = !initialProject;
-  let sourceDock: SourceDock;
-  let searchInput: HTMLInputElement;
-  let systemReducedMotion = true;
-  let effectsEnabled = true;
-  let motionReady = false;
-  let pageVisible = true;
-  let notFoundPath = "";
-  let readerOpen = false;
-  let finePointer = false;
-  let cameraX = 0;
-  let cameraY = 0;
-  let cameraFrame = 0;
-  const welcomeReturn = createDeferredNavigation(finishWelcomeReturn, WELCOME_RETURN_DURATION);
-  $: reducedMotion = systemReducedMotion || !effectsEnabled;
-  $: if (reducedMotion) archiveArrival = false;
-  $: if (reducedMotion && returningToWelcome) welcomeReturn.finish();
-  $: ambientPaused = readerOpen || !pageVisible;
-  $: activeSection = navigation.find((item) => item.id === section) ?? navigation[0];
-  const descriptions: Record<Section, string> = {
-    articles: '',
-    series: '',
-    graph: '',
-    code: '',
-    about: t("记录系统的内部世界。"),
-  };
-  function setSection(next: Section, preserveQuery = false) {
-    welcome = false;
-    section = next;
-    const projectName = next === "code" ? projects.find((item) => item.id === sourceProject)?.name : "";
-    const path = next === "code"
-      ? contributionUrl(sourceProject || "", sourceRecord, sourceKind, localePrefix)
-      : localePrefix + sectionPaths[next];
-    if (window.location.pathname !== path || (!preserveQuery && window.location.search) || window.location.hash) history.pushState(null, "", path);
-    document.title = `${projectName || navigation.find((item) => item.id === next)?.title} · Miao's Blog`;
-  }
+import {
+	contributionUrl,
+	resolveContributionSelection,
+} from "../../lib/contributions/navigation";
+import {
+	sectionPaths,
+	welcomePath,
+	resolveOrbitalLocation,
+	isWelcomeLocation,
+	type Section,
+} from "../../lib/content/navigation";
+import {
+	createDeferredNavigation,
+	WELCOME_RETURN_DURATION,
+} from "../../lib/content/navigation-transition";
+export let initialSection: Section = "articles";
+export let initialSeries = "";
+export let initialProject = "";
+export let localePrefix = "";
+export let notFound = false;
+export let initialWelcome = false;
+export let hasArticle = false;
+let welcome = initialWelcome;
+let archiveArrival = false;
+let welcomeArrival = false;
+let returningToWelcome = false;
+let welcomePortal: WelcomePortal;
+let hydrated = false;
+let mainElement: HTMLElement;
+const navigation: {
+	id: Section;
+	label: string;
+	icon: string;
+	kicker: string;
+	title: string;
+}[] = [
+	{
+		id: "code",
+		label: t("开源"),
+		icon: "code",
+		kicker: t("开源 / 协作"),
+		title: t("任务日志"),
+	},
+	{
+		id: "articles",
+		label: t("文章"),
+		icon: "article",
+		kicker: t("写作 / 档案"),
+		title: t("文章档案"),
+	},
+	{
+		id: "series",
+		label: t("系列"),
+		icon: "series",
+		kicker: t("系列 / 目录"),
+		title: t("探索路径"),
+	},
+	{
+		id: "graph",
+		label: t("地图"),
+		icon: "graph",
+		kicker: t("知识 / 关联"),
+		title: t("知识地图"),
+	},
+	{
+		id: "about",
+		label: t("关于"),
+		icon: "about",
+		kicker: t("作者 / {v0}", { v0: profile.name.toUpperCase() }),
+		title: t("关于我"),
+	},
+];
+let section: Section = initialSection;
+let query = "";
+let category = "all";
+let seriesFilter = initialSeries;
+let returnPath = `${localePrefix}${sectionPaths.articles}`;
+let readerTrigger: HTMLElement | null = null;
+let resetKey = 0;
+let reader: ArticleReader;
+let sourceProject = initialProject;
+let sourceRecord = "";
+let sourceKind = "all";
+let sourceDashboard = !initialProject;
+let sourceDock: SourceDock;
+let searchInput: HTMLInputElement;
+let systemReducedMotion = true;
+let effectsEnabled = true;
+let motionReady = false;
+let pageVisible = true;
+let notFoundPath = "";
+let readerOpen = false;
+let finePointer = false;
+let cameraX = 0;
+let cameraY = 0;
+let cameraFrame = 0;
+const welcomeReturn = createDeferredNavigation(
+	finishWelcomeReturn,
+	WELCOME_RETURN_DURATION,
+);
+$: reducedMotion = systemReducedMotion || !effectsEnabled;
+$: if (reducedMotion) archiveArrival = false;
+$: if (reducedMotion && returningToWelcome) welcomeReturn.finish();
+$: ambientPaused = readerOpen || !pageVisible;
+$: activeSection =
+	navigation.find((item) => item.id === section) ?? navigation[0];
+const descriptions: Record<Section, string> = {
+	articles: "",
+	series: "",
+	graph: "",
+	code: "",
+	about: t("记录系统的内部世界。"),
+};
+function setSection(next: Section, preserveQuery = false) {
+	welcome = false;
+	section = next;
+	const projectName =
+		next === "code"
+			? projects.find((item) => item.id === sourceProject)?.name
+			: "";
+	const path =
+		next === "code"
+			? contributionUrl(
+					sourceProject || "",
+					sourceRecord,
+					sourceKind,
+					localePrefix,
+				)
+			: localePrefix + sectionPaths[next];
+	if (
+		window.location.pathname !== path ||
+		(!preserveQuery && window.location.search) ||
+		window.location.hash
+	)
+		history.pushState(null, "", path);
+	document.title = `${projectName || navigation.find((item) => item.id === next)?.title} · Miao's Blog`;
+}
 
-  function sourceNavigate(project: string, record: string, kind: string) {
-    sourceProject = project;
-    sourceRecord = record;
-    sourceKind = kind;
-    const path = contributionUrl(project, record, kind, localePrefix);
-    if (window.location.pathname + window.location.search !== path) history.pushState(null, "", path);
-  }
+function sourceNavigate(project: string, record: string, kind: string) {
+	sourceProject = project;
+	sourceRecord = record;
+	sourceKind = kind;
+	const path = contributionUrl(project, record, kind, localePrefix);
+	if (window.location.pathname + window.location.search !== path)
+		history.pushState(null, "", path);
+}
 
-  function navigate(next: Section) {
-    if (next === "code") {
-      sourceProject = undefined;
-      sourceRecord = "";
-      sourceKind = "all";
-      sourceDashboard = true;
-    }
-    setSection(next);
-    if (next === "articles") resetFilters();
-  }
+function navigate(next: Section) {
+	if (next === "code") {
+		sourceProject = undefined;
+		sourceRecord = "";
+		sourceKind = "all";
+		sourceDashboard = true;
+	}
+	setSection(next);
+	if (next === "articles") resetFilters();
+}
 
-  async function enterArchive(animated = false) {
-    archiveArrival = animated && !reducedMotion;
-    navigate("code");
-    await tick();
-    window.scrollTo({ top: 0, behavior: "instant" });
-    mainElement?.focus({ preventScroll: true });
-  }
+async function enterArchive(animated = false) {
+	archiveArrival = animated && !reducedMotion;
+	navigate("code");
+	await tick();
+	window.scrollTo({ top: 0, behavior: "instant" });
+	mainElement?.focus({ preventScroll: true });
+}
 
-  function cancelWelcomeReturn() {
-    welcomeReturn.cancel();
-    returningToWelcome = false;
-    welcomeArrival = false;
-  }
+function cancelWelcomeReturn() {
+	welcomeReturn.cancel();
+	returningToWelcome = false;
+	welcomeArrival = false;
+}
 
-  async function finishWelcomeReturn() {
-    const animated = !reducedMotion;
-    const path = localePrefix + welcomePath;
-    if (window.location.pathname + window.location.search + window.location.hash !== path) history.pushState(null, "", path);
-    restoreLocation();
-    welcomeArrival = animated;
-    resetCamera();
-    await tick();
-    window.scrollTo({ top: 0, behavior: "instant" });
-    welcomePortal?.focusMain();
-  }
+async function finishWelcomeReturn() {
+	const animated = !reducedMotion;
+	const path = localePrefix + welcomePath;
+	if (
+		window.location.pathname + window.location.search + window.location.hash !==
+		path
+	)
+		history.pushState(null, "", path);
+	restoreLocation();
+	welcomeArrival = animated;
+	resetCamera();
+	await tick();
+	window.scrollTo({ top: 0, behavior: "instant" });
+	welcomePortal?.focusMain();
+}
 
-  function returnToWelcome(event: MouseEvent) {
-    if (notFound || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    if (welcome || returningToWelcome) return;
-    returningToWelcome = true;
-    archiveArrival = false;
-    welcomeReturn.start(reducedMotion);
-  }
+function returnToWelcome(event: MouseEvent) {
+	if (
+		notFound ||
+		event.button !== 0 ||
+		event.metaKey ||
+		event.ctrlKey ||
+		event.shiftKey ||
+		event.altKey
+	)
+		return;
+	event.preventDefault();
+	if (welcome || returningToWelcome) return;
+	returningToWelcome = true;
+	archiveArrival = false;
+	welcomeReturn.start(reducedMotion);
+}
 
-  async function openAuthor() {
-    navigate("about");
-    await tick();
-    window.scrollTo({ top: 0, behavior: "instant" });
-  }
+async function openAuthor() {
+	navigate("about");
+	await tick();
+	window.scrollTo({ top: 0, behavior: "instant" });
+}
 
-  function toggleMotion() {
-    effectsEnabled = !effectsEnabled;
-    try { localStorage.setItem("orbital:motion", effectsEnabled ? "on" : "off"); } catch { /* Motion still works when storage is unavailable. */ }
-  }
+function toggleMotion() {
+	effectsEnabled = !effectsEnabled;
+	try {
+		localStorage.setItem("orbital:motion", effectsEnabled ? "on" : "off");
+	} catch {
+		/* Motion still works when storage is unavailable. */
+	}
+}
 
-  function moveCamera(event: PointerEvent) {
-    if (reducedMotion || ambientPaused || !finePointer || window.innerWidth < 1000 || event.pointerType !== "mouse") return;
-    cancelAnimationFrame(cameraFrame);
-    cameraFrame = requestAnimationFrame(() => {
-      if (reducedMotion || ambientPaused || !finePointer) return;
-      cameraX = (Math.max(0, Math.min(1, event.clientX / window.innerWidth)) - .5) * -14;
-      cameraY = (Math.max(0, Math.min(1, event.clientY / window.innerHeight)) - .5) * -10;
-    });
-  }
+function moveCamera(event: PointerEvent) {
+	if (
+		reducedMotion ||
+		ambientPaused ||
+		!finePointer ||
+		window.innerWidth < 1000 ||
+		event.pointerType !== "mouse"
+	)
+		return;
+	cancelAnimationFrame(cameraFrame);
+	cameraFrame = requestAnimationFrame(() => {
+		if (reducedMotion || ambientPaused || !finePointer) return;
+		cameraX =
+			(Math.max(0, Math.min(1, event.clientX / window.innerWidth)) - 0.5) * -14;
+		cameraY =
+			(Math.max(0, Math.min(1, event.clientY / window.innerHeight)) - 0.5) *
+			-10;
+	});
+}
 
-  function resetCamera() {
-    if (typeof window === "undefined") return;
-    cancelAnimationFrame(cameraFrame);
-    cameraX = 0;
-    cameraY = 0;
-  }
+function resetCamera() {
+	if (typeof window === "undefined") return;
+	cancelAnimationFrame(cameraFrame);
+	cameraX = 0;
+	cameraY = 0;
+}
 
-  $: if (reducedMotion || !finePointer) resetCamera();
+$: if (reducedMotion || !finePointer) resetCamera();
 
-  function resetFilters() {
-    query = "";
-    category = "all";
-    seriesFilter = "";
-    resetKey++;
-  }
+function resetFilters() {
+	query = "";
+	category = "all";
+	seriesFilter = "";
+	resetKey++;
+}
 
-  function filterSeries(slug: string) {
-    section = "articles";
-    resetFilters();
-    seriesFilter = slug;
-    history.pushState(null, "", `${localePrefix}/series/${encodeURIComponent(slug)}/`);
-    document.title = `${series.find((item) => item.slug === slug)?.title} · Miao's Blog`;
-  }
+function filterSeries(slug: string) {
+	section = "articles";
+	resetFilters();
+	seriesFilter = slug;
+	history.pushState(
+		null,
+		"",
+		`${localePrefix}/series/${encodeURIComponent(slug)}/`,
+	);
+	document.title = `${series.find((item) => item.slug === slug)?.title} · Miao's Blog`;
+}
 
-  async function search(value: string, submitted = false) {
-    const fromWelcome = welcome;
-    query = value;
-    if (fromWelcome && !submitted) return;
-    if (fromWelcome || section !== "articles") {
-      category = "all";
-    }
-    seriesFilter = "";
-    setSection("articles", true);
-    storeFilters();
-    if (fromWelcome) {
-      await tick();
-      searchInput?.focus({ preventScroll: true });
-    }
-  }
+async function search(value: string, submitted = false) {
+	const fromWelcome = welcome;
+	query = value;
+	if (fromWelcome && !submitted) return;
+	if (fromWelcome || section !== "articles") {
+		category = "all";
+	}
+	seriesFilter = "";
+	setSection("articles", true);
+	storeFilters();
+	if (fromWelcome) {
+		await tick();
+		searchInput?.focus({ preventScroll: true });
+	}
+}
 
-  function openReader(post: ArchivePost, heading?: string) {
-    if (!readerOpen) {
-      returnPath = window.location.pathname + window.location.search;
-      readerTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    }
-    const path = post.url + (heading ? `#${encodeURIComponent(heading)}` : "");
-    if (window.location.pathname + window.location.hash !== path) history.pushState({ orbitalReader: true }, "", path);
-    document.title = `${post.title} · Miao's Blog`;
-    void reader.open(post, heading);
-  }
-  function readerClosed() {
-    if (history.state?.orbitalReader) history.back();
-    else {
-      history.replaceState(null, "", returnPath);
-      restoreLocation();
-    }
-    if (readerTrigger?.isConnected) readerTrigger.focus({ preventScroll: true });
-    else mainElement?.focus({ preventScroll: true });
-  }
+function openReader(post: ArchivePost, heading?: string) {
+	if (!readerOpen) {
+		returnPath = window.location.pathname + window.location.search;
+		readerTrigger =
+			document.activeElement instanceof HTMLElement
+				? document.activeElement
+				: null;
+	}
+	const path = post.url + (heading ? `#${encodeURIComponent(heading)}` : "");
+	if (window.location.pathname + window.location.hash !== path)
+		history.pushState({ orbitalReader: true }, "", path);
+	document.title = `${post.title} · Miao's Blog`;
+	void reader.open(post, heading);
+}
+function readerClosed() {
+	if (history.state?.orbitalReader) history.back();
+	else {
+		history.replaceState(null, "", returnPath);
+		restoreLocation();
+	}
+	if (readerTrigger?.isConnected) readerTrigger.focus({ preventScroll: true });
+	else mainElement?.focus({ preventScroll: true });
+}
 
-  function clearFilters() {
-    resetFilters();
-    setSection("articles");
-  }
+function clearFilters() {
+	resetFilters();
+	setSection("articles");
+}
 
-  function storeFilters() {
-    const params = new URLSearchParams();
-    if (query) params.set("q", query);
-    if (category !== "all") params.set("category", category);
-    history.replaceState(null, "", `${localePrefix}${sectionPaths.articles}${params.size ? `?${params}` : ""}`);
-  }
+function storeFilters() {
+	const params = new URLSearchParams();
+	if (query) params.set("q", query);
+	if (category !== "all") params.set("category", category);
+	history.replaceState(
+		null,
+		"",
+		`${localePrefix}${sectionPaths.articles}${params.size ? `?${params}` : ""}`,
+	);
+}
 
-  function shortcuts(event: KeyboardEvent) {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !readerOpen) {
-      event.preventDefault();
-      searchInput?.focus();
-    }
-  }
+function shortcuts(event: KeyboardEvent) {
+	if (
+		(event.ctrlKey || event.metaKey) &&
+		event.key.toLowerCase() === "k" &&
+		!readerOpen
+	) {
+		event.preventDefault();
+		searchInput?.focus();
+	}
+}
 
-  function restoreLocation() {
-      cancelWelcomeReturn();
-      welcome = !notFound && isWelcomeLocation(window.location.pathname, window.location.search, localePrefix);
-      if (welcome) {
-        welcomePortal?.cancelDeparture();
-        query = "";
-        if (readerOpen) reader.close(false);
-        document.title = t("欢迎登站 · Miao's Blog");
-        return;
-      }
-      const target = resolveOrbitalLocation(window.location.pathname, posts, localePrefix);
-      if (target.post) {
-        document.title = `${target.post.title} · Miao's Blog`;
-        let heading: string | undefined;
-        try { heading = decodeURIComponent(window.location.hash.slice(1)) || undefined; } catch { /* Ignore malformed fragments. */ }
-        void reader.open(target.post as ArchivePost, heading);
-      } else {
-        section = target.section;
-        if (section === "code") {
-          sourceProject = target.contributionProject;
-          const selection = resolveContributionSelection(window.location.search);
-          sourceRecord = selection.record;
-          sourceKind = selection.kind;
-          sourceDashboard = !sourceProject && !sourceRecord;
-        }
-        seriesFilter = target.series;
-        const params = new URLSearchParams(window.location.search);
-        query = params.get("q") || params.get("tag") || "";
-        category = params.get("category") || "all";
-        if (readerOpen) reader.close(false);
-        const projectTitle = section === "code" ? projects.find((item) => item.id === sourceProject)?.name : "";
-        const locationTitle = notFound && window.location.pathname === notFoundPath
-          ? t("页面未找到")
-          : projectTitle || series.find((item) => item.slug === seriesFilter)?.title || navigation.find((item) => item.id === section)?.title;
-        document.title = `${locationTitle} · Miao's Blog`;
-      }
-  }
+function restoreLocation() {
+	cancelWelcomeReturn();
+	welcome =
+		!notFound &&
+		isWelcomeLocation(
+			window.location.pathname,
+			window.location.search,
+			localePrefix,
+		);
+	if (welcome) {
+		welcomePortal?.cancelDeparture();
+		query = "";
+		if (readerOpen) reader.close(false);
+		document.title = t("欢迎登站 · Miao's Blog");
+		return;
+	}
+	const target = resolveOrbitalLocation(
+		window.location.pathname,
+		posts,
+		localePrefix,
+	);
+	if (target.post) {
+		document.title = `${target.post.title} · Miao's Blog`;
+		let heading: string | undefined;
+		try {
+			heading = decodeURIComponent(window.location.hash.slice(1)) || undefined;
+		} catch {
+			/* Ignore malformed fragments. */
+		}
+		void reader.open(target.post as ArchivePost, heading);
+	} else {
+		section = target.section;
+		if (section === "code") {
+			sourceProject = target.contributionProject;
+			const selection = resolveContributionSelection(window.location.search);
+			sourceRecord = selection.record;
+			sourceKind = selection.kind;
+			sourceDashboard = !sourceProject && !sourceRecord;
+		}
+		seriesFilter = target.series;
+		const params = new URLSearchParams(window.location.search);
+		query = params.get("q") || params.get("tag") || "";
+		category = params.get("category") || "all";
+		if (readerOpen) reader.close(false);
+		const projectTitle =
+			section === "code"
+				? projects.find((item) => item.id === sourceProject)?.name
+				: "";
+		const locationTitle =
+			notFound && window.location.pathname === notFoundPath
+				? t("页面未找到")
+				: projectTitle ||
+					series.find((item) => item.slug === seriesFilter)?.title ||
+					navigation.find((item) => item.id === section)?.title;
+		document.title = `${locationTitle} · Miao's Blog`;
+	}
+}
 
-  onMount(() => {
-    hydrated = true;
-    document.body.classList.add("orbital-ready");
-    if (notFound) notFoundPath = window.location.pathname;
-    restoreLocation();
-    window.addEventListener("popstate", restoreLocation);
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const updatePointer = () => { finePointer = pointer.matches; };
-    const updateMotion = () => { systemReducedMotion = media.matches; };
-    const updateVisibility = () => { pageVisible = !document.hidden; };
-    try { effectsEnabled = localStorage.getItem("orbital:motion") !== "off"; } catch { /* Use the system preference. */ }
-    updateMotion();
-    updatePointer();
-    updateVisibility();
-    motionReady = true;
-    media.addEventListener("change", updateMotion);
-    pointer.addEventListener("change", updatePointer);
-    document.addEventListener("visibilitychange", updateVisibility);
-    return () => {
-      cancelWelcomeReturn();
-      window.removeEventListener("popstate", restoreLocation);
-      media.removeEventListener("change", updateMotion);
-      pointer.removeEventListener("change", updatePointer);
-      cancelAnimationFrame(cameraFrame);
-      document.removeEventListener("visibilitychange", updateVisibility);
-      document.body.classList.remove("reader-open");
-    };
-  });
+onMount(() => {
+	hydrated = true;
+	document.body.classList.add("orbital-ready");
+	if (notFound) notFoundPath = window.location.pathname;
+	restoreLocation();
+	window.addEventListener("popstate", restoreLocation);
+	const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+	const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+	const updatePointer = () => {
+		finePointer = pointer.matches;
+	};
+	const updateMotion = () => {
+		systemReducedMotion = media.matches;
+	};
+	const updateVisibility = () => {
+		pageVisible = !document.hidden;
+	};
+	try {
+		effectsEnabled = localStorage.getItem("orbital:motion") !== "off";
+	} catch {
+		/* Use the system preference. */
+	}
+	updateMotion();
+	updatePointer();
+	updateVisibility();
+	motionReady = true;
+	media.addEventListener("change", updateMotion);
+	pointer.addEventListener("change", updatePointer);
+	document.addEventListener("visibilitychange", updateVisibility);
+	return () => {
+		cancelWelcomeReturn();
+		window.removeEventListener("popstate", restoreLocation);
+		media.removeEventListener("change", updateMotion);
+		pointer.removeEventListener("change", updatePointer);
+		cancelAnimationFrame(cameraFrame);
+		document.removeEventListener("visibilitychange", updateVisibility);
+		document.body.classList.remove("reader-open");
+	};
+});
 </script>
 
 <svelte:window onkeydown={shortcuts} onpointermove={moveCamera} onblur={resetCamera} onresize={resetCamera}/>

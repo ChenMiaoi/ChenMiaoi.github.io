@@ -4,7 +4,9 @@ import { execFileSync } from "node:child_process";
 import { readFile, writeFile, rename, rm } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-const { contributionSyncConfig: config } = await import("../src/lib/contributions/config.ts");
+const { contributionSyncConfig: config } = await import(
+	"../src/lib/contributions/config.ts"
+);
 const output = new URL(
 	"../src/data/contribution-activity.json",
 	import.meta.url,
@@ -22,9 +24,14 @@ function api(endpoint) {
 
 // Do not write the snapshot until every repository and page has succeeded.
 const records = new Map();
-const previous = activitySchema.parse(JSON.parse(await readFile(output, "utf8")));
+const previous = activitySchema.parse(
+	JSON.parse(await readFile(output, "utf8")),
+);
 for (const repository of config.repositories) {
-	for (const { relation, query } of activitySearches(repository, config.account)) {
+	for (const { relation, query } of activitySearches(
+		repository,
+		config.account,
+	)) {
 		for (let page = 1; ; page++) {
 			const result = api(
 				`search/issues?q=${encodeURIComponent(query)}&per_page=100&page=${page}`,
@@ -60,7 +67,11 @@ for (const repository of config.repositories) {
 }
 // Previously tracked PRs and issues remain available after merge or closure.
 for (const item of previous.items) {
-	if (previous.account === config.account && config.repositories.includes(item.repository) && !records.has(item.url))
+	if (
+		previous.account === config.account &&
+		config.repositories.includes(item.repository) &&
+		!records.has(item.url)
+	)
 		records.set(item.url, item);
 }
 const snapshot = {

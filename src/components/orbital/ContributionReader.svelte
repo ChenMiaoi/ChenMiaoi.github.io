@@ -1,65 +1,151 @@
 <script lang="ts">
-  import { useTranslations } from "../../features/orbital/i18n/context";
-  const { t, dateLocale } = useTranslations();
-  import { checkState, summarizeChecks } from "../../lib/contributions/checks";
-  import { checkPresentation, recordPresentation, reviewPresentation } from "../../lib/contributions/presentation";
-  import ContributionIcon from "./ContributionIcon.svelte";
-  import ContributionStatus from "./ContributionStatus.svelte";
-  import TerminalIcon from "./TerminalIcon.svelte";
-  import BrandIcon from "./BrandIcon.svelte";
-  import { contributionDiffLines } from "../../utils/contribution-diff";
-  import type { ContributionDetail, SourceRecord } from "./types";
-  import { disclosureReception } from "./interaction-motion";
+import { useTranslations } from "../../features/orbital/i18n/context";
+const { t, dateLocale } = useTranslations();
+import { checkState, summarizeChecks } from "../../lib/contributions/checks";
+import {
+	checkPresentation,
+	recordPresentation,
+	reviewPresentation,
+} from "../../lib/contributions/presentation";
+import ContributionIcon from "./ContributionIcon.svelte";
+import ContributionStatus from "./ContributionStatus.svelte";
+import TerminalIcon from "./TerminalIcon.svelte";
+import BrandIcon from "./BrandIcon.svelte";
+import { contributionDiffLines } from "../../utils/contribution-diff";
+import type { ContributionDetail, SourceRecord } from "./types";
+import { disclosureReception } from "./interaction-motion";
 
-  export let record: SourceRecord;
-  export let detail: ContributionDetail | undefined;
-  export let account = "";
-  export let reducedMotion = true;
-  $: pr = detail?.pullRequest;
-  $: ci = summarizeChecks(pr?.checks ?? []);
-  const ciLabel = (value: string) => ({ passed: t("检查通过"), failed: t("检查未通过"), pending: t("检查进行中"), neutral: t("检查已结束"), none: t("暂无检查") } as Record<string, string>)[value];
-  const checkLabel = (status: string, conclusion: string | null) => status !== "completed" ? (status === "in_progress" ? t("运行中") : t("等待运行")) : ({ success: t("通过"), failure: t("失败"), error: t("失败"), timed_out: t("超时"), cancelled: t("已取消"), skipped: t("已跳过"), neutral: t("中性结果"), action_required: t("需要处理"), stale: t("已过期"), startup_failure: t("启动失败") } as Record<string, string>)[conclusion ?? ""] ?? t("结果未知");
-  const mergeLabel = (value: string) => ({ clean: t("无合并阻碍"), unstable: t("检查尚未通过"), blocked: t("合并受阻"), behind: t("分支落后"), dirty: t("存在冲突"), draft: t("草稿待就绪"), unknown: t("计算中") } as Record<string,string>)[value] ?? t("尚未确认");
-  let copyState = "";
-  let copyAttempt = 0;
-  $: kind = record.kind === "commit" ? t("提交") : record.kind === "pr" ? "PR" : "Issue";
-  $: state = detail?.state ?? record.state ?? (record.draft ? "draft" : "open");
-  $: recordVisual = recordPresentation(record.kind, state, record.draft);
-  $: upstreamCommitUrl = record.kind === 'pr' && state === 'merged' && detail?.mergeCommitSha
-    ? record.url?.replace(/\/pull\/\d+$/, `/commit/${detail.mergeCommitSha}`) : undefined;
-  $: stateLabel = ({ open: t("进行中"), draft: t("草稿"), merged: t("已合并"), closed: t("已关闭"), commit: t("提交记录") } as Record<string, string>)[state] ?? "";
-  $: reference = detail?.sha ?? record.sha ?? String(record.number ?? record.reference);
-  const date = (value: string) => value.slice(0, 10).replaceAll("-", "/");
-  const discussionDate = (value: string) => new Intl.DateTimeFormat(dateLocale, { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(value));
-  const fullDiscussionDate = (value: string) => new Intl.DateTimeFormat(dateLocale, { timeZone: 'Asia/Shanghai', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
-  const reviewLabel = (value?: string | null) => ({ APPROVED: t("已批准"), CHANGES_REQUESTED: t("要求修改"), DISMISSED: t("评审已撤销"), COMMENTED: t("评审意见") } as Record<string, string>)[value ?? ''] ?? t("评审");
-  let discussionFilter: 'all' | 'own' | 'review' = 'all';
-  let hideBots = false;
-  let oldestFirst = false;
-  let discussionRecord: string | undefined;
-  $: if (discussionRecord !== record.url) {
-    discussionRecord = record.url;
-    discussionFilter = 'all';
-    hideBots = false;
-    oldestFirst = false;
-  }
-  $: comments = detail?.comments ?? [];
-  $: ownCount = comments.filter((comment) => comment.author === account).length;
-  $: reviewCount = comments.filter((comment) => comment.kind === 'review' || comment.path).length;
-  $: botCount = comments.filter((comment) => comment.bot).length;
-  $: visibleComments = comments.filter((comment) => (!hideBots || !comment.bot) &&
-    (discussionFilter === 'all' || (discussionFilter === 'own' ? comment.author === account : comment.kind === 'review' || comment.path)));
-  $: orderedComments = oldestFirst ? [...visibleComments].reverse() : visibleComments;
+export let record: SourceRecord;
+export let detail: ContributionDetail | undefined;
+export let account = "";
+export let reducedMotion = true;
+$: pr = detail?.pullRequest;
+$: ci = summarizeChecks(pr?.checks ?? []);
+const ciLabel = (value: string) =>
+	(
+		({
+			passed: t("检查通过"),
+			failed: t("检查未通过"),
+			pending: t("检查进行中"),
+			neutral: t("检查已结束"),
+			none: t("暂无检查"),
+		}) as Record<string, string>
+	)[value];
+const checkLabel = (status: string, conclusion: string | null) =>
+	status !== "completed"
+		? status === "in_progress"
+			? t("运行中")
+			: t("等待运行")
+		: ((
+				{
+					success: t("通过"),
+					failure: t("失败"),
+					error: t("失败"),
+					timed_out: t("超时"),
+					cancelled: t("已取消"),
+					skipped: t("已跳过"),
+					neutral: t("中性结果"),
+					action_required: t("需要处理"),
+					stale: t("已过期"),
+					startup_failure: t("启动失败"),
+				} as Record<string, string>
+			)[conclusion ?? ""] ?? t("结果未知"));
+const mergeLabel = (value: string) =>
+	(
+		({
+			clean: t("无合并阻碍"),
+			unstable: t("检查尚未通过"),
+			blocked: t("合并受阻"),
+			behind: t("分支落后"),
+			dirty: t("存在冲突"),
+			draft: t("草稿待就绪"),
+			unknown: t("计算中"),
+		}) as Record<string, string>
+	)[value] ?? t("尚未确认");
+let copyState = "";
+let copyAttempt = 0;
+$: kind =
+	record.kind === "commit" ? t("提交") : record.kind === "pr" ? "PR" : "Issue";
+$: state = detail?.state ?? record.state ?? (record.draft ? "draft" : "open");
+$: recordVisual = recordPresentation(record.kind, state, record.draft);
+$: upstreamCommitUrl =
+	record.kind === "pr" && state === "merged" && detail?.mergeCommitSha
+		? record.url?.replace(/\/pull\/\d+$/, `/commit/${detail.mergeCommitSha}`)
+		: undefined;
+$: stateLabel =
+	(
+		{
+			open: t("进行中"),
+			draft: t("草稿"),
+			merged: t("已合并"),
+			closed: t("已关闭"),
+			commit: t("提交记录"),
+		} as Record<string, string>
+	)[state] ?? "";
+$: reference =
+	detail?.sha ?? record.sha ?? String(record.number ?? record.reference);
+const date = (value: string) => value.slice(0, 10).replaceAll("-", "/");
+const discussionDate = (value: string) =>
+	new Intl.DateTimeFormat(dateLocale, {
+		timeZone: "Asia/Shanghai",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+	}).format(new Date(value));
+const fullDiscussionDate = (value: string) =>
+	new Intl.DateTimeFormat(dateLocale, {
+		timeZone: "Asia/Shanghai",
+		dateStyle: "medium",
+		timeStyle: "short",
+	}).format(new Date(value));
+const reviewLabel = (value?: string | null) =>
+	(
+		({
+			APPROVED: t("已批准"),
+			CHANGES_REQUESTED: t("要求修改"),
+			DISMISSED: t("评审已撤销"),
+			COMMENTED: t("评审意见"),
+		}) as Record<string, string>
+	)[value ?? ""] ?? t("评审");
+let discussionFilter: "all" | "own" | "review" = "all";
+let hideBots = false;
+let oldestFirst = false;
+let discussionRecord: string | undefined;
+$: if (discussionRecord !== record.url) {
+	discussionRecord = record.url;
+	discussionFilter = "all";
+	hideBots = false;
+	oldestFirst = false;
+}
+$: comments = detail?.comments ?? [];
+$: ownCount = comments.filter((comment) => comment.author === account).length;
+$: reviewCount = comments.filter(
+	(comment) => comment.kind === "review" || comment.path,
+).length;
+$: botCount = comments.filter((comment) => comment.bot).length;
+$: visibleComments = comments.filter(
+	(comment) =>
+		(!hideBots || !comment.bot) &&
+		(discussionFilter === "all" ||
+			(discussionFilter === "own"
+				? comment.author === account
+				: comment.kind === "review" || comment.path)),
+);
+$: orderedComments = oldestFirst
+	? [...visibleComments].reverse()
+	: visibleComments;
 
-  async function copyReference() {
-    const attempt = ++copyAttempt;
-    try {
-      await navigator.clipboard.writeText(reference);
-      if (attempt === copyAttempt) copyState = t("已复制");
-    } catch {
-      if (attempt === copyAttempt) copyState = t("复制失败");
-    }
-  }
+async function copyReference() {
+	const attempt = ++copyAttempt;
+	try {
+		await navigator.clipboard.writeText(reference);
+		if (attempt === copyAttempt) copyState = t("已复制");
+	} catch {
+		if (attempt === copyAttempt) copyState = t("复制失败");
+	}
+}
 </script>
 
 <article class="contribution-reader" aria-label={t("{v0}内容阅读器", { v0: kind })} use:disclosureReception={!reducedMotion}>

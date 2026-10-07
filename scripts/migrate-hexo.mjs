@@ -51,7 +51,10 @@ for (const file of readdirSync(SRC)) {
 	const body = content
 		.replace(/\r\n/g, "\n")
 		.replace(/^\s*#[^\n]*\n(\s*---+\s*\n)?/, "")
-		.replace(/^(\s*)```\s*([A-Za-z0-9+#._-]+)\s*$/gm, (_m, indent, lang) => `${indent}\`\`\`${LANG_MAP[lang] ?? lang}`)
+		.replace(
+			/^(\s*)```\s*([A-Za-z0-9+#._-]+)\s*$/gm,
+			(_m, indent, lang) => `${indent}\`\`\`${LANG_MAP[lang] ?? lang}`,
+		)
 		.replace(/^\n+/, "");
 
 	const fm = {
@@ -69,6 +72,8 @@ for (const file of readdirSync(SRC)) {
 
 	writeFileSync(`${OUT}/${file}`, matter.stringify(body, fm));
 	migrated++;
-	console.log(`${file} -> published=${fm.published} category=${fm.category}${fm.series ? ` series=${fm.series}` : ""}`);
+	console.log(
+		`${file} -> published=${fm.published} category=${fm.category}${fm.series ? ` series=${fm.series}` : ""}`,
+	);
 }
 console.log(`\n${migrated} posts migrated.`);

@@ -2,7 +2,12 @@
 import { htmlLang, type Locale } from "../../constants/locales";
 import { createTranslations, type Message } from "./i18n";
 
-interface Props { target: string; lang: Locale; label?: Message; filteredTarget?: string }
+interface Props {
+	target: string;
+	lang: Locale;
+	label?: Message;
+	filteredTarget?: string;
+}
 const { target, lang, label = "文章", filteredTarget = "" } = Astro.props;
 const { t } = createTranslations(lang);
 ---
