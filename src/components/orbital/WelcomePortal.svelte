@@ -26,7 +26,7 @@
   let arrivalActive = arriving;
   let mainElement: HTMLElement;
   const departure = createDeferredNavigation(() => onEnter(true), 680);
-  $: archiveUrl = localePrefix + sectionPaths.articles;
+  $: entryUrl = localePrefix + sectionPaths.code;
   $: if (departing && reducedMotion) departure.finish();
   $: if (reducedMotion) arrivalActive = false;
 
@@ -60,7 +60,7 @@
       <p class="portal-eyebrow"><span></span> {t("你好，探索者")} <i>/</i> {t("欢迎登站")}</p>
       <h1>{t("原天地之美")}<br/>{t("而达")}<span>{t("万物之理")}</span><b aria-hidden="true">{t("。")}</b></h1>
       <div class="portal-action-row">
-        <a class="portal-enter" href={archiveUrl} onclick={enter} aria-label={t("进入档案")}>
+        <a class="portal-enter" href={entryUrl} onclick={enter} aria-label={t("进入档案")}>
           <span class="portal-enter-index" aria-hidden="true">↗</span>
           <span><strong>{t("进入档案")}</strong></span>
           <TerminalIcon name="arrow" size={23}/>

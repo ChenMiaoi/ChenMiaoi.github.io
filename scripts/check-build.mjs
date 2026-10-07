@@ -71,7 +71,8 @@ for (const prefix of ["", "en/", "ja/", "zh_TW/"]) {
 	assert.ok(welcome.includes(`<html lang="${lang}"`), `Wrong document language: ${prefix}`);
 	assert.ok(welcome.includes(`<title>${entrance} · Miao&#39;s Blog</title>`) || welcome.includes(`<title>${entrance} · Miao's Blog</title>`), `Untranslated entrance title: ${prefix}`);
 	assert.ok(welcome.includes(`aria-label="${switchLabel}"`), `Language switch missing: ${prefix}`);
-	assert.ok(welcome.includes(`href="/${prefix}articles/"`));
+	const welcomeEntry = /<a\b[^>]*class="portal-enter"[^>]*>/.exec(welcome)?.[0];
+	assert.ok(welcomeEntry?.includes(`href="/${prefix}contribution/"`), `Welcome entry must open contributions: ${prefix}`);
 	const archive = await readFile(resolve(production, prefix, "articles/index.html"), "utf8");
 	assert.match(archive, /class="terminal-shell/);
 	assert.ok(archive.includes(`<title>${heading} · Miao&#39;s Blog</title>`) || archive.includes(`<title>${heading} · Miao's Blog</title>`), `Untranslated archive title: ${prefix}`);

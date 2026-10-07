@@ -120,7 +120,7 @@
 
   async function enterArchive(animated = false) {
     archiveArrival = animated && !reducedMotion;
-    navigate("articles");
+    navigate("code");
     await tick();
     window.scrollTo({ top: 0, behavior: "instant" });
     mainElement?.focus({ preventScroll: true });
