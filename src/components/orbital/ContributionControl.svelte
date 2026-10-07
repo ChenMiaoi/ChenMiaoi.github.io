@@ -119,17 +119,13 @@
                 {/if}
               {:else if loading}<ContributionStatus label={t("正在读取评审…")} tone="muted" icon="clock"/>
               {:else if failed}<ContributionStatus label={t("评审暂不可用")} tone="muted" icon="info"/>{/if}
-            {/if}
-          </div>
-          {#if focusedMission.kind === 'pr'}
-            <div class="focus-reference focus-health" role="group" aria-label={t("CI 与冲突检查")}>
               {#if ci}
                 <span title={t("{v0} 通过 · {v1} 未通过 · {v2} 等待 · {v3} 其他", {v0: ci.passed, v1: ci.failed, v2: ci.pending, v3: ci.neutral})}><ContributionStatus label={`CI · ${ciLabel(ci.state)}`} {...checkPresentation(ci.state)}/></span>
               {:else}<ContributionStatus label={loading ? t("正在读取 CI…") : t("CI 暂不可用")} tone="muted" icon={loading ? 'clock' : 'info'}/>{/if}
               {#if conflict === 'unavailable'}<ContributionStatus label={loading ? t("正在读取合并状态…") : t("冲突检测暂不可用")} tone="muted" icon={loading ? 'clock' : 'info'}/>
               {:else}<ContributionStatus label={conflictLabel(conflict)} {...conflictPresentation(conflict)}/>{/if}
-            </div>
-          {/if}
+            {/if}
+          </div>
           <dl class="focus-facts"><div><dt>{t("我的参与")}</dt><dd>{relation(focusedMission.relations)}</dd></div><div><dt>{t("更新于")}</dt><dd><time datetime={focusedMission.date}>{focusedMission.date.slice(0, 10)}</time></dd></div>{#if focusedDetail}<div><dt>{t("讨论记录")}</dt><dd>{focusedDetail.commentsTotal}</dd></div>{/if}</dl>
           {#if mergedCommitUrl}<div class="focus-reference"><span>{t("合并提交")}</span><a href={mergedCommitUrl} target="_blank" rel="noreferrer"><code>{focusedDetail?.mergeCommitSha?.slice(0, 10)}</code></a></div>{/if}
 
