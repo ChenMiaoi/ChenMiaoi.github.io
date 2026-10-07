@@ -9,8 +9,10 @@
   import type { ContributionActivitySnapshot, ContributionDetailsSnapshot } from "./types";
   import BrandIcon from "./BrandIcon.svelte";
   import TerminalIcon from "./TerminalIcon.svelte";
-  import { revealOnView, revealSequence } from "./motion";
+  import { revealSequence } from "./motion";
   import { selectionRail } from "./interaction-motion";
+  import { metricTransition, missionLink } from "./mission-motion";
+  import InteractionGlow from "./InteractionGlow.svelte";
   const { t } = useTranslations();
   export let projects: ContributionProject[];
   export let activity: ContributionActivitySnapshot;
@@ -40,23 +42,23 @@
   const projectLabel = (id: string, name: string) => id === "llvm-project" ? "LLVM" : name;
 </script>
 
-<section class="mission-control" aria-label={t("开源任务控制台")}>
+<section class="mission-control" data-topic={sectorId === 'all' ? 'neutral' : projectTone(sectorId)} aria-label={t("开源任务控制台")}>
   <div class="mission-crown"><span><i aria-hidden="true"></i>{t("贡献档案")}</span><span>{activity.account} <b aria-hidden="true">//</b> {t("{v0} 个项目", { v0: pad(projects.length) })}</span></div>
-  <div class="mission-metrics" aria-label={t("协作统计")} aria-live="polite" aria-atomic="true" use:revealOnView={{key: `${sectorId}|${totals.issues}|${totals.prs}|${totals.active}|${totals.commits}`, enabled: !reducedMotion, selector: 'strong'}}>
+  <div class="mission-metrics" aria-label={t("协作统计")} aria-live="polite" aria-atomic="true">
     <div class="mission-metric metric-issues">
-      <strong>{pad(totals.issues)}</strong>
+      <strong use:metricTransition={{value: totals.issues, enabled: !reducedMotion}}>{pad(totals.issues)}</strong>
       <span class="metric-label"><ContributionIcon name="issue" size={15}/><span>{t("参与 Issue")}</span></span>
     </div>
     <div class="mission-metric metric-prs">
-      <strong>{pad(totals.prs)}</strong>
+      <strong use:metricTransition={{value: totals.prs, enabled: !reducedMotion}}>{pad(totals.prs)}</strong>
       <span class="metric-label"><ContributionIcon name="pr" size={15}/><span>{t("收录 PR")}</span></span>
     </div>
     <div class="mission-metric metric-active">
-      <strong>{pad(totals.active)}</strong>
+      <strong use:metricTransition={{value: totals.active, enabled: !reducedMotion}}>{pad(totals.active)}</strong>
       <span class="metric-label"><ContributionIcon name="discussion" tone="positive" size={15}/><span>{t("当前协作")}</span></span>
     </div>
     <div class="mission-metric metric-commits">
-      <strong>{pad(totals.commits)}</strong>
+      <strong use:metricTransition={{value: totals.commits, enabled: !reducedMotion}}>{pad(totals.commits)}</strong>
       <span class="metric-label"><ContributionIcon name="commit" tone="recorded" size={15}/><span>{t("收录提交")}</span></span>
     </div>
   </div>
@@ -65,19 +67,23 @@
       <button class="mission-chapter" data-topic={projectTone(sector.project.id)} class:chapter-selected={sectorId === sector.project.id} aria-label={t("选择项目：{v0}", {v0: sector.project.name})} aria-pressed={sectorId === sector.project.id} style={`--cover-position:${coverPosition[sector.project.id] ?? '50%'}`} onclick={() => sectorId = sectorId === sector.project.id ? "all" : sector.project.id}>
         <span class="chapter-art" aria-hidden="true"></span>
         <span class="chapter-glint" aria-hidden="true"></span>
+        <span class="chapter-lock" aria-hidden="true"></span>
         <span class="chapter-number" aria-hidden="true">{pad(index + 1)}</span>
         <span class="chapter-symbol" aria-hidden="true"><BrandIcon name={sector.project.id} size={20} framed={false}/></span>
         <span class="chapter-caption"><span class="chapter-category">{chapterNames[sector.project.id] ?? t("开源")}</span><strong>{projectLabel(sector.project.id, sector.project.name)}</strong><span class="chapter-counts">{#if sector.issues}<span>{pad(sector.issues)} Issue</span>{/if}{#if sector.prs}<span>{pad(sector.prs)} PR</span>{/if}{#if sector.commits}<span>{pad(sector.commits)} {t("提交记录")}</span>{/if}</span></span>
       </button>
     {/each}
   </div>
-  <div class="mission-workspace">
+  <div class="mission-workspace" data-topic={focusedMission ? projectTone(focusedMission.projectId) : 'neutral'} use:missionLink={{key: `${sectorId}|${tab}|${focusedMission?.url ?? focusedMission?.id ?? ''}|${missions.length}`, enabled: !reducedMotion}}>
+    <svg class="mission-link" aria-hidden="true"><path pathLength="1"/></svg>
     <section class="mission-queue" aria-label={t("协作任务列表")}>
       <header class="mission-queue-heading"><div class="mission-tabs" role="group" aria-label={t("选择任务队列")} use:selectionRail={{key: tab, enabled: !reducedMotion}}><button aria-pressed={tab === 'active'} onclick={() => tab = 'active'}>{t("当前协作")} <span>{activeCount}</span></button><button aria-pressed={tab === 'archive'} onclick={() => tab = 'archive'}>{t("成果档案")}</button><span class="selection-rail" aria-hidden="true"></span></div><span>{t("{v0} 条记录", { v0: pad(missions.length) })}</span></header>
       <div class="mission-log-scroll" tabindex="0" role="region" aria-label={t("协作任务列表")} use:revealSequence={{key: `${sectorId}|${tab}|${missions.length}`, enabled: !reducedMotion, selector: '.mission-entry-body'}}>
+        <span class="mission-selection" aria-hidden="true"></span>
         {#each missions as mission (mission.url ?? mission.id)}
           {@const visual = recordPresentation(mission.kind, mission.state)}
-          <button class="mission-entry" aria-pressed={focusedMission?.url === mission.url && focusedMission?.id === mission.id} onclick={() => focusedId = mission.url ?? mission.id}>
+          <button class="mission-entry" data-feedback data-topic={projectTone(mission.projectId)} aria-pressed={focusedMission?.url === mission.url && focusedMission?.id === mission.id} onclick={() => focusedId = mission.url ?? mission.id}>
+            <InteractionGlow/>
             <span class="mission-kind" aria-hidden="true"><ContributionIcon name={visual.icon} tone={visual.tone} size={20}/></span>
             <span class="mission-entry-body"><span class="mission-entry-meta"><code>{mission.kind === 'commit' ? mission.reference.slice(0, 10) : mission.reference}</code>{#if sectorId === 'all'}<span class="mission-project" data-topic={projectTone(mission.projectId)}>{mission.projectName}</span>{:else}<ContributionStatus label={status(mission.state)} icon={visual.icon} tone={visual.tone}/>{/if}</span><strong>{mission.title}</strong></span>
             <TerminalIcon name="arrow" size={14}/>
@@ -98,7 +104,7 @@
 
         {:else}<p class="mission-briefing-empty">{t("选择项目，查看协作任务。")}</p>{/if}
       </div>
-      {#if focusedMission}<button class="mission-open" onclick={() => onOpen(focusedMission.projectId, focusedMission.id)}>{t("查看这条记录")}<TerminalIcon name="external" size={15}/></button>{/if}
+      {#if focusedMission}<button class="mission-open" data-feedback onclick={() => onOpen(focusedMission.projectId, focusedMission.id)}><InteractionGlow/>{t("查看这条记录")}<TerminalIcon name="external" size={15}/></button>{/if}
     </section>
   </div>
 </section>

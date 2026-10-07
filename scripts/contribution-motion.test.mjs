@@ -5,6 +5,7 @@ import {
 	selectionRail,
 } from "../src/components/orbital/interaction-motion.ts";
 import { surfaceFeedback } from "../src/components/orbital/surface-feedback.ts";
+import { metricTransition, missionLink } from "../src/components/orbital/mission-motion.ts";
 
 function eventTarget() {
 	const listeners = new Map();
@@ -26,7 +27,7 @@ function environment(t) {
 	const frames = new Map();
 	const observers = [];
 	let next = 0;
-	const win = { ...eventTarget(), reduced: false, fine: true };
+	const win = { ...eventTarget(), reduced: false, fine: true, innerHeight: 900 };
 	win.matchMedia = (query) => ({ matches: query.includes("prefers-reduced-motion") ? win.reduced : win.fine });
 	globalThis.window = win;
 	globalThis.requestAnimationFrame = (callback) => {
@@ -75,6 +76,141 @@ function railFixture() {
 	};
 	return { node, marker, first, second };
 }
+
+test("metric transitions keep the current accessible value and cancel obsolete motion", (t) => {
+	const env = environment(t);
+	const animations = [];
+	const node = {
+		isConnected: true, textContent: "11",
+		animate(frames, options) {
+			const animation = { frames, options, cancelled: false, cancel() { this.cancelled = true; } };
+			animations.push(animation);
+			return animation;
+		},
+	};
+	const action = metricTransition(node, { value: 11, enabled: true });
+	assert.equal(animations.length, 0);
+	node.textContent = "09";
+	action.update({ value: 9, enabled: true });
+	assert.equal(node.textContent, "09");
+	assert.equal(animations[0].options.duration, 300);
+	node.textContent = "00";
+	action.update({ value: 0, enabled: true });
+	assert.equal(animations[0].cancelled, true);
+	assert.equal(node.textContent, "00");
+	action.update({ value: 0, enabled: false });
+	assert.equal(animations[1].cancelled, true);
+	env.win.reduced = true;
+	action.update({ value: 12, enabled: true });
+	assert.equal(animations.length, 2);
+	env.win.reduced = false;
+	action.update({ value: 13, enabled: true });
+	action.destroy();
+	assert.equal(animations[2].cancelled, true);
+	node.isConnected = false;
+	action.update({ value: 14, enabled: true });
+	assert.equal(animations.length, 3);
+});
+
+function missionFixture() {
+	const animations = [];
+	const path = {
+		attributes: {}, setAttribute(key, value) { this.attributes[key] = value; },
+		getAttribute(key) { return this.attributes[key]; },
+		removeAttribute(key) { delete this.attributes[key]; },
+		animate(frames, options) {
+			const animation = { frames, options, cancelled: false, cancel() { this.cancelled = true; } };
+			animations.push(animation);
+			return animation;
+		},
+	};
+	const marker = { style: { removeProperty(key) { delete this[key]; } } };
+	const row = { bounds: { top: 230, bottom: 290, right: 600, height: 60 }, getBoundingClientRect() { return this.bounds; } };
+	const list = {
+		...eventTarget(), dataset: {}, scrollTop: 80, clientTop: 1, selected: row,
+		getBoundingClientRect: () => ({ top: 210, bottom: 400, height: 190 }),
+		querySelector() { return this.selected; },
+	};
+	const heading = { bounds: { left: 630, top: 160, bottom: 200 }, getBoundingClientRect() { return this.bounds; } };
+	const node = {
+		isConnected: true, getBoundingClientRect: () => ({ top: 160, left: 100 }),
+		querySelector(selector) { return ({ ".mission-log-scroll": list, ".mission-selection": marker, ".briefing-heading": heading, ".mission-link path": path })[selector]; },
+	};
+	return { node, row, list, marker, heading, path, animations };
+}
+
+test("mission linkage measures visible rows, keeps scrolling native and follows resize", (t) => {
+	const env = environment(t);
+	const { node, row, list, marker, heading, path, animations } = missionFixture();
+	const action = missionLink(node, { key: "first", enabled: true });
+	env.flush();
+	assert.equal(marker.style.height, "36px");
+	assert.equal(marker.style.transform, "translateY(111px)");
+	assert.equal(path.attributes.d, "M 500 100 C 515 100, 515 20, 530 20");
+	assert.equal(animations.length, 0);
+	row.bounds = { top: 280, bottom: 350, right: 600, height: 70 };
+	action.update({ key: "next", enabled: true });
+	env.flush();
+	assert.equal(marker.style.transform, "translateY(161px)");
+	assert.equal(animations.length, 1);
+	env.observers.at(-1).callback();
+	env.flush();
+	assert.equal(animations[0].cancelled, false);
+	assert.equal(list.scrollTop, 80);
+	assert.equal(row.style, undefined);
+	row.bounds = { top: 200, bottom: 270, right: 600, height: 70 };
+	list.scrollTop = 160;
+	list.emit("scroll");
+	env.flush();
+	assert.equal(marker.style.transform, "translateY(161px)");
+	assert.equal(animations[0].cancelled, true);
+	assert.equal(path.attributes.d, "M 500 80 C 515 80, 515 20, 530 20");
+	heading.bounds = { left: 100, top: 450, bottom: 490 };
+	env.win.emit("resize");
+	env.flush();
+	assert.equal(path.attributes.d, undefined);
+	assert.equal(list.dataset.missionSelectionReady, "true");
+	row.bounds.top = 410;
+	row.bounds.bottom = 480;
+	heading.bounds.left = 630;
+	env.observers.at(-1).callback();
+	env.flush();
+	assert.equal(path.attributes.d, undefined);
+	action.destroy();
+	assert.equal(list.listeners.size, 0);
+	assert.equal(env.win.listeners.size, 0);
+	assert.ok(env.observers.every(observer => observer.targets.size === 0));
+});
+
+test("rapid mission switching, empty queues, disabled motion and unmount clear stale effects", (t) => {
+	const env = environment(t);
+	const { node, list, marker, path, animations } = missionFixture();
+	const action = missionLink(node, { key: "first", enabled: true });
+	action.update({ key: "second", enabled: true });
+	action.update({ key: "third", enabled: true });
+	assert.equal(env.frames.size, 1);
+	env.flush();
+	assert.equal(animations.length, 1);
+	list.selected = null;
+	action.update({ key: "empty", enabled: true });
+	env.flush();
+	assert.equal(animations[0].cancelled, true);
+	assert.equal(list.dataset.missionSelectionReady, undefined);
+	assert.equal(path.attributes.d, undefined);
+	action.update({ key: "next", enabled: false });
+	assert.equal(env.frames.size, 0);
+	env.win.reduced = true;
+	action.update({ key: "reduced", enabled: true });
+	assert.equal(env.frames.size, 0);
+	env.win.reduced = false;
+	action.update({ key: "pending", enabled: true });
+	action.destroy();
+	env.flush();
+	assert.equal(env.frames.size, 0);
+	assert.equal(marker.style.transform, undefined);
+	assert.equal(marker.style.height, undefined);
+	assert.equal(path.attributes.d, undefined);
+});
 
 test("selection marker follows wrapped controls, scrolling and resizing without moving buttons", (t) => {
 	const env = environment(t);

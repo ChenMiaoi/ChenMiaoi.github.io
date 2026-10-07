@@ -118,3 +118,89 @@
 	.orbital-site :is(.source-mode-tabs, .mission-tabs)[data-selection-ready] > button[aria-pressed="true"] { border-bottom-color: var(--signal) !important; }
 	.selection-rail { opacity: 0 !important; }
 }
+
+/* Project locks use the same identity color as their labels and briefing. */
+.orbital-site .mission-chapter[data-topic]::before { background: var(--topic-color); }
+.orbital-site .mission-chapter[data-topic].chapter-selected {
+	border-color: color-mix(in srgb, var(--topic-color) 70%, transparent);
+	box-shadow: inset 0 0 28px color-mix(in srgb, var(--topic-color) 10%, transparent);
+}
+.orbital-site .mission-chapter[data-topic] .chapter-glint {
+	background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--topic-color) 12%, transparent), color-mix(in srgb, var(--topic-color) 22%, transparent), transparent);
+}
+.chapter-lock {
+	position: absolute;
+	inset: 8px;
+	z-index: 1;
+	color: var(--topic-color);
+	background: linear-gradient(currentColor, currentColor) top left / 18px 1px no-repeat,
+		linear-gradient(currentColor, currentColor) top left / 1px 18px no-repeat,
+		linear-gradient(currentColor, currentColor) bottom right / 18px 1px no-repeat,
+		linear-gradient(currentColor, currentColor) bottom right / 1px 18px no-repeat;
+	opacity: 0;
+	pointer-events: none;
+}
+.orbital-site .chapter-selected .chapter-lock { opacity: .85; }
+.orbital-site .chapter-selected .chapter-number { color: color-mix(in srgb, var(--topic-color) 55%, transparent); }
+.orbital-site .motion-ready:not(.motion-paused) .chapter-lock { transition: opacity 240ms, inset 320ms cubic-bezier(.16,1,.3,1); }
+.orbital-site .motion-ready:not(.motion-paused) .chapter-selected .chapter-lock { animation: chapter-acquire 340ms cubic-bezier(.16,1,.3,1); }
+@media (hover: hover) and (pointer: fine) {
+	.orbital-site .mission-chapter[data-topic]:hover {
+		border-color: color-mix(in srgb, var(--topic-color) 55%, transparent);
+		box-shadow: inset 0 0 36px color-mix(in srgb, var(--topic-color) 9%, transparent);
+	}
+	.orbital-site .mission-chapter:hover .chapter-lock { opacity: .45; }
+	.orbital-site .mission-chapter.chapter-selected:hover .chapter-lock { opacity: .85; }
+}
+@keyframes chapter-acquire {
+	from { opacity: .2; inset: 16px; }
+	to { opacity: .85; inset: 8px; }
+}
+
+.orbital-site .mission-workspace { position: relative; isolation: isolate; }
+.orbital-site .mission-log-scroll { position: relative; }
+.orbital-site .mission-focus { overflow-x: hidden; }
+.mission-selection {
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 2;
+	width: 2px;
+	background: var(--topic-color);
+	box-shadow: 0 0 8px color-mix(in srgb, var(--topic-color) 35%, transparent);
+	opacity: 0;
+	pointer-events: none;
+}
+.orbital-site .motion-ready:not(.motion-paused) [data-mission-selection-ready] > .mission-selection {
+	opacity: 1;
+	transition: transform 300ms cubic-bezier(.16,1,.3,1), height 300ms cubic-bezier(.16,1,.3,1);
+}
+.orbital-site .motion-ready:not(.motion-paused) [data-mission-selection-ready] .mission-entry[aria-pressed="true"]::before { opacity: 0; }
+.orbital-site .mission-entry[data-topic][aria-pressed="true"]::before { background: var(--topic-color); }
+.mission-link {
+	position: absolute;
+	inset: 0;
+	z-index: 3;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+	pointer-events: none;
+}
+.mission-link path {
+	fill: none;
+	stroke: var(--topic-color);
+	stroke-width: 1.5;
+	stroke-dasharray: .12 .88;
+	opacity: 0;
+	filter: drop-shadow(0 0 3px color-mix(in srgb, var(--topic-color) 40%, transparent));
+}
+.orbital-site .mission-workspace[data-topic] .briefing-reception {
+	background: linear-gradient(var(--topic-color), var(--topic-color)) top left / 34px 1px no-repeat,
+		linear-gradient(var(--topic-color), var(--topic-color)) top left / 1px 26px no-repeat,
+		linear-gradient(var(--topic-color), var(--topic-color)) bottom right / 30px 1px no-repeat;
+}
+@media (prefers-reduced-motion: reduce) {
+	.chapter-lock { animation: none !important; transition: none !important; }
+	.mission-selection, .mission-link { display: none; }
+	.orbital-site [data-mission-selection-ready] .mission-entry[aria-pressed="true"]::before { opacity: 1 !important; }
+}
