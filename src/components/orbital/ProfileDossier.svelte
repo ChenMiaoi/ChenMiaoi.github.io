@@ -48,7 +48,7 @@
     </div>
 
     <div class="identity-introduction">
-      <h2>{profile.name}<span aria-hidden="true">_</span></h2>
+      <h2>{profile.name}<span class="identity-cursor" aria-hidden="true">_</span></h2>
       <p class="identity-statement">{t("记录系统的")}<span>{t("内部世界。")}</span></p>
       {#if profile.bio}<p class="identity-bio">{profile.bio}</p>{/if}
       {#if profile.affiliations?.length}
