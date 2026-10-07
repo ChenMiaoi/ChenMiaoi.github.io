@@ -31,6 +31,7 @@
   let hoveredId = "";
   let focusedId = "";
   let viewport: HTMLDivElement;
+  let inspector: HTMLElement;
   let viewportWidth = 800;
   let viewportHeight = 540;
   let zoom = 1;
@@ -165,6 +166,20 @@
     await tick();
     const node = map.nodes.find((item) => item.id === id);
     if (node) viewport.scrollTo({ left: node.cx * zoom - viewport.clientWidth / 2, top: node.cy * zoom - viewport.clientHeight / 2, behavior: "instant" });
+    revealInspector();
+  }
+
+  async function selectNode(id: string) {
+    selectedId = id;
+    await tick();
+    revealInspector();
+  }
+
+  function revealInspector() {
+    if (!inspector) return;
+    const bounds = inspector.getBoundingClientRect();
+    if (bounds.top < 0 || bounds.bottom > window.innerHeight) inspector.scrollIntoView({ block: "nearest", behavior: "instant" });
+    inspector.focus({ preventScroll: true });
   }
 
   async function resetView() {
@@ -235,7 +250,7 @@
             {/key}
           </svg>
           {#each map.nodes as node (node.id)}
-            <button class="topology-node" data-feedback class:root-node={node.depth === 0} class:series-node={node.kind === 'series'} class:article-node={node.kind === 'post'} class:label-above={node.above} class:label-left={node.leftLabel} class:selected={selected?.id === node.id} class:on-path={activePath.has(node.id)} class:previewed={previewPath.has(node.id)} style={`left:${node.x}px;top:${node.y}px;width:${node.w}px;height:${node.h}px;--anchor-x:${node.cx-node.x}px;--anchor-y:${node.cy-node.y}px`} aria-label={t(node.kind === 'post' ? "预览：{v0}" : "查看节点：{v0}", { v0: node.title })} aria-pressed={selected?.id === node.id} title={node.title} onpointermove={(event) => { if (event.pointerType === 'mouse' && !dragging) hoveredId = node.id; }} onpointerleave={() => { if (hoveredId === node.id) hoveredId = ''; }} onfocus={() => { focusedId = node.id; hoveredId = ''; }} onblur={() => { if (focusedId === node.id) focusedId = ''; }} onclick={() => { selectedId = node.id; }}>
+            <button class="topology-node" data-feedback class:root-node={node.depth === 0} class:series-node={node.kind === 'series'} class:article-node={node.kind === 'post'} class:label-above={node.above} class:label-left={node.leftLabel} class:selected={selected?.id === node.id} class:on-path={activePath.has(node.id)} class:previewed={previewPath.has(node.id)} style={`left:${node.x}px;top:${node.y}px;width:${node.w}px;height:${node.h}px;--anchor-x:${node.cx-node.x}px;--anchor-y:${node.cy-node.y}px`} aria-label={t(node.kind === 'post' ? "预览：{v0}" : "查看节点：{v0}", { v0: node.title })} aria-pressed={selected?.id === node.id} title={node.title} onpointermove={(event) => { if (event.pointerType === 'mouse' && !dragging) hoveredId = node.id; }} onpointerleave={() => { if (hoveredId === node.id) hoveredId = ''; }} onfocus={() => { focusedId = node.id; hoveredId = ''; }} onblur={() => { if (focusedId === node.id) focusedId = ''; }} onclick={() => selectNode(node.id)}>
               <InteractionGlow/>{#if node.depth === 0}<span class="core-overline">{t("当前主题")}</span><strong>{node.label}</strong><small>{t("{v0} 篇文章", { v0: node.collection?.posts.length ?? 0 })}</small>
               {:else if node.kind === "series"}<span class="stellar-hub" aria-hidden="true"><i></i></span><span class="stellar-series-label"><strong>{node.label}</strong><small>{t("{v0} 篇文章", { v0: node.collection?.posts.length ?? 0 })}</small></span>
               {:else}<span class="topology-document-dot" aria-hidden="true">{String(node.ordinal).padStart(2, '0')}</span><span class="topology-article-title">{node.label}</span>{/if}
@@ -249,7 +264,7 @@
   </div>
 
   {#if selected}
-    <section class="topology-inspector" aria-labelledby="topology-selection-title">
+    <section class="topology-inspector" bind:this={inspector} tabindex="-1" aria-labelledby="topology-selection-title">
       <div class="topology-selection-mark" aria-hidden="true"><TerminalIcon name={selected.kind === 'post' ? 'article' : 'series'} size={24}/></div>
       {#key selected.id}<span class="inspector-acquisition" aria-hidden="true"></span><div class="topology-selection-content" in:fly={{x: reducedMotion ? 0 : 8, duration: reducedMotion ? 0 : 240}} use:revealSequence={{key: selected.id, enabled: !reducedMotion, selector: '.topology-selection-meta, h2, .topology-selection-description, .topology-selection-parent', wait: 60}}><p class="topology-selection-meta"><span>{selected.kind === 'post' ? t("文章节点") : selected.depth ? t("子系列节点") : t("主题节点")}</span><i>/</i>{selected.post?.date ?? t("{v0} 篇文章", { v0: selected.collection?.posts.length ?? 0 })}</p><h2 id="topology-selection-title">{selected.title}</h2><p class="topology-selection-description">{selected.post?.description ?? selected.collection?.description}</p><span class="topology-selection-parent">{selected.kind === 'post' ? focusedSeries?.title : selected.depth ? series.find((item) => item.slug === selected.collection?.parent)?.title : t("选择分支，探索主题下的文章。")}</span></div>{/key}
       <button class="topology-open" data-feedback onclick={() => { if (selected.post) onRead(selected.post); else if (selected.collection) onBrowse(selected.collection.slug); }}><InteractionGlow/>{selected.kind === 'post' ? t("进入阅读") : t("浏览系列")}<TerminalIcon name="external" size={20}/></button>

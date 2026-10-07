@@ -781,6 +781,10 @@
 	border-color: var(--archive-rule);
 }
 
+@media (min-width: 1000px) {
+	.topology-viewport { height: clamp(300px, calc(100svh - 400px), 610px); }
+}
+
 .orbital-site .topology-selection-description {
 	font-size: 13px;
 }
