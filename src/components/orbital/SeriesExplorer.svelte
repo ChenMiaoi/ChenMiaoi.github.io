@@ -7,6 +7,7 @@
   import InteractionGlow from "./InteractionGlow.svelte";
   import { revealSequence, revealOnView } from "./motion";
   import { sortSeriesByRecency } from "../../lib/content/series-recency";
+  import { topicTone } from "../../features/orbital/topic-colors";
   import type { ArchivePost, ArchiveSeries } from "./types";
 
   export let posts: ArchivePost[];
@@ -86,7 +87,7 @@
       </div>
       <div class="path-options" bind:this={seriesRail} use:revealSequence={{key: String(showEmpty), enabled: !reducedMotion, selector: '.path-name'}}>
         {#each roots as collection, index (collection.slug)}
-          <button class="path-option" data-feedback class:active={current?.slug === collection.slug} aria-pressed={current?.slug === collection.slug} aria-label={t("查看系列：{v0}", { v0: collection.title })} onclick={() => { selection = collection.slug; }}>
+          <button class="path-option" data-topic={topicTone(collection.slug)} data-feedback class:active={current?.slug === collection.slug} aria-pressed={current?.slug === collection.slug} aria-label={t("查看系列：{v0}", { v0: collection.title })} onclick={() => { selection = collection.slug; }}>
             <InteractionGlow/><span class="path-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
             <span class="path-name"><strong>{shortTitle(collection.title)}</strong><small>{collection.posts.length ? t("{v0} 篇文章", { v0: collection.posts.length }) : t("尚未收录")}</small></span>
             <TerminalIcon name="arrow" size={15}/>
@@ -100,7 +101,7 @@
       <section class="path-manifest" aria-labelledby="path-title">
         {#key current.slug}
           <div class="path-manifest-content" in:fly={{ x: reducedMotion ? 0 : 10, duration: reducedMotion ? 0 : 280 }} use:revealSequence={{key: current.slug, enabled: !reducedMotion, selector: '.path-hero-line, #path-title, .path-subtitle, .path-description', wait: 70}}>
-            <header class="path-hero">
+            <header class="path-hero" data-topic={topicTone(current.slug)}>
               <div class="path-hero-line"><span>{t("系列 /")} {String(currentIndex).padStart(2, "0")}</span><span>{t("{v0} 份文档", { v0: current.posts.length })}</span></div>
               <span class="path-watermark" aria-hidden="true">{String(currentIndex).padStart(2, "0")}</span>
               <h2 id="path-title">{shortTitle(current.title)}</h2>
@@ -114,7 +115,7 @@
             {#if children.length}
               <nav class="path-branch-shortcuts" aria-label={t("跳转到子系列")}>
                 {#each children as child, index}
-                  <button onclick={() => jumpToSeries(child.slug)}><span class="path-shortcut-node" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span>{shortTitle(child.title)}<small>{t("{v0} 篇文章", { v0: child.posts.length })}</small></span></button>
+                  <button data-topic={topicTone(child.slug)} onclick={() => jumpToSeries(child.slug)}><span class="path-shortcut-node" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span>{shortTitle(child.title)}<small>{t("{v0} 篇文章", { v0: child.posts.length })}</small></span></button>
                 {/each}
               </nav>
             {/if}
@@ -123,7 +124,7 @@
               <div class="path-outline-heading"><h3>{t("阅读目录")}</h3><span>{t("阅读目录")}</span></div>
               <div class="path-chapters" bind:this={chapterPane} use:revealOnView={{key: current.slug, enabled: !reducedMotion, selector: '.path-reading-list button > span:nth-of-type(2)', wait: 180}} tabindex="0" role="region" aria-label={t("{v0}的阅读目录", { v0: shortTitle(current.title) })}>
                 {#each groups as group, groupIndex (group.series.slug)}
-                  <section class="path-branch" data-series={group.series.slug} class:located={locatedSeries === group.series.slug} class:root-branch={group.depth === 0} style={`--branch-delay:${Math.min(groupIndex, 5) * 100}ms`}>
+                  <section class="path-branch" data-topic={topicTone(group.series.slug)} data-series={group.series.slug} class:located={locatedSeries === group.series.slug} class:root-branch={group.depth === 0} style={`--branch-delay:${Math.min(groupIndex, 5) * 100}ms`}>
                     <header class="path-branch-heading">
                       <span class="path-branch-node" aria-hidden="true">{String(groupIndex + 1).padStart(2, "0")}</span>
                       <div><span>{group.depth ? t("子系列") : children.length ? t("本系列文章") : t("文章")}</span><h4>{group.depth ? group.series.title : t("系列正文")}</h4></div>

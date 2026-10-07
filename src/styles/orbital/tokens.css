@@ -37,6 +37,10 @@
 	--status-pending: #e9cf79;
 	--status-neutral: #a6b3be;
 	--status-commit: #93cbd5;
+	--topic-cyan: #93cbd5;
+	--topic-violet: #c5a7f5;
+	--topic-green: #8ddbb0;
+	--topic-amber: #e9cf79;
 	--panel-cut: polygon(
 		0 18px,
 		18px 0,

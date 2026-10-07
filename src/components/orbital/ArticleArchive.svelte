@@ -5,6 +5,7 @@
   import TerminalIcon from "./TerminalIcon.svelte";
   import InteractionGlow from "./InteractionGlow.svelte";
   import { revealOnView } from "./motion";
+  import { topicTone } from "../../features/orbital/topic-colors";
   import type { ArchivePost, ArchiveSeries } from "./types";
   export let posts: ArchivePost[];
   export let series: ArchiveSeries[];
@@ -127,9 +128,9 @@
                     <InteractionGlow/>
                     <span class="dossier-lock" aria-hidden="true"></span>
                     <span class="dossier-index" aria-hidden="true">{String(filteredPosts.indexOf(post) + 1).padStart(2, "0")}</span>
-                    <span class="dossier-meta"><time class="dossier-date" datetime={post.date.replaceAll(".", "-")}>{post.date}</time><span>{selectedPost?.slug === post.slug ? t("正在预览") : post.category === 'linux' ? 'LINUX' : t("硬件")}</span></span>
+                    <span class="dossier-meta"><time class="dossier-date" datetime={post.date.replaceAll(".", "-")}>{post.date}</time><span class:dossier-category={selectedPost?.slug !== post.slug} data-topic={selectedPost?.slug === post.slug ? undefined : topicTone('', post.category)}>{selectedPost?.slug === post.slug ? t("正在预览") : post.category === 'linux' ? 'LINUX' : t("硬件")}</span></span>
                     <span class="dossier-content"><a class="dossier-title" href={post.url} onclick={(event) => readArticle(event, post)}><strong>{post.title}</strong></a><span class="dossier-description">{post.description}</span></span>
-                    <span class="dossier-series">{post.seriesTitle}</span>
+                    <span class="dossier-series" data-topic={topicTone(post.series, post.category)}>{post.seriesTitle}</span>
                     {#if selectedPost?.slug === post.slug}<p class="dossier-mobile-preview">{post.excerpt}</p>{/if}
                     <div class="dossier-actions">
                       <button class="dossier-preview" aria-label={t("预览：{v0}", { v0: post.title })} aria-pressed={selectedPost?.slug === post.slug} onclick={() => { selectedSlug = post.slug; }} onkeydown={(event) => moveSelection(event,index)}>{t("预览文章")}<TerminalIcon name="arrow" size={16}/></button>
@@ -157,7 +158,7 @@
                 {#key selectedPost.slug}
                   <div class="context-content" class:context-receiving={motionReady && !reducedMotion}>
                     <span class="context-reception" aria-hidden="true"></span>
-                    <p class="context-eyebrow">{selectedPost.seriesTitle}</p>
+                    <p class="context-eyebrow" data-topic={topicTone(selectedPost.series, selectedPost.category)}>{selectedPost.seriesTitle}</p>
                     <h2>{selectedPost.title}</h2>
                     <p class="context-meta">{selectedPost.date}<span>/</span>{selectedPost.tags.slice(0,2).join(' · ')}</p>
                     <p class="context-excerpt">{selectedPost.excerpt}</p>

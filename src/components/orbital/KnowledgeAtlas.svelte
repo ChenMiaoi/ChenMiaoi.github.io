@@ -6,6 +6,7 @@
   import { fly } from "svelte/transition";
   import TerminalIcon from "./TerminalIcon.svelte";
   import InteractionGlow from "./InteractionGlow.svelte";
+  import { topicTone } from "../../features/orbital/topic-colors";
   import type { ArchivePost, ArchiveSeries } from "./types";
 
   export let posts: ArchivePost[];
@@ -21,6 +22,7 @@
     collection?: ArchiveSeries; post?: ArchivePost; ordinal: number;
   };
   const shortTitle = (title: string) => title.split(/[：:]/)[0];
+  const nodeTone = (node: MapNode) => topicTone(node.collection?.slug ?? node.post?.series, node.post?.category);
   const seriesOrder = (a: ArchiveSeries, b: ArchiveSeries) =>
     (a.order ?? Number.POSITIVE_INFINITY) - (b.order ?? Number.POSITIVE_INFINITY) || a.title.localeCompare(b.title);
   const articleOrder = (a: ArchivePost, b: ArchivePost) =>
@@ -240,17 +242,17 @@
             {/if}
           </svg>
           <svg class="topology-lines" viewBox={`0 0 ${sceneWidth} ${map.height}`} aria-hidden="true">
-            {#each map.nodes.filter((node) => node.parent).sort((a, b) => Number(activePath.has(a.id)) - Number(activePath.has(b.id))) as node}<path class:lit={activePath.has(node.id)} d={connection(node)}/>{/each}
+            {#each map.nodes.filter((node) => node.parent).sort((a, b) => Number(activePath.has(a.id)) - Number(activePath.has(b.id))) as node}<path data-topic={nodeTone(node)} class:lit={activePath.has(node.id)} d={connection(node)}/>{/each}
             {#key selected?.id}
-              {#each map.nodes.filter((node) => node.parent && activePath.has(node.id)) as node}<path class="map-acquisition" pathLength="1" d={connection(node)} style={`--path-delay:${Math.max(0, node.depth - 1) * 100}ms`}/><path class="map-flow" pathLength="1" d={connection(node)} style={`--path-delay:${Math.max(0, node.depth - 1) * -1.1}s`}/>{/each}
-              {#each map.nodes.filter((node) => node.parent === selected?.id) as node, index}<path class="map-outbound" pathLength="1" d={connection(node)} style={`--path-delay:${index * 65}ms`}/>{/each}
+              {#each map.nodes.filter((node) => node.parent && activePath.has(node.id)) as node}<path class="map-acquisition" data-topic={nodeTone(node)} pathLength="1" d={connection(node)} style={`--path-delay:${Math.max(0, node.depth - 1) * 100}ms`}/><path class="map-flow" data-topic={nodeTone(node)} pathLength="1" d={connection(node)} style={`--path-delay:${Math.max(0, node.depth - 1) * -1.1}s`}/>{/each}
+              {#each map.nodes.filter((node) => node.parent === selected?.id) as node, index}<path class="map-outbound" data-topic={nodeTone(node)} pathLength="1" d={connection(node)} style={`--path-delay:${index * 65}ms`}/>{/each}
             {/key}
             {#key previewNode?.id}
-              {#each map.nodes.filter((node) => node.parent && previewPath.has(node.id)) as node}<path class="map-preview" pathLength="1" d={connection(node)} style={`--path-delay:${Math.max(0, node.depth - 1) * 70}ms`}/>{/each}
+              {#each map.nodes.filter((node) => node.parent && previewPath.has(node.id)) as node}<path class="map-preview" data-topic={nodeTone(node)} pathLength="1" d={connection(node)} style={`--path-delay:${Math.max(0, node.depth - 1) * 70}ms`}/>{/each}
             {/key}
           </svg>
           {#each map.nodes as node (node.id)}
-            <button class="topology-node" data-feedback class:root-node={node.depth === 0} class:series-node={node.kind === 'series'} class:article-node={node.kind === 'post'} class:label-above={node.above} class:label-left={node.leftLabel} class:selected={selected?.id === node.id} class:on-path={activePath.has(node.id)} class:previewed={previewPath.has(node.id)} style={`left:${node.x}px;top:${node.y}px;width:${node.w}px;height:${node.h}px;--anchor-x:${node.cx-node.x}px;--anchor-y:${node.cy-node.y}px`} aria-label={t(node.kind === 'post' ? "预览：{v0}" : "查看节点：{v0}", { v0: node.title })} aria-pressed={selected?.id === node.id} title={node.title} onpointermove={(event) => { if (event.pointerType === 'mouse' && !dragging) hoveredId = node.id; }} onpointerleave={() => { if (hoveredId === node.id) hoveredId = ''; }} onfocus={() => { focusedId = node.id; hoveredId = ''; }} onblur={() => { if (focusedId === node.id) focusedId = ''; }} onclick={() => selectNode(node.id)}>
+            <button class="topology-node" data-topic={nodeTone(node)} data-feedback class:root-node={node.depth === 0} class:series-node={node.kind === 'series'} class:article-node={node.kind === 'post'} class:label-above={node.above} class:label-left={node.leftLabel} class:selected={selected?.id === node.id} class:on-path={activePath.has(node.id)} class:previewed={previewPath.has(node.id)} style={`left:${node.x}px;top:${node.y}px;width:${node.w}px;height:${node.h}px;--anchor-x:${node.cx-node.x}px;--anchor-y:${node.cy-node.y}px`} aria-label={t(node.kind === 'post' ? "预览：{v0}" : "查看节点：{v0}", { v0: node.title })} aria-pressed={selected?.id === node.id} title={node.title} onpointermove={(event) => { if (event.pointerType === 'mouse' && !dragging) hoveredId = node.id; }} onpointerleave={() => { if (hoveredId === node.id) hoveredId = ''; }} onfocus={() => { focusedId = node.id; hoveredId = ''; }} onblur={() => { if (focusedId === node.id) focusedId = ''; }} onclick={() => selectNode(node.id)}>
               <InteractionGlow/>{#if node.depth === 0}<span class="core-overline">{t("当前主题")}</span><strong>{node.label}</strong><small>{t("{v0} 篇文章", { v0: node.collection?.posts.length ?? 0 })}</small>
               {:else if node.kind === "series"}<span class="stellar-hub" aria-hidden="true"><i></i></span><span class="stellar-series-label"><strong>{node.label}</strong><small>{t("{v0} 篇文章", { v0: node.collection?.posts.length ?? 0 })}</small></span>
               {:else}<span class="topology-document-dot" aria-hidden="true">{String(node.ordinal).padStart(2, '0')}</span><span class="topology-article-title">{node.label}</span>{/if}
@@ -264,9 +266,9 @@
   </div>
 
   {#if selected}
-    <section class="topology-inspector" bind:this={inspector} tabindex="-1" aria-labelledby="topology-selection-title">
+    <section class="topology-inspector" data-topic={nodeTone(selected)} bind:this={inspector} tabindex="-1" aria-labelledby="topology-selection-title">
       <div class="topology-selection-mark" aria-hidden="true"><TerminalIcon name={selected.kind === 'post' ? 'article' : 'series'} size={24}/></div>
-      {#key selected.id}<span class="inspector-acquisition" aria-hidden="true"></span><div class="topology-selection-content" in:fly={{x: reducedMotion ? 0 : 8, duration: reducedMotion ? 0 : 240}} use:revealSequence={{key: selected.id, enabled: !reducedMotion, selector: '.topology-selection-meta, h2, .topology-selection-description, .topology-selection-parent', wait: 60}}><p class="topology-selection-meta"><span>{selected.kind === 'post' ? t("文章节点") : selected.depth ? t("子系列节点") : t("主题节点")}</span><i>/</i>{selected.post?.date ?? t("{v0} 篇文章", { v0: selected.collection?.posts.length ?? 0 })}</p><h2 id="topology-selection-title">{selected.title}</h2><p class="topology-selection-description">{selected.post?.description ?? selected.collection?.description}</p><span class="topology-selection-parent">{selected.kind === 'post' ? focusedSeries?.title : selected.depth ? series.find((item) => item.slug === selected.collection?.parent)?.title : t("选择分支，探索主题下的文章。")}</span></div>{/key}
+      {#key selected.id}<span class="inspector-acquisition" aria-hidden="true"></span><div class="topology-selection-content" in:fly={{x: reducedMotion ? 0 : 8, duration: reducedMotion ? 0 : 240}} use:revealSequence={{key: selected.id, enabled: !reducedMotion, selector: '.topology-selection-meta, h2, .topology-selection-description, .topology-selection-parent', wait: 60}}><p class="topology-selection-meta"><span>{selected.kind === 'post' ? t("文章节点") : selected.depth ? t("子系列节点") : t("主题节点")}</span><i>/</i>{selected.post?.date ?? t("{v0} 篇文章", { v0: selected.collection?.posts.length ?? 0 })}</p><h2 id="topology-selection-title">{selected.title}</h2><p class="topology-selection-description">{selected.post?.description ?? selected.collection?.description}</p><span class="topology-selection-parent" data-topic={selected.kind === 'post' ? topicTone(selected.post?.series, selected.post?.category) : selected.depth ? topicTone(selected.collection?.parent) : undefined}>{selected.kind === 'post' ? focusedSeries?.title : selected.depth ? series.find((item) => item.slug === selected.collection?.parent)?.title : t("选择分支，探索主题下的文章。")}</span></div>{/key}
       <button class="topology-open" data-feedback onclick={() => { if (selected.post) onRead(selected.post); else if (selected.collection) onBrowse(selected.collection.slug); }}><InteractionGlow/>{selected.kind === 'post' ? t("进入阅读") : t("浏览系列")}<TerminalIcon name="external" size={20}/></button>
     </section>
   {/if}

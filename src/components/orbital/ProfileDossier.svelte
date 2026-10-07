@@ -74,9 +74,9 @@
   <div class="identity-lower">
     <section class="identity-fields" aria-labelledby="identity-fields-heading">
       <header class="identity-section-title"><h3 id="identity-fields-heading">{t("笔记里的方向")}</h3><span>{t("领域笔记")}</span></header>
-      <button class="identity-field" data-feedback onclick={() => onExplore("linux")}><InteractionGlow/><BrandIcon name="linux"/><span class="identity-field-copy"><strong>{t("操作系统")}</strong><small>{t("Linux · 内存与文件系统")}</small></span><TerminalIcon name="arrow" size={18}/></button>
-      <button class="identity-field" data-feedback onclick={() => onExplore("hardware")}><InteractionGlow/><BrandIcon name="chip"/><span class="identity-field-copy"><strong>{t("硬件与底层架构")}</strong><small>RISC-V · Verilog / Chisel / BSV</small></span><TerminalIcon name="arrow" size={18}/></button>
-      <button class="identity-field" data-feedback onclick={() => onNavigate("code")}><InteractionGlow/><BrandIcon name="code"/><span class="identity-field-copy"><strong>{t("开源实践")}</strong><small>Linux · LLVM · Cargo</small></span><TerminalIcon name="arrow" size={18}/></button>
+      <button class="identity-field" data-topic="linux" data-feedback onclick={() => onExplore("linux")}><InteractionGlow/><BrandIcon name="linux"/><span class="identity-field-copy"><strong>{t("操作系统")}</strong><small>{t("Linux · 内存与文件系统")}</small></span><TerminalIcon name="arrow" size={18}/></button>
+      <button class="identity-field" data-topic="hardware" data-feedback onclick={() => onExplore("hardware")}><InteractionGlow/><BrandIcon name="chip"/><span class="identity-field-copy"><strong>{t("硬件与底层架构")}</strong><small>RISC-V · Verilog / Chisel / BSV</small></span><TerminalIcon name="arrow" size={18}/></button>
+      <button class="identity-field" data-topic="opensource" data-feedback onclick={() => onNavigate("code")}><InteractionGlow/><BrandIcon name="code"/><span class="identity-field-copy"><strong>{t("开源实践")}</strong><small>Linux · LLVM · Cargo</small></span><TerminalIcon name="arrow" size={18}/></button>
     </section>
     <section class="identity-contacts" aria-labelledby="identity-contacts-heading">
       <header class="identity-section-title"><h3 id="identity-contacts-heading">{t("在其他地方")}</h3><span>{t("其他平台")}</span></header>

@@ -1,0 +1,41 @@
+/* Topic identity is shared by content, projects and profile fields. */
+.orbital-site [data-topic] { --topic-color: var(--muted); }
+.orbital-site :is([data-topic="linux"], [data-topic="verilog"]) { --topic-color: var(--topic-cyan); }
+.orbital-site :is([data-topic="hardware"], [data-topic="vfs"], [data-topic="llvm"]) { --topic-color: var(--topic-violet); }
+.orbital-site :is([data-topic="bsv"], [data-topic="erofs"], [data-topic="opensource"]) { --topic-color: var(--topic-green); }
+.orbital-site :is([data-topic="chisel"], [data-topic="cargo"]) { --topic-color: var(--topic-amber); }
+
+.orbital-site .category-tabs button[data-topic]:not(.active),
+.orbital-site .category-tabs button[data-topic] > .brand-insignia { color: var(--topic-color); }
+.orbital-site .dossier-meta > .dossier-category[data-topic] { color: var(--topic-color); }
+.orbital-site .dossier-category::before { content: ""; display: inline-block; width: 4px; height: 4px; margin-right: 7px; vertical-align: middle; background: currentColor; }
+.orbital-site :is(.dossier-series, .context-eyebrow)[data-topic] { color: var(--topic-color); }
+
+.orbital-site .topology-lines path[data-topic] { stroke: color-mix(in srgb, var(--topic-color) 35%, transparent); }
+.orbital-site .topology-lines path.lit[data-topic] { stroke: var(--topic-color); filter: drop-shadow(0 0 4px color-mix(in srgb, var(--topic-color) 25%, transparent)); }
+.orbital-site .motion-ready:not(.motion-paused) .topology-lines :is(.map-acquisition, .map-flow, .map-preview, .map-outbound)[data-topic] { stroke: var(--topic-color); filter: drop-shadow(0 0 3px color-mix(in srgb, var(--topic-color) 45%, transparent)); }
+
+.orbital-site .topology-node[data-topic] .stellar-hub::before { border-color: color-mix(in srgb, var(--topic-color) 65%, transparent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--topic-color) 5%, transparent); }
+.orbital-site .topology-node[data-topic] .stellar-hub i { background: var(--topic-color); box-shadow: 0 0 8px color-mix(in srgb, var(--topic-color) 35%, transparent); }
+.orbital-site .topology-node[data-topic] :is(.stellar-series-label strong, .core-overline) { color: var(--topic-color); }
+.orbital-site .root-node[data-topic]::before { border-color: color-mix(in srgb, var(--topic-color) 55%, transparent); box-shadow: 0 0 25px color-mix(in srgb, var(--topic-color) 7%, transparent); }
+.orbital-site .root-node[data-topic]::after { border-color: color-mix(in srgb, var(--topic-color) 20%, transparent); }
+.orbital-site .article-node[data-topic] .topology-document-dot { color: var(--topic-color); border-color: color-mix(in srgb, var(--topic-color) 55%, transparent); box-shadow: 0 0 9px color-mix(in srgb, var(--topic-color) 8%, transparent); }
+.orbital-site .article-node.selected[data-topic] .topology-document-dot { background: var(--topic-color); color: var(--ink); border-color: var(--topic-color); box-shadow: 0 0 18px color-mix(in srgb, var(--topic-color) 25%, transparent); }
+.orbital-site .article-node.selected[data-topic] .topology-document-dot::before { border-color: color-mix(in srgb, var(--topic-color) 60%, transparent); }
+.orbital-site .article-node.selected[data-topic] .topology-article-title { border-bottom-color: color-mix(in srgb, var(--topic-color) 65%, transparent); }
+.orbital-site .motion-ready:not(.motion-paused) .topology-node.previewed[data-topic] :is(.stellar-hub, .topology-document-dot) { filter: drop-shadow(0 0 8px color-mix(in srgb, var(--topic-color) 40%, transparent)); }
+
+.orbital-site .topology-inspector[data-topic]::before { background: var(--topic-color); }
+.orbital-site .topology-inspector[data-topic] :is(.topology-selection-mark, .topology-selection-parent) { color: var(--topic-color); }
+
+.orbital-site .path-option[data-topic] .path-number,
+.orbital-site .path-hero[data-topic] .path-hero-line > span:first-child,
+.orbital-site .path-branch-shortcuts button[data-topic] > span:last-child,
+.orbital-site .path-branch[data-topic] :is(.path-branch-heading h4, .path-article-number) { color: var(--topic-color); }
+.orbital-site .path-branch-shortcuts button[data-topic] .path-shortcut-node,
+.orbital-site .path-branch[data-topic] .path-branch-node { color: var(--topic-color); border-color: color-mix(in srgb, var(--topic-color) 40%, transparent); background: color-mix(in srgb, var(--topic-color) 7%, transparent); }
+
+.orbital-site .mission-chapter[data-topic] :is(.chapter-category, .chapter-symbol),
+.orbital-site :is(.mission-project, .focus-project, .chamber-address)[data-topic] { color: var(--topic-color); }
+.orbital-site :is(.project-port, .identity-field)[data-topic] > .brand-insignia { color: var(--topic-color); border-color: color-mix(in srgb, var(--topic-color) 40%, transparent); background: color-mix(in srgb, var(--topic-color) 7%, transparent); }

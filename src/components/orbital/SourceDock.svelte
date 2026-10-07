@@ -10,6 +10,7 @@
   import type { ContributionFeed } from "../../lib/contributions/types";
   import TerminalIcon from "./TerminalIcon.svelte";
   import BrandIcon from "./BrandIcon.svelte";
+  import { projectTone } from "../../features/orbital/topic-colors";
   import { revealOnView } from "./motion";
   import { selectionRail } from "./interaction-motion";
   import ContributionReader from "./ContributionReader.svelte";
@@ -186,7 +187,7 @@
   <header class="source-console-bar">
     <nav class="project-docks" aria-label={t("选择开源项目")}>
       {#each orderedProjects as item (item.id)}
-        <button class="project-port" class:active={project?.id === item.id} aria-label={t("选择项目：{v0}", { v0: item.name })} aria-pressed={project?.id === item.id} onclick={() => chooseProject(item.id)}>
+        <button class="project-port" data-topic={projectTone(item.id)} class:active={project?.id === item.id} aria-label={t("选择项目：{v0}", { v0: item.name })} aria-pressed={project?.id === item.id} onclick={() => chooseProject(item.id)}>
           <BrandIcon name={item.id} size={26}/>
           <strong>{item.name}</strong>
           <span class="port-count" aria-label={t("{v0}条记录", { v0: projectRecords(item, activity, details).length })}>{number(projectRecords(item, activity, details).length)}</span>
@@ -242,7 +243,7 @@
       <section class="patch-chamber" aria-label={t("当前贡献详情")}>
         <header class="chamber-crown">
           <span class="chamber-aperture" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="chamber-address">{repositoryPath(project.repository) || project.name}</span>
+          <span class="chamber-address" data-topic={projectTone(project.id)}>{repositoryPath(project.repository) || project.name}</span>
           <span class="chamber-position"><b>{number(Math.max(0, selectedIndex + 1))}</b><i>/</i>{number(records.length)}</span>
         </header>
         {#key `${project.id}:${selected?.id ?? 'empty'}`}

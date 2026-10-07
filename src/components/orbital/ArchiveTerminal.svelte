@@ -364,7 +364,7 @@
         {#if section === "articles"}
           <div class="category-tabs" aria-label={t("文章分类")} use:selectionRail={{key: category, enabled: motionReady && !reducedMotion}}>
             {#each [{ value: "all", label: t("全部") }, { value: "linux", label: "Linux" }, { value: "hardware", label: t("硬件设计") }] as tab}
-              <button class:active={category === tab.value} aria-pressed={category === tab.value} onclick={() => { category = tab.value; seriesFilter = ""; setSection("articles"); storeFilters(); }}>{#if tab.value !== 'all'}<BrandIcon name={tab.value === 'linux' ? 'linux' : 'chip'} size={15} framed={false}/>{/if}{tab.label}</button>
+              <button data-topic={tab.value === 'all' ? undefined : tab.value} class:active={category === tab.value} aria-pressed={category === tab.value} onclick={() => { category = tab.value; seriesFilter = ""; setSection("articles"); storeFilters(); }}>{#if tab.value !== 'all'}<BrandIcon name={tab.value === 'linux' ? 'linux' : 'chip'} size={15} framed={false}/>{/if}{tab.label}</button>
             {/each}
             <span class="selection-rail" aria-hidden="true"></span>
           </div>
