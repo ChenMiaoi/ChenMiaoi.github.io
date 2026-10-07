@@ -64,7 +64,7 @@ export function reviewPresentation(state?: string | null): Presentation {
 		case "APPROVED":
 			return { tone: "positive", icon: "check" };
 		case "CHANGES_REQUESTED":
-			return { tone: "attention", icon: "warning" };
+			return { tone: "negative", icon: "warning" };
 		case "DISMISSED":
 			return { tone: "muted", icon: "minus" };
 		default:

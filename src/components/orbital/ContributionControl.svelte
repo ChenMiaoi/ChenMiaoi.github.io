@@ -1,7 +1,8 @@
 <script lang="ts">
   import { useTranslations } from "../../features/orbital/i18n/context";
   import { contributionOverview } from "../../lib/contributions/overview";
-  import { recordPresentation } from "../../lib/contributions/presentation";
+  import { recordPresentation, reviewPresentation } from "../../lib/contributions/presentation";
+  import { resolveReviewSummary } from "../../lib/contributions/reviews";
   import { projectTone } from "../../features/orbital/topic-colors";
   import ContributionIcon from "./ContributionIcon.svelte";
   import ContributionStatus from "./ContributionStatus.svelte";
@@ -32,6 +33,7 @@
   $: missions = records.filter((record) => tab === "active" ? record.state === "open" || record.state === "draft" : ["merged", "closed", "commit"].includes(record.state));
   $: focusedMission = missions.find((mission) => (mission.url ?? mission.id) === focusedId) ?? missions[0];
   $: focusedDetail = focusedMission ? details.records.find((detail) => detail.url === focusedMission.url) : undefined;
+  $: reviewSummary = focusedMission?.kind === 'pr' ? resolveReviewSummary(focusedDetail) : undefined;
   $: mergedCommitUrl = focusedMission?.kind === 'pr' && focusedDetail?.state === 'merged' && focusedDetail.mergeCommitSha
     ? focusedMission.url?.replace(/\/pull\/\d+$/, `/commit/${focusedDetail.mergeCommitSha}`) : undefined;
   const pad = (value: number) => String(value).padStart(2, "0");
@@ -99,7 +101,20 @@
         {#if focusedMission}
           {@const visual = recordPresentation(focusedMission.kind, focusedMission.state)}
           <p class="focus-project" data-topic={projectTone(focusedMission.projectId)}><BrandIcon name={focusedMission.projectId} size={15} framed={false}/>{focusedMission.projectName}</p><h3>{focusedMission.title}</h3>
-          <div class="focus-reference"><code>{focusedMission.kind === 'commit' ? focusedMission.reference.slice(0, 10) : focusedMission.reference}</code><ContributionStatus label={status(focusedMission.state)} icon={visual.icon} tone={visual.tone}/></div>
+          <div class="focus-reference"><code>{focusedMission.kind === 'commit' ? focusedMission.reference.slice(0, 10) : focusedMission.reference}</code><ContributionStatus label={status(focusedMission.state)} icon={visual.icon} tone={visual.tone}/>
+            {#if focusedMission.kind === 'pr'}
+              {#if reviewSummary}
+                {#if reviewSummary.approved.length}<span title={t("批准：{v0}", {v0: reviewSummary.approved.join(', ')})}><ContributionStatus label={t("{v0} 人批准", {v0: reviewSummary.approved.length})} {...reviewPresentation('APPROVED')}/></span>{/if}
+                {#if reviewSummary.changesRequested.length}<span title={t("要求修改：{v0}", {v0: reviewSummary.changesRequested.join(', ')})}><ContributionStatus label={t("{v0} 人要求修改", {v0: reviewSummary.changesRequested.length})} {...reviewPresentation('CHANGES_REQUESTED')}/></span>{/if}
+                {#if !reviewSummary.approved.length && !reviewSummary.changesRequested.length}
+                  {#if ['merged', 'closed'].includes(focusedMission.state)}<ContributionStatus label={t("无批准记录")} tone="muted" icon="info"/>
+                  {:else if reviewSummary.commented.length}<ContributionStatus label={t("评审中")} tone="attention" icon="discussion"/>
+                  {:else}<ContributionStatus label={t("等待评审")} tone="attention" icon="clock"/>{/if}
+                {/if}
+              {:else if loading}<ContributionStatus label={t("正在读取评审…")} tone="muted" icon="clock"/>
+              {:else if failed}<ContributionStatus label={t("评审暂不可用")} tone="muted" icon="info"/>{/if}
+            {/if}
+          </div>
           <dl class="focus-facts"><div><dt>{t("我的参与")}</dt><dd>{relation(focusedMission.relations)}</dd></div><div><dt>{t("更新于")}</dt><dd><time datetime={focusedMission.date}>{focusedMission.date.slice(0, 10)}</time></dd></div>{#if focusedDetail}<div><dt>{t("讨论记录")}</dt><dd>{focusedDetail.commentsTotal}</dd></div>{/if}</dl>
           {#if mergedCommitUrl}<div class="focus-reference"><span>{t("合并提交")}</span><a href={mergedCommitUrl} target="_blank" rel="noreferrer"><code>{focusedDetail?.mergeCommitSha?.slice(0, 10)}</code></a></div>{/if}
 

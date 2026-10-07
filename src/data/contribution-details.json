@@ -1,5 +1,5 @@
 {
-	"syncedAt": "2026-10-06T17:42:43.555Z",
+	"syncedAt": "2026-10-07T19:36:35.577Z",
 	"activitySyncedAt": "2026-10-06T17:39:09.959Z",
 	"records": [
 		{
@@ -289,13 +289,13 @@
 		},
 		{
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:41:11.402Z",
+			"fetchedAt": "2026-10-07T19:34:57.174Z",
 			"url": "https://github.com/llvm/llvm-project/issues/229300",
 			"kind": "issue",
 			"title": "[clang] Missing diagnostic location for ext_vector_type in templates",
 			"body": "Related PR: #228863\nOriginal Issue: #225037\n\nWhile working on #225037, where using an enum as the element type of `ext_vector_type` triggers an assertion failure, we added regression tests covering template instantiation in PR #228863 and discovered an additional diagnostic location issue. This issue also reproduces without the changes from PR #228863, using a struct as the element type.\n\nFor the test case below, instantiating `Vector<S>` correctly produces an error about the invalid element type. However, the primary error diagnostic does not include a filename, line number, or column number, nor does it display the corresponding source line. In contrast, the note pointing to the template instantiation has a valid source location.\n\nReproducer (https://godbolt.org/z/rToTWfrxj):\n\n``` cc\nstruct S {};\n\ntemplate <typename T> struct Vector {\n  typedef T type __attribute__((ext_vector_type(4)));\n};\n\nVector<S> struct_vector;\n```\n\nActual output:\n\n``` txt\nerror: invalid vector element type 'S'\n<source>:7:11: note: in instantiation of template class 'Vector<S>' requested here\n    7 | Vector<S> struct_vector;\n      |           ^\n1 error generated.\n```\n\nExpected behavior:\n\nThe primary error diagnostic should include a valid source location pointing to the relevant `ext_vector_type` attribute in the template, while preserving the existing template instantiation note.\n\nRelated discussion: https://github.com/llvm/llvm-project/pull/228863#discussion_r4188767251",
 			"author": "ChenMiaoi",
-			"updatedAt": "2026-10-06T17:25:22Z",
+			"updatedAt": "2026-10-07T11:49:24Z",
 			"state": "open",
 			"files": [],
 			"stats": null,
@@ -309,11 +309,24 @@
 			"commitsComplete": true,
 			"comments": [
 				{
-					"author": "Lo3wer",
-					"url": "https://github.com/llvm/llvm-project/issues/229300#issuecomment-6021621343",
-					"body": "I'd like to work on this!",
-					"createdAt": "2026-10-06T17:20:18Z",
-					"updatedAt": "2026-10-06T17:25:22Z",
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/issues/229300#issuecomment-6037278239",
+					"body": "> Hi! I’d like to work on this issue\n\nHi! I already have a PR open for this issue: #229328. Feel free to take a look and share any suggestions or alternative approaches!",
+					"createdAt": "2026-10-07T11:49:24Z",
+					"updatedAt": "2026-10-07T11:49:24Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "Anastasia-Artemova",
+					"url": "https://github.com/llvm/llvm-project/issues/229300#issuecomment-6036656221",
+					"body": "Hi! I’d like to work on this issue",
+					"createdAt": "2026-10-07T11:08:49Z",
+					"updatedAt": "2026-10-07T11:08:49Z",
 					"kind": "comment",
 					"bot": false,
 					"reviewState": null,
@@ -374,7 +387,7 @@
 					"path": null
 				}
 			],
-			"commentsTotal": 5,
+			"commentsTotal": 6,
 			"references": [
 				{
 					"url": "https://github.com/llvm/llvm-project/pull/229328",
@@ -402,16 +415,25 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:41:23.903Z",
+				"fetchedAt": "2026-10-07T19:35:09.004Z",
 				"headSha": "2c921757d92a422130e94661617063f8b28f2aec",
 				"headRef": "ChenMiaoi:issue-196016",
 				"baseRef": "main",
-				"mergeable": null,
-				"mergeState": "unknown",
+				"mergeable": true,
+				"mergeState": "unstable",
 				"labels": [
 					"libc"
 				],
 				"requestedReviewers": [],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:35:09.004Z",
+					"approved": [],
+					"changesRequested": [],
+					"commented": [
+						"ChenMiaoi",
+						"kaladron"
+					]
+				},
 				"checks": [
 					{
 						"name": "Build and Test macOS arm64",
@@ -846,7 +868,7 @@
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:41:23.903Z",
+			"fetchedAt": "2026-10-07T19:35:09.004Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228633",
 			"kind": "pr",
 			"title": "[libc][stdlib] Avoid scanning values during environment lookup",
@@ -1053,18 +1075,96 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:41:25.444Z",
+				"fetchedAt": "2026-10-07T19:35:06.223Z",
 				"headSha": "a5d68df2927c24391ce8c4ab77570f527f804fb3",
 				"headRef": "ChenMiaoi:issue-220923",
 				"baseRef": "main",
-				"mergeable": null,
-				"mergeState": "unknown",
+				"mergeable": false,
+				"mergeState": "dirty",
 				"labels": [
 					"clang",
 					"clang:frontend"
 				],
 				"requestedReviewers": [],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:35:06.223Z",
+					"approved": [
+						"Sirraide"
+					],
+					"changesRequested": [],
+					"commented": []
+				},
 				"checks": [
+					{
+						"name": "Build and Test macOS arm64",
+						"source": "check",
+						"ref": "head",
+						"sha": "a5d68df2927c24391ce8c4ab77570f527f804fb3",
+						"status": "queued",
+						"conclusion": null,
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37462015110/job/112968978388",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Windows",
+						"source": "check",
+						"ref": "head",
+						"sha": "a5d68df2927c24391ce8c4ab77570f527f804fb3",
+						"status": "in_progress",
+						"conclusion": null,
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37462015110/job/112968898733",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Linux",
+						"source": "check",
+						"ref": "head",
+						"sha": "a5d68df2927c24391ce8c4ab77570f527f804fb3",
+						"status": "in_progress",
+						"conclusion": null,
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37462015110/job/112968898683",
+						"description": ""
+					},
+					{
+						"name": "Compute macOS Projects",
+						"source": "check",
+						"ref": "head",
+						"sha": "a5d68df2927c24391ce8c4ab77570f527f804fb3",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37462015110/job/112968898363",
+						"description": ""
+					},
+					{
+						"name": "Test documentation build",
+						"source": "check",
+						"ref": "head",
+						"sha": "a5d68df2927c24391ce8c4ab77570f527f804fb3",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37462015775/job/112968887011",
+						"description": ""
+					},
+					{
+						"name": "validate_email",
+						"source": "check",
+						"ref": "head",
+						"sha": "a5d68df2927c24391ce8c4ab77570f527f804fb3",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37462015373/job/112968886191",
+						"description": ""
+					},
+					{
+						"name": "code_formatter",
+						"source": "check",
+						"ref": "head",
+						"sha": "a5d68df2927c24391ce8c4ab77570f527f804fb3",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37462015300/job/112968884533",
+						"description": ""
+					},
 					{
 						"name": "subscriber",
 						"source": "check",
@@ -1128,13 +1228,13 @@
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:41:25.444Z",
+			"fetchedAt": "2026-10-07T19:35:06.224Z",
 			"url": "https://github.com/llvm/llvm-project/pull/229393",
 			"kind": "pr",
 			"title": "[Clang] Diagnose incompatible `weak` and `ifunc` attributes",
 			"body": "Clang previously accepted both `weak` and `ifunc` attributes on the same function, but silently ignored `weak` when emitting the IFUNC. Since `ifunc` functions must not have weak linkage, the new mutual exclusion rule diagnoses the conflict during attribute processing and redeclaration merging.\r\n\r\nUsing `#pragma weak` after an `ifunc` declaration adds an implicit `weak` attribute directly, bypassing the normal mutual exclusion checks. The pragma handler now checks attribute compatibility as well. If the pragma follows a redeclaration, the check uses the original IFUNC definition, because the redeclaration does not inherit the `ifunc` attribute.\r\n\r\nLink: https://github.com/llvm/llvm-project/issues/220923#issuecomment-5993507925\r\n\r\nFixes #220923",
 			"author": "ChenMiaoi",
-			"updatedAt": "2026-10-06T12:15:07Z",
+			"updatedAt": "2026-10-07T19:19:07Z",
 			"state": "open",
 			"files": [
 				{
@@ -1215,6 +1315,58 @@
 			"commitsComplete": true,
 			"comments": [
 				{
+					"author": "Sirraide",
+					"url": "https://github.com/llvm/llvm-project/pull/229393#pullrequestreview-5447173681",
+					"body": "LGTM",
+					"createdAt": "2026-10-07T19:19:06Z",
+					"updatedAt": "2026-10-07T19:19:06Z",
+					"kind": "review",
+					"bot": false,
+					"reviewState": "APPROVED",
+					"commitSha": "a5d68df2927c24391ce8c4ab77570f527f804fb3",
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "Sirraide",
+					"url": "https://github.com/llvm/llvm-project/pull/229393#discussion_r4210977866",
+					"body": "Can you add a test that’s the opposite of this, i.e. where the ifunc attribute is on the redeclaration?",
+					"createdAt": "2026-10-07T19:17:34Z",
+					"updatedAt": "2026-10-07T19:19:06Z",
+					"kind": "review-comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": "a5d68df2927c24391ce8c4ab77570f527f804fb3",
+					"replyToUrl": null,
+					"path": "clang/test/Sema/pragma-weak.c"
+				},
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/229393#issuecomment-6034205857",
+					"body": "I’ve clarified my use of LLMs and my contribution workflow here: https://github.com/llvm/llvm-project/pull/229612#issuecomment-6032921971.",
+					"createdAt": "2026-10-07T08:37:05Z",
+					"updatedAt": "2026-10-07T08:37:05Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ojhunt",
+					"url": "https://github.com/llvm/llvm-project/pull/229393#issuecomment-6032461152",
+					"body": "This PR doesn't appear to comply with our policy on tool-generated content,\r\nand requires additional justification for why it is valuable enough to the\r\nproject for us to review it. Please see our developer policy on\r\nAI-generated contributions: http://llvm.org/docs/AIToolPolicy.html",
+					"createdAt": "2026-10-07T06:38:23Z",
+					"updatedAt": "2026-10-07T06:38:23Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
 					"author": "llvmorg-github-actions[bot]",
 					"url": "https://github.com/llvm/llvm-project/pull/229393#issuecomment-6016008569",
 					"body": "\n<!--LLVM PR SUMMARY COMMENT-->\n\n@llvm/pr-subscribers-clang\n\nAuthor: Chen Miao (ChenMiaoi)\n\n<details>\n<summary>Changes</summary>\n\nClang previously accepted both `weak` and `ifunc` attributes on the same function, but silently ignored `weak` when emitting the IFUNC. Since `ifunc` functions must not have weak linkage, the new mutual exclusion rule diagnoses the conflict during attribute processing and redeclaration merging.\r\n\r\nUsing `#pragma weak` after an `ifunc` declaration adds an implicit `weak` attribute directly, bypassing the normal mutual exclusion checks. The pragma handler now checks attribute compatibility as well. If the pragma follows a redeclaration, the check uses the original IFUNC definition, because the redeclaration does not inherit the `ifunc` attribute.\r\n\r\nLink: https://github.com/llvm/llvm-project/issues/220923#issuecomment-5993507925\r\n\r\nFixes #<!-- -->220923\n\n---\nFull diff: https://github.com/llvm/llvm-project/pull/229393.diff\n\n\n6 Files Affected:\n\n- (modified) clang/docs/ReleaseNotes.md (+3) \n- (modified) clang/include/clang/Basic/Attr.td (+2) \n- (modified) clang/lib/Sema/SemaDecl.cpp (+20-2) \n- (modified) clang/test/Sema/attr-weak.c (+17-1) \n- (modified) clang/test/Sema/pragma-weak.c (+21) \n- (modified) clang/test/SemaCXX/attr-weak.cpp (+7) \n\n\n``````````diff\ndiff --git a/clang/docs/ReleaseNotes.md b/clang/docs/ReleaseNotes.md\nindex 7ec126a065ae5..c1b92cec96f91 100644\n--- a/clang/docs/ReleaseNotes.md\n+++ b/clang/docs/ReleaseNotes.md\n@@ -626,6 +626,9 @@ features cannot lower the translation-unit ABI level;\n \n #### Bug Fixes to Attribute Support\n \n+- Clang now diagnoses incompatible `weak` and `ifunc` attributes, including\n+  weak linkage introduced through redeclarations or `#pragma weak`. (#GH220923)\n+\n - Fixed crash (assertion) when the `alloc_align` attribute was applied to a declaration whose type has a `FunctionProtoType` but which is not itself a `FunctionDecl`, such as a function-pointer variable. (#GH122058)\n \n - Fixed a crash on `bool` vectors declared with `ext_vector_type` and more than\ndiff --git a/clang/include/clang/Basic/Attr.td b/clang/include/clang/Basic/Attr.td\nindex 4ef0bd2b5ca7c..db85029682cf8 100644\n--- a/clang/include/clang/Basic/Attr.td\n+++ b/clang/include/clang/Basic/Attr.td\n@@ -4042,6 +4042,8 @@ def Weak : InheritableAttr {\n   let SimpleHandler = 1;\n }\n \n+def : MutualExclusions<[IFunc, Weak]>;\n+\n def WeakImport : InheritableAttr {\n   let Spellings = [Clang<\"weak_import\">];\n   let Documentation = [Undocumented];\ndiff --git a/clang/lib/Sema/SemaDecl.cpp b/clang/lib/Sema/SemaDecl.cpp\nindex 094601a58d508..10633a0c266ae 100644\n--- a/clang/lib/Sema/SemaDecl.cpp\n+++ b/clang/lib/Sema/SemaDecl.cpp\n@@ -7167,12 +7167,27 @@ void Sema::deduceOpenCLAddressSpace(VarDecl *Var) {\n   Var->assignAddressSpace(Context, ImplAS);\n }\n \n+static bool checkWeakAttrCompatibility(Sema &S, const NamedDecl &ND,\n+                                       const WeakAttr &Attr) {\n+  const NamedDecl *D = &ND;\n+  // IFuncAttr is not inherited, so a redeclaration may need to check the\n+  // attributes on the definition instead.\n+  if (const auto *FD = dyn_cast<FunctionDecl>(&ND))\n+    if (const FunctionDecl *Def = FD->getDefinition())\n+      D = Def;\n+  return DiagnoseMutualExclusions(S, D, &Attr);\n+}\n+\n static void checkWeakAttr(Sema &S, NamedDecl &ND) {\n   // 'weak' only applies to declarations with external linkage.\n   if (WeakAttr *Attr = ND.getAttr<WeakAttr>()) {\n     if (!ND.isExternallyVisible()) {\n       S.Diag(Attr->getLocation(), diag::err_attribute_weak_static);\n       ND.dropAttr<WeakAttr>();\n+    } else if (!checkWeakAttrCompatibility(S, ND, *Attr)) {\n+      // A forward #pragma weak adds the attribute without checking mutual\n+      // exclusions during attribute processing.\n+      ND.dropAttr<WeakAttr>();\n     }\n   }\n }\n@@ -21435,10 +21450,13 @@ void Sema::ActOnPragmaRedefineExtname(IdentifierInfo* Name,\n void Sema::ActOnPragmaWeakID(IdentifierInfo* Name,\n                              SourceLocation PragmaLoc,\n                              SourceLocation NameLoc) {\n-  Decl *PrevDecl = LookupSingleName(TUScope, Name, NameLoc, LookupOrdinaryName);\n+  NamedDecl *PrevDecl =\n+      LookupSingleName(TUScope, Name, NameLoc, LookupOrdinaryName);\n \n   if (PrevDecl) {\n-    PrevDecl->addAttr(WeakAttr::CreateImplicit(Context, PragmaLoc));\n+    auto *Attr = WeakAttr::CreateImplicit(Context, PragmaLoc);\n+    if (checkWeakAttrCompatibility(*this, *PrevDecl, *Attr))\n+      PrevDecl->addAttr(Attr);\n   } else {\n     (void)WeakUndeclaredIdentifiers[Name].insert(WeakInfo(nullptr, NameLoc));\n   }\ndiff --git a/clang/test/Sema/attr-weak.c b/clang/test/Sema/attr-weak.c\nindex f6482109bc9f6..8f6c632028f2d 100644\n--- a/clang/test/Sema/attr-weak.c\n+++ b/clang/test/Sema/attr-weak.c\n@@ -1,4 +1,4 @@\n-// RUN: %clang_cc1 -verify -fsyntax-only %s\n+// RUN: %clang_cc1 -triple x86_64-pc-linux-gnu -verify -fsyntax-only %s\n \n extern int f0(void) __attribute__((weak));\n extern int g0 __attribute__((weak));\n@@ -28,3 +28,19 @@ extern int pr14946_x  __attribute__((weak)); // expected-error {{weak declaratio\n \n static void pr14946_f(void);\n void pr14946_f(void) __attribute__((weak)); // expected-error {{weak declaration cannot have internal linkage}}\n+\n+// An ifunc declaration is valid on its own, but cannot also be weak.\n+void *resolver(void) { return 0; }\n+void ifunc_function(void) __attribute__((ifunc(\"resolver\")));\n+void ifunc_weak(void) __attribute__((ifunc(\"resolver\"), weak));\n+// expected-error@-1 {{'weak' and 'ifunc' attributes are not compatible}}\n+// expected-note@-2 {{conflicting attribute is here}}\n+\n+// A weak attribute inherited from an earlier declaration also conflicts.\n+void inherited_weak(void) __attribute__((weak)); // expected-note {{conflicting attribute is here}}\n+void inherited_weak(void) __attribute__((ifunc(\"resolver\")));\n+// expected-error@-1 {{'ifunc' and 'weak' attributes are not compatible}}\n+\n+// Adding weak after an ifunc definition is already diagnosed and ignored.\n+void late_weak(void) __attribute__((ifunc(\"resolver\"))); // expected-note {{previous definition is here}}\n+void late_weak(void) __attribute__((weak)); // expected-warning {{attribute declaration must precede definition}}\ndiff --git a/clang/test/Sema/pragma-weak.c b/clang/test/Sema/pragma-weak.c\nindex c14125eac9f7c..56a2f44af109c 100644\n--- a/clang/test/Sema/pragma-weak.c\n+++ b/clang/test/Sema/pragma-weak.c\n@@ -9,3 +9,24 @@ void __a3(void) __attribute((noinline));\n #pragma weak a3 = __a3 // expected-note {{previous definition}}\n void a3(void) __attribute((alias(\"__a3\"))); // expected-error {{redefinition of 'a3'}}\n void __a3(void) {}\n+\n+void *resolver(void) { return 0; }\n+\n+// Pragma weak can be applied before or after the ifunc declaration.\n+#pragma weak pragma_before // expected-note {{conflicting attribute is here}}\n+void pragma_before(void) __attribute__((ifunc(\"resolver\")));\n+// expected-error@-1 {{'ifunc' and 'weak' attributes are not compatible}}\n+\n+void pragma_after(void) __attribute__((ifunc(\"resolver\")));\n+// expected-error@-1 {{'ifunc' and 'weak' attributes are not compatible}}\n+#pragma weak pragma_after // expected-note {{conflicting attribute is here}}\n+\n+// The ifunc attribute is not inherited by later declarations.\n+void pragma_after_redecl(void) __attribute__((ifunc(\"resolver\")));\n+// expected-error@-1 {{'ifunc' and 'weak' attributes are not compatible}}\n+void pragma_after_redecl(void);\n+#pragma weak pragma_after_redecl // expected-note {{conflicting attribute is here}}\n+\n+// A weak alias of an ifunc does not make the ifunc itself weak.\n+#pragma weak pragma_alias = ifunc_alias_target\n+void ifunc_alias_target(void) __attribute__((ifunc(\"resolver\")));\ndiff --git a/clang/test/SemaCXX/attr-weak.cpp b/clang/test/SemaCXX/attr-weak.cpp\nindex c6272ef5786ef..ebca563efc30f 100644\n--- a/clang/test/SemaCXX/attr-weak.cpp\n+++ b/clang/test/SemaCXX/attr-weak.cpp\n@@ -63,3 +63,10 @@ extern int g0 __attribute__((weak_import));\n \n extern \"C\" int g1 = 0; // expected-note {{previous definition is here}}\n extern int g1 __attribute__((weak_import)); // expected-warning {{attribute declaration must precede definition}}\n+\n+extern \"C\" void *resolver() { return nullptr; }\n+\n+// Weak and ifunc attributes are incompatible with C++11 attribute syntax.\n+[[gnu::weak, gnu::ifunc(\"resolver\")]] void weak_ifunc();\n+// expected-error@-1 {{'gnu::ifunc' and 'gnu::weak' attributes are not compatible}}\n+// expected-note@-2 {{conflicting attribute is here}}\n\n``````````\n\n</details>\n",
@@ -1241,7 +1393,7 @@
 					"path": null
 				}
 			],
-			"commentsTotal": 2,
+			"commentsTotal": 6,
 			"references": [
 				{
 					"url": "https://github.com/llvm/llvm-project/issues/220923",
@@ -1255,13 +1407,13 @@
 		},
 		{
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:41:30.209Z",
+			"fetchedAt": "2026-10-07T19:35:12.837Z",
 			"url": "https://github.com/llvm/llvm-project/issues/195276",
 			"kind": "issue",
 			"title": "[libc] Request for Annex K via `__STDC_WANT_LIB_EXT1__` doesn't work as expected",
 			"body": "Source code:\n```c\n#include <stdio.h>\n#define __STDC_WANT_LIB_EXT1__ 1\n#include <string.h>\n\nint foo() {\n  return strnlen_s(\"abc\", 2);\n}\n```\nCompile with:\n`clang -c a.c`\n\nWe get the error:\n```\na.c:6:10: error: call to undeclared function 'strnlen_s'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n    6 |   return strnlen_s(\"abc\", 2);\n      |          ^\n```\n\nIf we move the line `#define __STDC_WANT_LIB_EXT1__ 1` before `#include <stdio.h>`, it works as expected.\n\n**Analysis**\n\nI believe this issue is caused by the header inclusion guard in `llvm-libc-macros/annex-k-macros.h`.\n\nThe inclusion of `stdio.h` implies a recursive inclusion of `annex-k-macros.h`. But at that point, the `__STDC_WANT_LIB_EXT1__` is not yet defined, therefore the macro who controls the availability of Annex K functionality, `LIBC_HAS_ANNEX_K`, is not defined.\n\nBy the time `__STDC_WANT_LIB_EXT1__` is defined and `string.h` is included, the recursive inclusion of `annex-k-macros.h` (by the second time now) is stopped at the header inclusion guard, hence `LIBC_HAS_ANNEX_K` is again not defined. As a result, the declaration of `strnlen_s` is never brought in.\n\nFound by @simpal01 ",
 			"author": "vhscampos",
-			"updatedAt": "2026-10-06T08:21:16Z",
+			"updatedAt": "2026-10-07T10:24:58Z",
 			"state": "open",
 			"files": [],
 			"stats": null,
@@ -1274,6 +1426,32 @@
 			"commitsTotal": 0,
 			"commitsComplete": true,
 			"comments": [
+				{
+					"author": "llvmorg-github-actions[bot]",
+					"url": "https://github.com/llvm/llvm-project/issues/195276#issuecomment-6035968747",
+					"body": "\n@llvm/issue-subscribers-good-first-issue\n\nAuthor: Victor Campos (vhscampos)\n\n<details>\nSource code:\n```c\n#include &lt;stdio.h&gt;\n#define __STDC_WANT_LIB_EXT1__ 1\n#include &lt;string.h&gt;\n\nint foo() {\n  return strnlen_s(\"abc\", 2);\n}\n```\nCompile with:\n`clang -c a.c`\n\nWe get the error:\n```\na.c:6:10: error: call to undeclared function 'strnlen_s'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n    6 |   return strnlen_s(\"abc\", 2);\n      |          ^\n```\n\nIf we move the line `#define __STDC_WANT_LIB_EXT1__ 1` before `#include &lt;stdio.h&gt;`, it works as expected.\n\n**Analysis**\n\nI believe this issue is caused by the header inclusion guard in `llvm-libc-macros/annex-k-macros.h`.\n\nThe inclusion of `stdio.h` implies a recursive inclusion of `annex-k-macros.h`. But at that point, the `__STDC_WANT_LIB_EXT1__` is not yet defined, therefore the macro who controls the availability of Annex K functionality, `LIBC_HAS_ANNEX_K`, is not defined.\n\nBy the time `__STDC_WANT_LIB_EXT1__` is defined and `string.h` is included, the recursive inclusion of `annex-k-macros.h` (by the second time now) is stopped at the header inclusion guard, hence `LIBC_HAS_ANNEX_K` is again not defined. As a result, the declaration of `strnlen_s` is never brought in.\n\nFound by @<!-- -->simpal01 \n</details>\n",
+					"createdAt": "2026-10-07T10:24:58Z",
+					"updatedAt": "2026-10-07T10:24:58Z",
+					"kind": "comment",
+					"bot": true,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "llvmorg-github-actions[bot]",
+					"url": "https://github.com/llvm/llvm-project/issues/195276#issuecomment-6035968305",
+					"body": "\nHi!\n\nThis issue may be a good introductory issue for people new to working on LLVM. If you would like to work on this issue, your first steps are:\n\n1. Check that no other contributor is working on this issue. If someone is assigned to the issue or claimed to be working on it, ping the person. After one week without a response, the assignee may be changed.\n1. Leave a comment indicating that you are working on the issue, or just create a [pull request](https://github.com/llvm/llvm-project/pulls) after following the steps below. [Mention](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) this issue in the description of the pull request.\n1. Fix the issue locally. Be aware that [LLVM's AI policy](https://llvm.org/docs/AIToolPolicy.html#details) forbids the use of AI tools to fix good first issues since it squanders a learning opportunity. Using LLMs to search and learn is permitted, since the goal is learning.\n1. [Run the test suite](https://llvm.org/docs/TestingGuide.html#unit-and-regression-tests) locally. Remember that the subdirectories under `test/` create fine-grained testing targets, so you can e.g. use `make check-clang-ast` to only run Clang's AST tests.\n1. Create a Git commit.\n1. Run [`git clang-format HEAD~1`](https://clang.llvm.org/docs/ClangFormat.html#git-integration) to format your changes.\n1. Open a [pull request](https://github.com/llvm/llvm-project/pulls) to the [upstream repository](https://github.com/llvm/llvm-project) on GitHub. Detailed instructions can be found [in GitHub's documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request). [Mention](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) this issue in the description of the pull request.\n\nIf you have any further questions about this issue, don't hesitate to ask via a comment in the thread below.\n\n",
+					"createdAt": "2026-10-07T10:24:56Z",
+					"updatedAt": "2026-10-07T10:24:56Z",
+					"kind": "comment",
+					"bot": true,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
 				{
 					"author": "vhscampos",
 					"url": "https://github.com/llvm/llvm-project/issues/195276#issuecomment-6012306489",
@@ -1327,12 +1505,19 @@
 					"path": null
 				}
 			],
-			"commentsTotal": 4,
+			"commentsTotal": 6,
 			"references": [
 				{
 					"url": "https://github.com/llvm/llvm-project/pull/196654",
 					"number": 196654,
 					"title": "[libc] Fix Annex K include order",
+					"kind": "pr",
+					"relation": "cross-reference"
+				},
+				{
+					"url": "https://github.com/llvm/llvm-project/pull/229587",
+					"number": 229587,
+					"title": "[libc] Fix missing Annex K declarations caused by header include order",
 					"kind": "pr",
 					"relation": "cross-reference"
 				}
@@ -1341,7 +1526,7 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:41:33.457Z",
+				"fetchedAt": "2026-10-07T19:35:17.274Z",
 				"headSha": "d5b5b9d45dd38a6731021bb1c8fa53de043b23be",
 				"headRef": "ChenMiaoi:issue-229300",
 				"baseRef": "main",
@@ -1352,7 +1537,85 @@
 					"clang:frontend"
 				],
 				"requestedReviewers": [],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:35:17.274Z",
+					"approved": [],
+					"changesRequested": [
+						"Sirraide"
+					],
+					"commented": []
+				},
 				"checks": [
+					{
+						"name": "Build and Test macOS arm64",
+						"source": "check",
+						"ref": "head",
+						"sha": "d5b5b9d45dd38a6731021bb1c8fa53de043b23be",
+						"status": "queued",
+						"conclusion": null,
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37430559213/job/112937788750",
+						"description": ""
+					},
+					{
+						"name": "validate_email",
+						"source": "check",
+						"ref": "head",
+						"sha": "d5b5b9d45dd38a6731021bb1c8fa53de043b23be",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37430558994/job/112937693705",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Linux",
+						"source": "check",
+						"ref": "head",
+						"sha": "d5b5b9d45dd38a6731021bb1c8fa53de043b23be",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37430559213/job/112937692187",
+						"description": ""
+					},
+					{
+						"name": "Compute macOS Projects",
+						"source": "check",
+						"ref": "head",
+						"sha": "d5b5b9d45dd38a6731021bb1c8fa53de043b23be",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37430559213/job/112937692170",
+						"description": ""
+					},
+					{
+						"name": "Test documentation build",
+						"source": "check",
+						"ref": "head",
+						"sha": "d5b5b9d45dd38a6731021bb1c8fa53de043b23be",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37430558942/job/112937691966",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Windows",
+						"source": "check",
+						"ref": "head",
+						"sha": "d5b5b9d45dd38a6731021bb1c8fa53de043b23be",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37430559213/job/112937691879",
+						"description": ""
+					},
+					{
+						"name": "code_formatter",
+						"source": "check",
+						"ref": "head",
+						"sha": "d5b5b9d45dd38a6731021bb1c8fa53de043b23be",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37430558937/job/112937682500",
+						"description": ""
+					},
 					{
 						"name": "subscriber",
 						"source": "check",
@@ -1416,13 +1679,13 @@
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:41:33.457Z",
+			"fetchedAt": "2026-10-07T19:35:17.274Z",
 			"url": "https://github.com/llvm/llvm-project/pull/229328",
 			"kind": "pr",
 			"title": "[clang] Preserve ext_vector_type locations during template substitution",
 			"body": "Instantiating a fixed-length `ext_vector_type` with a dependent element type could emit an invalid-element diagnostic without a source location.\r\n\r\nFor example:\r\n\r\n```cc\r\nstruct S {};\r\n\r\ntemplate <typename T> struct Vector {\r\n  typedef T type __attribute__((ext_vector_type(4)));\r\n};\r\n\r\nVector<S> v;\r\n```\r\n\r\nBefore:\r\n\r\n```txt\r\nerror: invalid vector element type 'S'\r\nrepro.cc:7:11: note: in instantiation of template class 'Vector<S>' requested here\r\n    7 | Vector<S> v;\r\n      |           ^\r\n1 error generated.\r\n```\r\n\r\nAfter:\r\n\r\n```txt\r\nrepro.cc:4:33: error: invalid vector element type 'S'\r\n    4 |   typedef T type __attribute__((ext_vector_type(4)));\r\n      |                                 ^\r\nrepro.cc:7:11: note: in instantiation of template class 'Vector<S>' requested here\r\n    7 | Vector<S> v;\r\n      |           ^\r\n1 error generated.\r\n```\r\n\r\nRecord the attribute location in `ExtVectorTypeLoc` and preserve it through substitution, including when a dependent-sized vector becomes fixed-sized. Use the original type source information when substituting alias templates, while retaining the existing path for underlying types adjusted by `mode`.\r\n\r\nFixes #229300",
 			"author": "ChenMiaoi",
-			"updatedAt": "2026-10-06T07:33:50Z",
+			"updatedAt": "2026-10-07T18:20:00Z",
 			"state": "open",
 			"files": [
 				{
@@ -1494,6 +1757,71 @@
 			"commitsComplete": true,
 			"comments": [
 				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/229328#issuecomment-6044098439",
+					"body": "> I don’t think this is the right approach here.\r\n> \r\n> In `TreeTransform::TransformExtVectorType`, there is a FIXME where we pass an empty source location. Can’t we just get a source location (e.g. that of the element type) from the `ExtVectorTypeLoc` parameter of that function and pass it as the source location there? That’s what we do for matrix types, and I feel like that should fix this.\r\n> \r\n> Yes, that source location is _supposed_ to be the attribute location and not that of the element type, but _a_ source location that points to the type is better than none at all. The more proper fix for this would probably be to extend `ExtVectorTypeLoc` to store the attribute location (similarly to what we’re doing for matrix types), but that would probably require more effort. If you want to do that though, go ahead\r\n\r\nThanks for the suggestion. I’ll look at how matrix types handle this and rework the patch accordingly.",
+					"createdAt": "2026-10-07T18:20:00Z",
+					"updatedAt": "2026-10-07T18:20:00Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "Sirraide",
+					"url": "https://github.com/llvm/llvm-project/pull/229328#pullrequestreview-5446411565",
+					"body": "I don’t think this is the right approach here.\n\nIn `TreeTransform::TransformExtVectorType`, there is a FIXME where we pass an empty source location. Can’t we just get a source location (e.g. that of the element type) from the `ExtVectorTypeLoc` parameter of that function and pass it as the source location there? That’s what we do for matrix types, and I feel like that should fix this.\n\nYes, that source location is _supposed_ to be the attribute location and not that of the element type, but _a_ source location that points to the type is better than none at all. The more proper fix for this would probably be to extend `ExtVectorTypeLoc` to store the attribute location (similarly to what we’re doing for matrix types), but that would probably require more effort. If you want to do that though, go ahead",
+					"createdAt": "2026-10-07T18:10:29Z",
+					"updatedAt": "2026-10-07T18:10:29Z",
+					"kind": "review",
+					"bot": false,
+					"reviewState": "CHANGES_REQUESTED",
+					"commitSha": "d5b5b9d45dd38a6731021bb1c8fa53de043b23be",
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/229328#issuecomment-6034262100",
+					"body": "I’ve clarified my use of LLMs and my contribution workflow here: https://github.com/llvm/llvm-project/pull/229612#issuecomment-6032921971.",
+					"createdAt": "2026-10-07T08:40:44Z",
+					"updatedAt": "2026-10-07T08:40:44Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ojhunt",
+					"url": "https://github.com/llvm/llvm-project/pull/229328#issuecomment-6032463432",
+					"body": "This PR doesn't appear to comply with our policy on tool-generated content,\r\nand requires additional justification for why it is valuable enough to the\r\nproject for us to review it. Please see our developer policy on\r\nAI-generated contributions: http://llvm.org/docs/AIToolPolicy.html",
+					"createdAt": "2026-10-07T06:38:34Z",
+					"updatedAt": "2026-10-07T06:38:34Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ojhunt",
+					"url": "https://github.com/llvm/llvm-project/pull/229328#issuecomment-6032290357",
+					"body": "Did you use an LLM for this (or the other PRs you've filed in the last day)?",
+					"createdAt": "2026-10-07T06:24:45Z",
+					"updatedAt": "2026-10-07T06:24:45Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
 					"author": "llvmorg-github-actions[bot]",
 					"url": "https://github.com/llvm/llvm-project/pull/229328#issuecomment-6011600554",
 					"body": "\n<!--LLVM PR SUMMARY COMMENT-->\n\n@llvm/pr-subscribers-clang\n\nAuthor: Chen Miao (ChenMiaoi)\n\n<details>\n<summary>Changes</summary>\n\nInstantiating a fixed-length `ext_vector_type` with a dependent element type could emit an invalid-element diagnostic without a source location.\r\n\r\nFor example:\r\n\r\n```cc\r\nstruct S {};\r\n\r\ntemplate &lt;typename T&gt; struct Vector {\r\n  typedef T type __attribute__((ext_vector_type(4)));\r\n};\r\n\r\nVector&lt;S&gt; v;\r\n```\r\n\r\nBefore:\r\n\r\n```txt\r\nerror: invalid vector element type 'S'\r\nrepro.cc:7:11: note: in instantiation of template class 'Vector&lt;S&gt;' requested here\r\n    7 | Vector&lt;S&gt; v;\r\n      |           ^\r\n1 error generated.\r\n```\r\n\r\nAfter:\r\n\r\n```txt\r\nrepro.cc:4:33: error: invalid vector element type 'S'\r\n    4 |   typedef T type __attribute__((ext_vector_type(4)));\r\n      |                                 ^\r\nrepro.cc:7:11: note: in instantiation of template class 'Vector&lt;S&gt;' requested here\r\n    7 | Vector&lt;S&gt; v;\r\n      |           ^\r\n1 error generated.\r\n```\r\n\r\nRecord the attribute location in `ExtVectorTypeLoc` and preserve it through substitution, including when a dependent-sized vector becomes fixed-sized. Use the original type source information when substituting alias templates, while retaining the existing path for underlying types adjusted by `mode`.\r\n\r\nFixes #<!-- -->229300\n\n---\nFull diff: https://github.com/llvm/llvm-project/pull/229328.diff\n\n\n5 Files Affected:\n\n- (modified) clang/docs/ReleaseNotes.md (+3) \n- (modified) clang/lib/Sema/SemaTemplate.cpp (+12-3) \n- (modified) clang/lib/Sema/SemaType.cpp (+26-4) \n- (modified) clang/lib/Sema/TreeTransform.h (+3-4) \n- (modified) clang/test/SemaCXX/vector.cpp (+31) \n\n\n``````````diff\ndiff --git a/clang/docs/ReleaseNotes.md b/clang/docs/ReleaseNotes.md\nindex 7b878a0abbab3..f23217c1d286d 100644\n--- a/clang/docs/ReleaseNotes.md\n+++ b/clang/docs/ReleaseNotes.md\n@@ -631,6 +631,9 @@ features cannot lower the translation-unit ABI level;\n \n #### Bug Fixes to Attribute Support\n \n+- Fixed missing source locations for diagnostics when instantiating\n+  `ext_vector_type` with a fixed length and a dependent element type. (#GH229300)\n+\n - Fixed crash (assertion) when the `alloc_align` attribute was applied to a declaration whose type has a `FunctionProtoType` but which is not itself a `FunctionDecl`, such as a function-pointer variable. (#GH122058)\n \n - Fixed a crash on `bool` vectors declared with `ext_vector_type` and more than\ndiff --git a/clang/lib/Sema/SemaTemplate.cpp b/clang/lib/Sema/SemaTemplate.cpp\nindex 8e7433bc71281..191fba99f635c 100644\n--- a/clang/lib/Sema/SemaTemplate.cpp\n+++ b/clang/lib/Sema/SemaTemplate.cpp\n@@ -3911,9 +3911,18 @@ QualType Sema::CheckTemplateIdType(ElaboratedTypeKeyword Keyword,\n     if (!AliasTemplate->getDeclContext()->isFileContext())\n       SavedContext.emplace(*this, AliasTemplate->getDeclContext());\n \n-    CanonType =\n-        SubstType(Pattern->getUnderlyingType(), TemplateArgLists,\n-                  AliasTemplate->getLocation(), AliasTemplate->getDeclName());\n+    if (Pattern->isModed()) {\n+      // The mode attribute changes the underlying type without updating the\n+      // type source information.\n+      CanonType =\n+          SubstType(Pattern->getUnderlyingType(), TemplateArgLists,\n+                    AliasTemplate->getLocation(), AliasTemplate->getDeclName());\n+    } else {\n+      TypeSourceInfo *SubstTypeInfo =\n+          SubstType(Pattern->getTypeSourceInfo(), TemplateArgLists,\n+                    AliasTemplate->getLocation(), AliasTemplate->getDeclName());\n+      CanonType = SubstTypeInfo ? SubstTypeInfo->getType() : QualType();\n+    }\n     if (CanonType.isNull()) {\n       // If this was enable_if and we failed to find the nested type\n       // within enable_if in a SFINAE context, dig out the specific\ndiff --git a/clang/lib/Sema/SemaType.cpp b/clang/lib/Sema/SemaType.cpp\nindex e1481b437df9e..9608c367eccf5 100644\n--- a/clang/lib/Sema/SemaType.cpp\n+++ b/clang/lib/Sema/SemaType.cpp\n@@ -216,6 +216,9 @@ namespace {\n     /// stored in a MacroQualifiedTypeLoc.\n     llvm::DenseMap<const MacroQualifiedType *, SourceLocation> LocsForMacros;\n \n+    /// Locations of ext_vector_type attributes for fixed-size vectors.\n+    llvm::DenseMap<const ExtVectorType *, SourceLocation> LocsForExtVectors;\n+\n     /// Flag to indicate we parsed a noderef attribute. This is used for\n     /// validating that noderef was used on a pointer or array.\n     bool parsedNoDeref;\n@@ -363,6 +366,15 @@ namespace {\n       LocsForMacros[MQT] = Loc;\n     }\n \n+    SourceLocation getAttrLocForExtVectorType(const ExtVectorType *T) const {\n+      return LocsForExtVectors.lookup(T);\n+    }\n+\n+    void setAttrLocForExtVectorType(const ExtVectorType *T,\n+                                    SourceLocation Loc) {\n+      LocsForExtVectors[T] = Loc;\n+    }\n+\n     void setParsedNoDeref(bool parsed) { parsedNoDeref = parsed; }\n \n     bool didParseNoDeref() const { return parsedNoDeref; }\n@@ -6011,6 +6023,10 @@ namespace {\n     // Allow to fill pointee's type locations, e.g.,\n     //   int __attr * __attr * __attr *p;\n     void VisitPointerTypeLoc(PointerTypeLoc TL) { Visit(TL.getNextTypeLoc()); }\n+    void VisitExtVectorTypeLoc(ExtVectorTypeLoc TL) {\n+      TL.setNameLoc(State.getAttrLocForExtVectorType(TL.getTypePtr()));\n+      Visit(TL.getElementLoc());\n+    }\n     void VisitTypedefTypeLoc(TypedefTypeLoc TL) {\n       if (DS.getTypeSpecType() == TST_typename) {\n         TypeSourceInfo *TInfo = nullptr;\n@@ -6354,7 +6370,9 @@ namespace {\n       TL.setNameLoc(Chunk.Loc);\n     }\n     void VisitExtVectorTypeLoc(ExtVectorTypeLoc TL) {\n-      TL.setNameLoc(Chunk.Loc);\n+      SourceLocation AttrLoc =\n+          State.getAttrLocForExtVectorType(TL.getTypePtr());\n+      TL.setNameLoc(AttrLoc.isValid() ? AttrLoc : Chunk.Loc);\n     }\n     void VisitAtomicTypeLoc(AtomicTypeLoc TL) {\n       fillAtomicQualLoc(TL, Chunk);\n@@ -8552,7 +8570,8 @@ static void HandleVectorSizeAttr(QualType &CurType, const ParsedAttr &Attr,\n /// Process the OpenCL-like ext_vector_type attribute when it occurs on\n /// a type.\n static void HandleExtVectorTypeAttr(QualType &CurType, const ParsedAttr &Attr,\n-                                    Sema &S) {\n+                                    TypeProcessingState &State) {\n+  Sema &S = State.getSema();\n   // check the attribute arguments.\n   if (Attr.getNumArgs() != 1) {\n     S.Diag(Attr.getLoc(), diag::err_attribute_wrong_number_arguments) << Attr\n@@ -8562,8 +8581,11 @@ static void HandleExtVectorTypeAttr(QualType &CurType, const ParsedAttr &Attr,\n \n   Expr *SizeExpr = Attr.getArgAsExpr(0);\n   QualType T = S.BuildExtVectorType(CurType, SizeExpr, Attr.getLoc());\n-  if (!T.isNull())\n+  if (!T.isNull()) {\n     CurType = T;\n+    if (const auto *VT = dyn_cast<ExtVectorType>(T.getTypePtr()))\n+      State.setAttrLocForExtVectorType(VT, Attr.getLoc());\n+  }\n }\n \n static bool isPermittedNeonBaseType(QualType &Ty, VectorKind VecKind, Sema &S) {\n@@ -9211,7 +9233,7 @@ static void processTypeAttrs(TypeProcessingState &state, QualType &type,\n       attr.setUsedAsTypeAttr();\n       break;\n     case ParsedAttr::AT_ExtVectorType:\n-      HandleExtVectorTypeAttr(type, attr, state.getSema());\n+      HandleExtVectorTypeAttr(type, attr, state);\n       attr.setUsedAsTypeAttr();\n       break;\n     case ParsedAttr::AT_NeonVectorType:\ndiff --git a/clang/lib/Sema/TreeTransform.h b/clang/lib/Sema/TreeTransform.h\nindex 73367d6bea063..845c3ac32f336 100644\n--- a/clang/lib/Sema/TreeTransform.h\n+++ b/clang/lib/Sema/TreeTransform.h\n@@ -6280,7 +6280,7 @@ QualType TreeTransform<Derived>::TransformDependentSizedExtVectorType(\n     NewTL.setNameLoc(TL.getNameLoc());\n   } else {\n     ExtVectorTypeLoc NewTL = TLB.push<ExtVectorTypeLoc>(Result);\n-    NewTL.setNameLoc(TL.getNameLoc());\n+    NewTL.setNameLoc(T->getAttributeLoc());\n   }\n \n   return Result;\n@@ -6445,9 +6445,8 @@ QualType TreeTransform<Derived>::TransformExtVectorType(TypeLocBuilder &TLB,\n   QualType Result = TL.getType();\n   if (getDerived().AlwaysRebuild() ||\n       ElementType != T->getElementType()) {\n-    Result = getDerived().RebuildExtVectorType(ElementType,\n-                                               T->getNumElements(),\n-                                               /*FIXME*/ SourceLocation());\n+    Result = getDerived().RebuildExtVectorType(ElementType, T->getNumElements(),\n+                                               TL.getNameLoc());\n     if (Result.isNull())\n       return QualType();\n   }\ndiff --git a/clang/test/SemaCXX/vector.cpp b/clang/test/SemaCXX/vector.cpp\nindex 581d829560ea6..0bbec3e661104 100644\n--- a/clang/test/SemaCXX/vector.cpp\n+++ b/clang/test/SemaCXX/vector.cpp\n@@ -5,6 +5,7 @@\n // RUN: %clang_cc1 -flax-vector-conversions=all -triple x86_64-apple-darwin10 -fsyntax-only -verify -std=c++20 %s\n // RUN: %clang_cc1 -flax-vector-conversions=integer -triple x86_64-apple-darwin10 -fsyntax-only -verify %s -DNO_LAX_FLOAT\n // RUN: %clang_cc1 -flax-vector-conversions=none -triple x86_64-apple-darwin10 -fsyntax-only -verify %s -DNO_LAX_FLOAT -DNO_LAX_INT\n+// RUN: not %clang_cc1 -flax-vector-conversions=all -triple x86_64-apple-darwin10 -fsyntax-only -ferror-limit 0 %s 2>&1 | FileCheck %s --check-prefix=LOCATION\n \n typedef char char16 __attribute__ ((__vector_size__ (16)));\n typedef long long longlong16 __attribute__ ((__vector_size__ (16)));\n@@ -337,6 +338,36 @@ const int &reference_to_vec_element = vi4(1).x;\n typedef bool bad __attribute__((__vector_size__(16)));  // expected-error {{invalid vector element type 'bool'}}\n \n namespace Templates {\n+struct InvalidElement {};\n+\n+template <typename T> struct GH229300 {\n+  // LOCATION: vector.cpp:[[@LINE+1]]:33: error: invalid vector element type 'Templates::InvalidElement'\n+  typedef T type __attribute__((ext_vector_type(4))); // expected-error {{invalid vector element type 'Templates::InvalidElement'}}\n+};\n+GH229300<InvalidElement> invalid_vector; // expected-note {{in instantiation of template class 'Templates::GH229300<Templates::InvalidElement>' requested here}}\n+\n+template <typename T> struct GH229300Paren {\n+  typedef T\n+    (type)\n+    // LOCATION: vector.cpp:[[@LINE+1]]:20: error: invalid vector element type 'Templates::InvalidElement'\n+    __attribute__((ext_vector_type(4))); // expected-error {{invalid vector element type 'Templates::InvalidElement'}}\n+};\n+GH229300Paren<InvalidElement> invalid_paren_vector; // expected-note {{in instantiation of template class 'Templates::GH229300Paren<Templates::InvalidElement>' requested here}}\n+\n+#if __cplusplus >= 201103L\n+template <typename T> using GH229300Alias =\n+  // LOCATION: vector.cpp:[[@LINE+1]]:20: error: invalid vector element type 'InvalidElement'\n+  T __attribute__((ext_vector_type(4))); // expected-error {{invalid vector element type 'InvalidElement'}}\n+GH229300Alias<InvalidElement> invalid_alias_vector; // expected-note {{in instantiation of template type alias 'GH229300Alias' requested here}}\n+\n+template <int N> struct GH229300DependentSize {\n+  template <typename T> using type =\n+    // LOCATION: vector.cpp:[[@LINE+1]]:22: error: invalid vector element type 'InvalidElement'\n+    T __attribute__((ext_vector_type(N))); // expected-error {{invalid vector element type 'InvalidElement'}}\n+};\n+GH229300DependentSize<4>::type<InvalidElement> invalid_dependent_vector; // expected-note {{in instantiation of template type alias 'type' requested here}}\n+#endif\n+\n template <typename Elt, unsigned long long Size>\n struct TemplateVectorType {\n   typedef Elt __attribute__((__vector_size__(Size))) type; // #1\n\n``````````\n\n</details>\n",
@@ -1520,7 +1848,7 @@
 					"path": null
 				}
 			],
-			"commentsTotal": 2,
+			"commentsTotal": 7,
 			"references": [
 				{
 					"url": "https://github.com/llvm/llvm-project/issues/229300",
@@ -1534,7 +1862,7 @@
 		},
 		{
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:41:35.215Z",
+			"fetchedAt": "2026-10-07T19:35:18.734Z",
 			"url": "https://github.com/llvm/llvm-project/issues/220923",
 			"kind": "issue",
 			"title": "[Clang] [[gnu::weak, gnu::ifunc]] isn't diagnosed",
@@ -1646,7 +1974,7 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:41:40.814Z",
+				"fetchedAt": "2026-10-07T19:35:24.358Z",
 				"headSha": "5aadf1582ebbd9b858dc2b07c148b21c202d8344",
 				"headRef": "ChenMiaoi:issue-225037",
 				"baseRef": "main",
@@ -1657,6 +1985,18 @@
 					"clang:frontend"
 				],
 				"requestedReviewers": [],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:35:24.358Z",
+					"approved": [
+						"Sirraide",
+						"TPPPP72"
+					],
+					"changesRequested": [],
+					"commented": [
+						"ChenMiaoi",
+						"Fznamznon"
+					]
+				},
 				"checks": [
 					{
 						"name": "Build and Test macOS arm64",
@@ -1781,7 +2121,7 @@
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:41:40.814Z",
+			"fetchedAt": "2026-10-07T19:35:24.358Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228863",
 			"kind": "pr",
 			"title": "[clang] Reject enum element types in ext_vector_type",
@@ -2178,17 +2518,23 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:41:47.672Z",
+				"fetchedAt": "2026-10-07T19:35:33.667Z",
 				"headSha": "6d9fed6341ef98a0ef0d66925c015d6bd8a92090",
 				"headRef": "ChenMiaoi:issue-222310",
 				"baseRef": "main",
-				"mergeable": null,
-				"mergeState": "unknown",
+				"mergeable": true,
+				"mergeState": "blocked",
 				"labels": [
 					"clang",
 					"clang:frontend"
 				],
 				"requestedReviewers": [],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:35:33.667Z",
+					"approved": [],
+					"changesRequested": [],
+					"commented": []
+				},
 				"checks": [
 					{
 						"name": "subscriber",
@@ -2253,13 +2599,13 @@
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:41:47.672Z",
+			"fetchedAt": "2026-10-07T19:35:33.667Z",
 			"url": "https://github.com/llvm/llvm-project/pull/229156",
 			"kind": "pr",
 			"title": "[clang] Fix crash on unterminated __identifier",
 			"body": "With Microsoft extensions enabled, e.g. via `-fms-compatibility`, the following input triggers an assertion:\r\n\r\n```cpp\r\n# 1 __identifier(foo\r\n```\r\n\r\nThe `__identifier` handler consumes the end-of-directive token, `eod`, while looking for `)`, but still returns `foo` to the line-marker handler. The latter rejects `foo` as an invalid filename and tries to discard the remaining tokens up to the end of the directive. Since `eod` has already been consumed, it encounters `eof` and triggers an assertion.\r\n\r\nReturn `eod`, `eof`, and `annotation` tokens to the caller when recovering from a missing `)`.\r\n\r\nFixes #222310",
 			"author": "ChenMiaoi",
-			"updatedAt": "2026-10-05T16:59:51Z",
+			"updatedAt": "2026-10-07T08:40:36Z",
 			"state": "open",
 			"files": [
 				{
@@ -2313,6 +2659,32 @@
 			"commitsComplete": true,
 			"comments": [
 				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/229156#issuecomment-6034259788",
+					"body": "I’ve clarified my use of LLMs and my contribution workflow here: https://github.com/llvm/llvm-project/pull/229612#issuecomment-6032921971.",
+					"createdAt": "2026-10-07T08:40:36Z",
+					"updatedAt": "2026-10-07T08:40:36Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ojhunt",
+					"url": "https://github.com/llvm/llvm-project/pull/229156#issuecomment-6032464307",
+					"body": "This PR doesn't appear to comply with our policy on tool-generated content,\r\nand requires additional justification for why it is valuable enough to the\r\nproject for us to review it. Please see our developer policy on\r\nAI-generated contributions: http://llvm.org/docs/AIToolPolicy.html",
+					"createdAt": "2026-10-07T06:38:39Z",
+					"updatedAt": "2026-10-07T06:38:39Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
 					"author": "llvmorg-github-actions[bot]",
 					"url": "https://github.com/llvm/llvm-project/pull/229156#issuecomment-5999162132",
 					"body": "\n<!--LLVM PR SUMMARY COMMENT-->\n\n@llvm/pr-subscribers-clang\n\nAuthor: Chen Miao (ChenMiaoi)\n\n<details>\n<summary>Changes</summary>\n\nWith Microsoft extensions enabled, e.g. via `-fms-compatibility`, the following input triggers an assertion:\r\n\r\n```cpp\r\n# 1 __identifier(foo\r\n```\r\n\r\nThe `__identifier` handler consumes the end-of-directive token, `eod`, while looking for `)`, but still returns `foo` to the line-marker handler. The latter rejects `foo` as an invalid filename and tries to discard the remaining tokens up to the end of the directive. Since `eod` has already been consumed, it encounters `eof` and triggers an assertion.\r\n\r\nReturn `eod`, `eof`, and `annotation` tokens to the caller when recovering from a missing `)`.\r\n\r\nFixes #<!-- -->222310\n\n---\nFull diff: https://github.com/llvm/llvm-project/pull/229156.diff\n\n\n3 Files Affected:\n\n- (modified) clang/docs/ReleaseNotes.md (+3) \n- (modified) clang/lib/Lex/PPMacroExpansion.cpp (+4) \n- (modified) clang/test/Parser/MicrosoftExtensions.cpp (+12) \n\n\n``````````diff\ndiff --git a/clang/docs/ReleaseNotes.md b/clang/docs/ReleaseNotes.md\nindex 7ec126a065ae5ab..3c41100820840db 100644\n--- a/clang/docs/ReleaseNotes.md\n+++ b/clang/docs/ReleaseNotes.md\n@@ -850,6 +850,9 @@ features cannot lower the translation-unit ABI level;\n \n #### Miscellaneous Clang Crashes Fixed\n \n+- Fixed a crash when Microsoft extensions were enabled and an unterminated\n+  `__identifier` expression reached the end of a preprocessing directive or\n+  source file. (#GH222310)\n - Fixed a crash in CTAD for type alias templates when the aggregate deduction guide could not be resolved. (#GH206994)\n - Fixed a crash when instantiating an invalid dependent friend destructor declaration in a class template. (#GH210234)\n - Fixed an assertion failure in `-extract-api` when a documentation comment\ndiff --git a/clang/lib/Lex/PPMacroExpansion.cpp b/clang/lib/Lex/PPMacroExpansion.cpp\nindex f31ee308b4cda82..478ad047dc6f648 100644\n--- a/clang/lib/Lex/PPMacroExpansion.cpp\n+++ b/clang/lib/Lex/PPMacroExpansion.cpp\n@@ -2040,6 +2040,10 @@ void Preprocessor::ExpandBuiltinMacro(Token &Tok) {\n       Diag(getLocForEndOfToken(Tok.getLocation()), diag::err_pp_expected_after)\n         << Tok.getKind() << tok::r_paren;\n       Diag(LParenLoc, diag::note_matching) << tok::l_paren;\n+      // Don't lose an eod, eof, or annotation token while recovering from\n+      // a missing ')'. Return it to the caller instead.\n+      if (RParen.isOneOf(tok::eof, tok::eod) || RParen.isAnnotation())\n+        Tok = RParen;\n     }\n     return;\n   } else if (II == Ident__is_target_arch) {\ndiff --git a/clang/test/Parser/MicrosoftExtensions.cpp b/clang/test/Parser/MicrosoftExtensions.cpp\nindex ee23596df46f634..7f7185581690d17 100644\n--- a/clang/test/Parser/MicrosoftExtensions.cpp\n+++ b/clang/test/Parser/MicrosoftExtensions.cpp\n@@ -1,4 +1,11 @@\n // RUN: %clang_cc1 %s -triple i386-pc-win32 -std=c++14 -fsyntax-only -Wno-unused-getter-return-value -Wno-unused-value -Wmicrosoft -verify -fms-extensions -fms-compatibility -fdelayed-template-parsing\n+// RUN: printf '# 1 __identifier(foo' | not %clang_cc1 -x c++ -fms-compatibility -fsyntax-only - 2>&1 | FileCheck %s --check-prefix=IDENTIFIER-EOF\n+// RUN: printf '__identifier(foo' | not %clang_cc1 -x c++ -fms-extensions -fsyntax-only - 2>&1 | FileCheck %s --check-prefix=IDENTIFIER-EOF\n+// RUN: printf '__identifier(foo' | not %clang_cc1 -x c++ -fms-extensions -fincremental-extensions -fsyntax-only - 2>&1 | FileCheck %s --check-prefix=IDENTIFIER-EOF\n+\n+// IDENTIFIER-EOF: error: missing ')' after identifier\n+// IDENTIFIER-EOF: note: to match this '('\n+// IDENTIFIER-EOF: 1 error generated.\n \n /* Microsoft attribute tests */\n [repeatable][source_annotation_attribute( Parameter|ReturnValue )]\n@@ -266,6 +273,11 @@ __identifier(class) __identifier(struct) = { &__identifier(struct) };\n \n int __identifier for; // expected-error {{missing '(' after '__identifier'}}\n int __identifier(else} = __identifier(for); // expected-error {{missing ')' after identifier}} expected-note {{to match this '('}}\n+\n+// A missing ')' must preserve the directive boundary (GH222310), so the\n+// following code is still parsed.\n+# 1 __identifier(foo // expected-error {{missing ')' after identifier}} expected-note {{to match this '('}}\n+\n #define identifier_weird(x) __identifier(x\n int k = identifier_weird(if)); // expected-error {{use of undeclared identifier 'if'}}\n \n\n``````````\n\n</details>\n",
@@ -2339,7 +2711,7 @@
 					"path": null
 				}
 			],
-			"commentsTotal": 2,
+			"commentsTotal": 4,
 			"references": [
 				{
 					"url": "https://github.com/llvm/llvm-project/issues/222310",
@@ -2353,7 +2725,7 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:41:47.840Z",
+				"fetchedAt": "2026-10-07T19:35:31.412Z",
 				"headSha": "45f95d0a4a643ba2fa6c6ad74b67d68eada9ebe0",
 				"headRef": "ChenMiaoi:issue-225045",
 				"baseRef": "main",
@@ -2364,7 +2736,88 @@
 					"clang:frontend"
 				],
 				"requestedReviewers": [],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:35:31.412Z",
+					"approved": [
+						"cor3ntin"
+					],
+					"changesRequested": [],
+					"commented": [
+						"AaronBallman",
+						"hardikxk"
+					]
+				},
 				"checks": [
+					{
+						"name": "Build and Test Windows",
+						"source": "check",
+						"ref": "head",
+						"sha": "45f95d0a4a643ba2fa6c6ad74b67d68eada9ebe0",
+						"status": "completed",
+						"conclusion": "skipped",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37649342162/job/112888334327",
+						"description": ""
+					},
+					{
+						"name": "Build and Test macOS arm64",
+						"source": "check",
+						"ref": "head",
+						"sha": "45f95d0a4a643ba2fa6c6ad74b67d68eada9ebe0",
+						"status": "completed",
+						"conclusion": "skipped",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37649342162/job/112888272666",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Linux",
+						"source": "check",
+						"ref": "head",
+						"sha": "45f95d0a4a643ba2fa6c6ad74b67d68eada9ebe0",
+						"status": "completed",
+						"conclusion": "skipped",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37649342162/job/112888272190",
+						"description": ""
+					},
+					{
+						"name": "Compute macOS Projects",
+						"source": "check",
+						"ref": "head",
+						"sha": "45f95d0a4a643ba2fa6c6ad74b67d68eada9ebe0",
+						"status": "completed",
+						"conclusion": "skipped",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37649342162/job/112888271395",
+						"description": ""
+					},
+					{
+						"name": "buildbot_comment",
+						"source": "check",
+						"ref": "head",
+						"sha": "45f95d0a4a643ba2fa6c6ad74b67d68eada9ebe0",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37649341173/job/112888259894",
+						"description": ""
+					},
+					{
+						"name": "code_formatter",
+						"source": "check",
+						"ref": "head",
+						"sha": "45f95d0a4a643ba2fa6c6ad74b67d68eada9ebe0",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37333570276/job/112864524017",
+						"description": ""
+					},
+					{
+						"name": "Test documentation build",
+						"source": "check",
+						"ref": "head",
+						"sha": "45f95d0a4a643ba2fa6c6ad74b67d68eada9ebe0",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37333570416/job/112864516918",
+						"description": ""
+					},
 					{
 						"name": "Graphite / mergeability_check",
 						"source": "check",
@@ -2418,14 +2871,14 @@
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:41:47.840Z",
+			"fetchedAt": "2026-10-07T19:35:31.412Z",
 			"url": "https://github.com/llvm/llvm-project/pull/229034",
 			"kind": "pr",
 			"title": "[clang] Restrict parenthesized direct initialization to C++",
 			"body": "Only recognize parenthesized direct initializers in C++ mode. This avoids an assertion when a malformed GNU attribute in C is followed by a parenthesized expression list:\r\n\r\n```c\r\nint a __attribute__ ) (1, 2);\r\n```\r\n\r\nFixes #225045",
 			"author": "ChenMiaoi",
-			"updatedAt": "2026-10-05T15:30:47Z",
-			"state": "open",
+			"updatedAt": "2026-10-07T16:06:07Z",
+			"state": "merged",
 			"files": [
 				{
 					"filename": "clang/docs/ReleaseNotes.md",
@@ -2463,8 +2916,8 @@
 			"filesComplete": true,
 			"headSha": "45f95d0a4a643ba2fa6c6ad74b67d68eada9ebe0",
 			"baseSha": "5b07ba736b0fda30e9159e7aaa79851b79dded50",
-			"mergeCommitSha": null,
-			"mergedAt": null,
+			"mergeCommitSha": "3a5aaa42280e94e428c297290d46f91dd2ef36fe",
+			"mergedAt": "2026-10-07T16:05:44Z",
 			"commits": [
 				{
 					"sha": "d431cf5c5f6735362ef067986834aff886b15234",
@@ -2484,6 +2937,58 @@
 			"commitsTotal": 2,
 			"commitsComplete": true,
 			"comments": [
+				{
+					"author": "github-actions[bot]",
+					"url": "https://github.com/llvm/llvm-project/pull/229034#issuecomment-6041806011",
+					"body": "<!--LLVM BUILDBOT INFORMATION COMMENT-->\n\n@ChenMiaoi Congratulations on having your first Pull Request (PR) merged into the LLVM Project!\n\nYour changes will be combined with recent changes from other authors, then tested by our [build bots](https://lab.llvm.org/buildbot/). If there is a problem with a build, you may receive a report in an email or a comment on this PR.\n\nPlease check whether problems have been caused by your change specifically, as the builds can include changes from many authors. It is not uncommon for your change to be included in a build that fails due to someone else's changes, or infrastructure issues.\n\nHow to do this, and the rest of the post-merge process, is covered in detail [here](https://llvm.org/docs/MyFirstTypoFix.html#myfirsttypofix-issues-after-landing-your-pr).\n\nIf your change does cause a problem, it may be reverted, or you can revert it yourself. This is a normal part of [LLVM development](https://llvm.org/docs/DeveloperPolicy.html#patch-reversion-policy). You can fix your changes and open a new PR to merge them again.\n\nIf you don't get any reports, no action is required from you. Your changes are working as expected, well done!\n",
+					"createdAt": "2026-10-07T16:06:07Z",
+					"updatedAt": "2026-10-07T16:06:07Z",
+					"kind": "comment",
+					"bot": true,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "cor3ntin",
+					"url": "https://github.com/llvm/llvm-project/pull/229034#pullrequestreview-5439967540",
+					"body": "",
+					"createdAt": "2026-10-07T08:58:25Z",
+					"updatedAt": "2026-10-07T08:58:25Z",
+					"kind": "review",
+					"bot": false,
+					"reviewState": "APPROVED",
+					"commitSha": "45f95d0a4a643ba2fa6c6ad74b67d68eada9ebe0",
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/229034#issuecomment-6034197239",
+					"body": "I’ve clarified my use of LLMs and my contribution workflow here: https://github.com/llvm/llvm-project/pull/229612#issuecomment-6032921971.",
+					"createdAt": "2026-10-07T08:36:31Z",
+					"updatedAt": "2026-10-07T08:36:31Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ojhunt",
+					"url": "https://github.com/llvm/llvm-project/pull/229034#issuecomment-6032465470",
+					"body": "This PR doesn't appear to comply with our policy on tool-generated content,\r\nand requires additional justification for why it is valuable enough to the\r\nproject for us to review it. Please see our developer policy on\r\nAI-generated contributions: http://llvm.org/docs/AIToolPolicy.html",
+					"createdAt": "2026-10-07T06:38:44Z",
+					"updatedAt": "2026-10-07T06:38:44Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
 				{
 					"author": "ChenMiaoi",
 					"url": "https://github.com/llvm/llvm-project/pull/229034#issuecomment-5997650409",
@@ -2550,7 +3055,7 @@
 					"path": null
 				}
 			],
-			"commentsTotal": 5,
+			"commentsTotal": 9,
 			"references": [
 				{
 					"url": "https://github.com/llvm/llvm-project/issues/225045",
@@ -2564,7 +3069,7 @@
 		},
 		{
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:41:50.445Z",
+			"fetchedAt": "2026-10-07T19:35:36.335Z",
 			"url": "https://github.com/llvm/llvm-project/issues/196016",
 			"kind": "issue",
 			"title": "String match efficiency in libc environment",
@@ -2670,18 +3175,86 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:41:55.868Z",
+				"fetchedAt": "2026-10-07T19:35:44.462Z",
 				"headSha": "7a0b2f93ae262b941600ce2e813ca5621a9020d3",
 				"headRef": "ChenMiaoi:issue-225034",
 				"baseRef": "main",
-				"mergeable": null,
-				"mergeState": "unknown",
+				"mergeable": true,
+				"mergeState": "blocked",
 				"labels": [
 					"clang",
 					"clang:frontend"
 				],
 				"requestedReviewers": [],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:35:44.462Z",
+					"approved": [],
+					"changesRequested": [
+						"Sirraide"
+					],
+					"commented": []
+				},
 				"checks": [
+					{
+						"name": "Build and Test macOS arm64",
+						"source": "check",
+						"ref": "head",
+						"sha": "7a0b2f93ae262b941600ce2e813ca5621a9020d3",
+						"status": "queued",
+						"conclusion": null,
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37286156071/job/112971541940",
+						"description": ""
+					},
+					{
+						"name": "code_formatter",
+						"source": "check",
+						"ref": "head",
+						"sha": "7a0b2f93ae262b941600ce2e813ca5621a9020d3",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37286156079/job/112971456947",
+						"description": ""
+					},
+					{
+						"name": "validate_email",
+						"source": "check",
+						"ref": "head",
+						"sha": "7a0b2f93ae262b941600ce2e813ca5621a9020d3",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37286156195/job/112971455841",
+						"description": ""
+					},
+					{
+						"name": "Compute macOS Projects",
+						"source": "check",
+						"ref": "head",
+						"sha": "7a0b2f93ae262b941600ce2e813ca5621a9020d3",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37286156071/job/112971449957",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Windows",
+						"source": "check",
+						"ref": "head",
+						"sha": "7a0b2f93ae262b941600ce2e813ca5621a9020d3",
+						"status": "in_progress",
+						"conclusion": null,
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37286156071/job/112971449743",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Linux",
+						"source": "check",
+						"ref": "head",
+						"sha": "7a0b2f93ae262b941600ce2e813ca5621a9020d3",
+						"status": "in_progress",
+						"conclusion": null,
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37286156071/job/112971449436",
+						"description": ""
+					},
 					{
 						"name": "Graphite / mergeability_check",
 						"source": "check",
@@ -2745,13 +3318,13 @@
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:41:55.868Z",
+			"fetchedAt": "2026-10-07T19:35:44.462Z",
 			"url": "https://github.com/llvm/llvm-project/pull/229010",
 			"kind": "pr",
 			"title": "[clang][Sema] Avoid out-of-bounds format_arg access",
 			"body": "Clang implicitly adds `format_arg(1)` to `__CFStringMakeConstantString`, including declarations created during error recovery. A zero-argument call can therefore make `checkFormatStringExpr` access a nonexistent argument.\r\n\r\nReproducer:\r\n\r\n```c\r\nvoid a(char *) __attribute__((format(__CFString__, 1, 2)));\r\nvoid b() { a(__CFStringMakeConstantString()); }\r\n```\r\n\r\nBefore this change, an assertions-enabled build crashes after reporting the source errors (diagnostic excerpts):\r\n\r\n```text\r\nerror: call to undeclared function '__CFStringMakeConstantString';\r\n       ISO C99 and later do not support implicit function declarations\r\nerror: incompatible integer to pointer conversion passing 'int' to parameter of type 'char *'\r\nAssertion `Arg < getNumArgs() && \"Arg access out of range!\"' failed.\r\n```\r\n\r\nCheck the `format_arg` index against `CE->getNumArgs()` before calling `CE->getArg()`. Return `SLCT_NotALiteral` when the argument is missing so normal diagnostics can continue.\r\n\r\nAfter this change, the compiler reports diagnostics and exits with status 1 without crashing (diagnostic excerpts):\r\n\r\n```text\r\nerror: call to undeclared function '__CFStringMakeConstantString';\r\n       ISO C99 and later do not support implicit function declarations\r\nerror: incompatible integer to pointer conversion passing 'int' to parameter of type 'char *'\r\nwarning: format string is not a string literal (potentially insecure)\r\n```\r\n\r\nFixes #225034",
 			"author": "ChenMiaoi",
-			"updatedAt": "2026-10-05T08:50:19Z",
+			"updatedAt": "2026-10-07T19:34:24Z",
 			"state": "open",
 			"files": [
 				{
@@ -2796,6 +3369,45 @@
 			"commitsComplete": true,
 			"comments": [
 				{
+					"author": "Sirraide",
+					"url": "https://github.com/llvm/llvm-project/pull/229010#pullrequestreview-5447358421",
+					"body": "This solution feels like a bit of a hack: we implicitly add an attribute that references an argument that doesn’t exist, then complain when we try to get that argument (which we only do because the compiler implicitly added an attribute). The diagnostic is also not great ‘format string is not a string literal’ when there is no argument to begin with is a rather janky.\n\nBoth the `format` and `format_arg` attributes are currently ignored on prototypeless declarations. We should probably just not be implicitly adding attributes that reference parameters in the first place if the function has no prototype.\n\nA proper fix for this would go in `Sema::AddKnownFunctionAttributes()` I believe.\n\nAdditionally, this still needs a release note",
+					"createdAt": "2026-10-07T19:34:23Z",
+					"updatedAt": "2026-10-07T19:34:23Z",
+					"kind": "review",
+					"bot": false,
+					"reviewState": "CHANGES_REQUESTED",
+					"commitSha": "7a0b2f93ae262b941600ce2e813ca5621a9020d3",
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/229010#issuecomment-6034190379",
+					"body": "I’ve clarified my use of LLMs and my contribution workflow here: https://github.com/llvm/llvm-project/pull/229612#issuecomment-6032921971.",
+					"createdAt": "2026-10-07T08:36:04Z",
+					"updatedAt": "2026-10-07T08:36:04Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ojhunt",
+					"url": "https://github.com/llvm/llvm-project/pull/229010#issuecomment-6032466632",
+					"body": "This PR doesn't appear to comply with our policy on tool-generated content,\r\nand requires additional justification for why it is valuable enough to the\r\nproject for us to review it. Please see our developer policy on\r\nAI-generated contributions: http://llvm.org/docs/AIToolPolicy.html",
+					"createdAt": "2026-10-07T06:38:50Z",
+					"updatedAt": "2026-10-07T06:38:50Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
 					"author": "llvmorg-github-actions[bot]",
 					"url": "https://github.com/llvm/llvm-project/pull/229010#issuecomment-5991187869",
 					"body": "\n<!--LLVM PR SUMMARY COMMENT-->\n\n@llvm/pr-subscribers-clang\n\nAuthor: Chen Miao (ChenMiaoi)\n\n<details>\n<summary>Changes</summary>\n\nClang implicitly adds `format_arg(1)` to `__CFStringMakeConstantString`, including declarations created during error recovery. A zero-argument call can therefore make `checkFormatStringExpr` access a nonexistent argument.\r\n\r\nReproducer:\r\n\r\n```c\r\nvoid a(char *) __attribute__((format(__CFString__, 1, 2)));\r\nvoid b() { a(__CFStringMakeConstantString()); }\r\n```\r\n\r\nBefore this change, an assertions-enabled build crashes after reporting the source errors (diagnostic excerpts):\r\n\r\n```text\r\nerror: call to undeclared function '__CFStringMakeConstantString';\r\n       ISO C99 and later do not support implicit function declarations\r\nerror: incompatible integer to pointer conversion passing 'int' to parameter of type 'char *'\r\nAssertion `Arg &lt; getNumArgs() &amp;&amp; \"Arg access out of range!\"' failed.\r\n```\r\n\r\nCheck the `format_arg` index against `CE-&gt;getNumArgs()` before calling `CE-&gt;getArg()`. Return `SLCT_NotALiteral` when the argument is missing so normal diagnostics can continue.\r\n\r\nAfter this change, the compiler reports diagnostics and exits with status 1 without crashing (diagnostic excerpts):\r\n\r\n```text\r\nerror: call to undeclared function '__CFStringMakeConstantString';\r\n       ISO C99 and later do not support implicit function declarations\r\nerror: incompatible integer to pointer conversion passing 'int' to parameter of type 'char *'\r\nwarning: format string is not a string literal (potentially insecure)\r\n```\r\n\r\nFixes #<!-- -->225034\n\n---\nFull diff: https://github.com/llvm/llvm-project/pull/229010.diff\n\n\n2 Files Affected:\n\n- (modified) clang/lib/Sema/SemaChecking.cpp (+6-1) \n- (added) clang/test/Sema/format-strings-cfstring.c (+18) \n\n\n``````````diff\ndiff --git a/clang/lib/Sema/SemaChecking.cpp b/clang/lib/Sema/SemaChecking.cpp\nindex 0531dfa877fbd..eb5982f10e763 100644\n--- a/clang/lib/Sema/SemaChecking.cpp\n+++ b/clang/lib/Sema/SemaChecking.cpp\n@@ -7710,7 +7710,12 @@ checkFormatStringExpr(Sema &S, const StringLiteral *ReferenceFormatString,\n       bool IsFirst = true;\n       StringLiteralCheckType CommonResult;\n       for (const auto *FA : ND->specific_attrs<FormatArgAttr>()) {\n-        const Expr *Arg = CE->getArg(FA->getFormatIdx().getASTIndex());\n+        // An implicitly added attribute may refer to a missing argument.\n+        // https://github.com/llvm/llvm-project/issues/225034\n+        unsigned ArgIndex = FA->getFormatIdx().getASTIndex();\n+        if (ArgIndex >= CE->getNumArgs())\n+          return SLCT_NotALiteral;\n+        const Expr *Arg = CE->getArg(ArgIndex);\n         StringLiteralCheckType Result = checkFormatStringExpr(\n             S, ReferenceFormatString, Arg, Args, APK, format_idx, firstDataArg,\n             Type, CallType, InFunctionCall, CheckedVarArgs, UncoveredArg,\ndiff --git a/clang/test/Sema/format-strings-cfstring.c b/clang/test/Sema/format-strings-cfstring.c\nnew file mode 100644\nindex 0000000000000..776a82e7c3eb7\n--- /dev/null\n+++ b/clang/test/Sema/format-strings-cfstring.c\n@@ -0,0 +1,18 @@\n+// RUN: %clang_cc1 -std=c11 -fsyntax-only -Wno-gcc-compat -verify=expected,implicit %s\n+// RUN: %clang_cc1 -std=c11 -fsyntax-only -Wno-gcc-compat -DDECLARE_CFSTRING -verify %s\n+\n+// An implicitly added format_arg attribute may refer to a missing argument,\n+// both during error recovery and with a non-prototype declaration.\n+// https://github.com/llvm/llvm-project/issues/225034\n+#ifdef DECLARE_CFSTRING\n+char *__CFStringMakeConstantString();\n+#endif\n+\n+void a(char *) __attribute__((format(__CFString__, 1, 2))); // implicit-note {{passing argument to parameter here}}\n+\n+void b(void) {\n+  a(__CFStringMakeConstantString()); // expected-warning {{format string is not a string literal (potentially insecure)}}\n+  // expected-note@-1 {{treat the string as an argument to avoid this}}\n+  // implicit-error@-2 {{call to undeclared function '__CFStringMakeConstantString'}}\n+  // implicit-error@-3 {{incompatible integer to pointer conversion passing 'int' to parameter of type 'char *'}}\n+}\n\n``````````\n\n</details>\n",
@@ -2822,7 +3434,7 @@
 					"path": null
 				}
 			],
-			"commentsTotal": 2,
+			"commentsTotal": 5,
 			"references": [
 				{
 					"url": "https://github.com/llvm/llvm-project/issues/225034",
@@ -2836,17 +3448,23 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:42:04.067Z",
+				"fetchedAt": "2026-10-07T19:35:55.091Z",
 				"headSha": "774f0176cad0716b4990f1c7290813e876735fa8",
 				"headRef": "ChenMiaoi:issue-225035",
 				"baseRef": "main",
-				"mergeable": null,
-				"mergeState": "unknown",
+				"mergeable": true,
+				"mergeState": "blocked",
 				"labels": [
 					"clang",
 					"clang:frontend"
 				],
 				"requestedReviewers": [],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:35:55.091Z",
+					"approved": [],
+					"changesRequested": [],
+					"commented": []
+				},
 				"checks": [
 					{
 						"name": "subscriber",
@@ -2911,13 +3529,13 @@
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:42:04.067Z",
+			"fetchedAt": "2026-10-07T19:35:55.091Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228990",
 			"kind": "pr",
 			"title": "[clang] Fix pragma attribute crashes caused by nested _Pragma",
 			"body": "A nested `_Pragma` can produce an `annot_pragma_attribute` token during preprocessing. After diagnosing invalid attribute syntax, `HandlePragmaAttribute` calls `getIdentifierInfo()` to generate a fix-it without checking whether the current token is an annotation. `getAttributeSubjectRulesRecoveryPointForToken`, which handles recovery for attribute subject rules, has the same problem.\r\n\r\nFor example, this input enters the attribute syntax error path:\r\n\r\n```c\r\n#pragma clang attribute (_Pragma(\"clang attribute push\"))\r\n```\r\n\r\nIn the following input, the attribute itself is valid, but a nested `_Pragma` appears where `apply_to` is expected, entering the attribute subject rule recovery path:\r\n\r\n```c\r\n#pragma clang attribute push(__attribute__((annotate(\"test\"))), _Pragma(\"clang attribute push\"))\r\n```\r\n\r\nBefore this change, both inputs fail in assertion-enabled builds with:\r\n\r\n```text\r\nAssertion `!isAnnotation() && \"getIdentifierInfo() on an annotation token!\"' failed.\r\n```\r\n\r\nCheck for annotation tokens before querying identifier information in `HandlePragmaAttribute`. Return `None` for annotation tokens in `getAttributeSubjectRulesRecoveryPointForToken` so that the existing error recovery logic can handle them.\r\n\r\nThe two inputs now produce the following diagnostics, respectively:\r\n\r\n```text\r\nerror: expected an attribute that is specified using the GNU, C++11 or '__declspec' syntax\r\nerror: expected attribute subject set specifier 'apply_to'\r\n```\r\n\r\nFixes #225035",
 			"author": "ChenMiaoi",
-			"updatedAt": "2026-10-05T07:16:53Z",
+			"updatedAt": "2026-10-07T08:40:21Z",
 			"state": "open",
 			"files": [
 				{
@@ -2962,6 +3580,32 @@
 			"commitsComplete": true,
 			"comments": [
 				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/228990#issuecomment-6034255820",
+					"body": "I’ve clarified my use of LLMs and my contribution workflow here: https://github.com/llvm/llvm-project/pull/229612#issuecomment-6032921971.",
+					"createdAt": "2026-10-07T08:40:21Z",
+					"updatedAt": "2026-10-07T08:40:21Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ojhunt",
+					"url": "https://github.com/llvm/llvm-project/pull/228990#issuecomment-6032468011",
+					"body": "This PR doesn't appear to comply with our policy on tool-generated content,\r\nand requires additional justification for why it is valuable enough to the\r\nproject for us to review it. Please see our developer policy on\r\nAI-generated contributions: http://llvm.org/docs/AIToolPolicy.html",
+					"createdAt": "2026-10-07T06:38:56Z",
+					"updatedAt": "2026-10-07T06:38:56Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
 					"author": "llvmorg-github-actions[bot]",
 					"url": "https://github.com/llvm/llvm-project/pull/228990#issuecomment-5989888535",
 					"body": "\n<!--LLVM PR SUMMARY COMMENT-->\n\n@llvm/pr-subscribers-clang\n\nAuthor: Chen Miao (ChenMiaoi)\n\n<details>\n<summary>Changes</summary>\n\nA nested `_Pragma` can produce an `annot_pragma_attribute` token during preprocessing. After diagnosing invalid attribute syntax, `HandlePragmaAttribute` calls `getIdentifierInfo()` to generate a fix-it without checking whether the current token is an annotation. `getAttributeSubjectRulesRecoveryPointForToken`, which handles recovery for attribute subject rules, has the same problem.\r\n\r\nFor example, this input enters the attribute syntax error path:\r\n\r\n```c\r\n#pragma clang attribute (_Pragma(\"clang attribute push\"))\r\n```\r\n\r\nIn the following input, the attribute itself is valid, but a nested `_Pragma` appears where `apply_to` is expected, entering the attribute subject rule recovery path:\r\n\r\n```c\r\n#pragma clang attribute push(__attribute__((annotate(\"test\"))), _Pragma(\"clang attribute push\"))\r\n```\r\n\r\nBefore this change, both inputs fail in assertion-enabled builds with:\r\n\r\n```text\r\nAssertion `!isAnnotation() &amp;&amp; \"getIdentifierInfo() on an annotation token!\"' failed.\r\n```\r\n\r\nCheck for annotation tokens before querying identifier information in `HandlePragmaAttribute`. Return `None` for annotation tokens in `getAttributeSubjectRulesRecoveryPointForToken` so that the existing error recovery logic can handle them.\r\n\r\nThe two inputs now produce the following diagnostics, respectively:\r\n\r\n```text\r\nerror: expected an attribute that is specified using the GNU, C++11 or '__declspec' syntax\r\nerror: expected attribute subject set specifier 'apply_to'\r\n```\r\n\r\nFixes #<!-- -->225035\n\n---\nFull diff: https://github.com/llvm/llvm-project/pull/228990.diff\n\n\n2 Files Affected:\n\n- (modified) clang/lib/Parse/ParsePragma.cpp (+7-1) \n- (modified) clang/test/Parser/pragma-attribute.cpp (+7) \n\n\n``````````diff\ndiff --git a/clang/lib/Parse/ParsePragma.cpp b/clang/lib/Parse/ParsePragma.cpp\nindex f58d2c70b7d98..34a9ed09fec8e 100644\n--- a/clang/lib/Parse/ParsePragma.cpp\n+++ b/clang/lib/Parse/ParsePragma.cpp\n@@ -1870,6 +1870,10 @@ enum class MissingAttributeSubjectRulesRecoveryPoint {\n \n MissingAttributeSubjectRulesRecoveryPoint\n getAttributeSubjectRulesRecoveryPointForToken(const Token &Tok) {\n+  // Nested `_Pragma` annotations cannot name attribute subject rules.\n+  // https://github.com/llvm/llvm-project/issues/225035\n+  if (Tok.isAnnotation())\n+    return MissingAttributeSubjectRulesRecoveryPoint::None;\n   if (const auto *II = Tok.getIdentifierInfo()) {\n     if (II->isStr(\"apply_to\"))\n       return MissingAttributeSubjectRulesRecoveryPoint::ApplyTo;\n@@ -2038,7 +2042,9 @@ void Parser::HandlePragmaAttribute() {\n     ParseMicrosoftDeclSpecs(Attrs);\n   } else {\n     Diag(Tok, diag::err_pragma_attribute_expected_attribute_syntax);\n-    if (Tok.getIdentifierInfo()) {\n+    // A nested `_Pragma` can produce an annotation token here.\n+    // https://github.com/llvm/llvm-project/issues/225035\n+    if (!Tok.isAnnotation() && Tok.getIdentifierInfo()) {\n       // If we suspect that this is an attribute suggest the use of\n       // '__attribute__'.\n       if (ParsedAttr::getParsedKind(\ndiff --git a/clang/test/Parser/pragma-attribute.cpp b/clang/test/Parser/pragma-attribute.cpp\nindex 1f90a8990bb96..78699c06262cd 100644\n--- a/clang/test/Parser/pragma-attribute.cpp\n+++ b/clang/test/Parser/pragma-attribute.cpp\n@@ -180,6 +180,13 @@ _Pragma(\"clang attribute pop\");\n #pragma clang attribute push (annotate(\"test\")) // expected-error {{expected an attribute that is specified using the GNU, C++11 or '__declspec' syntax}}\n // expected-note@-1 {{use the GNU '__attribute__' syntax}}\n \n+// Nested pragmas must be diagnosed without crashing (GH225035).\n+#pragma clang attribute (_Pragma(\"clang attribute push\")) // expected-error {{expected an attribute that is specified using the GNU, C++11 or '__declspec' syntax}}\n+#pragma clang attribute push (_Pragma(\"clang attribute push\")) // expected-error {{expected an attribute that is specified using the GNU, C++11 or '__declspec' syntax}}\n+#pragma clang attribute push(__attribute__((annotate(\"test\"))) _Pragma(\"clang attribute push\")) // expected-error {{expected ','}}\n+#pragma clang attribute push(__attribute__((annotate(\"test\"))), _Pragma(\"clang attribute push\")) // expected-error {{expected attribute subject set specifier 'apply_to'}}\n+#pragma clang attribute push(__attribute__((annotate(\"test\"))), apply_to _Pragma(\"clang attribute push\")) // expected-error {{expected '='}}\n+\n #pragma clang attribute push([[clang::uninitialized]], apply_to = variable(is_local))\n #pragma clang attribute pop\n #pragma clang attribute push([[clang::uninitialized]], apply_to = function) // expected-error {{attribute 'clang::uninitialized' cannot be applied to 'function'}}\n\n``````````\n\n</details>\n",
@@ -2988,7 +3632,7 @@
 					"path": null
 				}
 			],
-			"commentsTotal": 2,
+			"commentsTotal": 4,
 			"references": [
 				{
 					"url": "https://github.com/llvm/llvm-project/issues/225035",
@@ -3002,7 +3646,7 @@
 		},
 		{
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:41:59.487Z",
+			"fetchedAt": "2026-10-07T19:35:48.304Z",
 			"url": "https://github.com/llvm/llvm-project/issues/225035",
 			"kind": "issue",
 			"title": "[clang] #pragma clang attribute with a _Pragma as its argument: getIdentifierInfo() called on an annotation token",
@@ -3062,18 +3706,24 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:42:11.259Z",
+				"fetchedAt": "2026-10-07T19:36:04.580Z",
 				"headSha": "9d9b48b7807174d9447db17dafb990e200bcb479",
 				"headRef": "ChenMiaoi:issue-202079",
 				"baseRef": "main",
-				"mergeable": null,
-				"mergeState": "unknown",
+				"mergeable": true,
+				"mergeState": "clean",
 				"labels": [
 					"libc"
 				],
 				"requestedReviewers": [
 					"Sukumarsawant"
 				],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:36:04.580Z",
+					"approved": [],
+					"changesRequested": [],
+					"commented": []
+				},
 				"checks": [
 					{
 						"name": "Build and Test macOS arm64",
@@ -3528,7 +4178,7 @@
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:42:11.259Z",
+			"fetchedAt": "2026-10-07T19:36:04.580Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228734",
 			"kind": "pr",
 			"title": "[libc][math] Use float-only evaluation in asinbf16 and acosbf16",
@@ -3637,18 +4287,84 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:42:11.289Z",
+				"fetchedAt": "2026-10-07T19:36:04.669Z",
 				"headSha": "8e8619b7b04a609c081053904e392d778092567f",
 				"headRef": "ChenMiaoi:issue-227549",
 				"baseRef": "main",
-				"mergeable": null,
-				"mergeState": "unknown",
+				"mergeable": true,
+				"mergeState": "blocked",
 				"labels": [
 					"clang",
 					"clang:frontend"
 				],
 				"requestedReviewers": [],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:36:04.669Z",
+					"approved": [],
+					"changesRequested": [],
+					"commented": []
+				},
 				"checks": [
+					{
+						"name": "Build and Test macOS arm64",
+						"source": "check",
+						"ref": "head",
+						"sha": "8e8619b7b04a609c081053904e392d778092567f",
+						"status": "queued",
+						"conclusion": null,
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37199495730/job/112978234613",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Linux",
+						"source": "check",
+						"ref": "head",
+						"sha": "8e8619b7b04a609c081053904e392d778092567f",
+						"status": "queued",
+						"conclusion": null,
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37199495730/job/112978123708",
+						"description": ""
+					},
+					{
+						"name": "Compute macOS Projects",
+						"source": "check",
+						"ref": "head",
+						"sha": "8e8619b7b04a609c081053904e392d778092567f",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37199495730/job/112978123692",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Windows",
+						"source": "check",
+						"ref": "head",
+						"sha": "8e8619b7b04a609c081053904e392d778092567f",
+						"status": "in_progress",
+						"conclusion": null,
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37199495730/job/112978123182",
+						"description": ""
+					},
+					{
+						"name": "validate_email",
+						"source": "check",
+						"ref": "head",
+						"sha": "8e8619b7b04a609c081053904e392d778092567f",
+						"status": "in_progress",
+						"conclusion": null,
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37199495728/job/112978086764",
+						"description": ""
+					},
+					{
+						"name": "code_formatter",
+						"source": "check",
+						"ref": "head",
+						"sha": "8e8619b7b04a609c081053904e392d778092567f",
+						"status": "in_progress",
+						"conclusion": null,
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37199495723/job/112978081139",
+						"description": ""
+					},
 					{
 						"name": "subscriber",
 						"source": "check",
@@ -3712,13 +4428,13 @@
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:42:11.289Z",
+			"fetchedAt": "2026-10-07T19:36:04.670Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228873",
 			"kind": "pr",
 			"title": "[clang][Sema] Check swift_attr argument count in type contexts",
 			"body": "`HandleSwiftAttr` checks the first argument with\r\n`checkStringLiteralArgumentAttr` without validating the argument count. Unlike declaration attributes, this path does not go through `checkCommonAttributeFeatures`, so a missing argument causes an out-of-bounds access in `ParsedAttr::getArg`.\r\n\r\nFor example:\r\n\r\n```c\r\nint * __attribute__((__swift_attr__)) a;\r\n```\r\n\r\nBefore this change, compiling this code crashes. In assertion-enabled builds, it fails in `ParsedAttr::getArg` with:\r\n\r\n```text\r\nAssertion `Arg < NumArgs && \"Arg access out of range!\"' failed.\r\n```\r\n\r\nCheck that the attribute has exactly one argument in `HandleSwiftAttr` before reading it so that the same code produces a diagnostic instead:\r\n\r\n```text\r\nerror: '__swift_attr__' attribute takes one argument\r\n```\r\n\r\nFixes #227549",
 			"author": "ChenMiaoi",
-			"updatedAt": "2026-10-04T11:39:36Z",
+			"updatedAt": "2026-10-07T08:35:11Z",
 			"state": "open",
 			"files": [
 				{
@@ -3763,6 +4479,32 @@
 			"commitsComplete": true,
 			"comments": [
 				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/228873#issuecomment-6034176179",
+					"body": "I’ve clarified my use of LLMs and my contribution workflow here: https://github.com/llvm/llvm-project/pull/229612#issuecomment-6032921971.",
+					"createdAt": "2026-10-07T08:35:10Z",
+					"updatedAt": "2026-10-07T08:35:10Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ojhunt",
+					"url": "https://github.com/llvm/llvm-project/pull/228873#issuecomment-6032469273",
+					"body": "This PR doesn't appear to comply with our policy on tool-generated content,\r\nand requires additional justification for why it is valuable enough to the\r\nproject for us to review it. Please see our developer policy on\r\nAI-generated contributions: http://llvm.org/docs/AIToolPolicy.html",
+					"createdAt": "2026-10-07T06:39:01Z",
+					"updatedAt": "2026-10-07T06:39:01Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
 					"author": "llvmorg-github-actions[bot]",
 					"url": "https://github.com/llvm/llvm-project/pull/228873#issuecomment-5979543521",
 					"body": "\n<!--LLVM PR SUMMARY COMMENT-->\n\n@llvm/pr-subscribers-clang\n\nAuthor: Chen Miao (ChenMiaoi)\n\n<details>\n<summary>Changes</summary>\n\n`HandleSwiftAttr` checks the first argument with\r\n`checkStringLiteralArgumentAttr` without validating the argument count. Unlike declaration attributes, this path does not go through `checkCommonAttributeFeatures`, so a missing argument causes an out-of-bounds access in `ParsedAttr::getArg`.\r\n\r\nFor example:\r\n\r\n```c\r\nint * __attribute__((__swift_attr__)) a;\r\n```\r\n\r\nBefore this change, compiling this code crashes. In assertion-enabled builds, it fails in `ParsedAttr::getArg` with:\r\n\r\n```text\r\nAssertion `Arg &lt; NumArgs &amp;&amp; \"Arg access out of range!\"' failed.\r\n```\r\n\r\nCheck that the attribute has exactly one argument in `HandleSwiftAttr` before reading it so that the same code produces a diagnostic instead:\r\n\r\n```text\r\nerror: '__swift_attr__' attribute takes one argument\r\n```\r\n\r\nFixes #<!-- -->227549\n\n---\nFull diff: https://github.com/llvm/llvm-project/pull/228873.diff\n\n\n2 Files Affected:\n\n- (modified) clang/lib/Sema/SemaType.cpp (+5) \n- (added) clang/test/Sema/attr-swift_attr.c (+16) \n\n\n``````````diff\ndiff --git a/clang/lib/Sema/SemaType.cpp b/clang/lib/Sema/SemaType.cpp\nindex 037583575d19f..fa47870da61a7 100644\n--- a/clang/lib/Sema/SemaType.cpp\n+++ b/clang/lib/Sema/SemaType.cpp\n@@ -7431,6 +7431,11 @@ static void HandleSwiftAttr(TypeProcessingState &State, TypeAttrLocation TAL,\n     }\n   }\n \n+  if (!PAttr.checkExactlyNumArgs(S, 1)) {\n+    PAttr.setInvalid();\n+    return;\n+  }\n+\n   StringRef Str;\n   if (!S.checkStringLiteralArgumentAttr(PAttr, 0, Str)) {\n     PAttr.setInvalid();\ndiff --git a/clang/test/Sema/attr-swift_attr.c b/clang/test/Sema/attr-swift_attr.c\nnew file mode 100644\nindex 0000000000000..a8e3c4f6755d2\n--- /dev/null\n+++ b/clang/test/Sema/attr-swift_attr.c\n@@ -0,0 +1,16 @@\n+// RUN: %clang_cc1 -fsyntax-only -verify %s\n+// RUN: %clang_cc1 -x c++ -fsyntax-only -verify %s\n+\n+// Check argument validation when the attribute is attached to a pointer type.\n+// A missing argument must be diagnosed without crashing (regression for\n+// https://github.com/llvm/llvm-project/issues/227549).\n+int * __attribute__((__swift_attr__)) missing; // expected-error {{'__swift_attr__' attribute takes one argument}}\n+int * __attribute__((swift_attr())) empty; // expected-error {{'swift_attr' attribute takes one argument}}\n+int * __attribute__((swift_attr(\"@A\", \"@B\"))) extra; // expected-error {{'swift_attr' attribute takes one argument}}\n+int * __attribute__((swift_attr(1))) non_string; // expected-error {{expected string literal as argument of 'swift_attr' attribute}}\n+int * __attribute__((swift_attr(\"@A\"))) valid;\n+\n+// Declaration attributes should continue to use the common argument checks.\n+__attribute__((swift_attr)) int decl_missing; // expected-error {{'swift_attr' attribute takes one argument}}\n+__attribute__((swift_attr(\"@A\", \"@B\"))) int decl_extra; // expected-error {{'swift_attr' attribute takes one argument}}\n+__attribute__((swift_attr(\"@A\"))) int decl_valid;\n\n``````````\n\n</details>\n",
@@ -3789,7 +4531,7 @@
 					"path": null
 				}
 			],
-			"commentsTotal": 2,
+			"commentsTotal": 4,
 			"references": [
 				{
 					"url": "https://github.com/llvm/llvm-project/issues/227549",
@@ -3803,7 +4545,7 @@
 		},
 		{
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:42:14.271Z",
+			"fetchedAt": "2026-10-07T19:36:07.393Z",
 			"url": "https://github.com/llvm/llvm-project/issues/225037",
 			"kind": "issue",
 			"title": "[clang] ext_vector_type with an enum element type: Sema accepts it, ASTContext::getExtVectorType asserts",
@@ -3863,479 +4605,495 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:42:20.587Z",
-				"headSha": "c72f0080780598b11a25e3e480537697dfd42aec",
+				"fetchedAt": "2026-10-07T19:36:13.634Z",
+				"headSha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 				"headRef": "ChenMiaoi:issue-88771",
 				"baseRef": "main",
-				"mergeable": null,
-				"mergeState": "unknown",
+				"mergeable": true,
+				"mergeState": "unstable",
 				"labels": [
 					"libc"
 				],
 				"requestedReviewers": [],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:36:13.634Z",
+					"approved": [],
+					"changesRequested": [],
+					"commented": [
+						"ChenMiaoi",
+						"lntue"
+					]
+				},
 				"checks": [
 					{
 						"name": "Build and Test macOS arm64",
 						"source": "check",
 						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 						"status": "completed",
 						"conclusion": "skipped",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644441/job/111902818920",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on amd-gpu",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "failure",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902782152",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on linux-x86_64-MinSizeRel",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902782105",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on baremetal-armv8.1m",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902782060",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on uefi-x86_64-clang",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902782052",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on linux-aarch64-clang",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902782033",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on baremetal-armv7em",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902781964",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on baremetal-riscv32",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902781932",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on baremetal-armv8m-softfp",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902781931",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on baremetal-armv6m",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902781884",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on linux-x86_64-Debug",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902781879",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on baremetal-armv7m",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902781837",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on baremetal-armv8m-hard",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902781771",
-						"description": ""
-					},
-					{
-						"name": "libc-fullbuild on linux-x86_64-Release",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644440/job/111902781526",
-						"description": ""
-					},
-					{
-						"name": "libc-shared-tests on riscv64",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644413/job/111902770574",
-						"description": ""
-					},
-					{
-						"name": "libc-shared-test with MSVC on arm64",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644413/job/111902770553",
-						"description": ""
-					},
-					{
-						"name": "libc-shared-tests on ppc64le",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644413/job/111902770489",
-						"description": ""
-					},
-					{
-						"name": "libc-shared-tests on aarch64",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644413/job/111902770488",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592756/job/112896102326",
 						"description": ""
 					},
 					{
 						"name": "libc-shared-tests with gcc-8",
 						"source": "check",
 						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 						"status": "completed",
 						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644413/job/111902770472",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592731/job/112896019752",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests on riscv64",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592731/job/112896019719",
 						"description": ""
 					},
 					{
 						"name": "libc-shared-tests with gcc-11",
 						"source": "check",
 						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 						"status": "completed",
 						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644413/job/111902770471",
-						"description": ""
-					},
-					{
-						"name": "libc-shared-tests with gcc",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644413/job/111902770454",
-						"description": ""
-					},
-					{
-						"name": "libc-shared-tests on armhf",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644413/job/111902770417",
-						"description": ""
-					},
-					{
-						"name": "libc-shared-test with MSVC on amd64_x86",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644413/job/111902770380",
-						"description": ""
-					},
-					{
-						"name": "libc-shared-tests with gcc-9",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644413/job/111902770367",
-						"description": ""
-					},
-					{
-						"name": "libc-shared-tests with gcc-7",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644413/job/111902770299",
-						"description": ""
-					},
-					{
-						"name": "libc-shared-test with MSVC on amd64",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644413/job/111902770013",
-						"description": ""
-					},
-					{
-						"name": "builtins (ubuntu-26.04)",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644405/job/111902767704",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592731/job/112896019699",
 						"description": ""
 					},
 					{
 						"name": "builtins (ubuntu-26.04-arm)",
 						"source": "check",
 						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 						"status": "completed",
 						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644405/job/111902767349",
-						"description": ""
-					},
-					{
-						"name": "windows2022-x86_64",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "failure",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644418/job/111902765176",
-						"description": ""
-					},
-					{
-						"name": "windows2025-x86_64",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "failure",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644418/job/111902765027",
-						"description": ""
-					},
-					{
-						"name": "macos-aarch64",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644418/job/111902764990",
-						"description": ""
-					},
-					{
-						"name": "qemu - armhf - clang-23",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "failure",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644418/job/111902764942",
-						"description": ""
-					},
-					{
-						"name": "linux-x86_64",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644418/job/111902764883",
-						"description": ""
-					},
-					{
-						"name": "linux-aarch64",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644418/job/111902764830",
-						"description": ""
-					},
-					{
-						"name": "qemu - riscv64 - clang-23",
-						"source": "check",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644418/job/111902764583",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592837/job/112896019625",
 						"description": ""
 					},
 					{
 						"name": "code_formatter",
 						"source": "check",
 						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 						"status": "completed",
 						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644443/job/111902745667",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592873/job/112896019596",
 						"description": ""
 					},
 					{
-						"name": "Compute macOS Projects",
+						"name": "libc-shared-test with MSVC on amd64_x86",
 						"source": "check",
 						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 						"status": "completed",
 						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644441/job/111902745501",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592731/job/112896019562",
 						"description": ""
 					},
 					{
-						"name": "Build and Test Windows",
+						"name": "libc-shared-tests with gcc",
 						"source": "check",
 						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 						"status": "completed",
 						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644441/job/111902745466",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592731/job/112896019553",
 						"description": ""
 					},
 					{
-						"name": "Build and Test Linux",
+						"name": "macos-aarch64",
 						"source": "check",
 						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 						"status": "completed",
 						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644441/job/111902745155",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592809/job/112896019513",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests with gcc-7",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592731/job/112896019500",
+						"description": ""
+					},
+					{
+						"name": "linux-aarch64",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592809/job/112896019436",
+						"description": ""
+					},
+					{
+						"name": "windows2022-x86_64",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592809/job/112896019421",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests with gcc-9",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592731/job/112896019404",
+						"description": ""
+					},
+					{
+						"name": "windows2025-x86_64",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592809/job/112896019400",
+						"description": ""
+					},
+					{
+						"name": "qemu - armhf - clang-23",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "failure",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592809/job/112896019375",
 						"description": ""
 					},
 					{
 						"name": "build",
 						"source": "check",
 						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "failure",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592748/job/112896019368",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-test with MSVC on amd64",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 						"status": "completed",
 						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141644398/job/111902738356",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592731/job/112896019355",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on amd-gpu",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896019308",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on uefi-x86_64-clang",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896019307",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-test with MSVC on arm64",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592731/job/112896019250",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-riscv32",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896019211",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests on ppc64le",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592731/job/112896019210",
+						"description": ""
+					},
+					{
+						"name": "builtins (ubuntu-26.04)",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592837/job/112896019203",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv8.1m",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896019199",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests on armhf",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592731/job/112896019190",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on linux-x86_64-Debug",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896019186",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv7em",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896019159",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on linux-x86_64-Release",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896019158",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Windows",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592756/job/112896019156",
+						"description": ""
+					},
+					{
+						"name": "linux-x86_64",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592809/job/112896019132",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on linux-aarch64-clang",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896019106",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv7m",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896019105",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv8m-softfp",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896019077",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv6m",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896019037",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on baremetal-armv8m-hard",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896019014",
+						"description": ""
+					},
+					{
+						"name": "libc-shared-tests on aarch64",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592731/job/112896018948",
+						"description": ""
+					},
+					{
+						"name": "qemu - riscv64 - clang-23",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592809/job/112896018872",
+						"description": ""
+					},
+					{
+						"name": "libc-fullbuild on linux-x86_64-MinSizeRel",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592742/job/112896018860",
+						"description": ""
+					},
+					{
+						"name": "Build and Test Linux",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592756/job/112896018809",
+						"description": ""
+					},
+					{
+						"name": "Compute macOS Projects",
+						"source": "check",
+						"ref": "head",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+						"status": "completed",
+						"conclusion": "success",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651592756/job/112896018538",
 						"description": ""
 					},
 					{
 						"name": "Graphite / mergeability_check",
 						"source": "check",
 						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 						"status": "completed",
 						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/runs/111256947820",
+						"url": "https://github.com/llvm/llvm-project/runs/112895233446",
 						"description": ""
 					},
 					{
 						"name": "greeter",
 						"source": "check",
 						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 						"status": "completed",
 						"conclusion": "skipped",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141569335/job/111256919982",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651339776/job/112895159303",
 						"description": ""
 					},
 					{
 						"name": "automate-prs-labels",
 						"source": "check",
 						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
+						"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 						"status": "completed",
 						"conclusion": "success",
-						"url": "https://github.com/llvm/llvm-project/actions/runs/37141569335/job/111256919075",
+						"url": "https://github.com/llvm/llvm-project/actions/runs/37651339776/job/112895157963",
 						"description": ""
-					},
-					{
-						"name": "buildkite/libcxx-ci/pipeline",
-						"source": "status",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272541#01a102dd-3f90-48f1-9376-0af2eba24ba2",
-						"description": "Passed (7 seconds)"
-					},
-					{
-						"name": "buildkite/libcxx-ci",
-						"source": "status",
-						"ref": "head",
-						"sha": "c72f0080780598b11a25e3e480537697dfd42aec",
-						"status": "completed",
-						"conclusion": "success",
-						"url": "https://buildkite.com/llvm-project/libcxx-ci/builds/272541",
-						"description": "Build #272541 passed (8 seconds)"
 					}
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:42:20.587Z",
+			"fetchedAt": "2026-10-07T19:36:13.634Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228749",
 			"kind": "pr",
 			"title": "[libc][math] Prevent spurious floating-point exceptions in fdim",
 			"body": "Without `FENV_ACCESS` enabled, Clang at `-O2` optimizes the conditional expression in `fdim`:\r\n\r\n```cpp\r\nreturn x > y ? x - y : T(0);\r\n```\r\n\r\ninto the following LLVM IR:\r\n\r\n```llvm\r\n%cmp = fcmp ogt double %x, %y\r\n%diff = fsub double %x, %y\r\n%result = select i1 %cmp, double %diff, double 0.000000e+00\r\n```\r\n\r\nThe `fsub` is not guarded by `x > y`. Even when `x <= y`, the subtraction executes before `select` chooses zero as the result. The `select` only chooses a value; it cannot undo floating-point exceptions already raised by the subtraction. Consequently, `fdim(-inf, -inf)` raises `FE_INVALID`, `fdim(-max, -min_subnormal)` raises `FE_INEXACT`, and `fdim(-max, max)` can raise `FE_OVERFLOW` and `FE_INEXACT`, despite all these calls returning zero.\r\n\r\nWithout floating-point environment access enabled, the compiler need not preserve the observable behavior of these exceptions and can speculate the subtraction. Simply rewriting the conditional expression as an `if` statement does not reliably prevent this optimization.\r\n\r\nEnable `FENV_ACCESS` in the shared implementation so the subtraction uses `llvm.experimental.constrained.fsub` with dynamic rounding and strict exception semantics. The optimized IR keeps the subtraction in the `x > y` branch, avoiding spurious exceptions on the path that returns zero. Enable `FENV_ACCESS` in the public entry points as well to allow the strict floating-point implementation to be inlined.\r\n\r\nFixes #88771",
 			"author": "ChenMiaoi",
-			"updatedAt": "2026-10-03T17:43:59Z",
+			"updatedAt": "2026-10-07T17:49:53Z",
 			"state": "open",
 			"files": [
+				{
+					"filename": "libc/cmake/modules/CheckCompilerFeatures.cmake",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 0,
+					"patch": "@@ -29,6 +29,7 @@ set(\n   CPU_ONLY_COMPILER_FEATURES\n     \"float80\"\n     \"float128\"\n+    \"stdc_fenv_access\"\n )\n \n # Function to check whether the compiler supports the provided set of features.",
+					"url": "https://github.com/llvm/llvm-project/blob/38cd9650dc4c3e36d0f5dedb45139b4138aa0856/libc%2Fcmake%2Fmodules%2FCheckCompilerFeatures.cmake"
+				},
+				{
+					"filename": "libc/cmake/modules/LLVMLibCCompileOptionRules.cmake",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 3,
+					"deletions": 4,
+					"patch": "@@ -330,14 +330,13 @@ function(_get_common_compile_options output_var flags)\n     if(CMAKE_CXX_COMPILER_ID MATCHES \"Clang\" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL \"22.0.0\")\n       list(APPEND compile_options \"-Wshadow\")\n     endif()\n-\n-    if(LIBC_COMPILER_HAS_STDC_FENV_ACCESS)\n-      list(APPEND compile_options \"-DLIBC_COMPILER_HAS_STDC_FENV_ACCESS\")\n-    endif()\n   elseif(MSVC)\n     list(APPEND compile_options \"/EHs-c-\")\n     list(APPEND compile_options \"/GR-\")\n   endif()\n+  if(LIBC_COMPILER_HAS_STDC_FENV_ACCESS)\n+    libc_add_definition(compile_options \"LIBC_COMPILER_HAS_STDC_FENV_ACCESS\")\n+  endif()\n   if(LIBC_TARGET_OS_IS_GPU)\n     list(APPEND compile_options \"-nogpulib\")\n     list(APPEND compile_options \"-fvisibility=hidden\")",
+					"url": "https://github.com/llvm/llvm-project/blob/38cd9650dc4c3e36d0f5dedb45139b4138aa0856/libc%2Fcmake%2Fmodules%2FLLVMLibCCompileOptionRules.cmake"
+				},
+				{
+					"filename": "libc/cmake/modules/LLVMLibCTestRules.cmake",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 3,
+					"deletions": 4,
+					"patch": "@@ -102,10 +102,9 @@ function(_get_common_test_compile_options output_var c_test flags)\n       list(APPEND compile_options \"-Wnonportable-system-include-path\")\n       list(APPEND compile_options \"-Wthread-safety\")\n     endif()\n-\n-    if(LIBC_COMPILER_HAS_STDC_FENV_ACCESS)\n-      list(APPEND compile_options \"-DLIBC_COMPILER_HAS_STDC_FENV_ACCESS\")\n-    endif()\n+  endif()\n+  if(LIBC_COMPILER_HAS_STDC_FENV_ACCESS)\n+    libc_add_definition(compile_options \"LIBC_COMPILER_HAS_STDC_FENV_ACCESS\")\n   endif()\n   set(${output_var} ${compile_options} PARENT_SCOPE)\n endfunction()",
+					"url": "https://github.com/llvm/llvm-project/blob/38cd9650dc4c3e36d0f5dedb45139b4138aa0856/libc%2Fcmake%2Fmodules%2FLLVMLibCTestRules.cmake"
+				},
 				{
 					"filename": "libc/src/__support/FPUtil/BasicOperations.h",
 					"previousFilename": null,
@@ -4343,7 +5101,7 @@
 					"additions": 4,
 					"deletions": 0,
 					"patch": "@@ -260,6 +260,10 @@ LIBC_INLINE constexpr T fminimum_mag_num(T x, T y) {\n \n template <typename T, cpp::enable_if_t<cpp::is_floating_point_v<T>, int> = 0>\n LIBC_INLINE T constexpr fdim(T x, T y) {\n+  // Do not speculate x - y when x <= y: it can raise spurious FP exceptions.\n+  // See https://github.com/llvm/llvm-project/issues/88771.\n+  // The entry points also enable FENV_ACCESS to allow inlining this function.\n+  LIBC_FENV_ACCESS_ON\n   FPBits<T> bitx(x), bity(y);\n \n   if (bitx.is_nan()) {",
-					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2F__support%2FFPUtil%2FBasicOperations.h"
+					"url": "https://github.com/llvm/llvm-project/blob/38cd9650dc4c3e36d0f5dedb45139b4138aa0856/libc%2Fsrc%2F__support%2FFPUtil%2FBasicOperations.h"
 				},
 				{
 					"filename": "libc/src/math/generic/fdim.cpp",
@@ -4352,7 +5110,7 @@
 					"additions": 1,
 					"deletions": 0,
 					"patch": "@@ -12,6 +12,7 @@\n namespace LIBC_NAMESPACE_DECL {\n \n LLVM_LIBC_FUNCTION(double, fdim, (double x, double y)) {\n+  LIBC_FENV_ACCESS_ON\n   return math::fdim(x, y);\n }\n ",
-					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdim.cpp"
+					"url": "https://github.com/llvm/llvm-project/blob/38cd9650dc4c3e36d0f5dedb45139b4138aa0856/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdim.cpp"
 				},
 				{
 					"filename": "libc/src/math/generic/fdimbf16.cpp",
@@ -4361,7 +5119,7 @@
 					"additions": 1,
 					"deletions": 0,
 					"patch": "@@ -12,6 +12,7 @@\n namespace LIBC_NAMESPACE_DECL {\n \n LLVM_LIBC_FUNCTION(bfloat16, fdimbf16, (bfloat16 x, bfloat16 y)) {\n+  LIBC_FENV_ACCESS_ON\n   return math::fdimbf16(x, y);\n }\n ",
-					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdimbf16.cpp"
+					"url": "https://github.com/llvm/llvm-project/blob/38cd9650dc4c3e36d0f5dedb45139b4138aa0856/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdimbf16.cpp"
 				},
 				{
 					"filename": "libc/src/math/generic/fdimf.cpp",
@@ -4370,7 +5128,7 @@
 					"additions": 1,
 					"deletions": 0,
 					"patch": "@@ -12,6 +12,7 @@\n namespace LIBC_NAMESPACE_DECL {\n \n LLVM_LIBC_FUNCTION(float, fdimf, (float x, float y)) {\n+  LIBC_FENV_ACCESS_ON\n   return math::fdimf(x, y);\n }\n ",
-					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdimf.cpp"
+					"url": "https://github.com/llvm/llvm-project/blob/38cd9650dc4c3e36d0f5dedb45139b4138aa0856/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdimf.cpp"
 				},
 				{
 					"filename": "libc/src/math/generic/fdimf128.cpp",
@@ -4379,7 +5137,7 @@
 					"additions": 1,
 					"deletions": 0,
 					"patch": "@@ -15,6 +15,7 @@ namespace LIBC_NAMESPACE_DECL {\n using LIBC_NAMESPACE::fputil::Float128;\n \n LLVM_LIBC_FUNCTION(float128, fdimf128, (float128 x, float128 y)) {\n+  LIBC_FENV_ACCESS_ON\n   return cpp::bit_cast<float128>(\n       math::fdimf128(cpp::bit_cast<Float128>(x), cpp::bit_cast<Float128>(y)));\n }",
-					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdimf128.cpp"
+					"url": "https://github.com/llvm/llvm-project/blob/38cd9650dc4c3e36d0f5dedb45139b4138aa0856/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdimf128.cpp"
 				},
 				{
 					"filename": "libc/src/math/generic/fdimf16.cpp",
@@ -4388,7 +5146,7 @@
 					"additions": 1,
 					"deletions": 0,
 					"patch": "@@ -12,6 +12,7 @@\n namespace LIBC_NAMESPACE_DECL {\n \n LLVM_LIBC_FUNCTION(float16, fdimf16, (float16 x, float16 y)) {\n+  LIBC_FENV_ACCESS_ON\n   return math::fdimf16(x, y);\n }\n ",
-					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdimf16.cpp"
+					"url": "https://github.com/llvm/llvm-project/blob/38cd9650dc4c3e36d0f5dedb45139b4138aa0856/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdimf16.cpp"
 				},
 				{
 					"filename": "libc/src/math/generic/fdiml.cpp",
@@ -4397,7 +5155,7 @@
 					"additions": 1,
 					"deletions": 0,
 					"patch": "@@ -12,6 +12,7 @@\n namespace LIBC_NAMESPACE_DECL {\n \n LLVM_LIBC_FUNCTION(long double, fdiml, (long double x, long double y)) {\n+  LIBC_FENV_ACCESS_ON\n   return math::fdiml(x, y);\n }\n ",
-					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdiml.cpp"
+					"url": "https://github.com/llvm/llvm-project/blob/38cd9650dc4c3e36d0f5dedb45139b4138aa0856/libc%2Fsrc%2Fmath%2Fgeneric%2Ffdiml.cpp"
 				},
 				{
 					"filename": "libc/test/src/math/smoke/FDimTest.h",
@@ -4406,16 +5164,16 @@
 					"additions": 30,
 					"deletions": 0,
 					"patch": "@@ -60,6 +60,33 @@ class FDimTestTemplate : public LIBC_NAMESPACE::testing::FEnvSafeTest {\n     EXPECT_FP_EQ(zero, func(neg_zero, neg_zero));\n   }\n \n+  void test_no_spurious_exceptions(FuncPtr func) {\n+    const T max = FPBits::max_normal().get_val();\n+    const T neg_max = FPBits::max_normal(Sign::NEG).get_val();\n+    const T neg_denorm = FPBits::min_subnormal(Sign::NEG).get_val();\n+    auto call = [func](T x, T y) {\n+      T result = func(x, y);\n+      // Comparing subnormal operands can raise the non-standard denormal\n+      // exception. Only check the standard floating-point exceptions here.\n+#ifdef FE_DENORM\n+      LIBC_NAMESPACE::fputil::clear_except(FE_DENORM);\n+#elif defined(FE_DENORMAL)\n+      LIBC_NAMESPACE::fputil::clear_except(FE_DENORMAL);\n+#elif defined(__FE_DENORM)\n+      LIBC_NAMESPACE::fputil::clear_except(__FE_DENORM);\n+#endif\n+      return result;\n+    };\n+\n+    // When x <= y, the subtraction must not raise exceptions before returning\n+    // zero, even when it would produce an invalid, inexact, or overflow result.\n+    EXPECT_FP_EQ_WITH_EXCEPTION_ALL_ROUNDING(zero, call(inf, inf), 0);\n+    EXPECT_FP_EQ_WITH_EXCEPTION_ALL_ROUNDING(zero, call(neg_inf, neg_inf), 0);\n+    EXPECT_FP_EQ_WITH_EXCEPTION_ALL_ROUNDING(zero, call(neg_max, neg_denorm),\n+                                             0);\n+    EXPECT_FP_EQ_WITH_EXCEPTION_ALL_ROUNDING(zero, call(neg_max, max), 0);\n+  }\n+\n   void test_in_range(FuncPtr func) {\n     constexpr StorageType STORAGE_MAX =\n         LIBC_NAMESPACE::cpp::numeric_limits<StorageType>::max();\n@@ -92,5 +119,8 @@ class FDimTestTemplate : public LIBC_NAMESPACE::testing::FEnvSafeTest {\n   TEST_F(LlvmLibc##Name##Test, InfArg) { test_inf_arg(&func); }                \\\n   TEST_F(LlvmLibc##Name##Test, NegInfArg) { test_neg_inf_arg(&func); }         \\\n   TEST_F(LlvmLibc##Name##Test, BothZero) { test_both_zero(&func); }            \\\n+  TEST_F(LlvmLibc##Name##Test, NoSpuriousExceptions) {                         \\\n+    test_no_spurious_exceptions(&func);                                        \\\n+  }                                                                            \\\n   TEST_F(LlvmLibc##Name##Test, InFloatRange) { test_in_range(&func); }         \\\n   static_assert(true, \"Require semicolon.\")",
-					"url": "https://github.com/llvm/llvm-project/blob/c72f0080780598b11a25e3e480537697dfd42aec/libc%2Ftest%2Fsrc%2Fmath%2Fsmoke%2FFDimTest.h"
+					"url": "https://github.com/llvm/llvm-project/blob/38cd9650dc4c3e36d0f5dedb45139b4138aa0856/libc%2Ftest%2Fsrc%2Fmath%2Fsmoke%2FFDimTest.h"
 				}
 			],
 			"stats": {
-				"files": 8,
-				"additions": 40,
-				"deletions": 0
+				"files": 11,
+				"additions": 47,
+				"deletions": 8
 			},
 			"filesComplete": true,
-			"headSha": "c72f0080780598b11a25e3e480537697dfd42aec",
+			"headSha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
 			"baseSha": "04203a045b4cfb18e2b22764744249cba171eb30",
 			"mergeCommitSha": null,
 			"mergedAt": null,
@@ -4426,11 +5184,109 @@
 					"title": "[libc][math] Prevent spurious floating-point exceptions in fdim",
 					"author": "ChenMiaoi",
 					"date": "2026-10-03T17:43:25Z"
+				},
+				{
+					"sha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+					"url": "https://github.com/llvm/llvm-project/commit/38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+					"title": "[libc] Fix FENV_ACCESS handling on Windows and GPUs",
+					"author": "ChenMiaoi",
+					"date": "2026-10-07T16:17:10Z"
 				}
 			],
-			"commitsTotal": 1,
+			"commitsTotal": 2,
 			"commitsComplete": true,
 			"comments": [
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/228749#discussion_r4210135702",
+					"body": "This version appears to work without optimization, but at `-O2` and `-O3`, Clang still emits an unconditional subtraction, as shown here:\r\n\r\nhttps://godbolt.org/z/TY53Gdx46\r\n\r\n``` asm\r\nmovaps  xmm2, xmm0\r\nsubss   xmm2, xmm1\r\ncmpnless        xmm0, xmm1\r\n```\r\n\r\nI initially considered this approach too, but the original issue also notes that \"replacing the conditional operator with an `if-statement` is brittle and can still produce the same problematic assembly\".\r\n\r\nSo I don’t think switching to an `if-statement` alone is a reliable fix, and I believe we still need `LIBC_FENV_ACCESS_ON` on targets that support it.",
+					"createdAt": "2026-10-07T17:49:53Z",
+					"updatedAt": "2026-10-07T17:50:43Z",
+					"kind": "review-comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+					"replyToUrl": "https://github.com/llvm/llvm-project/pull/228749#discussion_r4209685035",
+					"path": "libc/src/__support/FPUtil/BasicOperations.h"
+				},
+				{
+					"author": "lntue",
+					"url": "https://github.com/llvm/llvm-project/pull/228749#discussion_r4209685035",
+					"body": "What if we change this to:\n```\nif (x <= y)\n  return T(0);\nreturn x - y;\n```\nCan you check if `LIBC_FENV_ACCESS_ON` is still needed?",
+					"createdAt": "2026-10-07T17:05:38Z",
+					"updatedAt": "2026-10-07T17:05:38Z",
+					"kind": "review-comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": "38cd9650dc4c3e36d0f5dedb45139b4138aa0856",
+					"replyToUrl": null,
+					"path": "libc/src/__support/FPUtil/BasicOperations.h"
+				},
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/228749#issuecomment-6041694132",
+					"body": "@lntue \r\n\r\nHi, I looked into the currently failing tests, and the `armhf` test failure under QEMU appears to be related to `LIBC_FENV_ACCESS_ON` not taking effect.\r\n\r\nAfter reproducing this locally, I found that `#pragma STDC FENV_ACCESS ON` is not supported by the Clang version and `armhf` target configuration I tested. Here is a simplified reproducer comparing code generation with `FENV_ACCESS` enabled and disabled:\r\n\r\nhttps://godbolt.org/z/jfEEWx8Gz\r\n\r\n``` asm\r\n// some assembly instructions omitted\r\nvsub.f32   s4, s0, s1\r\nvmovgt.f32 s2, s4\r\n```\r\n\r\nIn this example, both versions generate the same key instructions: the floating-point subtraction `x - y` is performed unconditionally, and the comparison result then determines whether its result is used. Therefore, even when `x > y` is false and the function ultimately returns zero, the subtraction may already have raised a floating-point exception. This explains why the current fix does not resolve the test failure in this configuration.\r\n\r\nShould this PR use a different implementation in libc to avoid this unnecessary floating-point operation? Or does this require improving Clang’s support for `FENV_ACCESS` on this ARM target before addressing the test failure?\r\n\r\nOne more question: if we decide to add support for `FENV_ACCESS` on armhf, should I open a separate issue and address it in a separate PR, or include that work in this PR?",
+					"createdAt": "2026-10-07T16:00:07Z",
+					"updatedAt": "2026-10-07T16:00:07Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/228749#issuecomment-6040056998",
+					"body": "> Can you take a look at the precommit CI failures?\r\n\r\nSorry, I overlooked that. I’ll address it now.",
+					"createdAt": "2026-10-07T14:25:37Z",
+					"updatedAt": "2026-10-07T14:25:37Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "lntue",
+					"url": "https://github.com/llvm/llvm-project/pull/228749#issuecomment-6039373002",
+					"body": "Can you take a look at the precommit CI failures?",
+					"createdAt": "2026-10-07T13:49:37Z",
+					"updatedAt": "2026-10-07T13:49:37Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/228749#issuecomment-6034181661",
+					"body": "I’ve clarified my use of LLMs and my contribution workflow here: https://github.com/llvm/llvm-project/pull/229612#issuecomment-6032921971.",
+					"createdAt": "2026-10-07T08:35:31Z",
+					"updatedAt": "2026-10-07T08:35:31Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ojhunt",
+					"url": "https://github.com/llvm/llvm-project/pull/228749#issuecomment-6032470594",
+					"body": "This PR doesn't appear to comply with our policy on tool-generated content,\r\nand requires additional justification for why it is valuable enough to the\r\nproject for us to review it. Please see our developer policy on\r\nAI-generated contributions: http://llvm.org/docs/AIToolPolicy.html",
+					"createdAt": "2026-10-07T06:39:07Z",
+					"updatedAt": "2026-10-07T06:39:07Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
 				{
 					"author": "llvmorg-github-actions[bot]",
 					"url": "https://github.com/llvm/llvm-project/pull/228749#issuecomment-5971777599",
@@ -4458,7 +5314,7 @@
 					"path": null
 				}
 			],
-			"commentsTotal": 2,
+			"commentsTotal": 9,
 			"references": [
 				{
 					"url": "https://github.com/llvm/llvm-project/issues/88771",
@@ -4472,7 +5328,7 @@
 		},
 		{
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:42:24.039Z",
+			"fetchedAt": "2026-10-07T19:36:16.959Z",
 			"url": "https://github.com/llvm/llvm-project/issues/53565",
 			"kind": "issue",
 			"title": "LLVM_USE_LINKER should use --ld-path= instead of -fuse-ld=",
@@ -4537,7 +5393,7 @@
 		},
 		{
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:42:23.055Z",
+			"fetchedAt": "2026-10-07T19:36:16.043Z",
 			"url": "https://github.com/llvm/llvm-project/issues/202079",
 			"kind": "issue",
 			"title": "[libc][math] Add  float-only versions for `inv_trigf_utils.h`",
@@ -4610,7 +5466,7 @@
 		},
 		{
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:42:26.474Z",
+			"fetchedAt": "2026-10-07T19:36:19.379Z",
 			"url": "https://github.com/llvm/llvm-project/issues/81503",
 			"kind": "issue",
 			"title": "[libc][stdbit] fix type generic macros to work with compound literals",
@@ -4683,16 +5539,22 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:42:32.332Z",
+				"fetchedAt": "2026-10-07T19:36:25.315Z",
 				"headSha": "88ea86709b4f72137f39615a5a177faf4904f4b1",
 				"headRef": "ChenMiaoi:issue-81503",
 				"baseRef": "main",
-				"mergeable": null,
-				"mergeState": "unknown",
+				"mergeable": true,
+				"mergeState": "unstable",
 				"labels": [
 					"libc"
 				],
 				"requestedReviewers": [],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:36:25.315Z",
+					"approved": [],
+					"changesRequested": [],
+					"commented": []
+				},
 				"checks": [
 					{
 						"name": "Build and Test macOS arm64",
@@ -5147,13 +6009,13 @@
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:42:32.332Z",
+			"fetchedAt": "2026-10-07T19:36:25.315Z",
 			"url": "https://github.com/llvm/llvm-project/pull/228721",
 			"kind": "pr",
 			"title": "[libc][stdbit] Support compound literals in type-generic macros",
 			"body": "Calls such as the following fail because the preprocessor treats the comma in the initializer as a macro argument separator:\r\n\r\n``` c\r\nstruct PairUI { unsigned int first, second; };\r\nstdc_count_ones((struct PairUI){ 2U, 3U }.first);\r\n```\r\n\r\nUse variadic macros so `__VA_ARGS__` preserves all argument tokens, including the separating commas, reconstructing the original expression.\r\n\r\nFixes #81503.",
 			"author": "ChenMiaoi",
-			"updatedAt": "2026-10-03T15:09:32Z",
+			"updatedAt": "2026-10-07T08:39:55Z",
 			"state": "open",
 			"files": [
 				{
@@ -5208,6 +6070,32 @@
 			"comments": [
 				{
 					"author": "ChenMiaoi",
+					"url": "https://github.com/llvm/llvm-project/pull/228721#issuecomment-6034249306",
+					"body": "I’ve clarified my use of LLMs and my contribution workflow here: https://github.com/llvm/llvm-project/pull/229612#issuecomment-6032921971.",
+					"createdAt": "2026-10-07T08:39:55Z",
+					"updatedAt": "2026-10-07T08:39:55Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ojhunt",
+					"url": "https://github.com/llvm/llvm-project/pull/228721#issuecomment-6032479199",
+					"body": "This PR doesn't appear to comply with our policy on tool-generated content,\r\nand requires additional justification for why it is valuable enough to the\r\nproject for us to review it. Please see our developer policy on\r\nAI-generated contributions: http://llvm.org/docs/AIToolPolicy.html",
+					"createdAt": "2026-10-07T06:39:46Z",
+					"updatedAt": "2026-10-07T06:39:46Z",
+					"kind": "comment",
+					"bot": false,
+					"reviewState": null,
+					"commitSha": null,
+					"replyToUrl": null,
+					"path": null
+				},
+				{
+					"author": "ChenMiaoi",
 					"url": "https://github.com/llvm/llvm-project/pull/228721#issuecomment-5970428055",
 					"body": "> Hello @ChenMiaoi 👋\r\n> \r\n> Thank you for submitting a Pull Request (PR) to the LLVM Project. Since this is your first PR, here are a few useful links covering our main contribution policies and review practices.\r\n> \r\n> * All contributions to LLVM must follow our [LLVM AI Tool Use Policy](https://llvm.org/docs/AIToolPolicy.html). In particular, if you used AI while working on this PR, remember to add a note to the PR description.\r\n> * The [LLVM Code-Review Policy and Practices](https://llvm.org/docs/CodeReview.html) document contains practical information about the PR process, including how patches are reviewed and accepted, and who can review a PR.\r\n> * Our [LLVM Developer Policy](https://llvm.org/docs/DeveloperPolicy.html) describes our expectations for code quality, commit summaries and contains notes on our CI system.\r\n> \r\n> Please reply to this message to confirm that you have read these policies, especially the LLVM AI Tool Use Policy, and that any AI tool usage has been noted in the PR description.\r\n> \r\n> ### Frequently asked questions\r\n> **How do I add reviewers?**\r\n> \r\n> This PR will be automatically labeled, and the relevant teams will be notified. For some parts of the project, reviewers may also be added automatically.\r\n> \r\n> You can also add reviewers manually using the **Reviewers** section on this page. If you cannot use that section, it is probably because you do not have write permissions for the repository. In that case, you can request a review by tagging reviewers in a comment using `@` followed by their GitHub username.\r\n> \r\n> **What if there are no comments?**\r\n> \r\n> If you have not received any comments on your PR after a week, you can request a review by pinging the PR with a comment such as “Ping”. The common courtesy ping rate is once a week. Please remember that you are asking for volunteer time from other developers.\r\n> \r\n> **Are any special GitHub settings required to contribute to LLVM?**\r\n> \r\n> We only require contributors to have a public email address associated with their GitHub commits, see this [section](https://llvm.org/docs/DeveloperPolicy.html#email-addresses) of LLVM Developer Policy for details.\r\n> \r\n> If you have questions, feel free to leave a comment on this PR, or ask on [LLVM Discord](https://discord.com/invite/xS7Z362) or [LLVM Discourse](https://discourse.llvm.org/).\r\n> \r\n> Thank you, The LLVM Community\r\n\r\nI see!",
 					"createdAt": "2026-10-03T15:09:32Z",
@@ -5246,7 +6134,7 @@
 					"path": null
 				}
 			],
-			"commentsTotal": 3,
+			"commentsTotal": 5,
 			"references": [
 				{
 					"url": "https://github.com/llvm/llvm-project/issues/81503",
@@ -5260,7 +6148,7 @@
 		},
 		{
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:42:34.980Z",
+			"fetchedAt": "2026-10-07T19:36:27.819Z",
 			"url": "https://github.com/rust-lang/cargo/issues/17519",
 			"kind": "issue",
 			"title": "`build.warnings` is not honored when using `cargo clippy --message-format=json`",
@@ -5346,7 +6234,7 @@
 		},
 		{
 			"pullRequest": {
-				"fetchedAt": "2026-10-06T17:42:41.221Z",
+				"fetchedAt": "2026-10-07T19:36:33.283Z",
 				"headSha": "bd8e9caad6d2a43c4b5e702dd8819afb51f9aa23",
 				"headRef": "ChenMiaoi:issue-17519",
 				"baseRef": "master",
@@ -5356,6 +6244,16 @@
 					"A-build-execution"
 				],
 				"requestedReviewers": [],
+				"reviewSummary": {
+					"fetchedAt": "2026-10-07T19:36:33.283Z",
+					"approved": [],
+					"changesRequested": [],
+					"commented": [
+						"ChenMiaoi",
+						"epage",
+						"ranger-ross"
+					]
+				},
 				"checks": [
 					{
 						"name": "conclusion",
@@ -5650,7 +6548,7 @@
 				]
 			},
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:42:41.221Z",
+			"fetchedAt": "2026-10-07T19:36:33.283Z",
 			"url": "https://github.com/rust-lang/cargo/pull/17545",
 			"kind": "pr",
 			"title": "fix(diag): Honor build.warnings deny with JSON diagnostics",
@@ -5805,7 +6703,7 @@
 		},
 		{
 			"detailVersion": 3,
-			"fetchedAt": "2026-10-06T17:42:43.553Z",
+			"fetchedAt": "2026-10-07T19:36:35.576Z",
 			"url": "https://github.com/rust-lang/cargo/issues/11370",
 			"kind": "issue",
 			"title": "`cargo tree -d` with multitarget configured shows duplicate dependencies once per target",
@@ -5924,6 +6822,54 @@
 			"commentsTotal": 0,
 			"references": [],
 			"sha": "39f0227cf27787a5eafd5b9686bb0521802a28a5"
+		},
+		{
+			"url": "https://github.com/llvm/llvm-project/commit/3a5aaa42280e94e428c297290d46f91dd2ef36fe",
+			"kind": "commit",
+			"title": "[clang] Restrict parenthesized direct initialization to C++ (#229034)",
+			"body": "Only recognize parenthesized direct initializers in C++ mode. This\navoids an assertion when a malformed GNU attribute in C is followed by a\nparenthesized expression list:\n\n```c\nint a __attribute__ ) (1, 2);\n```\n\nFixes #225045",
+			"author": "ChenMiaoi",
+			"updatedAt": "2026-10-07T16:05:40Z",
+			"state": "commit",
+			"files": [
+				{
+					"filename": "clang/docs/ReleaseNotes.md",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 3,
+					"deletions": 0,
+					"patch": "@@ -656,6 +656,9 @@ features cannot lower the translation-unit ABI level;\n \n #### Bug Fixes to Attribute Support\n \n+- Fixed an assertion failure when parsing malformed GNU `__attribute__`\n+  syntax followed by a parenthesized expression list in C code. (#GH225045)\n+\n - Fixed crash (assertion) when the `alloc_align` attribute was applied to a declaration whose type has a `FunctionProtoType` but which is not itself a `FunctionDecl`, such as a function-pointer variable. (#GH122058)\n \n - Fixed a crash on `bool` vectors declared with `ext_vector_type` and more than",
+					"url": "https://github.com/llvm/llvm-project/blob/3a5aaa42280e94e428c297290d46f91dd2ef36fe/clang%2Fdocs%2FReleaseNotes.md"
+				},
+				{
+					"filename": "clang/lib/Parse/ParseDecl.cpp",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 1,
+					"deletions": 1,
+					"patch": "@@ -2536,7 +2536,7 @@ Decl *Parser::ParseDeclarationAfterDeclaratorAndAttributes(\n   // If a '==' or '+=' is found, suggest a fixit to '='.\n   if (isTokenEqualOrEqualTypo())\n     TheInitKind = InitKind::Equal;\n-  else if (Tok.is(tok::l_paren))\n+  else if (getLangOpts().CPlusPlus && Tok.is(tok::l_paren))\n     TheInitKind = InitKind::CXXDirect;\n   else if (getLangOpts().CPlusPlus11 && Tok.is(tok::l_brace) &&\n            (!CurParsedObjCImpl || !D.isFunctionDeclarator()))",
+					"url": "https://github.com/llvm/llvm-project/blob/3a5aaa42280e94e428c297290d46f91dd2ef36fe/clang%2Flib%2FParse%2FParseDecl.cpp"
+				},
+				{
+					"filename": "clang/test/Parser/attributes.c",
+					"previousFilename": null,
+					"status": "modified",
+					"additions": 5,
+					"deletions": 0,
+					"patch": "@@ -116,3 +116,8 @@ __attribute__(()) struct t;\n void f5() {\n   __attribute__(()) struct t;\n }\n+\n+// GH225045: attribute recovery must not parse a C++ direct initializer in C.\n+// expected-error@+2 {{expected '(' after 'attribute'}}\n+// expected-error@+1 {{expected ';' after top level declarator}}\n+int a __attribute__ ) (1, 2);",
+					"url": "https://github.com/llvm/llvm-project/blob/3a5aaa42280e94e428c297290d46f91dd2ef36fe/clang%2Ftest%2FParser%2Fattributes.c"
+				}
+			],
+			"stats": {
+				"files": 3,
+				"additions": 9,
+				"deletions": 1
+			},
+			"filesComplete": true,
+			"comments": [],
+			"commentsTotal": 0,
+			"references": [],
+			"sha": "3a5aaa42280e94e428c297290d46f91dd2ef36fe"
 		}
 	]
 }

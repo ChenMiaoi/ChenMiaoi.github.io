@@ -12,6 +12,14 @@ export const pullRequestStatusSchema = z.object({
 	mergeState: z.string(),
 	labels: z.array(z.string()),
 	requestedReviewers: z.array(z.string()),
+	reviewSummary: z
+		.object({
+			fetchedAt: date,
+			approved: z.array(z.string()),
+			changesRequested: z.array(z.string()),
+			commented: z.array(z.string()),
+		})
+		.optional(),
 	checks: z.array(
 		z.object({
 			name: z.string(),

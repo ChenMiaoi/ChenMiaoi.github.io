@@ -136,7 +136,7 @@ async function fetchDetails(descriptor, existingRecord) {
 			throw new Error(`PR #${descriptor.number} changed during synchronization; previous snapshot retained`);
 	}
 	return {
-		pullRequest: kind === "pr" ? await readPullRequestStatus(api, repository, descriptor.number, record) : undefined,
+		pullRequest: kind === "pr" ? await readPullRequestStatus(api, repository, descriptor.number, record, reviewPages.flat()) : undefined,
 		detailVersion,
 		fetchedAt: new Date().toISOString(),
 		url,
