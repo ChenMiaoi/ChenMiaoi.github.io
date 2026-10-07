@@ -376,6 +376,7 @@ export const messages = {
 	"{v0} PR 已合并": ["{v0} PRs merged", "{v0} PR 已合併", "{v0} PR マージ済み"],
 	协作任务列表: ["Collaboration task list", "協作任務列表", "協力タスク一覧"],
 	选择任务队列: ["Select task queue", "選擇任務佇列", "タスクキューを選択"],
+	筛选记录类型: ["Filter record types", "篩選記錄類型", "記録の種類で絞り込む"],
 	当前协作: ["Active missions", "目前協作", "進行中の協力"],
 	成果档案: ["Outcome archive", "成果檔案", "成果アーカイブ"],
 	"当前分区暂无此类记录。": ["No matching records in this sector.", "目前分區暫無此類記錄。", "この区画に該当する記録はありません。"],

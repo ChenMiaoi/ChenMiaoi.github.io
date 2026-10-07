@@ -14,7 +14,43 @@ import { createDeferredNavigation, WELCOME_RETURN_DURATION } from "../src/lib/co
 import { createTranslations, languageUrl } from "../src/features/orbital/i18n/index.ts";
 import { messages } from "../src/features/orbital/i18n/messages.ts";
 import { contributionUrl, resolveContributionSelection } from "../src/lib/contributions/navigation.ts";
-import { contributionOverview } from "../src/lib/contributions/overview.ts";
+import { contributionOverview, contributionQueue } from "../src/lib/contributions/overview.ts";
+
+test("mission type counts use the current queue and preserve record order", () => {
+    const records = [
+        { id: 'draft', kind: 'pr', state: 'draft' },
+        { id: 'issue', kind: 'issue', state: 'open' },
+        { id: 'merged', kind: 'pr', state: 'merged' },
+        { id: 'pr', kind: 'pr', state: 'open' },
+        { id: 'closed-issue', kind: 'issue', state: 'closed' },
+        { id: 'commit', kind: 'commit', state: 'commit' },
+        { id: 'closed-pr', kind: 'pr', state: 'closed' },
+        { id: 'unknown', kind: 'issue', state: 'unknown' },
+    ];
+    const original = structuredClone(records);
+    const active = contributionQueue(records, 'active');
+    assert.deepEqual(active.counts, { all: 3, pr: 2, issue: 1, commit: 0 });
+    assert.deepEqual(active.records.map(record => record.id), ['draft', 'issue', 'pr']);
+    assert.deepEqual(contributionQueue(records, 'active', 'pr').records.map(record => record.id), ['draft', 'pr']);
+    assert.deepEqual(contributionQueue(records, 'active', 'issue').records.map(record => record.id), ['issue']);
+    const archive = contributionQueue(records, 'archive', 'commit');
+    assert.deepEqual(archive.counts, { all: 4, pr: 2, issue: 1, commit: 1 });
+    assert.deepEqual(archive.records.map(record => record.id), ['commit']);
+    assert.deepEqual(contributionQueue(records, 'archive', 'pr').records.map(record => record.id), ['merged', 'closed-pr']);
+    assert.deepEqual(records, original);
+});
+
+test("a hidden commit filter falls back to all active records and empty kinds stay empty", () => {
+    const records = [{ id: 'one', kind: 'pr', state: 'open' }];
+    const active = contributionQueue(records, 'active', 'commit');
+    assert.equal(active.kind, 'all');
+    assert.deepEqual(active.records, records);
+    const issues = contributionQueue(records, 'active', 'issue');
+    assert.equal(issues.kind, 'issue');
+    assert.deepEqual(issues.records, []);
+    assert.deepEqual(issues.counts, { all: 1, pr: 1, issue: 0, commit: 0 });
+    assert.deepEqual(contributionQueue([], 'archive').counts, { all: 0, pr: 0, issue: 0, commit: 0 });
+});
 
 test("mission statistics deduplicate records and distinguish unknown, closed and merged outcomes", () => {
     const projects = [{ id:'one',name:'One',repository:'https://github.com/example/one',items:[{sha:'abc1234',title:'Commit',date:'2026-10-01'}] },{id:'two',name:'Two',repository:'https://github.com/example/two',items:[]}];

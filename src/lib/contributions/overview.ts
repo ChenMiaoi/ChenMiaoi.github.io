@@ -9,6 +9,37 @@ import type {
 	ContributionDetailsSnapshot,
 } from "./types";
 
+export type ContributionKindFilter = "all" | "pr" | "issue" | "commit";
+export type ContributionQueue = "active" | "archive";
+
+export function contributionQueue<
+	T extends { kind: Exclude<ContributionKindFilter, "all">; state: string },
+>(
+	records: T[],
+	queue: ContributionQueue,
+	kind: ContributionKindFilter = "all",
+) {
+	const selectedKind = queue === "active" && kind === "commit" ? "all" : kind;
+	const queued = records.filter((record) =>
+		queue === "active"
+			? record.state === "open" || record.state === "draft"
+			: ["merged", "closed", "commit"].includes(record.state),
+	);
+	const counts = {
+		all: queued.length,
+		pr: queued.filter((record) => record.kind === "pr").length,
+		issue: queued.filter((record) => record.kind === "issue").length,
+		commit: queued.filter((record) => record.kind === "commit").length,
+	};
+	return {
+		kind: selectedKind,
+		counts,
+		records: queued.filter(
+			(record) => selectedKind === "all" || record.kind === selectedKind,
+		),
+	};
+}
+
 export function contributionOverview(
 	projects: ContributionProject[],
 	activity: ContributionActivitySnapshot,

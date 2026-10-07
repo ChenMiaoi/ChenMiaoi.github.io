@@ -1,6 +1,6 @@
 <script lang="ts">
   import { useTranslations } from "../../features/orbital/i18n/context";
-  import { contributionOverview } from "../../lib/contributions/overview";
+  import { contributionOverview, contributionQueue, type ContributionKindFilter, type ContributionQueue } from "../../lib/contributions/overview";
   import { checkPresentation, conflictPresentation, recordPresentation, reviewPresentation } from "../../lib/contributions/presentation";
   import { conflictState, summarizeChecks } from "../../lib/contributions/checks";
   import { resolveReviewSummary } from "../../lib/contributions/reviews";
@@ -24,14 +24,18 @@
   export let reducedMotion = true;
   export let onOpen: (project: string, record: string) => void;
   let sectorId = "all";
-  let tab: "active" | "archive" = "active";
+  let tab: ContributionQueue = "active";
+  let kind: ContributionKindFilter = "pr";
+  let queueElement: HTMLDivElement | undefined;
   let focusedId = "";
   $: overview = contributionOverview(projects, activity, details);
   $: selectedSectors = overview.sectors.filter((sector) => sectorId === "all" || sector.project.id === sectorId);
   $: totals = selectedSectors.reduce((sum, sector) => ({ issues: sum.issues + sector.issues, prs: sum.prs + sector.prs, active: sum.active + sector.active, commits: sum.commits + sector.commits, unknown: sum.unknown + sector.unknown }), { issues: 0, prs: 0, active: 0, commits: 0, unknown: 0 });
   $: records = overview.records.filter((record) => sectorId === "all" || record.projectId === sectorId);
   $: activeCount = records.filter((record) => record.state === "open" || record.state === "draft").length;
-  $: missions = records.filter((record) => tab === "active" ? record.state === "open" || record.state === "draft" : ["merged", "closed", "commit"].includes(record.state));
+  $: queue = contributionQueue(records, tab, kind);
+  $: kindOptions = (tab === 'active' ? ['all', 'pr', 'issue'] : ['all', 'pr', 'issue', 'commit']) as ContributionKindFilter[];
+  $: missions = queue.records;
   $: focusedMission = missions.find((mission) => (mission.url ?? mission.id) === focusedId) ?? missions[0];
   $: focusedDetail = focusedMission ? details.records.find((detail) => detail.url === focusedMission.url) : undefined;
   $: reviewSummary = focusedMission?.kind === 'pr' ? resolveReviewSummary(focusedDetail) : undefined;
@@ -41,6 +45,10 @@
   $: mergedCommitUrl = focusedMission?.kind === 'pr' && focusedDetail?.state === 'merged' && focusedDetail.mergeCommitSha
     ? focusedMission.url?.replace(/\/pull\/\d+$/, `/commit/${focusedDetail.mergeCommitSha}`) : undefined;
   const pad = (value: number) => String(value).padStart(2, "0");
+  const kindLabel = (value: ContributionKindFilter) => ({ all: t("全部"), pr: 'PR', issue: 'Issue', commit: t("提交") })[value];
+  const resetQueueScroll = () => { if (queueElement) queueElement.scrollTop = 0; };
+  function selectQueue(value: ContributionQueue) { tab = value; if (value === 'active' && kind === 'commit') kind = 'all'; resetQueueScroll(); }
+  function selectKind(value: ContributionKindFilter) { kind = value; resetQueueScroll(); }
   const status = (value: string) => ({ open: t("进行中"), draft: t("草稿"), merged: t("已合并"), closed: t("已关闭"), commit: t("提交记录") } as Record<string, string>)[value];
   const ciLabel = (value: string) => ({ passed: t("通过"), failed: t("检查未通过"), pending: t("运行中"), neutral: t("检查已结束"), none: t("暂无检查") } as Record<string, string>)[value];
   const conflictLabel = (value: string) => ({ clear: t("无冲突"), conflict: t("存在冲突"), pending: t("冲突检查中"), 'not-applicable': t("冲突检测不适用") } as Record<string, string>)[value];
@@ -82,11 +90,19 @@
       </button>
     {/each}
   </div>
-  <div class="mission-workspace" data-topic={focusedMission ? projectTone(focusedMission.projectId) : 'neutral'} use:missionLink={{key: `${sectorId}|${tab}|${focusedMission?.url ?? focusedMission?.id ?? ''}|${missions.length}`, enabled: !reducedMotion}}>
+  <div class="mission-workspace" data-topic={focusedMission ? projectTone(focusedMission.projectId) : 'neutral'} use:missionLink={{key: `${sectorId}|${tab}|${queue.kind}|${focusedMission?.url ?? focusedMission?.id ?? ''}|${missions.length}`, enabled: !reducedMotion}}>
     <svg class="mission-link" aria-hidden="true"><path pathLength="1"/></svg>
     <section class="mission-queue" aria-label={t("协作任务列表")}>
-      <header class="mission-queue-heading"><div class="mission-tabs" role="group" aria-label={t("选择任务队列")} use:selectionRail={{key: tab, enabled: !reducedMotion}}><button aria-pressed={tab === 'active'} onclick={() => tab = 'active'}>{t("当前协作")} <span>{activeCount}</span></button><button aria-pressed={tab === 'archive'} onclick={() => tab = 'archive'}>{t("成果档案")}</button><span class="selection-rail" aria-hidden="true"></span></div><span>{t("{v0} 条记录", { v0: pad(missions.length) })}</span></header>
-      <div class="mission-log-scroll" tabindex="0" role="region" aria-label={t("协作任务列表")} use:revealSequence={{key: `${sectorId}|${tab}|${missions.length}`, enabled: !reducedMotion, selector: '.mission-entry-body'}}>
+      <header class="mission-queue-heading"><div class="mission-tabs" role="group" aria-label={t("选择任务队列")} use:selectionRail={{key: tab, enabled: !reducedMotion}}><button aria-pressed={tab === 'active'} onclick={() => selectQueue('active')}>{t("当前协作")} <span>{activeCount}</span></button><button aria-pressed={tab === 'archive'} onclick={() => selectQueue('archive')}>{t("成果档案")}</button><span class="selection-rail" aria-hidden="true"></span></div><span aria-live="polite" aria-atomic="true">{t("{v0} 条记录", { v0: pad(missions.length) })}</span></header>
+      <div class="mission-type-filters" role="group" aria-label={t("筛选记录类型")}>
+        {#each kindOptions as option (option)}
+          <button class={`mission-type-${option}`} aria-pressed={queue.kind === option} onclick={() => selectKind(option)}>
+            {#if option !== 'all'}<ContributionIcon name={option} size={14}/>{/if}
+            <span>{kindLabel(option)}</span><span class="mission-type-count">{queue.counts[option]}</span>
+          </button>
+        {/each}
+      </div>
+      <div class="mission-log-scroll" bind:this={queueElement} tabindex="0" role="region" aria-label={t("协作任务列表")} use:revealSequence={{key: `${sectorId}|${tab}|${queue.kind}|${missions.length}`, enabled: !reducedMotion, selector: '.mission-entry-body'}}>
         <span class="mission-selection" aria-hidden="true"></span>
         {#each missions as mission (mission.url ?? mission.id)}
           {@const visual = recordPresentation(mission.kind, mission.state)}
@@ -129,7 +145,7 @@
           <dl class="focus-facts"><div><dt>{t("我的参与")}</dt><dd>{relation(focusedMission.relations)}</dd></div><div><dt>{t("更新于")}</dt><dd><time datetime={focusedMission.date}>{focusedMission.date.slice(0, 10)}</time></dd></div>{#if focusedDetail}<div><dt>{t("讨论记录")}</dt><dd>{focusedDetail.commentsTotal}</dd></div>{/if}</dl>
           {#if mergedCommitUrl}<div class="focus-reference"><span>{t("合并提交")}</span><a href={mergedCommitUrl} target="_blank" rel="noreferrer"><code>{focusedDetail?.mergeCommitSha?.slice(0, 10)}</code></a></div>{/if}
 
-        {:else}<p class="mission-briefing-empty">{t("选择项目，查看协作任务。")}</p>{/if}
+        {:else}<p class="mission-briefing-empty">{t("当前分区暂无此类记录。")}</p>{/if}
       </div>
       {#if focusedMission}<button class="mission-open console-action" data-feedback onclick={() => onOpen(focusedMission.projectId, focusedMission.id)}><InteractionGlow/>{t("查看这条记录")}<TerminalIcon name="external" size={15}/></button>{/if}
     </section>

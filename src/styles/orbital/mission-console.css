@@ -17,6 +17,40 @@
 .orbital-site .mission-tabs .selection-rail { background: var(--topic-color); box-shadow: 0 0 8px color-mix(in srgb, var(--topic-color) 30%, transparent); }
 .orbital-site .mission-tabs button[aria-pressed="true"] { border-bottom-color: var(--topic-color); }
 .orbital-site .mission-tabs button[aria-pressed="true"] > span { color: var(--topic-color); }
+.orbital-site .mission-type-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	flex: 0 0 auto;
+	padding: 10px var(--mission-inset) 0;
+}
+.orbital-site .mission-type-filters button {
+	--filter-color: var(--topic-color);
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 32px;
+	padding: 4px 9px;
+	border: 1px solid transparent;
+	color: var(--muted);
+	font: var(--text-caption)/1.4 var(--sans);
+	cursor: pointer;
+}
+.orbital-site .mission-type-filters .mission-type-pr { --filter-color: var(--status-merged); }
+.orbital-site .mission-type-filters .mission-type-issue { --filter-color: var(--status-commit); }
+.orbital-site .mission-type-filters .mission-type-commit { --filter-color: var(--status-pending); }
+.orbital-site .mission-type-filters button[aria-pressed="true"] {
+	border-color: color-mix(in srgb, var(--filter-color) 35%, transparent);
+	background: color-mix(in srgb, var(--filter-color) 8%, transparent);
+	color: var(--filter-color);
+}
+.orbital-site .mission-type-filters button:hover { color: var(--filter-color); }
+.orbital-site .mission-type-filters .contribution-icon { color: inherit; }
+.orbital-site .mission-type-count { font: var(--text-caption)/1 var(--mono); opacity: .75; }
+@media (max-width: 650px) {
+	.orbital-site .mission-type-filters { padding-inline: 0; gap: 4px; }
+	.orbital-site .mission-type-filters button { padding-inline: 6px; gap: 5px; }
+}
 .orbital-site .mission-entry strong { font-size: var(--text-control); line-height: 1.55; }
 
 .orbital-site .mission-briefing {
