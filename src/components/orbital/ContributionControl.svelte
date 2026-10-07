@@ -42,10 +42,22 @@
 <section class="mission-control" aria-label={t("开源任务控制台")}>
   <div class="mission-crown"><span><i aria-hidden="true"></i>{t("贡献档案")}</span><span>{activity.account} <b aria-hidden="true">//</b> {t("{v0} 个项目", { v0: pad(projects.length) })}</span></div>
   <div class="mission-metrics" aria-label={t("协作统计")} aria-live="polite" aria-atomic="true" use:revealOnView={{key: `${sectorId}|${totals.issues}|${totals.prs}|${totals.active}|${totals.commits}`, enabled: !reducedMotion, selector: 'strong'}}>
-    <div><strong>{pad(totals.issues)}</strong><span>{t("参与 Issue")}</span></div>
-    <div><strong>{pad(totals.prs)}</strong><span>{t("收录 PR")}</span></div>
-    <div><strong>{pad(totals.active)}</strong><span>{t("当前协作")}</span></div>
-    <div><strong>{pad(totals.commits)}</strong><span>{t("收录提交")}</span></div>
+    <div class="mission-metric metric-issues">
+      <strong>{pad(totals.issues)}</strong>
+      <span class="metric-label"><ContributionIcon name="issue" size={15}/><span>{t("参与 Issue")}</span></span>
+    </div>
+    <div class="mission-metric metric-prs">
+      <strong>{pad(totals.prs)}</strong>
+      <span class="metric-label"><ContributionIcon name="pr" size={15}/><span>{t("收录 PR")}</span></span>
+    </div>
+    <div class="mission-metric metric-active">
+      <strong>{pad(totals.active)}</strong>
+      <span class="metric-label"><ContributionIcon name="discussion" tone="positive" size={15}/><span>{t("当前协作")}</span></span>
+    </div>
+    <div class="mission-metric metric-commits">
+      <strong>{pad(totals.commits)}</strong>
+      <span class="metric-label"><ContributionIcon name="commit" tone="recorded" size={15}/><span>{t("收录提交")}</span></span>
+    </div>
   </div>
   <div class="mission-chapters" role="group" aria-label={t("分项目统计")} use:revealSequence={{key: overview.sectors.map((sector) => sector.project.id).join('|'), enabled: !reducedMotion, selector: '.chapter-caption', wait: 80}}>
     {#each overview.sectors as sector, index (sector.project.id)}

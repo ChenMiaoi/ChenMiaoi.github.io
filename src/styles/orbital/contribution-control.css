@@ -9,10 +9,18 @@
 .orbital-site .mission-crown i { width:4px; height:4px; background:#eeea35; }
 .orbital-site .mission-crown b { font-weight:400; padding:0 7px; color:#686b6d; }
 .orbital-site .mission-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); flex:0 0 auto; padding:18px var(--mission-inset); border-bottom:1px solid var(--archive-line); }
-.orbital-site .mission-metrics > div { display:flex; align-items:center; flex-wrap:wrap; gap:5px 12px; min-width:0; padding-left:18px; border-left:1px solid var(--archive-line); }
-.orbital-site .mission-metrics > div:first-child { border:0; padding-left:0; }
-.orbital-site .mission-metrics strong { font:500 34px/1.2 var(--mono); letter-spacing:-2px; color:#e8ebed; }
-.orbital-site .mission-metrics span { font-size:var(--text-caption); color:#c3c6c8; }
+.orbital-site .mission-metrics > .mission-metric { position:relative; display:grid; grid-template-rows:auto 1fr; justify-items:center; gap:8px; min-width:0; padding-inline:18px; border:0; }
+.orbital-site .metric-issues { --metric-color:var(--status-commit); }
+.orbital-site .metric-prs { --metric-color:var(--status-merged); }
+.orbital-site .metric-active { --metric-color:var(--status-open); }
+.orbital-site .metric-commits { --metric-color:var(--status-pending); }
+.orbital-site .mission-metric + .mission-metric::before { content:""; position:absolute; left:0; top:50%; width:1px; height:44px; transform:translateY(-50%); background:linear-gradient(transparent,var(--archive-line) 25% 75%,transparent); }
+.orbital-site .mission-metrics > .mission-metric > strong { font:500 44px/1 var(--numeric); letter-spacing:-.025em; color:var(--metric-color,var(--paper)); }
+.orbital-site .mission-metric .contribution-icon { color:var(--metric-color); }
+.orbital-site .mission-metric > .metric-label { display:flex; align-items:center; justify-content:center; align-self:start; gap:7px; max-width:100%; min-height:20px; text-align:center; font-size:var(--text-caption); line-height:1.45; }
+.orbital-site .metric-label > span { min-width:0; }
+@media (min-width:1000px) and (max-height:850px) { .orbital-site .mission-metrics > .mission-metric > strong { font-size:30px; } .orbital-site .mission-metrics > .mission-metric { gap:5px; } }
+@media (max-width:650px) { .orbital-site .mission-metrics > .mission-metric { padding-inline:10px; } .orbital-site .mission-metrics > .mission-metric:nth-child(3) { padding-left:10px; } .orbital-site .mission-metrics > .mission-metric > strong { font-size:36px; } .orbital-site .mission-metric:nth-child(3)::before { display:none; } }
 .orbital-site .mission-chapters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:16px; flex:0 0 auto; }
 .orbital-site .mission-chapter { position:relative; isolation:isolate; display:flex; flex-direction:column; justify-content:flex-end; height:clamp(180px,26vh,290px); min-width:0; padding:16px; text-align:left; border:1px solid #95989a55; background:#16191b; cursor:pointer; overflow:hidden; clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); }
 .orbital-site .chapter-art { position:absolute; inset:0; z-index:-2; background-image:url('/images/contributions/project-chapters.webp'); background-size:300% 100%; background-position:var(--cover-position) center; filter:saturate(.65); transition:filter .2s; }
