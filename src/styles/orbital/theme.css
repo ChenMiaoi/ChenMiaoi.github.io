@@ -457,7 +457,7 @@
 		font-size: var(--text-control);
 	}
 	.orbital-site:lang(en) .terminal-sidebar .primary-nav {
-		grid-template-columns: 1.1fr 1fr 1.6fr 1.05fr 1fr;
+		grid-template-columns: 1.6fr 1.1fr 1fr 1.05fr 1fr;
 	}
 	.orbital-site:lang(en) .terminal-sidebar .primary-nav a {
 		font-size: var(--text-control);
