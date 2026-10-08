@@ -181,8 +181,8 @@ pnpm sync:contribution-details
 | 命令 | 作用 |
 | --- | --- |
 | `pnpm check` | Astro、Svelte 与 TypeScript 诊断 |
-| `pnpm lint` | 检查源码，不自动修改文件 |
-| `pnpm format:check` | 检查公共模块与客户端脚本的格式 |
+| `pnpm lint` | 检查前端、服务端、工程脚本和根目录配置，不自动修改文件 |
+| `pnpm format:check` | 对与 lint 相同的范围执行只读格式检查 |
 | `pnpm test` | 内容规则、系列树、贡献阅读器与标题处理测试 |
 | `pnpm build` | 生成正式站、Pagefind 搜索索引和本地问答索引 |
 | `pnpm test:build` | 检查 Orbital 构建、文章正文、永久链接、贡献详情和问答引用 |
@@ -190,7 +190,7 @@ pnpm sync:contribution-details
 
 `pnpm test:build` 需要先完成 `pnpm build`。发布前运行 `pnpm verify`；涉及布局或交互时，还应在浏览器检查桌面和移动端的页面、阅读器及导航。
 
-需要自动修复时使用 `pnpm lint:fix` 或 `pnpm format`。后者会格式化整个 `src/`，提交前应检查修改范围。
+需要自动修复时使用 `pnpm lint:fix` 或 `pnpm format`。检查范围由 `biome.json` 统一定义，包括 `src/`、`server/`、`scripts/`、`rag/` 中的 MJS，以及根目录的 JS、MJS、CJS、TS、JSON 配置；排除 CSS、静态资源、归档文章与构建产物，并跳过不支持的文件类型。格式化会修改文件，提交前应检查修改范围。
 
 ### 多语言目录
 
