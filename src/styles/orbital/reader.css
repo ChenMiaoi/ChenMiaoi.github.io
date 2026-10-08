@@ -4,18 +4,19 @@
 }
 
 .orbital-site .reading-dialog {
+	--reader-surface: #11191c;
 	width: min(1240px, calc(100vw - 48px));
 	height: calc(100dvh - 48px);
 	max-width: none;
 	max-height: none;
 	padding: 0;
 	margin: auto;
-	border: 1px solid #acafb14d;
+	border: 1px solid #a7b6bf1c;
 	border-radius: 0;
-	clip-path: polygon(0 18px, 18px 0, calc(100% - 28px) 0, 100% 28px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
-	background: #15181a;
+	clip-path: none;
+	background: var(--reader-surface);
 	color: #e3e6e8;
-	box-shadow: 0 32px 120px #000a;
+	box-shadow: none;
 	overflow: hidden;
 }
 
@@ -41,9 +42,9 @@
 	display: flex;
 	align-items: center;
 	gap: 24px;
-	padding: 10px 22px;
-	min-height: 64px;
-	border-bottom: 1px solid #acafb126;
+	padding: 8px 22px;
+	min-height: 56px;
+	border-bottom: 1px solid #acafb11a;
 	flex-shrink: 0;
 }
 
@@ -82,7 +83,7 @@
 
 .orbital-site .reader-close {
 	padding: 9px !important;
-	border: 1px solid #acafb126;
+	border: 1px solid transparent;
 	border-radius: 0;
 }
 
@@ -112,7 +113,7 @@
 	display: flex;
 	flex-direction: column;
 	padding: 40px 22px 24px;
-	border-right: 1px solid #9da0a22e;
+	border-right: 1px solid #9da0a21a;
 	background: #141719;
 	color: #d7dadc;
 	overflow: hidden;
@@ -666,9 +667,18 @@
 }
 
 .orbital-site .reader-header {
-	background: linear-gradient(100deg, #232628, #141719);
-	box-shadow: inset 3px 0 var(--signal);
+	background: transparent;
+	box-shadow: none;
 }
+/* One opaque reading surface; keep the archive from showing through text. */
+.orbital-site dialog.reading-dialog {
+	background: var(--reader-surface);
+	border-color: #a7b6bf1c;
+}
+.orbital-site .reading-dialog :is(.reader-layout, .reader-toc) {
+	background: var(--reader-surface);
+}
+.orbital-site .reading-dialog .reader-header-progress { background: transparent; }
 .orbital-site .reader-header-progress {
 	display: flex;
 	align-items: baseline;
@@ -683,12 +693,12 @@
 .orbital-site .reader-progress-card strong { margin: 8px 0 12px; }
 .orbital-site .reader-title-block {
 	position: relative;
-	border-top: 1px solid #9da0a22e;
-	padding-top: 22px;
-	background: linear-gradient(110deg, #acafb105, transparent);
+	border-top: 0;
+	padding-top: 0;
+	background: transparent;
 }
 .orbital-site .reader-title-block::before {
-	content: "";
+	content: none;
 	position: absolute;
 	width: 28px;
 	height: 2px;
