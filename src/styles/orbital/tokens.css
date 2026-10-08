@@ -1,11 +1,11 @@
 /* tokens: owns the final orbital tokens rules, including responsive states. */
 
 .orbital-site {
-	--sans: "Noto Sans SC Variable", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-	--display: "Source Serif 4 Variable", "Noto Serif SC Variable", Georgia, "Songti SC", SimSun, serif;
+	--sans: "Orbital Noto Sans SC Variable", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+	--display: "Source Serif 4 Variable", "Orbital Noto Serif SC Variable", Georgia, "Songti SC", SimSun, serif;
 	--wordmark: "Allura", "Segoe Script", "Snell Roundhand", cursive;
 	--numeric: "Oswald Variable", var(--sans);
-	--mono: "JetBrains Mono Variable", "Noto Sans SC Variable", monospace;
+	--mono: "JetBrains Mono Variable", "Orbital Noto Sans SC Variable", monospace;
 	--text-caption: 13px;
 	--text-control: 14px;
 	--text-note: 15px;

@@ -17,6 +17,7 @@ import WelcomePortal from "./WelcomePortal.svelte";
 import { navigationBeacon, revealSequence } from "./motion";
 import { selectionRail } from "./interaction-motion";
 import { surfaceFeedback } from "./surface-feedback";
+import { loadStylesheet } from "../../lib/content/article-loader";
 import type {
 	ArchivePost,
 	ArchiveSeries,
@@ -53,6 +54,20 @@ export let localePrefix = "";
 export let notFound = false;
 export let initialWelcome = false;
 export let hasArticle = false;
+export let stylesheets: Partial<Record<Section | "reading", string>> = {};
+let surfaceRequest = 0;
+async function prepareSection(next: Section) {
+	const request = ++surfaceRequest;
+	try {
+		const href = stylesheets[next];
+		if (href) await loadStylesheet(new URL(href, location.origin).href);
+	} catch {
+		if (request === surfaceRequest)
+			location.assign(localePrefix + sectionPaths[next]);
+		return false;
+	}
+	return request === surfaceRequest;
+}
 let welcome = initialWelcome;
 let archiveArrival = false;
 let welcomeArrival = false;
@@ -178,7 +193,8 @@ function sourceNavigate(project: string, record: string, kind: string) {
 		history.pushState(null, "", path);
 }
 
-function navigate(next: Section) {
+async function navigate(next: Section) {
+	if (!(await prepareSection(next))) return false;
 	if (next === "code") {
 		sourceProject = undefined;
 		sourceRecord = "";
@@ -187,11 +203,12 @@ function navigate(next: Section) {
 	}
 	setSection(next);
 	if (next === "articles") resetFilters();
+	return true;
 }
 
 async function enterArchive(animated = false) {
 	archiveArrival = animated && !reducedMotion;
-	navigate("code");
+	if (!(await navigate("code"))) return;
 	await tick();
 	window.scrollTo({ top: 0, behavior: "instant" });
 	mainElement?.focus({ preventScroll: true });
@@ -237,7 +254,7 @@ function returnToWelcome(event: MouseEvent) {
 }
 
 async function openAuthor() {
-	navigate("about");
+	if (!(await navigate("about"))) return;
 	await tick();
 	window.scrollTo({ top: 0, behavior: "instant" });
 }
@@ -287,7 +304,8 @@ function resetFilters() {
 	resetKey++;
 }
 
-function filterSeries(slug: string) {
+async function filterSeries(slug: string) {
+	if (!(await prepareSection("articles"))) return;
 	section = "articles";
 	resetFilters();
 	seriesFilter = slug;
@@ -303,6 +321,7 @@ async function search(value: string, submitted = false) {
 	const fromWelcome = welcome;
 	query = value;
 	if (fromWelcome && !submitted) return;
+	if (!(await prepareSection("articles"))) return;
 	if (fromWelcome || section !== "articles") {
 		category = "all";
 	}
@@ -367,6 +386,7 @@ function shortcuts(event: KeyboardEvent) {
 }
 
 function restoreLocation() {
+	surfaceRequest++;
 	cancelWelcomeReturn();
 	welcome =
 		!notFound &&
@@ -497,7 +517,7 @@ onMount(() => {
       </nav>
       <button class="sidebar-note author-entry" aria-label={t("关于作者：{v0}", { v0: profile.name })} onclick={openAuthor}>
         <span class="sidebar-avatar" aria-hidden="true">
-          {#if profile.avatar}<img src={profile.avatar} alt="" width="180" height="180" decoding="async"/>{:else}<span>{profile.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}</span>{/if}
+          {#if profile.avatar}<picture><source media="(min-width: 651px)" srcset={profile.avatarSrcSet || profile.avatar} sizes="(max-height: 900px) 80px, 180px"/><img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" width="180" height="180" decoding="async" loading="lazy"/></picture>{:else}<span>{profile.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}</span>{/if}
         </span>
         <span class="sidebar-author-copy"><strong>{profile.name}</strong></span>
       </button>
@@ -535,7 +555,7 @@ onMount(() => {
       {:else if section === "code"}
         <SourceDock bind:this={sourceDock} {projects} {activity} {detailsUrl} {reducedMotion} bind:showDashboard={sourceDashboard} bind:projectId={sourceProject} bind:selectedId={sourceRecord} bind:kindFilter={sourceKind} onNavigate={sourceNavigate}/>
       {:else}
-        <ProfileDossier {profile} onNavigate={navigate} onExplore={(nextCategory) => { navigate('articles'); category = nextCategory; storeFilters(); }}/>
+        <ProfileDossier {profile} onNavigate={navigate} onExplore={async (nextCategory) => { if (await navigate('articles')) { category = nextCategory; storeFilters(); } }}/>
       {/if}
     </main>
   </div>
@@ -545,4 +565,4 @@ onMount(() => {
 
 {/if}
 
-<ArticleReader bind:this={reader} {reducedMotion} bind:readerOpen onClosed={readerClosed}/>
+<ArticleReader bind:this={reader} {reducedMotion} bind:readerOpen onClosed={readerClosed} stylesheet={stylesheets.reading}/>

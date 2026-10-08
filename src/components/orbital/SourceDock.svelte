@@ -18,7 +18,7 @@ import TerminalIcon from "./TerminalIcon.svelte";
 import BrandIcon from "./BrandIcon.svelte";
 import { projectTone } from "../../features/orbital/topic-colors";
 import { revealOnView } from "./motion";
-import ContributionReader from "./ContributionReader.svelte";
+import ContributionReader from "./DeferredContributionReader.svelte";
 import ContributionControl from "./ContributionControl.svelte";
 import type { ContributionProject } from "../../types/config";
 import type {

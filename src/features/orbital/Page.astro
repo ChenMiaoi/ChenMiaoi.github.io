@@ -17,15 +17,12 @@ import {
 } from "../../constants/locales";
 import { isWelcomeLocation, type Section } from "../../lib/content/navigation";
 import { createTranslations, languageUrl } from "./i18n";
+import { interfaceFontUrls } from "../../../scripts/interface-fonts.mjs";
 import "../../styles/tailwind.css";
-import "../../styles/orbital/index.css";
 import "@fontsource-variable/jetbrains-mono";
-import "@fontsource-variable/noto-sans-sc";
-import "@fontsource-variable/noto-serif-sc";
 import "@fontsource-variable/source-serif-4";
 import "@fontsource/allura/latin-400.css";
 import "@fontsource-variable/oswald";
-import "katex/dist/katex.min.css";
 
 interface Props {
 	lang?: Locale;
@@ -80,12 +77,19 @@ const localizedProfile = {
 		institution: entry.institutionTranslations?.[lang] ?? entry.institution,
 	})),
 };
+const fontUrls = interfaceFontUrls();
 ---
 <!doctype html>
 <html lang={htmlLang(lang)}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {!post && <link rel="stylesheet" href={fontUrls.interface} />}
+    <link rel="stylesheet" href={fontUrls.styles.base} />
+    {!initialWelcome && <link rel="stylesheet" href={fontUrls.styles[section]} />}
+    {post && <link rel="stylesheet" href={fontUrls.styles.reading} />}
+    {post && <link rel="stylesheet" href={fontUrls.reader} />}
+    <link rel="stylesheet" href={fontUrls.styles.shared} data-orbital-overrides />
     {notFound && <meta name="robots" content="noindex" />}
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0b1012" />
@@ -101,10 +105,10 @@ const localizedProfile = {
     <link rel="preload" as="image" href="/images/orbital/station.webp" />
     <noscript><style is:global>.terminal-shell, .skip-link { display: none !important; }</style></noscript>
   </head>
-  <body class="orbital-site" data-article-path={post ? Astro.url.pathname : undefined}>
+  <body class="orbital-site" data-article-path={post ? Astro.url.pathname : undefined} data-article-fonts={post ? "" : undefined}>
     <ArchiveTerminal client:load {lang} {posts} {series} projects={contributionConfig.projects}
       activity={contributionActivity} detailsUrl="/contributions.json" profile={localizedProfile}
-      initialSection={section} initialSeries={seriesSlug} initialProject={projectId} localePrefix={prefix} {notFound} {initialWelcome} hasArticle={!!post} />
+      initialSection={section} initialSeries={seriesSlug} initialProject={projectId} localePrefix={prefix} {notFound} {initialWelcome} hasArticle={!!post} stylesheets={fontUrls.styles} />
     {post && Content && <section class="article-document">
       <header><a href={`${prefix}/articles/`}>{t("← 返回文章档案")}</a><h1 data-pagefind-meta="title">{post.data.title}</h1></header>
       {post.id.endsWith(".en") !== (lang === "en") || lang === "ja" || lang === "zh_TW" ? <p>{t("这篇文章暂无当前语言译文，以下为中文原文。")}</p> : null}

@@ -24,7 +24,7 @@
 		"test:contribution-reader": "node scripts/test-contribution-reader.mjs",
 		"lint:fix": "biome lint --write .",
 		"format:check": "biome format .",
-		"test": "node --test scripts/architecture.test.mjs scripts/i18n.test.mjs scripts/contribution-motion.test.mjs scripts/test-contribution-reader.mjs src/plugins/remark-post-headings.test.mjs",
+		"test": "node --test scripts/architecture.test.mjs scripts/i18n.test.mjs scripts/contribution-motion.test.mjs scripts/test-contribution-reader.mjs scripts/reader-fragments.test.mjs src/plugins/remark-post-headings.test.mjs",
 		"test:build": "node scripts/check-build.mjs",
 		"verify": "pnpm lint && pnpm format:check && pnpm check && pnpm test && pnpm test:server && pnpm build && pnpm test:build && pnpm build:vps"
 	},
@@ -81,8 +81,10 @@
 		"autoprefixer": "^10.6.1",
 		"esbuild": "0.28.2",
 		"gray-matter": "^4.0.3",
+		"parse5": "^8.0.1",
 		"postcss-import": "^16.2.0",
-		"postcss-nesting": "^13.0.2"
+		"postcss-nesting": "^13.0.2",
+		"subset-font": "^2.9.0"
 	},
 	"packageManager": "pnpm@9.15.9",
 	"engines": {

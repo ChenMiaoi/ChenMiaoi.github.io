@@ -70,7 +70,7 @@ async function buildOrbitalData(lang: Locale) {
 				seriesOrder: post.data.seriesOrder,
 				tags: post.data.tags,
 				url,
-				contentUrl: url,
+				contentUrl: import.meta.env.PROD ? `${url}content.json` : url,
 				headings: headings.map((heading) => ({
 					...heading,
 					text: heading.text.replace(/#+$/, "").trim(),

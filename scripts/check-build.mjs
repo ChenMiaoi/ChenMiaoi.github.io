@@ -30,6 +30,26 @@ for (const document of documents) {
 		`Searchable body missing: ${document.url}`,
 	);
 	assert.ok(html.includes(document.title));
+	const fragment = JSON.parse(
+		await readFile(
+			resolve(production, `.${document.url}`, "content.json"),
+			"utf8",
+		),
+	);
+	assert.ok(
+		typeof fragment.html === "string" && fragment.html.length > 0,
+		`Reader fragment missing: ${document.url}`,
+	);
+	assert.doesNotMatch(
+		fragment.html,
+		/<script\b/i,
+		`Executable script in reader fragment: ${document.url}`,
+	);
+	assert.ok(Array.isArray(fragment.styles) && fragment.styles.length > 0);
+	for (const href of fragment.styles) {
+		assert.ok(href.startsWith("/"), `Reader stylesheet must be local: ${href}`);
+		await access(resolve(production, `.${href}`));
+	}
 	assert.doesNotMatch(html, /name="robots" content="noindex/);
 	if (document.locale === "en") assert.ok(document.url.startsWith("/en/"));
 }

@@ -1,6 +1,6 @@
 import { createResourceCache } from "./client-cache";
 
-const loadStylesheet = createResourceCache<void>(
+export const loadStylesheet = createResourceCache<void>(
 	(href) =>
 		new Promise((resolve, reject) => {
 			const existing = [
@@ -32,7 +32,10 @@ const loadStylesheet = createResourceCache<void>(
 				link.rel = "stylesheet";
 				link.href = href;
 				link.dataset.readerStyle = "";
-				document.head.append(link);
+				document.head.insertBefore(
+					link,
+					document.head.querySelector("[data-orbital-overrides]"),
+				);
 			}
 		}),
 );
@@ -45,12 +48,36 @@ export const loadArticle = createResourceCache(async (url) => {
 	);
 	if (
 		source &&
-		new URL(url, location.origin).pathname === document.body.dataset.articlePath
-	)
-		return source.innerHTML;
+		new URL(url, location.origin).pathname.replace(/content\.json$/, "") ===
+			document.body.dataset.articlePath
+	) {
+		const html = source.innerHTML;
+		// The static document remains available without JavaScript. Once its
+		// content is cached for the dialog, keep only one live article subtree.
+		source.closest(".article-document")?.remove();
+		return html;
+	}
 	const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
 	if (!response.ok)
 		throw new Error(`Unable to load article: ${response.status}`);
+	if (response.headers.get("content-type")?.includes("application/json")) {
+		const payload = (await response.json()) as {
+			html: string;
+			styles: string[];
+		};
+		if (
+			typeof payload.html !== "string" ||
+			!Array.isArray(payload.styles) ||
+			payload.styles.some((href) => typeof href !== "string")
+		)
+			throw new Error("Invalid article content");
+		await Promise.all(
+			payload.styles.map((href) =>
+				loadStylesheet(new URL(href, location.origin).href),
+			),
+		);
+		return payload.html;
+	}
 	const parsed = new DOMParser().parseFromString(
 		await response.text(),
 		"text/html",

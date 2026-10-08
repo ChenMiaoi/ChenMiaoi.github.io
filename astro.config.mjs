@@ -23,6 +23,7 @@ import { remarkGlossary } from "./src/plugins/remark-glossary.mjs";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 import { remarkPostHeadings } from "./src/plugins/remark-post-headings.mjs";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
+import interfaceFonts from "./scripts/interface-fonts.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -31,6 +32,7 @@ export default defineConfig({
 	trailingSlash: "always",
 	compressHTML: true,
 	integrations: [
+		interfaceFonts(),
 		expressiveCode({
 			themes: [expressiveCodeConfig.theme, expressiveCodeConfig.theme],
 			shiki: {

@@ -29,6 +29,7 @@ export type ContributionConfig = {
 
 export type ProfileConfig = {
 	avatar?: string;
+	avatarSrcSet?: string;
 	name: string;
 	bio?: string;
 	bioTranslations?: Partial<Record<Locale, string>>;

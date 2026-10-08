@@ -6,10 +6,11 @@ import TerminalIcon from "./TerminalIcon.svelte";
 import { revealOnView, readingBeacon } from "./motion";
 import LanguageSwitcher from "./LanguageSwitcher.svelte";
 import type { ArchivePost } from "./types";
-import { loadArticle } from "../../lib/content/article-loader";
+import { loadArticle, loadStylesheet } from "../../lib/content/article-loader";
 export let reducedMotion = false;
 export let readerOpen = false;
 export let onClosed: () => void = () => {};
+export let stylesheet: string | undefined = undefined;
 let notifyOnClose = true;
 let dialog: HTMLDialogElement;
 let readerScroll: HTMLDivElement;
@@ -76,6 +77,14 @@ export async function open(post: ArchivePost, heading?: string) {
 	activeHeading = "";
 	failed = false;
 	loading = true;
+	if (stylesheet) {
+		try {
+			await loadStylesheet(new URL(stylesheet, location.origin).href);
+		} catch {
+			if (currentRequest === requestId) location.assign(post.url);
+			return;
+		}
+	}
 	await tick();
 	if (currentRequest !== requestId) return;
 	if (!dialog.open) {
@@ -142,6 +151,10 @@ function readerClosed() {
 	readerExit?.cancel();
 	readerExit = null;
 	readerOpen = false;
+	// Cached source text can be reused, but a closed dialog need not retain
+	// thousands of highlighted-code nodes or article images in the live DOM.
+	readerHtml = "";
+	readerPost = null;
 	document.body.classList.remove("reader-open");
 	if (notifyOnClose) onClosed();
 }
@@ -215,6 +228,7 @@ function jumpToStart() {
 }
 
 function updateProgress() {
+	if (!readerScroll || !readerOpen) return;
 	const range = readerScroll.scrollHeight - readerScroll.clientHeight;
 	readingProgress =
 		range > 0 ? Math.min(100, (readerScroll.scrollTop / range) * 100) : 100;
