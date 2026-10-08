@@ -48,6 +48,7 @@
 .orbital-site .mission-tabs button { color:#979a9c; font-size:var(--text-control); padding:7px 0 10px; cursor:pointer; border-bottom:2px solid transparent; }
 .orbital-site .mission-tabs button[aria-pressed="true"] { color:#dfe2e4; border-color:#e5e238; }
 .orbital-site .mission-tabs button span { font:var(--text-control) var(--mono); color:#8f9294; margin-left:4px; }
+.orbital-site .mission-history-summary { display:flex; flex-wrap:wrap; gap:6px 14px; padding:8px var(--mission-inset) 0; font-size:var(--text-caption); flex:0 0 auto; }
 .orbital-site .mission-log-scroll { flex:1; min-height:0; overflow:auto; margin-top:10px; scrollbar-width:thin; scrollbar-color:#a0a3a544 transparent; overscroll-behavior:contain; }
 .orbital-site .mission-entry { display:grid; grid-template-columns:20px minmax(0,1fr) 12px; gap:10px; align-items:center; width:100%; padding:13px 10px; text-align:left; border-bottom:1px solid #aaadaf22; cursor:pointer; background:transparent; }
 .orbital-site .mission-entry:hover { background:#c6c9cb08; }

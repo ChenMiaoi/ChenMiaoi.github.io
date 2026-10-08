@@ -462,7 +462,18 @@ export const messages = {
 	选择任务队列: ["Select task queue", "選擇任務佇列", "タスクキューを選択"],
 	筛选记录类型: ["Filter record types", "篩選記錄類型", "記録の種類で絞り込む"],
 	当前协作: ["Active missions", "目前協作", "進行中の協力"],
-	成果档案: ["Outcome archive", "成果檔案", "成果アーカイブ"],
+	历史档案: ["History archive", "歷史檔案", "履歴アーカイブ"],
+	历史状态统计: [
+		"Historical status totals",
+		"歷史狀態統計",
+		"履歴の状態別集計",
+	],
+	"{v0} 条提交": ["{v0} commits", "{v0} 條提交", "{v0} コミット"],
+	"{v0} PR 已关闭": [
+		"{v0} PRs closed",
+		"{v0} PR 已關閉",
+		"{v0} PR クローズ済み",
+	],
 	"当前分区暂无此类记录。": [
 		"No matching records in this sector.",
 		"目前分區暫無此類記錄。",

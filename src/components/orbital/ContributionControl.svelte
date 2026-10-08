@@ -62,6 +62,7 @@ $: activeCount = records.filter(
 	(record) => record.state === "open" || record.state === "draft",
 ).length;
 $: queue = contributionQueue(records, tab, kind);
+$: archiveCount = contributionQueue(records, "archive").counts.all;
 $: kindOptions = (
 	tab === "active" ? ["all", "pr", "issue"] : ["all", "pr", "issue", "commit"]
 ) as ContributionKindFilter[];
@@ -189,7 +190,7 @@ const projectLabel = (id: string, name: string) =>
   <div class="mission-workspace" data-topic={focusedMission ? projectTone(focusedMission.projectId) : 'neutral'} use:missionLink={{key: `${sectorId}|${tab}|${queue.kind}|${focusedMission?.url ?? focusedMission?.id ?? ''}|${missions.length}`, enabled: !reducedMotion}}>
     <svg class="mission-link" aria-hidden="true"><path pathLength="1"/></svg>
     <section class="mission-queue" aria-label={t("协作任务列表")}>
-      <header class="mission-queue-heading"><div class="mission-tabs" role="group" aria-label={t("选择任务队列")} use:selectionRail={{key: tab, enabled: !reducedMotion}}><button aria-pressed={tab === 'active'} onclick={() => selectQueue('active')}>{t("当前协作")} <span>{activeCount}</span></button><button aria-pressed={tab === 'archive'} onclick={() => selectQueue('archive')}>{t("成果档案")}</button><span class="selection-rail" aria-hidden="true"></span></div><span aria-live="polite" aria-atomic="true">{t("{v0} 条记录", { v0: pad(missions.length) })}</span></header>
+      <header class="mission-queue-heading"><div class="mission-tabs" role="group" aria-label={t("选择任务队列")} use:selectionRail={{key: tab, enabled: !reducedMotion}}><button aria-pressed={tab === 'active'} onclick={() => selectQueue('active')}>{t("当前协作")} <span>{activeCount}</span></button><button aria-pressed={tab === 'archive'} onclick={() => selectQueue('archive')}>{t("历史档案")} <span>{archiveCount}</span></button><span class="selection-rail" aria-hidden="true"></span></div><span aria-live="polite" aria-atomic="true">{t("{v0} 条记录", { v0: pad(missions.length) })}</span></header>
       <div class="mission-type-filters" role="group" aria-label={t("筛选记录类型")}>
         {#each kindOptions as option (option)}
           <button class={`mission-type-${option}`} aria-pressed={queue.kind === option} onclick={() => selectKind(option)}>
@@ -198,6 +199,16 @@ const projectLabel = (id: string, name: string) =>
           </button>
         {/each}
       </div>
+      {#if tab === 'archive'}
+        <div class="mission-history-summary" role="group" aria-label={t("历史状态统计")} aria-live="polite">
+          {#if queue.kind === 'all' || queue.kind === 'pr'}
+            <ContributionStatus label={t("{v0} PR 已合并", {v0: queue.states.mergedPRs})} {...recordPresentation('pr', 'merged')}/>
+            <ContributionStatus label={t("{v0} PR 已关闭", {v0: queue.states.closedPRs})} {...recordPresentation('pr', 'closed')}/>
+          {/if}
+          {#if queue.kind === 'all' || queue.kind === 'issue'}<ContributionStatus label={t("{v0} Issue 已关闭", {v0: queue.states.closedIssues})} {...recordPresentation('issue', 'closed')}/>{/if}
+          {#if queue.kind === 'all' || queue.kind === 'commit'}<ContributionStatus label={t("{v0} 条提交", {v0: queue.states.commits})} {...recordPresentation('commit', 'commit')}/>{/if}
+        </div>
+      {/if}
       <div class="mission-log-scroll" bind:this={queueElement} tabindex="0" role="region" aria-label={t("协作任务列表")} use:revealSequence={{key: `${sectorId}|${tab}|${queue.kind}|${missions.length}`, enabled: !reducedMotion, selector: '.mission-entry-body'}}>
         <span class="mission-selection" aria-hidden="true"></span>
         {#each missions as mission (mission.url ?? mission.id)}

@@ -78,6 +78,30 @@ test("mission type counts use the current queue and preserve record order", () =
 	);
 	const archive = contributionQueue(records, "archive", "commit");
 	assert.deepEqual(archive.counts, { all: 4, pr: 2, issue: 1, commit: 1 });
+	assert.deepEqual(archive.states, {
+		mergedPRs: 0,
+		closedPRs: 0,
+		closedIssues: 0,
+		commits: 1,
+	});
+	assert.deepEqual(contributionQueue(records, "archive").states, {
+		mergedPRs: 1,
+		closedPRs: 1,
+		closedIssues: 1,
+		commits: 1,
+	});
+	assert.deepEqual(contributionQueue(records, "archive", "pr").states, {
+		mergedPRs: 1,
+		closedPRs: 1,
+		closedIssues: 0,
+		commits: 0,
+	});
+	assert.deepEqual(active.states, {
+		mergedPRs: 0,
+		closedPRs: 0,
+		closedIssues: 0,
+		commits: 0,
+	});
 	assert.deepEqual(
 		archive.records.map((record) => record.id),
 		["commit"],

@@ -31,12 +31,25 @@ export function contributionQueue<
 		issue: queued.filter((record) => record.kind === "issue").length,
 		commit: queued.filter((record) => record.kind === "commit").length,
 	};
+	const selected = queued.filter(
+		(record) => selectedKind === "all" || record.kind === selectedKind,
+	);
 	return {
 		kind: selectedKind,
 		counts,
-		records: queued.filter(
-			(record) => selectedKind === "all" || record.kind === selectedKind,
-		),
+		states: {
+			mergedPRs: selected.filter(
+				(record) => record.kind === "pr" && record.state === "merged",
+			).length,
+			closedPRs: selected.filter(
+				(record) => record.kind === "pr" && record.state === "closed",
+			).length,
+			closedIssues: selected.filter(
+				(record) => record.kind === "issue" && record.state === "closed",
+			).length,
+			commits: selected.filter((record) => record.kind === "commit").length,
+		},
+		records: selected,
 	};
 }
 
