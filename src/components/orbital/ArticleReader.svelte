@@ -62,6 +62,23 @@ let loading = false;
 let failed = false;
 let requestId = 0;
 let requestedHeading: string | undefined;
+let backdropPress = false;
+
+function isBackdrop(event: MouseEvent) {
+	if (!dialog?.open || event.target !== dialog) return false;
+	const bounds = dialog.getBoundingClientRect();
+	return (
+		event.clientX < bounds.left ||
+		event.clientX > bounds.right ||
+		event.clientY < bounds.top ||
+		event.clientY > bounds.bottom
+	);
+}
+
+function readerPointerDown(event: PointerEvent) {
+	if (!event.isPrimary) return;
+	backdropPress = event.button === 0 && isBackdrop(event);
+}
 
 export async function open(post: ArchivePost, heading?: string) {
 	notifyOnClose = true;
@@ -145,6 +162,7 @@ function closeReader(notify = true) {
 		.catch(() => {});
 }
 function readerClosed() {
+	backdropPress = false;
 	clearCopyFeedback();
 	clearHeadingFeedback();
 	requestId++;
@@ -248,6 +266,12 @@ function updateProgress() {
 }
 
 async function readerAction(event: MouseEvent) {
+	const closeFromBackdrop = backdropPress && isBackdrop(event);
+	backdropPress = false;
+	if (closeFromBackdrop) {
+		closeReader();
+		return;
+	}
 	if (!(event.target instanceof Element) || !dialog?.open) return;
 	const copyButton = event.target.closest<HTMLButtonElement>(
 		".reading-dialog .copy-btn",
@@ -314,7 +338,7 @@ onDestroy(() => {
 		document.body.classList.remove("reader-open");
 });
 </script>
-<svelte:document onclick={readerAction} />
+<svelte:document onpointerdown={readerPointerDown} onpointercancel={() => { backdropPress = false; }} onclick={readerAction} />
 <dialog bind:this={dialog} class="reading-dialog" class:motion-paused={reducedMotion} onclose={readerClosed} oncancel={(event) => { event.preventDefault(); closeReader(); }} aria-labelledby="reader-title">
   <span class="reader-copy-status" role="status" aria-live="polite" aria-atomic="true">{copyStatus}</span>
   {#if readerPost}
