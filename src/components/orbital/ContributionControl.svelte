@@ -14,6 +14,7 @@ import {
 } from "../../lib/contributions/presentation";
 import { conflictState, summarizeChecks } from "../../lib/contributions/checks";
 import { resolveReviewSummary } from "../../lib/contributions/reviews";
+import { linkedContributions } from "../../lib/contributions/links";
 import { projectTone } from "../../features/orbital/topic-colors";
 import ContributionIcon from "./ContributionIcon.svelte";
 import ContributionStatus from "./ContributionStatus.svelte";
@@ -73,6 +74,7 @@ $: focusedMission =
 $: focusedDetail = focusedMission
 	? details.records.find((detail) => detail.url === focusedMission.url)
 	: undefined;
+$: linkedRecords = linkedContributions(focusedDetail, details.records);
 $: reviewSummary =
 	focusedMission?.kind === "pr"
 		? resolveReviewSummary(focusedDetail)
@@ -249,7 +251,13 @@ const projectLabel = (id: string, name: string) =>
               {:else}<ContributionStatus label={conflictLabel(conflict)} {...conflictPresentation(conflict)}/>{/if}
             {/if}
           </div>
-          <dl class="focus-facts"><div><dt>{t("参与方式")}</dt><dd>{relation(focusedMission.relations)}</dd></div><div><dt>{t("更新于")}</dt><dd><time datetime={focusedMission.date}>{focusedMission.date.slice(0, 10)}</time></dd></div>{#if focusedDetail}<div><dt>{t("讨论记录")}</dt><dd>{focusedDetail.commentsTotal}</dd></div>{/if}</dl>
+          <dl class="focus-facts"><div><dt>{t("参与方式")}</dt><dd>{relation(focusedMission.relations)}</dd></div><div><dt>{t("更新于")}</dt><dd><time datetime={focusedMission.date}>{focusedMission.date.slice(0, 10)}</time></dd></div>{#if focusedDetail}<div><dt>{t("讨论记录")}</dt><dd>{focusedDetail.commentsTotal}</dd></div>{/if}
+            {#if focusedMission.kind === 'pr' || focusedMission.kind === 'issue'}
+              <div><dt>{focusedMission.kind === 'pr' ? t("关联 Issue") : t("关联 PR")}</dt><dd class="focus-linked-numbers">
+                {#each linkedRecords as link, index (link.url)}{#if index > 0}{' · '}{/if}<a href={link.url} target="_blank" rel="noreferrer" title={link.title}>#{link.number}</a>{:else}<span>{loading ? '…' : '—'}</span>{/each}
+              </dd></div>
+            {/if}
+          </dl>
           {#if mergedCommitUrl}<div class="focus-reference"><span>{t("合并提交")}</span><a href={mergedCommitUrl} target="_blank" rel="noreferrer"><code>{focusedDetail?.mergeCommitSha?.slice(0, 10)}</code></a></div>{/if}
 
         {:else}<p class="mission-briefing-empty">{t("当前分区暂无此类记录。")}</p>{/if}

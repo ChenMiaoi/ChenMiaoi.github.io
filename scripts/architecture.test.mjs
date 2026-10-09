@@ -45,6 +45,70 @@ import {
 	contributionOverview,
 	contributionQueue,
 } from "../src/lib/contributions/overview.ts";
+import { linkedContributions } from "../src/lib/contributions/links.ts";
+
+test("briefing links resolve both directions, deduplicate and exclude same-kind references", () => {
+	const issue = {
+		url: "https://github.com/example/public/issues/2",
+		kind: "issue",
+		title: "Bug",
+		references: [],
+	};
+	const pr = {
+		url: "https://github.com/example/public/pull/1",
+		kind: "pr",
+		title: "Fix bug",
+		references: [
+			{
+				url: issue.url,
+				number: 2,
+				kind: "issue",
+				title: issue.title,
+				relation: "mentioned",
+			},
+			{
+				url: "https://github.com/example/public/pull/3",
+				number: 3,
+				kind: "pr",
+				title: "Other PR",
+				relation: "mentioned",
+			},
+		],
+	};
+	const records = [pr, issue];
+	const original = structuredClone(records);
+	assert.deepEqual(linkedContributions(pr, records), [
+		{ ...pr.references[0], incoming: false },
+	]);
+	assert.deepEqual(linkedContributions(issue, records), [
+		{
+			url: pr.url,
+			number: 1,
+			kind: "pr",
+			title: pr.title,
+			relation: "mentioned",
+			incoming: true,
+		},
+	]);
+	assert.deepEqual(records, original);
+	const both = {
+		...issue,
+		references: [
+			{
+				url: pr.url,
+				number: 1,
+				kind: "pr",
+				title: pr.title,
+				relation: "cross-reference",
+			},
+		],
+	};
+	assert.deepEqual(linkedContributions(both, [pr, both]), [
+		{ ...both.references[0], incoming: false },
+	]);
+	assert.deepEqual(linkedContributions(undefined, records), []);
+	assert.deepEqual(linkedContributions({ ...pr, kind: "commit" }, records), []);
+});
 
 test("mission type counts use the current queue and preserve record order", () => {
 	const records = [

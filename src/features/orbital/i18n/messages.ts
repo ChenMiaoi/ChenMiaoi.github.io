@@ -463,6 +463,8 @@ export const messages = {
 	筛选记录类型: ["Filter record types", "篩選記錄類型", "記録の種類で絞り込む"],
 	当前协作: ["Active missions", "目前協作", "進行中の協力"],
 	历史档案: ["History archive", "歷史檔案", "履歴アーカイブ"],
+	"关联 Issue": ["Related issues", "關聯 Issue", "関連 Issue"],
+	"关联 PR": ["Related PRs", "關聯 PR", "関連 PR"],
 	历史状态统计: [
 		"Historical status totals",
 		"歷史狀態統計",
