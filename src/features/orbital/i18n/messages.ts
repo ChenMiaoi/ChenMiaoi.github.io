@@ -496,6 +496,7 @@ export const messages = {
 	发起: ["Created", "發起", "作成"],
 	受指派: ["Assigned", "受指派", "割り当て"],
 	参与讨论: ["Joined the discussion", "參與討論", "議論に参加"],
+	代码审查: ["Reviewed code", "程式碼審查", "コードレビュー"],
 	代码提交: ["Committed code", "程式碼提交", "コードのコミット"],
 	隐藏机器人: ["Hide bots", "隱藏機器人", "ボットを非表示"],
 	最早在前: ["Oldest first", "最早在前", "古い順"],

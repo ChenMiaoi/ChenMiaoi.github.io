@@ -1,8 +1,88 @@
 {
 	"account": "ChenMiaoi",
 	"repositories": ["torvalds/linux", "llvm/llvm-project", "rust-lang/cargo"],
-	"syncedAt": "2026-10-06T17:39:09.959Z",
+	"syncedAt": "2026-10-10T16:15:09.317Z",
 	"items": [
+		{
+			"repository": "llvm/llvm-project",
+			"number": 230692,
+			"title": "[clang][AST] Add public wrapper getOpcodeStr to UnaryOperator",
+			"url": "https://github.com/llvm/llvm-project/pull/230692",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-10T10:27:54Z",
+			"relations": ["commenter", "reviewer"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 230520,
+			"title": "[Clang] Fix default initializer crash",
+			"url": "https://github.com/llvm/llvm-project/pull/230520",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-10T08:28:15Z",
+			"relations": ["commenter"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 228990,
+			"title": "[clang] Fix crashes and error recovery for nested pragmas",
+			"url": "https://github.com/llvm/llvm-project/pull/228990",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-10T02:38:00Z",
+			"relations": ["author", "commenter"]
+		},
+		{
+			"repository": "rust-lang/cargo",
+			"number": 17519,
+			"title": "`build.warnings` is not honored when using `cargo clippy --message-format=json`",
+			"url": "https://github.com/rust-lang/cargo/issues/17519",
+			"kind": "issue",
+			"draft": false,
+			"updatedAt": "2026-10-09T19:22:32Z",
+			"relations": ["commenter"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 229010,
+			"title": "[clang][Sema] Fix crash caused by invalid implicit format attributes",
+			"url": "https://github.com/llvm/llvm-project/pull/229010",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-08T20:27:02Z",
+			"relations": ["author", "commenter"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 228734,
+			"title": "[libc][math] Use float-only evaluation in asinbf16 and acosbf16",
+			"url": "https://github.com/llvm/llvm-project/pull/228734",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-08T15:29:21Z",
+			"relations": ["author"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 229328,
+			"title": "[clang] Preserve ext_vector_type locations during template substitution",
+			"url": "https://github.com/llvm/llvm-project/pull/229328",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-07T18:20:00Z",
+			"relations": ["author", "commenter"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 228749,
+			"title": "[libc][math] Prevent spurious floating-point exceptions in fdim",
+			"url": "https://github.com/llvm/llvm-project/pull/228749",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-07T17:49:53Z",
+			"relations": ["author", "commenter", "reviewer"]
+		},
 		{
 			"repository": "llvm/llvm-project",
 			"number": 229300,
@@ -10,7 +90,37 @@
 			"url": "https://github.com/llvm/llvm-project/issues/229300",
 			"kind": "issue",
 			"draft": false,
-			"updatedAt": "2026-10-06T17:25:22Z",
+			"updatedAt": "2026-10-07T11:49:24Z",
+			"relations": ["author", "commenter"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 229587,
+			"title": "[libc] Fix missing Annex K declarations caused by header include order",
+			"url": "https://github.com/llvm/llvm-project/pull/229587",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-07T10:34:55Z",
+			"relations": ["author"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 195276,
+			"title": "[libc] Request for Annex K via `__STDC_WANT_LIB_EXT1__` doesn't work as expected",
+			"url": "https://github.com/llvm/llvm-project/issues/195276",
+			"kind": "issue",
+			"draft": false,
+			"updatedAt": "2026-10-07T10:24:58Z",
+			"relations": ["commenter"]
+		},
+		{
+			"repository": "llvm/llvm-project",
+			"number": 228721,
+			"title": "[libc][stdbit] Support compound literals in type-generic macros",
+			"url": "https://github.com/llvm/llvm-project/pull/228721",
+			"kind": "pr",
+			"draft": false,
+			"updatedAt": "2026-10-07T08:39:55Z",
 			"relations": ["author"]
 		},
 		{
@@ -21,7 +131,7 @@
 			"kind": "pr",
 			"draft": false,
 			"updatedAt": "2026-10-06T12:59:55Z",
-			"relations": ["author"]
+			"relations": ["author", "commenter", "reviewer"]
 		},
 		{
 			"repository": "llvm/llvm-project",
@@ -31,26 +141,6 @@
 			"kind": "pr",
 			"draft": false,
 			"updatedAt": "2026-10-06T12:15:07Z",
-			"relations": ["author"]
-		},
-		{
-			"repository": "llvm/llvm-project",
-			"number": 195276,
-			"title": "[libc] Request for Annex K via `__STDC_WANT_LIB_EXT1__` doesn't work as expected",
-			"url": "https://github.com/llvm/llvm-project/issues/195276",
-			"kind": "issue",
-			"draft": false,
-			"updatedAt": "2026-10-06T08:21:16Z",
-			"relations": ["commenter"]
-		},
-		{
-			"repository": "llvm/llvm-project",
-			"number": 229328,
-			"title": "[clang] Preserve ext_vector_type locations during template substitution",
-			"url": "https://github.com/llvm/llvm-project/pull/229328",
-			"kind": "pr",
-			"draft": false,
-			"updatedAt": "2026-10-06T07:33:50Z",
 			"relations": ["author"]
 		},
 		{
@@ -105,26 +195,6 @@
 		},
 		{
 			"repository": "llvm/llvm-project",
-			"number": 229010,
-			"title": "[clang][Sema] Avoid out-of-bounds format_arg access",
-			"url": "https://github.com/llvm/llvm-project/pull/229010",
-			"kind": "pr",
-			"draft": false,
-			"updatedAt": "2026-10-05T08:50:19Z",
-			"relations": ["author"]
-		},
-		{
-			"repository": "llvm/llvm-project",
-			"number": 228990,
-			"title": "[clang] Fix pragma attribute crashes caused by nested _Pragma",
-			"url": "https://github.com/llvm/llvm-project/pull/228990",
-			"kind": "pr",
-			"draft": false,
-			"updatedAt": "2026-10-05T07:16:53Z",
-			"relations": ["author"]
-		},
-		{
-			"repository": "llvm/llvm-project",
 			"number": 225035,
 			"title": "[clang] #pragma clang attribute with a _Pragma as its argument: getIdentifierInfo() called on an annotation token",
 			"url": "https://github.com/llvm/llvm-project/issues/225035",
@@ -132,16 +202,6 @@
 			"draft": false,
 			"updatedAt": "2026-10-05T06:45:32Z",
 			"relations": ["commenter"]
-		},
-		{
-			"repository": "llvm/llvm-project",
-			"number": 228734,
-			"title": "[libc][math] Use float-only evaluation in asinbf16 and acosbf16",
-			"url": "https://github.com/llvm/llvm-project/pull/228734",
-			"kind": "pr",
-			"draft": false,
-			"updatedAt": "2026-10-04T15:21:46Z",
-			"relations": ["author"]
 		},
 		{
 			"repository": "llvm/llvm-project",
@@ -162,16 +222,6 @@
 			"draft": false,
 			"updatedAt": "2026-10-04T08:02:08Z",
 			"relations": ["commenter"]
-		},
-		{
-			"repository": "llvm/llvm-project",
-			"number": 228749,
-			"title": "[libc][math] Prevent spurious floating-point exceptions in fdim",
-			"url": "https://github.com/llvm/llvm-project/pull/228749",
-			"kind": "pr",
-			"draft": false,
-			"updatedAt": "2026-10-03T17:43:59Z",
-			"relations": ["author"]
 		},
 		{
 			"repository": "llvm/llvm-project",
@@ -204,26 +254,6 @@
 			"relations": ["commenter"]
 		},
 		{
-			"repository": "llvm/llvm-project",
-			"number": 228721,
-			"title": "[libc][stdbit] Support compound literals in type-generic macros",
-			"url": "https://github.com/llvm/llvm-project/pull/228721",
-			"kind": "pr",
-			"draft": false,
-			"updatedAt": "2026-10-03T15:09:32Z",
-			"relations": ["author"]
-		},
-		{
-			"repository": "rust-lang/cargo",
-			"number": 17519,
-			"title": "`build.warnings` is not honored when using `cargo clippy --message-format=json`",
-			"url": "https://github.com/rust-lang/cargo/issues/17519",
-			"kind": "issue",
-			"draft": false,
-			"updatedAt": "2026-10-02T04:50:29Z",
-			"relations": ["commenter"]
-		},
-		{
 			"repository": "rust-lang/cargo",
 			"number": 17545,
 			"title": "fix(diag): Honor build.warnings deny with JSON diagnostics",
@@ -231,7 +261,7 @@
 			"kind": "pr",
 			"draft": true,
 			"updatedAt": "2026-10-01T17:31:31Z",
-			"relations": ["author"]
+			"relations": ["author", "commenter", "reviewer"]
 		},
 		{
 			"repository": "rust-lang/cargo",

@@ -140,9 +140,11 @@ const relation = (relations?: string[]) =>
 		? t("发起")
 		: relations?.includes("assignee")
 			? t("受指派")
-			: relations?.includes("commenter")
-				? t("参与讨论")
-				: t("代码提交");
+			: relations?.includes("reviewer")
+				? t("代码审查")
+				: relations?.includes("commenter")
+					? t("参与讨论")
+					: t("代码提交");
 const chapterNames: Record<string, string> = {
 	linux: t("内核 / 系统"),
 	"llvm-project": t("编译器 / 工具链"),

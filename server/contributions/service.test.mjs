@@ -353,16 +353,18 @@ test("discover an issue once and merge author, assignee and commenter relations"
 		if (path === "repos/example/public") return { private: false };
 		if (path.startsWith("search/"))
 			return {
-				total_count: 1,
+				total_count: decodeURIComponent(path).includes("is:issue") ? 1 : 0,
 				incomplete_results: false,
-				items: [
-					{
-						number: 2,
-						html_url: issueUrl,
-						title: "Issue",
-						updated_at: nextDate,
-					},
-				],
+				items: decodeURIComponent(path).includes("is:issue")
+					? [
+							{
+								number: 2,
+								html_url: issueUrl,
+								title: "Issue",
+								updated_at: nextDate,
+							},
+						]
+					: [],
 			};
 		if (path.includes("/timeline")) return [[]];
 		if (path.endsWith("/issues/2"))
@@ -404,9 +406,9 @@ test("discover an issue by another author only through discussion participation"
 			assert.match(query, /\bis:(issue|pr)\b/);
 			queries.push(query);
 			return {
-				total_count: query.includes("commenter:writer") ? 1 : 0,
+				total_count: query.includes("is:issue commenter:writer") ? 1 : 0,
 				incomplete_results: false,
-				items: query.includes("commenter:writer")
+				items: query.includes("is:issue commenter:writer")
 					? [
 							{
 								number: 3,
@@ -444,6 +446,8 @@ test("discover an issue by another author only through discussion participation"
 		"repo:example/public is:open is:issue assignee:writer",
 		"repo:example/public is:open is:pr assignee:writer",
 		"repo:example/public is:open is:issue commenter:writer",
+		"repo:example/public is:open is:pr commenter:writer",
+		"repo:example/public is:open is:pr reviewed-by:writer",
 	]);
 	assert.equal(result.activity.items.length, 1);
 	assert.equal(result.activity.items[0].url, issueUrl);
@@ -451,25 +455,110 @@ test("discover an issue by another author only through discussion participation"
 	assert.equal(result.details.records[0].author, "someone-else");
 });
 
-test("incomplete commenter discovery keeps the previous snapshot intact", async () => {
-	const before = JSON.stringify(seed);
-	const api = async (path) => {
-		if (path === "repos/example/public") return { private: false };
-		if (path.startsWith("search/"))
-			return {
-				total_count: 0,
-				items: [],
-				incomplete_results:
-					decodeURIComponent(path).includes("commenter:writer"),
-			};
-		throw new Error(`Unexpected endpoint ${path}`);
-	};
-	await assert.rejects(
-		syncContributions({ config, projects: [], previous: seed, api }),
-		/Incomplete GitHub search/,
-	);
-	assert.equal(JSON.stringify(seed), before);
-});
+for (const [qualifiers, relations] of [
+	[["commenter:writer"], ["commenter"]],
+	[["reviewed-by:writer"], ["reviewer"]],
+	[
+		["commenter:writer", "reviewed-by:writer"],
+		["commenter", "reviewer"],
+	],
+]) {
+	test(`discover another author's PR through ${relations.join(" and ")}`, async () => {
+		const cached = structuredClone(detail);
+		Object.assign(cached, {
+			author: "someone-else",
+			detailVersion: 3,
+			fetchedAt: nextDate,
+			headSha: "a".repeat(40),
+			baseSha: "b".repeat(40),
+		});
+		const api = async (path) => {
+			if (path === "repos/example/public") return { private: false };
+			if (path.startsWith("search/")) {
+				const query = new URL(path, "https://api.github.com/").searchParams.get(
+					"q",
+				);
+				const matches =
+					query.includes("is:pr") &&
+					qualifiers.some((qualifier) => query.includes(qualifier));
+				return {
+					total_count: matches ? 1 : 0,
+					incomplete_results: false,
+					items: matches
+						? [
+								{
+									number: 1,
+									html_url: url,
+									title: detail.title,
+									updated_at: date,
+									pull_request: {},
+								},
+							]
+						: [],
+				};
+			}
+			if (path.endsWith("/pulls/1"))
+				return {
+					html_url: url,
+					updated_at: date,
+					state: "open",
+					title: detail.title,
+					user: { login: "someone-else" },
+					head: { sha: cached.headSha },
+					base: { sha: cached.baseSha },
+				};
+			if (path.includes("/reviews?")) return [[]];
+			if (path.includes("/check-runs?"))
+				return [{ total_count: 0, check_runs: [] }];
+			if (path.includes("/status?"))
+				return [
+					{
+						total_count: 0,
+						sha: path.split("/commits/")[1].split("/")[0],
+						statuses: [],
+					},
+				];
+			throw new Error(`Unexpected endpoint ${path}`);
+		};
+		const result = await syncContributions({
+			config,
+			projects: [],
+			api,
+			now: () => nextDate,
+			previous: {
+				...seed,
+				activity: { ...seed.activity, items: [] },
+				details: { ...seed.details, records: [cached] },
+			},
+		});
+		assert.equal(result.activity.items.length, 1);
+		assert.deepEqual(result.activity.items[0].relations, relations);
+		assert.equal(result.details.records[0].author, "someone-else");
+	});
+}
+
+for (const qualifier of ["commenter", "reviewed-by"]) {
+	test(`incomplete ${qualifier} discovery keeps the previous snapshot intact`, async () => {
+		const before = JSON.stringify(seed);
+		const api = async (path) => {
+			if (path === "repos/example/public") return { private: false };
+			if (path.startsWith("search/"))
+				return {
+					total_count: 0,
+					items: [],
+					incomplete_results: decodeURIComponent(path).includes(
+						`${qualifier}:writer`,
+					),
+				};
+			throw new Error(`Unexpected endpoint ${path}`);
+		};
+		await assert.rejects(
+			syncContributions({ config, projects: [], previous: seed, api }),
+			/Incomplete GitHub search/,
+		);
+		assert.equal(JSON.stringify(seed), before);
+	});
+}
 
 test("HTTP feed is sanitized, validates cache, tracks updates and keeps last-good data after failure", async (t) => {
 	const store = await openStore(await temporary(t), seed);
