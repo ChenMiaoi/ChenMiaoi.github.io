@@ -56,6 +56,10 @@
 .portal-footer { display: flex; align-items: center; gap: 30px; min-height: 70px; border-top: 1px solid #cfd2d423; font-size: var(--text-caption); color: #a6a9ab; }
 .portal-footer-index { margin-left: auto; font: var(--text-caption) var(--mono); letter-spacing: .06em; color: #a2a5a7; }
 .portal-footer .motion-control { font-size: var(--text-control); }
+.portal-footer:has(.visit-observation) { flex-wrap: wrap; padding: 12px 0; }
+@media (max-width: 720px) {
+  .portal-footer:has(.visit-observation) > span:first-child { width: 100%; }
+}
 .portal-moving .portal-outer-ring { animation: portal-orbit 60s linear infinite; }
 .portal-moving .portal-inner-ring { animation: portal-orbit 42s linear infinite reverse; }
 .portal-moving .portal-copy > * { animation: portal-arrive .85s both; }

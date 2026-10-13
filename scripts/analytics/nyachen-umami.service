@@ -1,0 +1,14 @@
+[Unit]
+Description=Private Umami analytics for Miao Blog
+After=network.target postgresql.service
+
+[Service]
+ExecStart=/usr/bin/podman run --rm --replace --name nyachen-umami --network host --env-file /etc/nyachen-umami.env --env NEXT_TELEMETRY_DISABLED=1 --cap-drop ALL --memory 768m docker.umami.is/umami-software/umami@sha256:85909afc45bdcda1917394594a087421fdbb05610fded0fa9f6fb861abb2f367
+ExecStop=/usr/bin/podman stop --time 10 nyachen-umami
+Restart=on-failure
+RestartSec=5
+PrivateTmp=true
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

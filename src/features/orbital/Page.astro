@@ -103,6 +103,7 @@ const fontUrls = interfaceFontUrls();
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon/miao-mark-32.png" />
     <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={lang === "en" ? "/en/rss.xml" : "/rss.xml"} />
     <link rel="preload" as="image" href="/images/orbital/station.webp" />
+    {import.meta.env.PROD && <script is:inline defer src="https://nyachen.cn/visit.js" data-host-url="https://nyachen.cn" data-website-id="87a8cb66-9fb0-4a19-82e9-5bcc5dc92807" data-domains="nyachen.cn,chenmiaoi.github.io" data-exclude-search="true" data-exclude-hash="true"></script>}
     <noscript><style is:global>.terminal-shell, .skip-link { display: none !important; }</style></noscript>
   </head>
   <body class="orbital-site" data-article-path={post ? Astro.url.pathname : undefined} data-article-fonts={post ? "" : undefined}>

@@ -4,6 +4,7 @@ const { t } = useTranslations();
 import { onDestroy } from "svelte";
 import TerminalIcon from "./TerminalIcon.svelte";
 import SiteHeader from "./SiteHeader.svelte";
+import VisitObservation from "./VisitObservation.svelte";
 import { sectionPaths } from "../../lib/content/navigation";
 import { createDeferredNavigation } from "../../lib/content/navigation-transition";
 
@@ -124,7 +125,7 @@ onDestroy(() => departure.cancel());
 
   <footer class="portal-footer">
     <span>{t("一个人的探索，也期待与你相遇。")}</span>
-    <span class="portal-footer-index" aria-hidden="true">{t("Miao / 个人档案")}</span>
+    <VisitObservation />
     <button class="motion-control" aria-label={systemReducedMotion ? t("系统已减少动态效果") : reducedMotion ? t("开启页面动效") : t("暂停页面动效")} aria-pressed={!reducedMotion} disabled={systemReducedMotion} onclick={toggleMotion}><TerminalIcon name={reducedMotion ? 'play' : 'pause'} size={13}/><span>{reducedMotion ? t("动效暂停") : t("动效开启")}</span></button>
   </footer>
 </div>

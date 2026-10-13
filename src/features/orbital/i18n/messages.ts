@@ -1,5 +1,41 @@
 // Shared interface copy. Each message has English, Traditional Chinese and Japanese translations.
 export const messages = {
+	"更新于 {v0}": ["Updated {v0}", "更新於 {v0}", "更新 {v0}"],
+	每日访客趋势: ["Daily visitor trend", "每日訪客趨勢", "日別訪問者の推移"],
+	访问数据暂时无法更新: [
+		"Visit data is temporarily unavailable",
+		"訪問資料暫時無法更新",
+		"アクセスデータを更新できません",
+	],
+	观测记录: ["OBSERVATION LOG", "觀測紀錄", "観測記録"],
+	访问观测: ["Visit observations", "訪問觀測", "アクセス観測"],
+	"近 30 天访客": ["Visitors · 30 days", "近 30 天訪客", "過去30日の訪問者"],
+	"近 30 天": ["Last 30 days", "近 30 天", "過去30日"],
+	示例: ["Demo", "範例", "デモ"],
+	示例数据: ["Sample data", "範例資料", "サンプルデータ"],
+	关闭访问观测: [
+		"Close visit observations",
+		"關閉訪問觀測",
+		"アクセス観測を閉じる",
+	],
+	独立访客: ["Unique visitors", "獨立訪客", "ユニーク訪問者"],
+	访问次数: ["Visits", "訪問次數", "訪問回数"],
+	每日访客: ["Daily visitors", "每日訪客", "日別訪問者"],
+	每日访客趋势示例: [
+		"Sample daily visitor trend",
+		"每日訪客趨勢範例",
+		"日別訪問者の推移サンプル",
+	],
+	"全站匿名汇总 · 访问次数按会话统计": [
+		"Anonymous site totals · Visits count sessions",
+		"全站匿名彙總 · 訪問次數按工作階段統計",
+		"サイト全体の匿名集計 · 訪問回数はセッション数",
+	],
+	"设计预览，尚未接入 Umami": [
+		"Design preview · Umami is not connected",
+		"設計預覽，尚未接入 Umami",
+		"デザインプレビュー · Umami未接続",
+	],
 	"。": [".", "。", "。"],
 	"查看节点：{v0}": ["View node: {v0}", "查看節點：{v0}", "ノードを表示：{v0}"],
 	系统与笔记: ["SYSTEMS & NOTES", "系統與筆記", "システムとノート"],

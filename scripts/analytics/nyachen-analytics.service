@@ -1,0 +1,13 @@
+[Unit]
+Description=Publish anonymous Miao Blog visitor totals
+After=nyachen-umami.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/nyachen-analytics.env
+ExecStart=/usr/bin/node /opt/nyachen-analytics/export-summary.mjs
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/nyachen-analytics
