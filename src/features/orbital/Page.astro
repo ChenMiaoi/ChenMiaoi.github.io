@@ -75,6 +75,7 @@ const localizedProfile = {
 	affiliations: profileConfig.affiliations?.map((entry) => ({
 		...entry,
 		institution: entry.institutionTranslations?.[lang] ?? entry.institution,
+		role: entry.roleTranslations?.[lang] ?? entry.role,
 	})),
 };
 const fontUrls = interfaceFontUrls();

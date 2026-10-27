@@ -35,8 +35,10 @@ export type ProfileConfig = {
 	bioTranslations?: Partial<Record<Locale, string>>;
 	affiliations?: {
 		institution: string;
+		institutionAbbreviation?: string;
 		institutionTranslations?: Partial<Record<Locale, string>>;
 		role?: string;
+		roleTranslations?: Partial<Record<Locale, string>>;
 		department?: string;
 		start: string;
 		end?: string;

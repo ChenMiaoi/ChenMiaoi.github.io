@@ -36,6 +36,23 @@ export const profileConfig: ProfileConfig = {
 			department: "COMP",
 			start: "2026-01",
 		},
+		{
+			institution: "Institute of Software, Chinese Academy of Sciences",
+			institutionAbbreviation: "ISCAS",
+			institutionTranslations: {
+				zh_CN: "中国科学院软件研究所",
+				zh_TW: "中國科學院軟件研究所",
+				ja: "中国科学院ソフトウェア研究所",
+			},
+			role: "Kernel Development Intern",
+			roleTranslations: {
+				zh_CN: "内核开发实习生",
+				zh_TW: "核心開發實習生",
+				ja: "カーネル開発インターン",
+			},
+			start: "2024-06",
+			end: "2024-08",
+		},
 	],
 	links: [
 		{

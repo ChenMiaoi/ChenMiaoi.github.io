@@ -62,16 +62,18 @@ const linkIcon = (link: ProfileConfig["links"][number]) =>
     </div>
 
     <div class="identity-introduction">
+      <div class="identity-summary">
       <h2>{profile.name}<span class="identity-cursor" aria-hidden="true">_</span></h2>
       <p class="identity-statement">{t("记录系统的")}<span>{t("内部世界。")}</span></p>
       {#if profile.bio}<p class="identity-bio">{profile.bio}</p>{/if}
+      </div>
       {#if profile.affiliations?.length}
         <ul class="identity-affiliations" aria-label={t("个人经历")}>
           {#each profile.affiliations as entry}
             <li class="identity-affiliation">
               <div class="identity-affiliation-copy">
                 <span class="identity-affiliation-institution">{entry.institution}</span>
-                {#if entry.role}<span class="identity-affiliation-role"><span>{entry.role}</span>{#if entry.department}<span class="identity-affiliation-department">[{entry.department}]</span>{/if}</span>{/if}
+                {#if entry.role}<span class="identity-affiliation-role"><span>{entry.role}</span>{#if entry.department || entry.institutionAbbreviation}<span class="identity-affiliation-department">[{entry.department ?? entry.institutionAbbreviation}]</span>{/if}</span>{/if}
               </div>
               <span class="identity-affiliation-period"><time datetime={entry.start}>{entry.start.replace('-', '/')}</time><span aria-hidden="true">—</span>{#if entry.end}<time datetime={entry.end}>{entry.end.replace('-', '/')}</time>{:else}<span class="identity-affiliation-present">{t("至今")}</span>{/if}</span>
             </li>
