@@ -1,6 +1,108 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { profileExperiences } from "../src/lib/content/profile-experiences.ts";
+import { contributionSummary } from "../src/lib/contributions/summary.ts";
+import { createContributionFeedCache } from "../src/lib/contributions/feed-cache.ts";
+
+test("contribution summary preserves initial record counts, status and ordering without embedding patches", () => {
+	const summary = contributionSummary(contributionDetails);
+	for (const project of contributionConfig.projects) {
+		assert.deepEqual(
+			projectRecords(project, contributionActivity, summary),
+			projectRecords(project, contributionActivity, contributionDetails),
+		);
+	}
+	assert.ok(
+		JSON.stringify(summary).length <
+			JSON.stringify(contributionDetails).length / 5,
+	);
+	assert.ok(
+		summary.records.every(
+			(record) =>
+				!record.bodyHtml && !record.files.length && !record.comments.length,
+		),
+	);
+});
+
+test("contribution requests share in-flight work and restore a complete feed across page reloads", async () => {
+	const values = new Map();
+	const storage = {
+		getItem: (key) => values.get(key) ?? null,
+		setItem: (key, value) => values.set(key, value),
+	};
+	const feed = {
+		version: 1,
+		syncedAt: "2026-10-27T00:00:00Z",
+		activity: { items: [] },
+		records: [],
+	};
+	let finish;
+	let requests = 0;
+	const cache = createContributionFeedCache(() => {
+		requests++;
+		return new Promise((resolve) => {
+			finish = resolve;
+		});
+	}, storage);
+	const first = cache.load("/contributions.json");
+	assert.equal(cache.load("/contributions.json"), first);
+	await Promise.resolve();
+	finish(feed);
+	assert.equal(await first, feed);
+	assert.equal(requests, 1);
+	assert.equal(cache.peek("/contributions.json"), feed);
+	const restored = createContributionFeedCache(async () => {
+		throw new Error("Should use fresh snapshot");
+	}, storage);
+	assert.deepEqual(await restored.load("/contributions.json"), feed);
+});
+
+test("a new build bypasses a recently cached feed older than its initial summary", async () => {
+	let requests = 0;
+	const old = { syncedAt: "2026-10-26T00:00:00Z", records: [] };
+	const newer = { syncedAt: "2026-10-27T00:00:00Z", records: [] };
+	const cache = createContributionFeedCache(async () =>
+		++requests === 1 ? old : newer,
+	);
+	await cache.load("/feed");
+	assert.equal(await cache.load("/feed", newer.syncedAt), newer);
+	assert.equal(requests, 2);
+});
+
+test("failed contribution refreshes retain last-good data, permit retry and tolerate blocked storage", async () => {
+	let now = 0;
+	let fail = false;
+	const feed = { syncedAt: "2026-10-27T00:00:00Z", records: [] };
+	const storage = {
+		getItem: () => {
+			throw new Error("Blocked");
+		},
+		setItem: () => {
+			throw new Error("Blocked");
+		},
+	};
+	const cache = createContributionFeedCache(
+		async () => {
+			if (fail) throw new Error("Offline");
+			return feed;
+		},
+		storage,
+		() => now,
+	);
+	await cache.load("/feed");
+	now = 6000;
+	fail = true;
+	await assert.rejects(cache.load("/feed"), /Offline/);
+	assert.equal(cache.peek("/feed"), feed);
+	fail = false;
+	assert.equal(await cache.load("/feed"), feed);
+	const malformed = createContributionFeedCache(async () => ({
+		version: 1,
+		syncedAt: feed.syncedAt,
+		records: [],
+	}));
+	await assert.rejects(malformed.load("/feed"), /Invalid/);
+});
 
 test("profile summary prioritizes current roles and limits recent experience without mutating the source", () => {
 	const entries = [

@@ -13,7 +13,10 @@ import {
 	projectRecords,
 	sortContributionProjects,
 } from "../../lib/contributions/projects";
-import type { ContributionFeed } from "../../lib/contributions/types";
+import {
+	cachedContributionFeed,
+	loadContributionFeed,
+} from "../../lib/contributions/feed-cache";
 import TerminalIcon from "./TerminalIcon.svelte";
 import BrandIcon from "./BrandIcon.svelte";
 import { projectTone } from "../../features/orbital/topic-colors";
@@ -30,13 +33,12 @@ import type {
 export let projects: ContributionProject[];
 export let activity: ContributionActivitySnapshot;
 export let detailsUrl: string;
-let details: ContributionDetailsSnapshot = {
-	syncedAt: activity.syncedAt,
-	records: [],
-};
+export let initialDetails: ContributionDetailsSnapshot;
+let details = initialDetails;
+let hasFullDetails = false;
 let detailsError = false;
 let loadingDetails = true;
-let pending: AbortController | undefined;
+let pending: ReturnType<typeof loadContributionFeed> | undefined;
 let disposed = false;
 export let projectId: string | undefined;
 export let reducedMotion = false;
@@ -80,7 +82,9 @@ $: selected = selectedId
 	: records[0];
 $: if (typeof document !== "undefined")
 	document.title = `${showDashboard ? t("任务控制台") : selectedId && selected ? selected.title : (project?.name ?? t("任务日志"))} · Miao's Blog`;
-$: selectedDetail = details.records.find((item) => item.url === selected?.url);
+$: selectedDetail = hasFullDetails
+	? details.records.find((item) => item.url === selected?.url)
+	: undefined;
 $: selectedIndex = records.findIndex((item) => item.id === selected?.id);
 $: if (selected && recordRail) revealSelection(selected.id);
 const number = (value: number) => String(value).padStart(2, "0");
@@ -223,32 +227,21 @@ function connectDeck(node: HTMLDivElement) {
 }
 async function loadDetails() {
 	if (pending || disposed) return;
-	const controller = new AbortController();
-	pending = controller;
 	detailsError = false;
-	loadingDetails = !details.records.length;
+	loadingDetails = !hasFullDetails;
 	try {
-		const response = await fetch(detailsUrl, {
-			cache: "no-cache",
-			signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]),
-		});
-		if (!response.ok) throw new Error("Contribution data unavailable");
-		const next = (await response.json()) as ContributionFeed;
-		if (
-			!Array.isArray(next.records) ||
-			!next.syncedAt ||
-			(next.version === 1 && !Array.isArray(next.activity?.items))
-		)
-			throw new Error("Invalid contribution data");
+		pending = loadContributionFeed(detailsUrl, initialDetails.syncedAt);
+		const next = await pending;
 		if (!disposed) {
 			// Update list and details together so record selection never mixes generations.
 			// Preserve explicit route selection, including a record discovered in this refresh.
 			details = next;
-			if (next.version === 1) activity = next.activity;
+			if (next.version === 1 && next.activity) activity = next.activity;
+			hasFullDetails = true;
 		}
 	} catch {
 		if (!disposed) {
-			detailsError = !details.records.length;
+			detailsError = !hasFullDetails;
 		}
 	} finally {
 		pending = undefined;
@@ -257,6 +250,16 @@ async function loadDetails() {
 }
 onMount(() => {
 	disposed = false;
+	const cached = cachedContributionFeed(detailsUrl);
+	if (
+		cached &&
+		Date.parse(cached.syncedAt) >= Date.parse(initialDetails.syncedAt)
+	) {
+		details = cached;
+		if (cached.version === 1 && cached.activity) activity = cached.activity;
+		hasFullDetails = true;
+		loadingDetails = false;
+	}
 	void loadDetails();
 	const refresh = () => {
 		if (document.visibilityState === "visible") void loadDetails();
@@ -265,7 +268,6 @@ onMount(() => {
 	document.addEventListener("visibilitychange", refresh);
 	return () => {
 		disposed = true;
-		pending?.abort();
 		clearInterval(timer);
 		document.removeEventListener("visibilitychange", refresh);
 	};

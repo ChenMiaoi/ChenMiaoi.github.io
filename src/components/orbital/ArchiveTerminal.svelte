@@ -18,10 +18,12 @@ import { navigationBeacon, revealSequence } from "./motion";
 import { selectionRail } from "./interaction-motion";
 import { surfaceFeedback } from "./surface-feedback";
 import { loadStylesheet } from "../../lib/content/article-loader";
+import { loadContributionFeed } from "../../lib/contributions/feed-cache";
 import type {
 	ArchivePost,
 	ArchiveSeries,
 	ContributionActivitySnapshot,
+	ContributionDetailsSnapshot,
 } from "./types";
 import type { ContributionProject, ProfileConfig } from "../../types/config";
 
@@ -29,6 +31,7 @@ export let posts: ArchivePost[];
 export let series: ArchiveSeries[];
 export let projects: ContributionProject[];
 export let activity: ContributionActivitySnapshot;
+export let initialDetails: ContributionDetailsSnapshot;
 export let detailsUrl: string;
 export let profile: ProfileConfig;
 
@@ -56,7 +59,13 @@ export let initialWelcome = false;
 export let hasArticle = false;
 export let stylesheets: Partial<Record<Section | "reading", string>> = {};
 let surfaceRequest = 0;
+function warmContributions() {
+	void loadContributionFeed(detailsUrl, initialDetails.syncedAt).catch(
+		() => {},
+	);
+}
 async function prepareSection(next: Section) {
+	if (next === "code") warmContributions();
 	const request = ++surfaceRequest;
 	try {
 		const href = stylesheets[next];
@@ -509,7 +518,7 @@ onMount(() => {
       <nav class="primary-nav" aria-label={t("主导航")} use:navigationBeacon={section}>
         <span class="nav-tracer" aria-hidden="true"></span>
         {#each navigation as item, index}
-          <a href={localePrefix + sectionPaths[item.id]} class:active={section === item.id} aria-current={section === item.id ? "page" : undefined} onclick={(event) => { if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); navigate(item.id); }}>
+          <a href={localePrefix + sectionPaths[item.id]} class:active={section === item.id} aria-current={section === item.id ? "page" : undefined} onpointerenter={() => { if (item.id === 'code') warmContributions(); }} onfocus={() => { if (item.id === 'code') warmContributions(); }} onclick={(event) => { if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); navigate(item.id); }}>
             <i class="nav-lock" aria-hidden="true"></i>
             <TerminalIcon name={item.icon} size={20}/><span>{item.label}</span><small aria-hidden="true">{String(index + 1).padStart(2, "0")}</small>
           </a>
@@ -553,7 +562,7 @@ onMount(() => {
       {:else if section === "graph"}
         <KnowledgeAtlas {posts} {series} {reducedMotion} onRead={openReader} onBrowse={filterSeries}/>
       {:else if section === "code"}
-        <SourceDock bind:this={sourceDock} {projects} {activity} {detailsUrl} {reducedMotion} bind:showDashboard={sourceDashboard} bind:projectId={sourceProject} bind:selectedId={sourceRecord} bind:kindFilter={sourceKind} onNavigate={sourceNavigate}/>
+        <SourceDock bind:this={sourceDock} {projects} {activity} {initialDetails} {detailsUrl} {reducedMotion} bind:showDashboard={sourceDashboard} bind:projectId={sourceProject} bind:selectedId={sourceRecord} bind:kindFilter={sourceKind} onNavigate={sourceNavigate}/>
       {:else}
         <ProfileDossier {profile} onNavigate={navigate} onExplore={async (nextCategory) => { if (await navigate('articles')) { category = nextCategory; storeFilters(); } }}/>
       {/if}

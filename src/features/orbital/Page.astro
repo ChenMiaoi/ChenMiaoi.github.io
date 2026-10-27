@@ -8,7 +8,11 @@ import {
 	siteConfig,
 	licenseConfig,
 } from "../../config";
-import { contributionActivity } from "../../lib/contributions/snapshots";
+import {
+	contributionActivity,
+	contributionDetails,
+} from "../../lib/contributions/snapshots";
+import { contributionSummary } from "../../lib/contributions/summary";
 import {
 	LOCALES,
 	LOCALE_PREFIX,
@@ -109,7 +113,7 @@ const fontUrls = interfaceFontUrls();
   </head>
   <body class="orbital-site" data-article-path={post ? Astro.url.pathname : undefined} data-article-fonts={post ? "" : undefined}>
     <ArchiveTerminal client:load {lang} {posts} {series} projects={contributionConfig.projects}
-      activity={contributionActivity} detailsUrl="/contributions.json" profile={localizedProfile}
+      activity={contributionActivity} initialDetails={contributionSummary(contributionDetails)} detailsUrl="/contributions.json" profile={localizedProfile}
       initialSection={section} initialSeries={seriesSlug} initialProject={projectId} localePrefix={prefix} {notFound} {initialWelcome} hasArticle={!!post} stylesheets={fontUrls.styles} />
     {post && Content && <section class="article-document">
       <header><a href={`${prefix}/articles/`}>{t("← 返回文章档案")}</a><h1 data-pagefind-meta="title">{post.data.title}</h1></header>
