@@ -1,5 +1,43 @@
 // Shared interface copy. Each message has English, Traditional Chinese and Japanese translations.
 export const messages = {
+	开源贡献: ["Open Source Contributions", "開源貢獻", "オープンソースへの貢献"],
+	奖项与项目经历: [
+		"Awards & Programs",
+		"獎項與專案經歷",
+		"受賞・プログラム参加歴",
+	],
+	"LLVM Clang Frontend Committer": [
+		"LLVM Clang Frontend Committer",
+		"LLVM Clang Frontend Committer",
+		"LLVM Clang Frontend Committer",
+	],
+	"Linux Kernel Contributor": [
+		"Linux Kernel Contributor",
+		"Linux Kernel Contributor",
+		"Linux Kernel Contributor",
+	],
+	"QEMU Contributor": [
+		"QEMU Contributor",
+		"QEMU Contributor",
+		"QEMU Contributor",
+	],
+	"Google Summer of Code": [
+		"Google Summer of Code",
+		"Google Summer of Code",
+		"Google Summer of Code",
+	],
+	EROFS: ["EROFS", "EROFS", "EROFS"],
+	OpenRISC: ["OpenRISC", "OpenRISC", "OpenRISC"],
+	"Open Source Promotion Plan": [
+		"Open Source Promotion Plan",
+		"Open Source Promotion Plan",
+		"Open Source Promotion Plan",
+	],
+	"Harmony ArkTS RISC-V": [
+		"Harmony ArkTS RISC-V",
+		"Harmony ArkTS RISC-V",
+		"Harmony ArkTS RISC-V",
+	],
 	"更新于 {v0}": ["Updated {v0}", "更新於 {v0}", "更新 {v0}"],
 	每日访客趋势: ["Daily visitor trend", "每日訪客趨勢", "日別訪問者の推移"],
 	访问数据暂时无法更新: [

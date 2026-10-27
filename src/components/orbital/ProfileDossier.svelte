@@ -80,9 +80,27 @@ const linkIcon = (link: ProfileConfig["links"][number]) =>
       {/if}
       <div class="identity-actions">
         <button class="identity-primary" data-feedback onclick={() => onNavigate("articles")}><InteractionGlow/>{t("阅读我的文章")}<TerminalIcon name="external" size={20}/></button>
-        <button class="identity-secondary console-action" data-topic="opensource" data-feedback onclick={() => onNavigate("code")}><InteractionGlow/>{t("开源实践")}<TerminalIcon name="arrow" size={16}/></button>
       </div>
     </div>
+  </div>
+
+  <div class="identity-highlights">
+    <section class="identity-records" aria-labelledby="identity-contributions-heading">
+      <header class="identity-section-title"><h3 id="identity-contributions-heading">{t("开源贡献")}</h3></header>
+      <ul class="identity-record-list identity-contribution-list">
+        <li><strong>{t("LLVM Clang Frontend Committer")}</strong></li>
+        <li><strong>{t("Linux Kernel Contributor")}</strong></li>
+        <li><strong>{t("QEMU Contributor")}</strong></li>
+      </ul>
+    </section>
+    <section class="identity-records" aria-labelledby="identity-awards-heading">
+      <header class="identity-section-title"><h3 id="identity-awards-heading">{t("奖项与项目经历")}</h3></header>
+      <ul class="identity-record-list identity-program-list">
+        <li><time datetime="2026">2026</time><strong>{t("Google Summer of Code")}</strong><span>{t("EROFS")}</span></li>
+        <li><time datetime="2025">2025</time><strong>{t("Google Summer of Code")}</strong><span>{t("OpenRISC")}</span></li>
+        <li><time datetime="2024">2024</time><strong>{t("Open Source Promotion Plan")}</strong><span>{t("Harmony ArkTS RISC-V")}</span></li>
+      </ul>
+    </section>
   </div>
 
   <div class="identity-lower">

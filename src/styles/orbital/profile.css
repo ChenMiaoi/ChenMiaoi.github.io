@@ -366,6 +366,109 @@
 	gap: 42px;
 }
 
+.identity-highlights {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 20px;
+	padding: 10px 0 16px;
+	margin-bottom: 12px;
+	border-top: 1px solid var(--identity-line);
+}
+
+.identity-records {
+	min-width: 0;
+	container-type: inline-size;
+	padding-inline: 10px;
+	background: linear-gradient(110deg, #17202360, transparent);
+}
+
+.identity-record-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.identity-record-list li {
+	display: flex;
+	align-items: center;
+	min-height: 32px;
+	padding: 4px 0;
+	border-bottom: 1px solid #c7cacc14;
+	overflow-wrap: anywhere;
+}
+
+.orbital-site .identity-record-list strong {
+	display: inline;
+	color: var(--paper);
+	font-family: var(--display);
+	font-size: clamp(14px, 5.5cqi, 18px);
+	font-style: italic;
+	font-weight: 450;
+	line-height: 24px;
+	letter-spacing: 0;
+}
+
+.identity-contribution-list strong {
+	white-space: nowrap;
+}
+
+.identity-contribution-list li::before {
+	content: "";
+	width: 4px;
+	height: 4px;
+	flex: 0 0 4px;
+	margin-right: 8px;
+	background: #c5c48d;
+}
+
+.identity-program-list li {
+	display: grid;
+	grid-template-columns: 34px minmax(0, 1fr) auto;
+	gap: 4px 6px;
+}
+
+.identity-program-list time {
+	color: #a5a892;
+	font: var(--text-caption) / 1.6 var(--mono);
+}
+
+.identity-program-list li > span {
+	color: var(--muted);
+	font-size: var(--text-caption);
+	line-height: 1.6;
+	text-align: right;
+}
+
+@media (max-width: 1190px) {
+	.identity-program-list li {
+		grid-template-columns: 42px minmax(0, 1fr);
+		gap: 0 12px;
+		min-height: 44px;
+		padding-block: 2px;
+	}
+	.orbital-site .identity-program-list strong {
+		line-height: 22px;
+	}
+	.identity-contribution-list li {
+		min-height: 44px;
+	}
+	.identity-program-list time {
+		grid-row: span 2;
+		align-self: start;
+	}
+	.identity-program-list li > span {
+		grid-column: 2;
+		text-align: left;
+		line-height: 18px;
+	}
+}
+
+@media (max-width: 650px) {
+	.identity-records {
+		padding-inline: 10px;
+	}
+}
+
 .identity-fields,
 .identity-contacts {
 	min-width: 0;
@@ -571,6 +674,10 @@
 }
 
 @media (max-width: 650px) {
+	.identity-highlights {
+		grid-template-columns: 1fr;
+		gap: 16px;
+	}
 	.identity-register {
 		font-size: var(--text-caption);
 		letter-spacing: 0.8px;
@@ -658,6 +765,151 @@
 	}
 	.identity-signoff {
 		padding-top: 22px;
+	}
+}
+
+/* Keep the complete dossier in view at desktop and side-panel widths. */
+@media (min-width: 760px) {
+	.orbital-site .about-view .terminal-header {
+		height: 74px;
+		flex: 0 0 74px;
+	}
+	.orbital-site .about-view .terminal-main {
+		padding-block: 16px 10px;
+	}
+	.orbital-site .about-view .archive-heading {
+		margin-bottom: 12px;
+	}
+	.orbital-site .about-view .archive-heading > div {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		align-items: end;
+		column-gap: 22px;
+	}
+	.orbital-site .about-view .terminal-kicker {
+		grid-column: 1 / -1;
+	}
+	.orbital-site .about-view .archive-heading .heading-title {
+		font-size: 30px;
+		margin-top: 6px;
+	}
+	.orbital-site .about-view :is(.heading-description, .section-coordinate) {
+		display: none;
+	}
+	.orbital-site .about-view .identity-register {
+		padding-block: 8px;
+	}
+	.orbital-site .about-view .identity-stage {
+		grid-template-columns: 160px minmax(0, 1fr);
+		gap: 24px;
+		padding-block: 14px 20px;
+	}
+	.orbital-site .about-view .portrait-mount {
+		width: 140px;
+		height: 140px;
+	}
+	.orbital-site .about-view .portrait-orbit {
+		width: 210px;
+		height: 210px;
+	}
+	.orbital-site .about-view .identity-introduction h2 {
+		font-size: 54px;
+	}
+	.orbital-site .about-view .identity-statement {
+		font-size: 17px;
+		margin-top: 6px;
+	}
+	.orbital-site .about-view .identity-affiliations {
+		margin-top: 10px;
+	}
+	.orbital-site .about-view .identity-affiliation {
+		padding: 8px 12px;
+		gap: 4px 12px;
+	}
+	.orbital-site .about-view .identity-affiliation-copy {
+		flex-basis: 180px;
+	}
+	.orbital-site .about-view .identity-affiliation-role {
+		margin-top: 2px;
+	}
+	.orbital-site .about-view .identity-actions {
+		margin-top: 10px;
+		gap: 18px;
+	}
+	.orbital-site .about-view .identity-lower {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 16px 24px;
+	}
+	.orbital-site .about-view .identity-section-title {
+		padding-block: 10px 6px;
+	}
+	.orbital-site .about-view :is(.identity-field, .identity-contact) {
+		min-height: 52px;
+		padding: 7px 10px;
+		gap: 10px;
+	}
+	.orbital-site .about-view :is(.identity-field small, .identity-contact small) {
+		margin-top: 2px;
+	}
+	.orbital-site .about-view .identity-signoff {
+		padding-top: 10px;
+	}
+	.orbital-site .about-view .terminal-footer {
+		height: 38px;
+		min-height: 38px;
+		flex: 0 0 38px;
+	}
+}
+
+@media (min-width: 1100px) and (max-height: 950px) {
+	.orbital-site .about-view .terminal-header {
+		height: 64px;
+		flex-basis: 64px;
+	}
+	.orbital-site .about-view .identity-stage {
+		grid-template-columns: 130px minmax(0, 1fr);
+		padding-block: 4px 8px;
+	}
+	.orbital-site .about-view .portrait-mount {
+		width: 110px;
+		height: 110px;
+	}
+	.orbital-site .about-view .identity-introduction {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+		column-gap: 24px;
+		align-items: center;
+	}
+	.orbital-site .about-view .identity-introduction h2 {
+		grid-column: 1;
+		font-size: 48px;
+	}
+	.orbital-site .about-view :is(.identity-statement, .identity-bio) {
+		grid-column: 1;
+	}
+	.orbital-site .about-view .identity-affiliations {
+		grid-column: 2;
+		grid-row: 1 / span 2;
+		margin: 0;
+	}
+	.orbital-site .about-view .identity-actions {
+		grid-column: 2;
+		grid-row: 3;
+		margin-top: 6px;
+	}
+	.orbital-site .about-view .identity-highlights {
+		padding-block: 6px 10px;
+		margin-bottom: 6px;
+	}
+	.orbital-site .about-view .identity-record-list li {
+		min-height: 28px;
+		padding-block: 2px;
+	}
+	.orbital-site .about-view :is(.identity-field, .identity-contact) {
+		padding-block: 3px;
+	}
+	.orbital-site .about-view .identity-section-title {
+		padding-block: 6px 4px;
 	}
 }
 
