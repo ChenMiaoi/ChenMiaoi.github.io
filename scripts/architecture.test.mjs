@@ -1,5 +1,30 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { profileExperiences } from "../src/lib/content/profile-experiences.ts";
+
+test("profile summary prioritizes current roles and limits recent experience without mutating the source", () => {
+	const entries = [
+		{ institution: "Older", start: "2020-01", end: "2020-06" },
+		{ institution: "Recent", start: "2025-01", end: "2025-06" },
+		{ institution: "Current", start: "2022-01" },
+		{ institution: "Newest current", start: "2024-01" },
+	];
+	const original = structuredClone(entries);
+	const summary = profileExperiences(entries);
+	assert.deepEqual(
+		summary.all.map((entry) => entry.institution),
+		["Newest current", "Current", "Recent", "Older"],
+	);
+	assert.deepEqual(summary.visible, summary.all.slice(0, 2));
+	assert.equal(summary.hasMore, true);
+	assert.deepEqual(entries, original);
+	assert.deepEqual(profileExperiences(), {
+		all: [],
+		visible: [],
+		hasMore: false,
+	});
+	assert.equal(profileExperiences(entries.slice(0, 2)).hasMore, false);
+});
 import { postPath } from "../src/lib/content/paths.ts";
 import { selectPosts } from "../src/lib/content/posts.ts";
 import {

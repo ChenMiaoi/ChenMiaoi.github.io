@@ -1,5 +1,17 @@
 // Shared interface copy. Each message has English, Traditional Chinese and Japanese translations.
 export const messages = {
+	"查看全部经历 · {v0}": [
+		"View all experience · {v0}",
+		"查看全部經歷 · {v0}",
+		"すべての経歴 · {v0}",
+	],
+	全部经历: ["Experience", "全部經歷", "すべての経歴"],
+	"{v0} 段经历": ["{v0} experiences", "{v0} 段經歷", "{v0} 件の経歴"],
+	关闭经历面板: [
+		"Close experience panel",
+		"關閉經歷面板",
+		"経歴パネルを閉じる",
+	],
 	开源贡献: ["Open Source Contributions", "開源貢獻", "オープンソースへの貢献"],
 	奖项与项目经历: [
 		"Awards & Programs",

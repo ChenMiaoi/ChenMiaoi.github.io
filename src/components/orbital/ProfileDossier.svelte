@@ -1,14 +1,40 @@
 <script lang="ts">
+import { onDestroy } from "svelte";
+import { profileExperiences } from "../../lib/content/profile-experiences";
 import { useTranslations } from "../../features/orbital/i18n/context";
 const { t } = useTranslations();
 import TerminalIcon from "./TerminalIcon.svelte";
 import BrandIcon from "./BrandIcon.svelte";
 import InteractionGlow from "./InteractionGlow.svelte";
+import ProfileExperienceCard from "./ProfileExperienceCard.svelte";
 import type { ProfileConfig } from "../../types/config";
 
 export let profile: ProfileConfig;
 export let onNavigate: (section: "articles" | "code") => void;
 export let onExplore: (category: "linux" | "hardware") => void;
+
+let experienceDialog: HTMLDialogElement;
+let experienceOpen = false;
+$: experiences = profileExperiences(profile.affiliations);
+
+function openExperiences() {
+	experienceDialog.showModal();
+	experienceOpen = true;
+}
+
+function closeOnBackdrop(event: MouseEvent) {
+	if (event.target !== experienceDialog) return;
+	const bounds = experienceDialog.getBoundingClientRect();
+	if (
+		event.clientX < bounds.left ||
+		event.clientX > bounds.right ||
+		event.clientY < bounds.top ||
+		event.clientY > bounds.bottom
+	)
+		experienceDialog.close();
+}
+
+onDestroy(() => experienceDialog?.close());
 
 $: github = profile.links.find((link) =>
 	link.url.startsWith("https://github.com/"),
@@ -67,18 +93,17 @@ const linkIcon = (link: ProfileConfig["links"][number]) =>
       <p class="identity-statement">{t("记录系统的")}<span>{t("内部世界。")}</span></p>
       {#if profile.bio}<p class="identity-bio">{profile.bio}</p>{/if}
       </div>
-      {#if profile.affiliations?.length}
+      {#if experiences.all.length}
+        <div class="identity-experience">
         <ul class="identity-affiliations" aria-label={t("个人经历")}>
-          {#each profile.affiliations as entry}
-            <li class="identity-affiliation">
-              <div class="identity-affiliation-copy">
-                <span class="identity-affiliation-institution">{entry.institution}</span>
-                {#if entry.role}<span class="identity-affiliation-role"><span>{entry.role}</span>{#if entry.department || entry.institutionAbbreviation}<span class="identity-affiliation-department">[{entry.department ?? entry.institutionAbbreviation}]</span>{/if}</span>{/if}
-              </div>
-              <span class="identity-affiliation-period"><time datetime={entry.start}>{entry.start.replace('-', '/')}</time><span aria-hidden="true">—</span>{#if entry.end}<time datetime={entry.end}>{entry.end.replace('-', '/')}</time>{:else}<span class="identity-affiliation-present">{t("至今")}</span>{/if}</span>
-            </li>
+          {#each experiences.visible as entry}
+            <ProfileExperienceCard {entry}/>
           {/each}
         </ul>
+        {#if experiences.hasMore}
+          <button class="identity-experience-more" aria-haspopup="dialog" aria-controls="profile-experiences" aria-expanded={experienceOpen} onclick={openExperiences}>{t("查看全部经历 · {v0}", { v0: experiences.all.length })}<TerminalIcon name="arrow" size={14}/></button>
+        {/if}
+        </div>
       {/if}
       <div class="identity-actions">
         <button class="identity-primary" data-feedback onclick={() => onNavigate("articles")}><InteractionGlow/>{t("阅读我的文章")}<TerminalIcon name="external" size={20}/></button>
@@ -120,4 +145,17 @@ const linkIcon = (link: ProfileConfig["links"][number]) =>
     </section>
   </div>
   <div class="identity-signoff" aria-hidden="true"><span>{t("系统与笔记")}</span><i></i><span>{initials}</span></div>
+  {#if experiences.hasMore}
+    <dialog bind:this={experienceDialog} class="experience-drawer" id="profile-experiences" aria-labelledby="profile-experiences-heading" onclick={closeOnBackdrop} onkeydown={(event) => event.stopPropagation()} onclose={() => experienceOpen = false}>
+      <header class="experience-drawer-header">
+        <div><h2 id="profile-experiences-heading">{t("全部经历")}</h2><p>{t("{v0} 段经历", { v0: experiences.all.length })}</p></div>
+        <button class="experience-drawer-close" aria-label={t("关闭经历面板")} onclick={() => experienceDialog.close()}><TerminalIcon name="close" size={22}/></button>
+      </header>
+      <div class="experience-drawer-body">
+        <ol class="experience-timeline">
+          {#each experiences.all as entry}<ProfileExperienceCard {entry}/>{/each}
+        </ol>
+      </div>
+    </dialog>
+  {/if}
 </section>
